@@ -28,7 +28,7 @@ Usage information can be obtained by running the script with no arguments.
 =head1 CONFIGURATION
 
 The apache config file is created from the template found at F<conf/httpd.conf.tmpl>.
-All of the directives in your F<conf/PROEJCT.conf> are passed to the template
+All of the directives in your F<conf/smolder.conf> are passed to the template
 and as well as the following parameters:
 
 =over
@@ -130,6 +130,7 @@ if ( $command eq 'start' ) {
 
     print "$SCRIPT_NAME $command: starting httpd\n";
     if ( system($HTTPD_CMD) == 0 ) {
+        fix_perms();
         print "$SCRIPT_NAME $command: httpd started\n";
         exit;
     } else {
@@ -180,9 +181,11 @@ if ( $command eq 'restart' ) {
 
     # start
     write_conf();
+    setup_env();
 
     print "$SCRIPT_NAME $command: starting httpd\n";
     unless ( system($HTTPD_CMD) ) {
+        fix_perms();
         print "$SCRIPT_NAME $command: httpd started\n";
         exit;
     } else {
@@ -262,5 +265,15 @@ sub write_conf {
       or die "Unable to open $HTTPD_CONF : $!";
     print CONF $template->output();
     close CONF;
+}
+
+# make sure the tmp dir is writeable for new files/dirs
+sub fix_perms {
+    my $dir   = catdir($CONFIG->get('InstallRoot'), 'tmp');
+    my $user  = $CONFIG->get('User');
+    my $group = $CONFIG->get('Group');
+
+    system("chown -R $user.$group $dir") == 0
+        or die "Could not change permissions on directory '$dir': $!";
 }
 
