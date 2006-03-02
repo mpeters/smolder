@@ -4,6 +4,10 @@ FOR 0.1
 
 + Test out the build/makedist/install on a clean machine
 
++ add docs/ops_install.pod to create the INSTALL doc
+
++ remove TODO during makedist
+
 ====================
 FOR 0.2
 ====================
