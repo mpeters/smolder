@@ -199,7 +199,6 @@ sub do_install {
     install_smolder();
     configure_smolder();
     create_database();
-    update_password();
     finish_install();
     start_smolder();
     make_test() if ($run_tests);
