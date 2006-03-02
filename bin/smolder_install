@@ -256,7 +256,7 @@ sub unpack_backup {
         FromAddress
         SMTPHost
     );
-    foreach $opt (@backup_options) {
+    foreach my $opt (@backup_options) {
         $options{$opt} ||= $BACKUP_CONF->get($opt);
     }
 
