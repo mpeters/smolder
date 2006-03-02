@@ -722,7 +722,7 @@ sub post_install_message {
 
 #####                                                         #####
 ###                                                             ###
-                  Smolder INSTALLATION COMPLETE               
+                   Smolder INSTALLATION COMPLETE               
 ###                                                             ###
 #####                                                         #####
 
@@ -730,6 +730,8 @@ sub post_install_message {
    Installed at   : $options{InstallPath}
    Control script : $options{InstallPath}/bin/smolder_ctl
    Config file    : $options{InstallPath}/conf/smolder.conf
+   Admin Password : 'qa_rocks'
+  
 
    Running on $options{IPAddress} - http://$options{HostName}:$options{ApachePort}/
 
