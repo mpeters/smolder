@@ -41,10 +41,13 @@ HostName "<tmpl_var HostName>"
 LogLevel 2
 
 #
-# Set the number of child processes the scheduler daemon
-# can spawn when handling tasks.
-# Current wisdom suggests a 3:1 ratio of children to available CPUs.
+# Email address used as the 'From' address on all outgoing emails
+FromAddress 'smolder@<tmpl_var HostName>'
+
 #
-SchedulerMaxChildren 3
-SchedulerInterval    5
+# Host name of the SMTP server
+SMTPHost 'mail.<tmpl_var HostName>'
+
+
+
 
