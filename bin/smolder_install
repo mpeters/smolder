@@ -697,9 +697,9 @@ sub enforce_requirements {
 sub set_param_defaults {
     my %defaults = (
         AdminDBPass => '',
-        InstallPath => '/usr/local/Smolder',
-        User        => 'Smolder',
-        Group       => 'Smolder',
+        InstallPath => '/usr/local/smolder',
+        User        => 'smolder',
+        Group       => 'smolder',
         ApachePort  => '80',
     );
 
