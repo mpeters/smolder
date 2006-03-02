@@ -1,0 +1,222 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use File::Spec::Functions qw(catdir catfile splitdir);
+use WWW::Mechanize; # might just use LWP in the future to reduce deps
+use File::Basename;
+
+=pod
+
+=head1 NAME
+
+smolder_smoke_signal
+
+=head1 SYNOPSIS
+
+    ./bin/smolder_smoke_signal --server smolder.foo.com \
+        --username myself --password s3cr3t --file test_report.xml \
+        --project MyProject
+
+=head1 DESCRIPTION
+
+Script used to upload a Smoke test report to a running smolder server.
+This is extremely useful for scripted/automatic test runs but also
+helpful when using a CLI makes things faster.
+
+=head1 OPTIONS
+
+=head2 REQUIRED
+
+=over
+
+=item server
+
+This is the hostname of the running Smolder server.
+
+=item project
+
+The name of the Smolder project to use for the upload.
+
+=item username
+
+The name of the Smolder user to use for the upload.
+
+=item password
+
+The password for the Smolder user given by C<username>.
+
+=item file
+
+The name of the file to upload. The type of the file will
+be determined by the extension, so a '.xml' file will be treated
+as an XML file.
+
+=back
+
+=head2 OPTIONAL
+
+=over
+
+=item architecture
+
+The architecture for the given smoke test run. If none is given
+it will use the default architecture for the project.
+
+=item platform
+
+The platform for the given smoke test run. If none is given
+it will use the default platform for the project.
+
+=item category
+
+The category of the given smoke test run.
+
+=item comments
+
+Any comments that you want to associate with the smoke test run.
+
+=item verbose
+
+Print verbose output of our actions to STDOUT.
+
+=cut
+
+# default options
+my ($server, $project, $user, $pw, $file, $arch, $platform, $category, $comments, $verbose);
+my $format;
+my ($help, $man);
+
+GetOptions(
+    'server=s'       => \$server,
+    'project=s'      => \$project,
+    'username=s'     => \$user,
+    'password=s'     => \$pw,
+    'file=s'         => \$file,
+    'architecture=s' => \$arch,
+    'platform=s'     => \$platform,
+    'category=s'     => \$category,
+    'comments=s'     => \$comments,
+    'verbose!'       => \$verbose,
+    'help'           => \$help,
+    'man'            => \$man,
+) || pod2usage();
+
+if ($help) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 1,
+    );
+} elsif ($man) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 2,
+    );
+}
+
+# make sure all the required fields are there
+_missing_required('server') unless $server;
+_missing_required('project') unless $project;
+_missing_required('username') unless $user;
+_missing_required('password') unless $pw;
+_missing_required('file') unless $file;
+
+# make sure our file is there and is of the right type
+if( -r $file ) {
+    my ($name, $path, $suffix) = fileparse($file, qr/\.xml$/, qr/\.yml$/, qr/\.yaml$/);
+    my %formats = (
+        '.xml'  => 'XML',
+        '.yml'  => 'YAML',
+        '.yaml' => 'YAML',
+    );
+    $format = $formats{$suffix};
+    unless( $format ) {
+        print "File '$file' is not of the correct type!\n";
+        exit(1);
+    }
+} else {
+    print "File '$file' does not exist, or is not readable!\n";
+    exit(1);
+}
+
+# try and reach the smolder server
+print "Trying to reach Smolder server at $server.\n" if( $verbose );
+my $mech = WWW::Mechanize->new();
+my $base_url = "http://$server";
+$mech->get($base_url);
+unless( $mech->status eq '200' ) {
+    print "Could not reach $server successfully. Received status " . $mech->status . "\n";
+    exit(1);
+}
+
+# now login
+print "Trying to login with username '$user'.\n" if( $verbose );
+$mech->get($base_url . '/app/public_auth/login');
+my $form = $mech->form_name('login');
+if( $mech->status ne '200' || !$form ) {
+    print "Could not reach Smolder login form. Are you sure $server is a Smolder server?\n";
+    exit(1);
+}
+$mech->set_fields(
+    username    => $user,
+    password    => $pw,
+);
+$mech->submit();
+my $content = $mech->content;
+if( $mech->status ne '200' || $content !~ /Welcome \Q$user\E/ ) {
+    print "Could not login with username '$user' and password '$pw'!\n";
+    exit(1);
+}
+
+# now go to this project's page
+print "Retrieving project listing for user '$user'.\n" if( $verbose );
+$mech->get($base_url . '/app/developer_projects');
+$content = $mech->content;
+$content =~ />\Q$project\E<!--(\d+)-->/;
+my $project_id = $1;
+if( $mech->status ne '200' || !$project_id ) {
+    print "Could not get your project listing, or you are not a member of the '$project' project!\n";
+    exit(1);
+}
+
+# now go to the add-smoke-report page for this project
+print "Adding smoke report to project '$project'.\n" if( $verbose );
+$mech->get($base_url . "/app/developer_projects/add_report/$project_id");
+$content = $mech->content;
+if( $mech->status ne '200' || $content !~ /New Smoke Report/ ) {
+    print "Could not reach the Add Smoke Report form!\n";
+    exit(1);
+}
+$mech->form_name('add_report');
+my %fields = (
+    report_file => $file,
+    format      => $format,
+);
+$fields{platform} = $platform if( $platform );
+$fields{architecture} = $arch if( $arch );
+$fields{category} = $category if( $category );
+$fields{comments} = $comments if( $comments );
+$mech->set_fields(%fields);
+$mech->submit();
+
+$content = $mech->content;
+if( $mech->status ne '200' || $content !~ /Recent Smoke Reports/ ) {
+    print "Could not upload smoke report with the given information!\n";
+    exit(1);
+}
+$content =~ /#(\d+) Added/;
+my $report_id = $1;
+
+print "\nReport successfully uploaded as #$report_id.\n";
+
+
+##########################################################
+# helper methods
+##########################################################
+sub _missing_required {
+    my $field = shift;
+    print "Missing required field '$field'!\n";
+    pod2usage();
+};

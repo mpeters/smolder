@@ -1,0 +1,866 @@
+<?xml version='1.0' standalone='yes'?>
+<test_run>
+  <end_time>1139077190</end_time>
+  <start_time>1139077188</start_time>
+  <test_files>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 1 - blib/lib/Test/TAP/XML.pm</line>
+      <num>1</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 1/1</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <file>t/pod.t</file>
+    <results>
+      <bonus>0</bonus>
+      <exit>0</exit>
+      <max>1</max>
+      <ok>1</ok>
+      <passing>1</passing>
+      <seen>1</seen>
+      <skip>0</skip>
+      <todo>0</todo>
+      <wait>0</wait>
+    </results>
+  </test_files>
+  <test_files>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 1 - Pod coverage on Test::TAP::XML</line>
+      <num>1</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 1/1</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <file>t/pod-coverage.t</file>
+    <results>
+      <bonus>0</bonus>
+      <exit>0</exit>
+      <max>1</max>
+      <ok>1</ok>
+      <passing>1</passing>
+      <seen>1</seen>
+      <skip>0</skip>
+      <todo>0</todo>
+      <wait>0</wait>
+    </results>
+  </test_files>
+  <test_files>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 1 - use Test::TAP::XML;</line>
+      <num>1</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 1/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 2</line>
+      <num>2</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 2/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 3</line>
+      <num>3</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 3/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 4</line>
+      <num>4</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 4/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 5</line>
+      <num>5</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 5/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 6</line>
+      <num>6</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 6/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 7</line>
+      <num>7</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 7/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 8</line>
+      <num>8</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 8/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 9</line>
+      <num>9</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 9/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 10</line>
+      <num>10</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 10/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 11</line>
+      <num>11</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 11/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 12</line>
+      <num>12</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 12/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 13</line>
+      <num>13</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 13/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 14</line>
+      <num>14</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 14/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 15 - The object isa Test::TAP::XML</line>
+      <num>15</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 15/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 16 - The object isa Test::TAP::XML</line>
+      <num>16</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 16/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 17 - ok returns the same</line>
+      <num>17</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 17/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 18 - ok returns the same</line>
+      <num>18</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 18/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 19 - passing returns the same</line>
+      <num>19</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 19/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 20 - passing returns the same</line>
+      <num>20</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 20/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 21 - passed returns the same</line>
+      <num>21</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 21/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 22 - passed returns the same</line>
+      <num>22</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 22/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 23 - nok returns the same</line>
+      <num>23</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 23/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 24 - nok returns the same</line>
+      <num>24</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 24/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 25 - failed returns the same</line>
+      <num>25</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 25/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 26 - failed returns the same</line>
+      <num>26</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 26/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 27 - failing returns the same</line>
+      <num>27</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 27/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 28 - failing returns the same</line>
+      <num>28</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 28/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 29 - total_ok returns the same</line>
+      <num>29</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 29/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 30 - total_ok returns the same</line>
+      <num>30</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 30/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 31 - total_passed returns the same</line>
+      <num>31</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 31/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 32 - total_passed returns the same</line>
+      <num>32</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 32/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 33 - total_nok returns the same</line>
+      <num>33</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 33/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 34 - total_nok returns the same</line>
+      <num>34</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 34/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 35 - total_failed returns the same</line>
+      <num>35</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 35/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 36 - total_failed returns the same</line>
+      <num>36</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 36/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 37 - total_percentage returns the same</line>
+      <num>37</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 37/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 38 - total_percentage returns the same</line>
+      <num>38</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 38/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 39 - total_ratio returns the same</line>
+      <num>39</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 39/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 40 - total_ratio returns the same</line>
+      <num>40</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 40/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 41 - total_seen returns the same</line>
+      <num>41</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 41/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 42 - total_seen returns the same</line>
+      <num>42</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 42/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 43 - total_skipped returns the same</line>
+      <num>43</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 43/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 44 - total_skipped returns the same</line>
+      <num>44</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 44/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 45 - total_todo returns the same</line>
+      <num>45</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 45/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 46 - total_todo returns the same</line>
+      <num>46</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 46/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 47 - total_unexpectedly_succeeded returns the same</line>
+      <num>47</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 47/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 48 - total_unexpectedly_succeeded returns the same</line>
+      <num>48</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 48/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 49 - ratio returns the same</line>
+      <num>49</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 49/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 50 - ratio returns the same</line>
+      <num>50</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>ok 50/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 51 # skip some reason</line>
+      <num>51</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some reason</reason>
+      <skip>1</skip>
+      <str>ok 51/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 52 # skip some reason</line>
+      <num>52</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some reason</reason>
+      <skip>1</skip>
+      <str>ok 52/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 53 # skip some reason</line>
+      <num>53</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some reason</reason>
+      <skip>1</skip>
+      <str>ok 53/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 54 # skip some reason</line>
+      <num>54</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some reason</reason>
+      <skip>1</skip>
+      <str>ok 54/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>1</actual_ok>
+      <line>ok 55 # skip some reason</line>
+      <num>55</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some reason</reason>
+      <skip>1</skip>
+      <str>ok 55/65</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <line>not ok 56</line>
+      <num>56</num>
+      <ok>0</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>NOK 56</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <line>not ok 57</line>
+      <num>57</num>
+      <ok>0</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>NOK 57</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <line>not ok 58</line>
+      <num>58</num>
+      <ok>0</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>NOK 58</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <line>not ok 59</line>
+      <num>59</num>
+      <ok>0</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>NOK 59</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <line>not ok 60</line>
+      <num>60</num>
+      <ok>0</ok>
+      <pos></pos>
+      <reason></reason>
+      <skip></skip>
+      <str>NOK 60</str>
+      <todo></todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <diag>#   Failed (TODO) test in t/xml.t at line 78.
+
+</diag>
+      <line>not ok 61 # TODO some other reason</line>
+      <num>61</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some other reason</reason>
+      <skip></skip>
+      <str>ok 61/65</str>
+      <todo>1</todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <diag>#   Failed (TODO) test in t/xml.t at line 79.
+
+</diag>
+      <line>not ok 62 # TODO some other reason</line>
+      <num>62</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some other reason</reason>
+      <skip></skip>
+      <str>ok 62/65</str>
+      <todo>1</todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <diag>#   Failed (TODO) test in t/xml.t at line 80.
+
+</diag>
+      <line>not ok 63 # TODO some other reason</line>
+      <num>63</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some other reason</reason>
+      <skip></skip>
+      <str>ok 63/65</str>
+      <todo>1</todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <diag>#   Failed (TODO) test in t/xml.t at line 81.
+
+</diag>
+      <line>not ok 64 # TODO some other reason</line>
+      <num>64</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some other reason</reason>
+      <skip></skip>
+      <str>ok 64/65</str>
+      <todo>1</todo>
+      <type>test</type>
+    </event>
+    <event>
+      <actual_ok>0</actual_ok>
+      <diag>#   Failed (TODO) test in t/xml.t at line 82.
+
+</diag>
+      <line>not ok 65 # TODO some other reason</line>
+      <num>65</num>
+      <ok>1</ok>
+      <pos></pos>
+      <reason>some other reason</reason>
+      <skip></skip>
+      <str>ok 65/65</str>
+      <todo>1</todo>
+      <type>test</type>
+    </event>
+    <file>t/xml.t</file>
+    <results>
+      <bonus>0</bonus>
+      <exit>5</exit>
+      <max>65</max>
+      <ok>60</ok>
+      <passing>0</passing>
+      <seen>65</seen>
+      <skip>5</skip>
+      <todo>5</todo>
+      <wait>1280</wait>
+    </results>
+  </test_files>
+</test_run>

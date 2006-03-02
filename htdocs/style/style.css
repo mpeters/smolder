@@ -1,0 +1,438 @@
+html {
+    font-size: 11pt;
+}
+
+p, ol,ul {
+    margin-top: 0px;
+}
+
+.small {
+    font-size: 10pt;
+}
+
+.very_small {
+    font-size: 10px;
+}
+
+h1 {
+    color: #555555;
+    padding: 0px;
+    margin: 0px;
+}
+
+h2 { 
+    color: #FFFFFF;
+    background-color: #555555;
+    padding-left: 5px;
+}
+
+h3 {
+    color: #FFFFFF;
+    background-color: #C47147;
+    padding-left: 5px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+a {
+    color: #C47147;
+}
+
+a:visited {
+    color: #C47147;
+}
+
+button, input[type="submit"] {
+    color: #C47147;
+    background-color: #ffffff;
+    border: 1px solid #555555;
+}
+
+input:hover[type="submit"] {
+    color: #ffffff;
+    background-color: #C47147;
+}
+
+form {
+    margin: 0px;
+    padding: 0px;
+}
+
+a.sub_menu {
+    color: #C47147;
+    background-color: #ffffff;
+    border: 1px solid #555555;
+    padding: 2px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+    font-size: 10pt;
+}
+
+a.sub_menu:hover {
+    color: #ffffff;
+    background-color: #C47147;
+}
+
+a.calendar_trigger {
+    text-decoration: none;
+    background: url('/images/calendar.gif');
+    padding-right: 20px;
+    background-repeat: no-repeat;
+}
+
+div.calendar_container {
+    position: absolute;
+}
+
+div.sub_menu {
+    padding-bottom: 12px;
+}
+
+label {
+    color: #333333;
+    font-weight: bold;
+}
+
+.accordion .header label, .fake_accordion .header label {
+    color: #FFFFFF;
+}
+
+.popup_form label {
+    color: #555555;
+}
+
+table.boxed, div.boxed {
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 3px;
+}
+
+th, td {
+    vertical-align: top;
+}
+
+tr.header, td.header {
+    background-color: #C47147;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.even {
+    background-color: #E0E0E0;
+}
+
+.warn {
+    color: #C47147;
+}
+
+.nav_menu_link {
+    visibility: hidden;
+    position: absolute;
+    border:1px solid #555555;
+    border-bottom-width: 1px;
+    border-right-width: 2px;
+    line-height: 18px;
+    z-index: 100;
+    width: 205px;
+    background-color: #DDDDDD;
+}
+
+.nav_menu_link a {
+    width: 100%;
+    display: block;
+    text-indent: 3px;
+    border-bottom: 1px solid #555555;
+    padding: 1px 0;
+    text-decoration: none;
+    font-weight: bold;
+    text-indent: 5px;
+}
+
+.nav_menu_link a:hover { 
+    background-color: #FFFFFF;
+    color: #333333;
+}
+
+.pass {
+    color: green;
+}
+
+.fail {
+    color: red;
+}
+
+.todo {
+    color: #9ab00b;
+}
+
+.skip {
+    color: #9ab00b;
+}
+
+div.pass_fail_ratio {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #555555;
+    text-align: center;
+    -moz-border-radius: 10px;
+    font-weight: bold;
+}
+
+div.popup_form {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #EEEEEE;
+    border: 1px solid #555555;
+    z-index: 100;
+    max-width: 300px;
+}
+
+div.popup_form input[type="submit"], div.popup_form a.button {
+    margin-bottom: 5px;
+}
+
+a.button {
+    color: #ffffff;
+    background-color: #C47147;
+    border: 1px solid #555555;
+    padding: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 2px;
+    text-decoration: none;
+    font-size: 8pt;
+    font-weight: bold;
+}
+
+a.button:hover {
+    color: #C47147;
+    background-color: #ffffff;
+}
+
+
+/* Tooltip styles */
+.tooltip {
+    background-color: #EEEEEE;
+    font-size: 10pt;
+    color: #000000;
+    width: 200px;
+    border: 1px solid #555555;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    z-index: 100;
+}
+
+.tooltip .content {
+    padding: 5px;
+}
+
+.tooltip .header {
+    background-color: #C47147;
+    font-weight: bold;
+    font-size: 11pt;
+    color: #FFFFFF;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-bottom: 1px solid #555555;
+}
+
+.tooltip a.close {
+    color: #ffffff;
+    background-color: #C47147;
+    border: 1px solid #555555;
+    padding: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 2px;
+    text-decoration: none;
+    font-size: 8pt;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.tooltip a.close:hover {
+    color: #C47147;
+    background-color: #ffffff;
+}
+
+.tooltip p.close {
+    padding-bottom: 8px;
+}
+
+/* Calendar DatePicker Styles */
+.datepicker {
+  border: 1px solid gray;
+  font-size: 13px;
+  width: 175px;
+  height: 140px;
+  background-color: #FFFFFF;
+}
+
+/* header */
+.datepicker .header {
+  padding-top: 3px;
+  width: 100%;
+  height: 20px;
+  background-color: #E6E6FA;
+  border-bottom: 1px solid #808080;
+  color: #808080;
+  font-weight: bold;
+}
+
+.header .pre_years {
+  position: relative;
+  left: 5px;
+  float: left;
+}
+
+.header .pre_years div.mark {
+  float: left;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.header .pre_years div.markHover {
+  float: left;
+  margin-right: 5px;
+  cursor: pointer;
+  color: #FF8080;
+}
+
+.header .next_years {
+  position: relative;
+  left: 25px;
+  float: left;
+}
+
+.header .next_years div.mark {
+  float: left;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.header .next_years div.markHover {
+  float: left;
+  margin-right: 5px;
+  cursor: pointer;
+  color: #FF8080;
+}
+
+.header .years {
+  position: relative;
+  left: 5px;
+  width: 80px;
+  float: left;
+}
+
+.header .years span {
+  margin-left: 10px;
+}
+
+
+/* calendar */
+.datepicker .calendar {
+  padding-top: 5px;
+  background-color: #FFFFFF;
+}
+
+.datepicker .calendar table {
+  font-size: 11px;
+  text-align: center;
+}
+
+.datepicker .calendar table th {
+  color: #778899;
+}
+
+.datepicker .calendar table td.date {
+  cursor: pointer;
+  background-color: #FFFFFF;
+}
+
+.datepicker .calendar table td.holiday {
+  cursor: pointer;
+  background-color: #FFFFFF;
+  font-weight: bold;
+  color: #FF8080;
+}
+
+.datepicker .calendar table td.dateHover {
+  cursor: pointer;
+  background-color: #E6E6FA;
+  font-weight: bold;
+  color: #FF8080;
+}
+
+#calendar { 
+    position: absolute;
+}
+
+/* accordion styles */
+div.accordion, div.fake_accordion {
+    width: 700px;
+    margin-left: 10px;
+    border: solid 1px #555555;
+}
+
+div.accordion div.panel, div.fake_accordion div.panel {
+    border-bottom: 1px solid #000000;
+}
+
+div.accordion div.panel div.header, div.fake_accordion div.panel div.header {
+    font-size: 11pt;
+    padding: 4px 6px 4px 6px;
+    border-style: solid none solid none;
+    border-top-color: #CCCCCC;
+    border-bottom-color: #333333;
+    border-width: 1px 0px 1px 0px;
+    background-color: #555555;
+    color: #FFFFFF;
+}
+
+div.accordion form a, div.fake_accordion form a {
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+div.accordion form a:hover, div.fake_accordion form a:hover {
+    color: #000000;
+}
+
+div.accordion div.panel div.attention_header, div.fake_accordion div.panel div.attention_header {
+    background-color: #C47147;
+}
+
+div.accordion div.panel div.content, div.fake_accordion div.panel div.content {
+    background-color: #FFFFFF;
+}
+
+/* Auto-Complete styles */
+div.auto_complete {
+    width: 350px;
+    background: #fff;
+}
+div.auto_complete ul {
+    border:1px solid #888;
+    margin:0;
+    padding:0;
+    width:100%;
+    list-style-type:none;
+}
+div.auto_complete ul li {
+    margin:0;
+    padding:3px;
+}
+div.auto_complete ul li.selected {
+    background-color: #C47147;
+    color: #ffffff;
+}
+div.auto_complete ul strong.highlight {
+    color: #800;
+    margin:0;
+    padding:0;
+}
+
+

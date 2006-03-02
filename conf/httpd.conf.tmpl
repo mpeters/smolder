@@ -1,0 +1,144 @@
+ServerType           standalone
+ServerRoot           <tmpl_var InstallRoot>/apache
+ServerAdmin          root@localhost
+ServerSignature      Email
+PidFile              <tmpl_var InstallRoot>/tmp/httpd.pid
+DocumentRoot         <tmpl_var InstallRoot>/htdocs
+User                 <tmpl_var User>
+Group                <tmpl_var Group>
+KeepAlive            Off
+MaxKeepAliveRequests 100
+KeepAliveTimeout     15
+MinSpareServers      5
+MaxSpareServers      10
+StartServers         5
+MaxClients           150
+MaxRequestsPerChild  100
+ErrorLog             <tmpl_var InstallRoot>/logs/apache_error_log
+LogFormat            "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+CustomLog            <tmpl_var InstallRoot>/logs/apache_access_log combined
+LogLevel             info
+TypesConfig          <tmpl_var InstallRoot>/apache/conf/mime.types
+UseCanonicalName     On
+HostNameLookups      Off
+Timeout              600
+CoreDumpDirectory    <tmpl_var InstallRoot>/tmp
+
+#
+# Dynamic Shared Object (DSO) Support
+#
+# To be able to use the functionality of a module which was built as a DSO you
+# have to place corresponding `LoadModule' lines at this location so the
+# directives contained in it are actually available _before_ they are used.
+# Please read the file http://httpd.apache.org/docs/dso.html for more
+# details about the DSO mechanism and run `httpd -l' for the list of already
+# built-in (statically linked and thus always available) modules in your httpd
+# binary.
+#
+# Note: The order in which modules are loaded is important.  Don't change
+# the order below without expert advice.
+#
+# Example:
+# LoadModule foo_module libexec/mod_foo.so
+LoadModule mime_magic_module  libexec/mod_mime_magic.so
+LoadModule auth_tkt_module    libexec/mod_auth_tkt.so
+LoadModule rewrite_module     libexec/mod_rewrite.so
+#LoadModule unique_id_module   libexec/mod_unique_id.so
+
+#  Reconstruction of the complete module list from all available modules
+#  (static and shared ones) to achieve correct module execution order.
+#  [WHENEVER YOU CHANGE THE LOADMODULE SECTION ABOVE UPDATE THIS, TOO]
+ClearModuleList
+AddModule mod_env.c
+AddModule mod_log_config.c
+AddModule mod_mime_magic.c
+AddModule mod_mime.c
+
+# AddModule mod_negotiation.c
+# AddModule mod_status.c
+# AddModule mod_include.c
+# AddModule mod_autoindex.c
+# AddModule mod_dir.c
+# AddModule mod_cgi.c
+# AddModule mod_asis.c
+# AddModule mod_imap.c
+# AddModule mod_actions.c
+# AddModule mod_userdir.c
+# AddModule mod_alias.c
+# AddModule mod_rewrite.c
+# AddModule mod_access.c
+ AddModule mod_auth.c
+# AddModule mod_proxy.c
+AddModule mod_so.c
+# AddModule mod_setenvif.c
+AddModule mod_auth_tkt.c
+AddModule mod_rewrite.c
+#AddModule mod_unique_id.c
+AddModule mod_perl.c
+
+
+PassEnv SMOLDER_ROOT
+PassEnv SMOLDER_CONF
+PassEnv SMOLDER_DEBUG
+PassEnv PERL5LIB
+PassEnv HARNESS_ACTIVE
+
+#
+# MOD_PERL Configuration for Smolder
+#
+PerlPassEnv SMOLDER_ROOT
+PerlPassEnv SMOLDER_CONF
+PerlPassEnv SMOLDER_DEBUG
+PerlPassEnv PERL5LIB
+PerlPassEnv HARNESS_ACTIVE
+
+PerlSendHeader Off
+PerlWarn On
+PerlRequire "<tmpl_var InstallRoot>/conf/smolder_startup.pl"
+
+ServerName <tmpl_var HostName>
+Listen <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
+NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
+
+<VirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>>
+   ServerName <tmpl_var HostName>
+
+    TKTAuthSecret "333!~!@~JSMakakake::::aOENENMAF==@#912~!ASASxxc#3$4%55)(0000+=+!"
+
+    # make requests for the start/index go to /app
+    RewriteEngine On
+    RewriteRule ^/$             /app [R,L]
+    RewriteRule ^/index/?$      /app [R,L]
+    RewriteRule ^/index.html?$  /app [R,L]
+
+    <Location />
+    </Location>
+
+    <Location /app>
+        PerlModule          Smolder::Dispatch
+        SetHandler          perl-script
+        PerlHandler         Smolder::Dispatch
+        PerlCleanupHandler  Smolder::Cleanup
+        AuthType            Basic
+        AuthName            "Smolder Auth"
+
+        # mod_auth_tkt configuration
+        TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
+        TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
+        TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
+        TKTAuthTimeout          4h
+        TKTAuthTimeoutRefresh   0
+    </Location>
+
+    <LocationMatch /app/admin*>
+        TKTAuthTimeoutRefresh   0
+        TKTAuthToken admin
+        Require valid-user
+    </LocationMatch>
+    <LocationMatch /app/developer*>
+        TKTAuthTimeoutRefresh   0
+        TKTAuthToken developer
+        Require valid-user
+    </LocationMatch>
+
+</VirtualHost>

@@ -1,0 +1,41 @@
+<div style="float:right; padding-right: 30px;" id="smoke_reports_nav">
+  <form class="ajaxable" name="smoke_reports" id="smoke_reports" action="/app/developer_projects/smoke_reports/[% project.id %]" method="get">
+    [% SET cats = project.categories %]
+    [% IF cats %]
+      <span style="padding-right: 20px">
+      <label>Category<label>
+      <select name="category" class="auto_submit">
+        <option value="">--none--</option>
+        [% FOREACH cat IN cats %]
+          <option value="[% cat %]"[% IF category == cat %]selected="selected"[% END %]>[% cat %]</option>
+        [% END %]
+      </select>
+      </span>
+    [% END %]
+    [% SET base_url    = '/app/developer_projects/smoke_reports/' _ project.id _ '?limit=' _ limit %]
+    [% SET back_url    = base_url _ '&offset=' _ (offset - limit) %]
+    [% SET forward_url = base_url _ '&offset=' _ (offset + limit) %]
+    <span>
+    [% UNLESS offset - limit < 0 %]
+      <a class="ajaxable" href="[% back_url %]" style="text-decoration: none">&lArr;</a>
+    [% ELSE %]
+      &lArr;
+    [% END %]
+    |
+    [% UNLESS (offset + limit) >= project.report_count %]
+      <a class="ajaxable" href="[% forward_url %]" style="text-decoration: none">&rArr;</a>
+    [% ELSE %]
+      &rArr;
+    [% END %]
+    </span>
+    <select name="limit" class="auto_submit">
+      <option[% IF limit == 5 %] selected="selected"[% END %]>5</option>
+      <option[% IF limit == 10 %] selected="selected"[% END %]>10</option>
+      <option[% IF limit == 15 %] selected="selected"[% END %]>15</option>
+      <option[% IF limit == 20 %] selected="selected"[% END %]>20</option>
+      <option[% IF limit == 30 %] selected="selected"[% END %]>30</option>
+      <option value="0">All</option>
+    </select>
+  </form>
+</div>
+

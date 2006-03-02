@@ -1,0 +1,122 @@
+#!/usr/bin/perl 
+#
+# smolder_ctl     Start Smolder Services
+#
+# chkconfig: 345 99 01
+# description: Starts and stops Smolder installation
+#
+#
+use warnings;
+use strict;
+
+=head1 NAME
+
+smolder_ctl
+
+=head1 SYNOPSIS
+
+  smolder_ctl start
+
+  smolder_ctl stop
+
+  smolder_ctl restart
+
+=head1 DESCRIPTION
+
+This is the control script for Smolder.  You can use this script to
+start, stop and restart all the services offered by Smolder.  This
+script may have to be run as root, if your settings require binding to 
+a privileged port.
+
+This script calls HREF[smolder_apachectl|script_smolder_apachectl.html], 
+and HREF[smolder_schedulectl|script_smolder_schedulectl.html].
+to do its work.  See their respective manpages for 
+details concerning environment variables that may be used to control 
+their functioning.
+
+=cut
+
+$|++;
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # load Smolder::Conf
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::Conf qw(InstallRoot ApachePort);
+
+# check for args
+usage() unless @ARGV;
+my $command = shift @ARGV;
+usage()
+  unless $command eq 'start'
+  or $command     eq 'stop'
+  or $command     eq 'restart';
+
+my @ctl = (
+    [ smolder_apachectl => ApachePort() ],
+# TODO - uncomment if we ever need a scheduler
+#    [ smolder_schedulectl => '' ],
+);
+
+# if we are stopping, then we want to do it in the reverse order
+if ( $command eq 'stop' ) {
+    @ctl = reverse @ctl;
+}
+# call ctl scripts
+foreach (@ctl) {
+    _call_script($_->[0], $command, $_->[1]);
+}
+
+sub _call_script {
+    my ($script, $command, $port) = @_;
+    $command ||= '';
+    $script = catfile( InstallRoot, 'bin', $script );
+
+    # will need sudo?
+    if (($< != 0 or $> != 0) and $port <= 1024) {
+        $script = "sudo $script";
+    }
+
+    print STDERR "=> smolder_ctl calling '$script $command'...\n";
+    system("$script $command");
+    print STDERR "\n";
+}
+
+sub usage {
+    print <<END;
+usage: smolder_ctl (start|stop|restart)
+
+  start      - start Smolder services
+  stop       - stop Smolder services
+  restart    - restart Smolder services
+
+END
+
+    exit;
+}

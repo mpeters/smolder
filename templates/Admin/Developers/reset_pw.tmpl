@@ -1,0 +1,19 @@
+[% SET page_title = "Admin - Developers" %]
+
+<h2>Reset Password of '[% developer.username %]'</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_developers/edit/[% developer.id %]">Edit</a>
+    <a class="sub_menu" href="/app/admin_developers/delete/[% developer.id %]">Delete</a>
+    <a class="sub_menu" href="/app/admin_developers/list">All Developers</a>
+</div>
+
+<p>
+    <form class="ajaxable" name="reset_pw" action="/app/admin_developers/process_reset_pw/[% developer.id %]" method="post">
+    Resetting the Developer's password will remove their old one and create a new
+    random password and email this password to the developer.<br />
+    Are you sure this is what you want?
+    <input type="submit" value="Yes">
+    </form>
+</p>
+

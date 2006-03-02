@@ -1,0 +1,266 @@
+#!/usr/bin/perl 
+use warnings;
+use strict;
+
+=pod
+
+=head1 NAME
+
+smolder_apachectl
+
+=head1 SYNOPSIS
+
+   smolder_apachectl start
+
+   smolder_apachectl stop
+
+   smolder_apachectl restart
+
+=head1 DESCRIPTION
+
+This script controls the Smolder Apache server. The usage of the script
+is the same as the normal apache "apachectl" script but only "start",
+"stop" and "restart" are supported. Also, "restart" performs a hard
+stop and start since a SIGHUP isn't enough for mod_perl.
+
+Usage information can be obtained by running the script with no arguments.
+
+=head1 CONFIGURATION
+
+The apache config file is created from the template found at F<conf/httpd.conf.tmpl>.
+All of the directives in your F<conf/PROEJCT.conf> are passed to the template
+and as well as the following parameters:
+
+=over
+
+=item InstallRoot
+
+The InstallRoot directory.
+
+=item ApacheRoot
+
+Full directory path of the installed apache.
+
+=item PidFile
+
+Full path to the F<httpd.pid> file.
+
+=item AccessRules
+
+A TMPL_LOOP (array of hashes) that contains the C<< <AccessRule> >> directives
+from your F<conf/smolder.conf>.
+
+=back
+
+=cut
+
+$|++;
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs);
+use FindBin qw($RealBin);
+use Config;
+use Getopt::Long;
+use Cwd;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir($RealBin);
+
+    #remove any blank elements on the end of the @dir
+    pop(@dir) while ( !$dir[$#dir] );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+my $MAX_RESTART_WAIT = 20;  # wait for stop on restart (in seconds)
+my $CONFIG           = Smolder::Conf->get_config();
+my $ROOT             = $CONFIG->get('InstallRoot');
+my $APACHE_ROOT      = catdir($ROOT, 'apache');
+my $APACHE_BIN       = catfile($APACHE_ROOT, 'bin', 'httpd');
+my $HTTPD_CONF_TMPL  = catfile($ROOT, 'conf', 'httpd.conf.tmpl');
+my $HTTPD_CONF       = catfile($ROOT, 'tmp', 'httpd.conf');
+my $HTTPD_PID        = catfile($ROOT, 'tmp', 'httpd.pid');
+my $HTTPD_CMD        = "$APACHE_BIN -f $HTTPD_CONF";
+my $SCRIPT_NAME      = 'smolder_apachectl';
+
+# get status from the pid file
+my $running = 0;
+my $pid;
+if ( -e $HTTPD_PID ) {
+    $pid = `cat $HTTPD_PID`;
+    chomp $pid;
+    if ( $pid and kill( 0, $pid ) ) {
+        $running = 1;
+    }
+}
+
+# check for args
+usage() unless @ARGV;
+
+my $command = shift @ARGV;
+
+if ( $command eq 'start' ) {
+    if ($running) {
+        die "$SCRIPT_NAME $command: httpd (pid $pid) already running\n";
+    }
+
+    write_conf();
+    setup_env();
+
+    print "$SCRIPT_NAME $command: starting httpd\n";
+    if ( system($HTTPD_CMD) == 0 ) {
+        print "$SCRIPT_NAME $command: httpd started\n";
+        exit;
+    } else {
+        die "$SCRIPT_NAME $command: httpd could not be started!", $!, "\n";
+    }
+}
+
+if ( $command eq 'stop' ) {
+    unless ($running) {
+        die "$SCRIPT_NAME $command: httpd not running\n";
+    }
+    if ( kill 15, $pid ) {
+        print "$SCRIPT_NAME $command: httpd stopped\n";
+        exit;
+    } else {
+        die "$SCRIPT_NAME $command: httpd could not be stopped\n";
+    }
+}
+
+if ( $command eq 'restart' ) {
+
+    # stop
+    if ($running) {
+        if ( kill 15, $pid ) {
+            print "$SCRIPT_NAME $command: waiting for httpd to stop";
+        } else {
+            die "$SCRIPT_NAME $command: httpd could not be stopped\n";
+        }
+
+        # wait for stop - check pid file for removal
+        my $stopped = 0;
+        for my $wait ( 0 .. $MAX_RESTART_WAIT ) {
+            if ( not -e $HTTPD_PID ) {
+                $stopped = 1;
+                last;
+            }
+            print ".";
+            sleep 1;
+        }
+
+        if ($stopped) {
+            print "\n$SCRIPT_NAME $command: httpd stopped\n";
+        } else {
+            die "\n$SCRIPT_NAME $command: httpd not stopped in time\n";
+        }
+
+    }
+
+    # start
+    write_conf();
+
+    print "$SCRIPT_NAME $command: starting httpd\n";
+    unless ( system($HTTPD_CMD) ) {
+        print "$SCRIPT_NAME $command: httpd started\n";
+        exit;
+    } else {
+        die "$SCRIPT_NAME $command: httpd could not be started\n";
+    }
+}
+
+usage();
+
+sub usage {
+    print <<END;
+usage: $SCRIPT_NAME (start|stop|restart|debug)
+
+start      - start httpd
+stop       - stop httpd
+restart    - restart httpd if running
+
+END
+
+    exit;
+}
+
+# make sure we can link against the swish-e libs
+sub setup_env {
+    $ENV{LD_LIBRARY_PATH} = catdir( $ROOT, 'swish-e', 'lib' );
+}
+
+# add all vars from conf/smolder.conf and also the following
+# ApacheRoot, PidFile
+sub write_conf {
+    require HTML::Template;
+
+    # create the httpd.conf by processing it as a template, using conf
+    # directives as params
+    my $template = HTML::Template->new(
+        filename          => $HTTPD_CONF_TMPL,
+        global_vars       => 1,
+        die_on_bad_params => 0,
+        loop_context_vars => 1
+    );
+
+    my @directives = $CONFIG->get();
+    my %tmpl_params = (
+        ApacheRoot  => $APACHE_ROOT, 
+        PidFile     => $HTTPD_PID,
+        InstallRoot => rel2abs($ROOT),
+    );
+
+    # add each directive from the conf file
+    foreach my $directive (@directives) {
+        $tmpl_params{$directive} = $CONFIG->get($directive)
+            unless (exists $tmpl_params{$directive} );
+    }
+    $template->param(%tmpl_params);
+
+    # change our access rules into a TMPL_LOOP
+    my $access_rules = Smolder::Conf->access_rules;
+    my @access_loop  = ();
+    foreach my $location ( keys %$access_rules ) {
+        my $rule = $access_rules->{$location};
+
+        # create a tmpl_loop of Tokens inside this loop
+        my @tokens = ();
+        push( @tokens, { Token => $_ } ) foreach ( @{ $rule->{Tokens} } );
+
+        my %tmp = (
+            Path    => $location,
+            Tokens  => \@tokens,
+            Expires => $rule->{Expires},
+        );
+        push( @access_loop, \%tmp );
+    }
+    $template->param( AccessRules => \@access_loop );
+
+    # write out the config
+    open( CONF, '>' . $HTTPD_CONF )
+      or die "Unable to open $HTTPD_CONF : $!";
+    print CONF $template->output();
+    close CONF;
+}
+

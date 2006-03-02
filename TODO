@@ -1,0 +1,71 @@
+====================
+FOR 0.1
+====================
+
++ Test out the build/makedist/install on a clean machine
+
+====================
+FOR 0.2
+====================
+
++ Add support for plain TAP
+
++ document all classes
+    + Controller classes
+    + document all run modes (templates used, etc)
+
++ Add a decent logging mechanism
+
++ import/export projects (all data and reports)
+
++ Precompile all templates at startup
+
++ Add paging to other listing pages admin_developers/admin_projects, etc
+    + possibly add sortable table as well
+
++ escape all data that is displayed that could have come from users to prevent XSS
+
++ view graphs by platform/architecture
+
++ add help tooltips where appropriate
+
++ Add 'public' projects
+    + allow anonymous test reports from public
+        ?+ add extra 'anonymous' user
+    + show listing on front page
+    + show test reports to the public
+
++ rendering in other browsers besides FF
+
++ capture STDERR and associate with test files (will be done in Test::TAP::Model)
+
+====================
+BEYOND
+====================
+
++ add some benchmarks so we can see how things perform as changes are made
+
++ add CSV download option for tests?
+    + for projects?    
+
++ look at using an XML schema that isn't so tied to the internal representation
+  of Test::TAP::Model
+
++ add coverage reports 
+    ?+ related to smoke tests
+
++ add benchmarks?
+
++ add RSS feeds per project
+
++ look at making skinning easier so that organizations can brand it
+
++ support for non AJAX browsers
+
++ support for other databases
+    + built in SQLite ?
+    
+
+
+
+

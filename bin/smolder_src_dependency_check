@@ -1,0 +1,151 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+=pod
+
+=head1 NAME
+
+smolder_dependency_check - Check the dependencies of a module in the src/ directory
+
+=head1 SYNOPSIS
+
+  smolder_dependency_check --file src/Bit-Vector-6.4.tar.gz
+
+=head1 DESCRIPTION
+
+This list will print a list of all of the modules used by another module, given
+the source tarball file.
+
+This list will also give information about whether that dependency is a part of
+Perl's CORE or already installed as part of Smolder.
+
+=head1 OPTIONS
+
+=over
+
+=item --file
+
+The path of the source tarball in question.
+
+=back
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # load Smolder
+    eval { require Smolder };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::Conf qw(InstallRoot);
+use Module::Depends::Intrusive;
+use File::Temp qw(tempdir);
+use File::Copy;
+use File::Spec::Functions qw(catfile catdir);
+use File::Basename;
+use Getopt::Long;
+use Pod::Usage;
+
+my ($help, $man, $file);
+GetOptions(help     => \$help,
+           man      => \$man,
+           'file=s' => \$file);
+
+pod2usage(1) if $help;
+pod2usage(-verbose => 2) if $man;
+pod2usage("Missing required --file parameter.")  unless $file;
+
+# make a temp copy of the tarball
+my $tmpdir = tempdir( 
+    CLEANUP => 0,
+    DIR     => catdir(InstallRoot, 'tmp'),
+);
+my ($name, $path, $suffix) = fileparse($file, '.tar.gz');
+my $new_file = catfile($tmpdir, "$name$suffix");
+copy($file, $new_file) or die "Could not copy file '$file' to '$new_file': $!";
+
+# untar it
+chdir($tmpdir) or die "Could not change directories to '$tmpdir': $!";
+system("tar -zxvf $new_file 2>&1 > /dev/null") == 0
+    or die "Could not untar '$new_file': $@ - $!";
+
+# get the name of the newly created directory (not every distro does the same thing)
+my $distro_dir;
+opendir(my $DH, $tmpdir) or die "Could not open directory '$tmpdir': $!";
+while(my $entry = readdir $DH) {
+    next if $entry =~ /^\./;
+    next if $entry =~ /\.tar\.gz$/;
+    $distro_dir = $entry; # should be only one thing in there
+    last;
+}
+closedir($DH) or die "Could not close directory '$tmpdir': $!";
+
+my $deps = Module::Depends::Intrusive->new->dist_dir(catdir($tmpdir, $distro_dir))->find_modules->requires();
+my $max_length = 0;
+foreach (keys %$deps) {
+    $max_length = length($_) if(length $_ > $max_length);
+}
+my $format = "\%-${max_length}s   => \%-6s (\%s)\n";
+
+if( scalar keys %$deps ) {
+    print "\n";
+    foreach my $module (keys %$deps) {
+        next if($module eq 'perl'); # we don't need to verify this
+        eval "require $module";
+        if( $@ ) {
+            printf($format, $module, 'NOT OK', 'Not found');
+        } else {
+            my $smolder_lib = catdir(InstallRoot, 'lib');
+            my $mod_file = "$module.pm";
+            $mod_file =~ s/::/\//g;
+            if( $INC{$mod_file} && $INC{$mod_file} =~ /\Q$smolder_lib\E/ ) {
+                printf($format, $module, 'OK', 'Found in Smolder lib');
+            } elsif( $INC{$mod_file} && $INC{$mod_file} =~ /\Q$Config{sitelib}\E/ ) {
+                printf($format, $module, 'NOT OK', 'Found in Site lib');
+            } elsif( $INC{$mod_file} && $INC{$mod_file} =~ /\Q$Config{vendorlib}\E/ ) {
+                printf($format, $module, 'OK?', 'Found in Vendor lib');
+            } elsif( $INC{$mod_file} && $INC{$mod_file} =~ /\Q$Config{privlib}\E/ ) {
+                printf($format, $module, 'OK', 'Found in CORE');
+            } else {
+                printf($format, $module, 'NOT OK', 'Not found');
+            }
+        }
+    }
+} else {
+    print "No dependencies.\n";
+}
+print "\n";
+
+
+
+
+
+

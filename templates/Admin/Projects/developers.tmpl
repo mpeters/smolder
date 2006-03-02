@@ -1,0 +1,124 @@
+[% SET page_title = 'Admin - Projects' %]
+
+<style type="text/css">
+#developers {
+    height: 232px;
+    width: 200px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 5px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+div.draggable_developer {
+    cursor: move;
+    border: 1px solid #FFFFFF;
+}
+
+div.draggable_developer:hover {
+    border: 1px solid #888888;
+}
+
+#projects {
+    min-height: 330px;
+    width: 480px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 5px;
+    float: left;
+}
+
+div.droppable_project, div.droppable_project_active {
+    height: 220px;
+    width: 144px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #EEEEEE;
+    float:left;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+div.droppable_project_active {
+    background-color: #FFFAAA;
+}
+
+div.draggable_project_developer {
+    cursor: move;
+    border: 1px solid #EEEEEE;
+}
+
+div.draggable_project_developer:hover {
+    border: 1px solid #888888;
+}
+
+#droppable_trash_can {
+    height: 100px;
+    width: 200px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 3px;
+    margin-right: 20px;
+    background-image: url("/images/garbage.jpeg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+#droppable_trash_can.active {
+    border-color: #C47147;
+}
+</style>
+
+<h2>Assign Developers to Projects</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_projects/add">Add a New Project</a>
+    <a class="sub_menu" href="/app/admin_projects/list">All Projects</a>
+</div>
+
+<p>
+  To add a Developer to a Project, simply click-and-drag their username to the appropriate Project.
+  <br />
+  To remove a Developer from a Project simply click-and-drag their username from the Project to the Trash Can.
+</p>
+
+<table>
+<tr>
+<td valign="top">
+  <div id="developers">
+  <h3>Developers</h3>
+  [% IF developers %]
+    [% FOREACH developer IN developers %]
+      [% SET id = 'developer_' _ developer.id %]
+      <div class="draggable_developer" id="[% id %]">[% developer.username %]</div>
+    [% END %]
+  [% ELSE %]
+    <em>No Developers</em>
+  [% END %]
+  </div>
+  
+  <div id="droppable_trash_can"></div>
+</td>
+<td valign="top">
+<div id="projects">
+  <h3>Projects</h3>
+  [% IF projects %]
+    [% FOREACH project IN projects %]
+      <div id="project_container_[% project.id %]">
+      [% PROCESS Admin/Projects/project_container.tmpl %]
+      </div>
+    [% END %]
+  [% ELSE %]
+    <em>No Projects</em>
+  [% END %]
+</div>
+</td>
+</tr>
+</table>

@@ -1,0 +1,525 @@
+#!/usr/bin/perl -w
+use warnings;
+use strict;
+
+
+# Path to pre-req binaries
+our $COPY_BIN;
+our $CHOWN_BIN;
+our $ECHO_BIN;
+our $PERL_BIN = $^X;
+our $MYSQL_BIN;
+
+=head1 NAME
+
+smolder_upgrade - upgrade Smolder
+
+=head1 SYNOPSIS
+
+  # bin/smolder_upgrade
+
+=head1 DESCRIPTION
+
+This script will upgrade a Smolder installation to more recent Smolder
+distribution.
+
+=head2 What C<smolder_upgrade> does
+
+Following is a list of the tasks the upgrade script will perform.
+
+=over 4
+
+=item *
+
+Check pre-requisites
+
+=over 4
+
+=item * 
+
+Validate path to SMOLDER_ROOT.
+
+=item * 
+
+Locate and parse existing smolder.conf file.
+
+=item * 
+
+Verify that Smolder has been shut down.
+
+=back
+
+=item * 
+
+Make a backup of the existing Smolder system using 'smolder_backup'.
+
+=item * 
+
+Install new Smolder system over the existing files in SMOLDER_ROOT, with the exception of lib/Smolder.pm which holds the Smolder version number.
+
+=item * 
+
+Apply upgrade scripts.
+
+=item *
+
+Copy lib/Smolder.pm into place, updating Smolder's version number.
+
+=item * 
+
+Update db_version in the database
+
+=item * 
+
+Clear out sessions from database.
+
+=item * 
+
+Start Smolder
+
+=item * 
+
+Output results of upgrade to console.
+
+=back
+
+=head1 OPTIONS
+
+ --InstallRoot       - Directory where Smolder is installed, defaults to 
+                       /usr/local/Smolder.
+
+ --AdminDBPassword   - Password for the Database Admin user.  Defaults to
+                       "".
+
+ --DBHost            - Host that DB server is running on. Defaults to
+                       "" - which connects to the local host.
+
+ --no-backup         - Skip making a backup before running the upgrade.
+
+ --help              - Show usage
+
+ --man               - Show full man page
+
+=head1 SEE ALSO
+
+Refer to F<docs/ops_upgrade.pod>.
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+
+# Set up SMOLDER_ROOT and PERL5LIB
+BEGIN {
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" :
+      "${lib}";
+    unshift @INC, $lib, "$lib/".$Config{archname};
+}
+
+# fix results of killing an upgrade in the middle of copying files
+BEGIN {
+    if (-e "$ENV{SMOLDER_ROOT}/lib/Smolder.new") {
+        rename("$ENV{SMOLDER_ROOT}/lib/Smolder.new", 
+               "$ENV{SMOLDER_ROOT}/lib/Smolder.pm") 
+          or die "Unable to rename lib/Smolder.new to lib/Smolder.pm\n";
+    }
+}
+
+use Smolder;
+use Getopt::Long;
+use Pod::Usage;
+use Config::ApacheFormat;
+
+
+my @original_args = ();
+my $uniqueness = time();
+my $mysql_datadir;
+my $OLD_CONF;
+my $BACKUP_FILENAME = "";
+my $OLD_VERSION;
+
+my ($help, $man);
+
+my @opt_params = qw( InstallRoot AdminDBPassword DBHost );
+
+my %options = ( map { $_ => "" } @opt_params);
+
+do_upgrade();
+exit(0);
+
+
+################################
+####  MAKE UPGRADE METHODS  ####
+################################
+
+sub do_upgrade {
+    setup_getopts();
+
+    # load the platform file
+    load_platform();
+
+    # Check all pre-requisites for upgrade
+    check_prereqs();
+
+    # Do upgrade
+    make_backups() unless $options{'no-backup'};
+    install_new_smolder();
+    apply_upgrades();
+    update_version();
+    update_db_version();
+    clear_sessions();
+
+    start_smolder();
+    output_report();
+}
+
+
+sub check_prereqs {
+    print "Checking prerequisites\n";
+
+    # Must be running as root.
+    exit_error("Must be run as root.") unless ($> eq "0");
+
+    # make sure the platform is happy
+    our $PLATFORM;
+    $PLATFORM->verify_dependencies(mode => 'install');
+
+    # Validate path to InstallRoot.
+    my $root = $options{InstallRoot};
+    unless (-e $root) {
+        exit_error("InstallRoot '$root' does not exists.  Cannot continue.");
+    }
+
+    # Does smolder.conf exist at that location?
+    my $conf = $root ."/conf/smolder.conf";
+    unless (-r $conf) {
+        exit_error("'$conf' does not exists.  Cannot continue.");
+    }
+
+    # LOAD OLD smolder.conf
+    # Start by getting old conf valid directives
+    my $get_directives_perl = qq( print join("\\t", \@Smolder::Conf::VALID_DIRECTIVES). "\\n"; );
+    my $get_directives_cmd = "KRANK_CONF_NOCHECK=1 smolder_CONF=$conf $PERL_BIN";
+    $get_directives_cmd .= " -MSmolder::Conf -e '$get_directives_perl' && echo \"Success $uniqueness\"";
+
+    my $get_directives_output = `$get_directives_cmd`;
+
+    unless ($get_directives_output =~ /Success\ $uniqueness/) {
+        print STDERR $get_directives_output;
+        exit_error("Error getting valid directives.  Cannot continue.");
+    }
+
+    # Trim off the last line
+    my ($get_directives_output_line1) = split(/\n/, $get_directives_output);
+
+    my @old_valid_directives = ();
+    foreach my $dir (split(/\t/, $get_directives_output_line1)) {
+        push(@old_valid_directives, $dir);
+    }
+
+    eval {
+        $OLD_CONF = Config::ApacheFormat->new( 
+            valid_directives => \@old_valid_directives,
+        );
+        $OLD_CONF->read($conf);
+    };
+    exit_error("Unable to read config file '$conf'.  Error was: $@")
+      if $@;
+    exit_error("Unable to read config file '$conf'.")
+      unless $OLD_CONF;
+
+    # get Smolder version
+    $OLD_VERSION = get_smolder_version($root);
+
+    # Verify that this Smolder has been shut down.
+    # get status from the pid file
+    my $pid_file = catfile($root, "tmp", "httpd.pid");
+    my $running = 0;
+    my $pid;
+    if (-e $pid_file) {
+        $pid = `cat $pid_file`;
+        chomp $pid;
+        if ($pid and kill(0, $pid)) {
+            $running = 1;
+        }
+    }
+    exit_error ("Smolder is still running.  You must shut down Smolder before upgrading.  Do this by running:\n\n\t" . catfile($root, "bin", "smolder_ctl") . " stop\n")
+      if ($running);
+
+    # AdminDBPassword must be valid, and the DB should be running
+    my $mysql_bin = $MYSQL_BIN;
+    my $AdminDBPassword = $options{'AdminDBPassword'};
+    my $DBHost = $options{'DBHost'};
+    my $test_mysql = "$ECHO_BIN 'select \"world\" as hello' | $mysql_bin -uroot";
+    $test_mysql .= " -p$AdminDBPassword" if (length($AdminDBPassword));
+    $test_mysql .= " -h$DBHost" if (length($DBHost));
+    $test_mysql .= " 2>&1";
+    my $mysql_test_output = `$test_mysql`;
+
+    unless (($mysql_test_output =~ /hello/) and ($mysql_test_output =~ /world/)) {
+        print STDERR "$mysql_test_output";
+        if ($mysql_test_output =~ /ERROR 1045: Access denied/) {
+            exit_error("AdminDBPassword '$AdminDBPassword' is not valid");
+        } elsif ($mysql_test_output =~ /ERROR 2002: Can\'t connect/) {
+            exit_error("Can't connect to MySQL. Do you need to use the DBHost option? Start MySQL and try again.");
+        } else {
+            exit_error("Unable to verify connection to MySQL.");
+        }
+    }
+
+    ## End of prereq check
+}
+
+
+# load the platform module for this dist
+sub load_platform {
+    our $PLATFORM;
+
+    exit_error("Can't find data/build.db.  Do you need to run 'make build'?")
+      unless -e catfile($ENV{SMOLDER_ROOT}, 'data', 'build.db');
+    require Smolder::Platform;
+    my %build_params = Smolder::Platform->build_params;
+
+    # add in $SMOLDER_ROOT/platform for platform build modules
+    my $plib    = catdir($ENV{SMOLDER_ROOT}, "platform");
+    $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
+    unshift @INC, $plib;
+
+    print "Loading platform module for '$build_params{Platform}...\n";
+    $PLATFORM = "$build_params{Platform}::Platform";
+    eval "use $PLATFORM;";
+    die "Unable to load $PLATFORM: $@"
+      if $@;
+
+    # find binaries
+    $COPY_BIN  = $PLATFORM->find_bin(bin => 'cp');
+    $CHOWN_BIN = $PLATFORM->find_bin(bin => 'chown');
+    $ECHO_BIN  = $PLATFORM->find_bin(bin => 'echo');
+    $MYSQL_BIN = $PLATFORM->find_bin(bin => 'mysql');
+}
+
+
+sub make_backups {
+    # compute a backup filename
+    my ($y, $m, $d) = (localtime)[5,4,3];
+    $BACKUP_FILENAME = 
+      sprintf('SMOLDER-upgrade-%04d%02d%02d.kba', ($y+1900), $m, $d);
+
+    # find another name if this one exists
+    if(-e $BACKUP_FILENAME) {
+        my $x = 1;
+        $BACKUP_FILENAME =~ s!\.kba$!.$x.kba!;
+        while (-e $BACKUP_FILENAME and $x < 1024) {
+            $x++;
+            $BACKUP_FILENAME =~ s!\.\d+\.kba$!.$x.kba!;
+        }
+    }
+
+    print "Creating backup in '$BACKUP_FILENAME'.\n";
+
+    # run smolder_backup
+    my $backup = catfile($options{InstallRoot}, 'bin', 'smolder_backup') . 
+      " /tmp/$BACKUP_FILENAME" . " 2>&1";
+    my $out = `SMOLDER_ROOT='' $backup`;
+    exit_error("Problem creating smolder_backup.  To suppress backup creation, run smolder_upgrade with --no-backup.  Error was:\n\n$out\n")
+      unless $out =~ /Backup complete/;
+
+    system("mv /tmp/$BACKUP_FILENAME ./$BACKUP_FILENAME") &&
+      exit_error("Unable to move backup from /tmp/$BACKUP_FILENAME to ./$BACKUP_FILENAME");
+}
+
+sub install_new_smolder {
+    my $new_smolder = $ENV{SMOLDER_ROOT};
+    my $InstallPath = $options{InstallRoot};
+
+    print "Installing new Smolder files into '$InstallPath'\n";
+    chdir($ENV{SMOLDER_ROOT});
+
+    # change Smolder.pm's name so it doesn't stomp the installed version
+    # before the upgrade is really finished
+    rename('./lib/Smolder.pm', './lib/Smolder.new') 
+      or die "Unable to rename ./lib/Smolder.pm to ./lib/Smolder.new: $!\n";
+
+    eval {
+        my $copy = "$COPY_BIN -a * $InstallPath\/";
+        system($copy) && die("Can't copy files, cp died with error code $?\n");
+    };
+    my $err = $@;    
+    rename('./lib/Smolder.new', './lib/Smolder.pm');
+    die $err if $err;
+
+    print "  Fixing ownership\n";
+    my $user = $OLD_CONF->get("User");
+    my $group = $OLD_CONF->get("Group");
+    my $chown = "$CHOWN_BIN -R $user\.$group $InstallPath";
+    system($chown) 
+      && die("Can't update ownership, chown exited with error code $?\n");
+
+    print "  Smolder files installed.\n";
+}
+
+# Run through upgrade module per_installation() methods.
+sub apply_upgrades {
+    print "Applying upgrades\n";
+
+    my $InstallRoot = $options{InstallRoot};
+
+    my $old_version = $OLD_VERSION;
+    my $new_version = get_version($ENV{SMOLDER_ROOT});
+    print "  Upgrading v$old_version to v$new_version\n";
+
+    # Find upgrade modules
+    my $upmod_path = $InstallRoot ."/upgrade/";
+    print "  Upgrade path: $upmod_path\n";
+    opendir(DIR, $upmod_path) || die ("Unable to open upgrade directory '$upmod_path': $!\n");
+    my @upmodules = (grep {
+        (-f $upmod_path.$_) && (/^V(\d+)\_(\d+)\.pm$/) && ( "$1.$2" > $old_version )
+      } sort readdir(DIR));
+    closedir(DIR);
+
+    print "  Found ".scalar(@upmodules)." applicable upgrade modules.\n";
+    print "    ". join("\n    ", @upmodules) ."\n" if (@upmodules);
+
+    # Run upgrade modules
+    my $perl5lib = $InstallRoot ."/upgrade:" . $InstallRoot ."/lib";
+    foreach my $module (@upmodules) {
+        print "  Running $module...\n";
+        # Get package name by trimming off ".pm"
+        my $package = $module;
+        $package =~ s/\.pm$//;
+
+        my $upgrade_cmd = "SMOLDER_ROOT=$InstallRoot PERL5LIB=$perl5lib $PERL_BIN";
+        $upgrade_cmd .= " -M$package -e 'my \$ug = $package->new(); \$ug->upgrade()'";
+        system($upgrade_cmd) && die("Error using upgrade module '$module'");
+    }
+    
+}
+
+# copy lib/Smolder.pm into place, effectively updating Smolder's version
+sub update_version {
+    my $new_smolder = $ENV{SMOLDER_ROOT};
+    my $InstallPath = $options{InstallRoot};    
+
+    print "Updating Smolder version.\n";
+    my $copy = "$COPY_BIN -a $InstallPath/lib/Smolder.new $InstallPath/lib/Smolder.pm";
+    system($copy)
+      && die("Can't copy lib/Smolder.pm: copy exited with error code: $?\n");
+    unlink("$InstallPath/lib/Smolder.new") or die "Unable to unlink: $!\n";
+    
+
+    print "  Fixing ownership of lib/Smolder.pm\n";
+    my $User = $OLD_CONF->get("User");
+    my $Group = $OLD_CONF->get("Group");
+    my $chown = "$CHOWN_BIN $User\.$Group $InstallPath/lib/Smolder.pm";
+    system($chown) && die("Can't update ownership of lib/Smolder.pm: chown exited with error code: $?\n");
+}
+
+sub update_db_version {
+    my $InstallRoot = $options{InstallRoot};
+    my $new_version = get_version($InstallRoot);
+    print "Updating db_version to $new_version\n";
+}
+
+
+sub clear_sessions {
+    print "Clearing out old sessions\n";
+    # TODO
+}
+
+
+sub start_smolder {
+    my $InstallRoot = $options{InstallRoot};
+    print "Starting Smolder using $InstallRoot/bin/smolder_ctl\n";
+    my $start = "SMOLDER_ROOT='' PERL5LIB='' $InstallRoot/bin/smolder_ctl start";
+    system($start) && die("Can't start Smolder.\n");
+}
+
+
+sub output_report {
+    our $PLATFORM;
+    $PLATFORM->post_upgrade_message(options => {
+                            InstallPath => $options{InstallRoot},
+                            HostName    => $OLD_CONF->get("HostName"),
+                            IPAddress   => $OLD_CONF->get("ApacheAddr"),
+                            ApachePort  => $OLD_CONF->get("ApachePort"),
+                            FTPPort     => $OLD_CONF->get("FTPPort"),
+                                               });
+}
+
+###########################
+####  PRIVATE METHODS  ####
+###########################
+
+sub exit_error {
+    my $cmd = $0;
+    $cmd =~ s/.*\/(.+)$/$1/;
+
+    my $message = shift;
+    print STDERR "\nError: $cmd:  $message\n\n";
+    exit(1);
+}
+
+
+sub setup_getopts {
+    # Copy the original args for re-invoking later
+    @original_args = @ARGV;
+
+    pod2usage(2) unless
+        GetOptions( 'help'          => \$help,
+                    'man'           => \$man,
+                    'no-backup'     => \$options{'no-backup'},
+                    (map { $_."=s"  => \$options{$_} } @opt_params) );
+
+    pod2usage(1)             if $help;
+    pod2usage(-verbose => 2) if $man;
+
+    # Set opt defaults
+    set_param_defaults();
+}
+
+
+sub set_param_defaults {
+    my %defaults = (
+                    InstallRoot => '/usr/local/Smolder',
+                    AdminDBPassword => '',
+                    DBHost => '',
+                   );
+
+    # Set up defaults if value is not otherwise set
+    while (my ($k, $dv) = each(%defaults)) {
+        # Skip if value already defined
+        next if (length($options{$k}));
+
+        # Set default
+        $options{$k} = $dv;
+    }
+
+}
+
+
+# Get the version of Smolder installed in a particular SMOLDER_ROOT
+sub get_version {
+    my $InstallRoot = shift;
+    open(smolder_PM, '<', $InstallRoot . '/lib/Smolder.pm') 
+      or die "Unable to open Smolder.pm: $!\n";
+    my $text = do { local $/; <smolder_PM> };
+    close smolder_PM;
+
+    my ($version) = $text =~ /^our\s+\$VERSION.*?(\d+\.\d+)/m;
+    die "Unable to extract version from Smolder.pm in $InstallRoot/lib.\n"
+      unless $version;
+    return $version;
+}
+
+
+###############
+####  EOF  ####
+###############

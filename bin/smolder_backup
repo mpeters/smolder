@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+# set to location of mysql_dump, or leave with no path to search PATH
+use constant MYSQL_DUMP => 'mysqldump';
+
+=head1 NAME
+
+smolder_backup - make a backup of a Smolder installation
+
+=head1 SYNOPSIS
+
+Create a backup named C<SMOLDER-`hostname`-YYYYMMDD.bak>:
+
+  bin/smolder_backup
+
+Create a compressed backup named C<SMOLDER-`hostname`-YYYYMMDD.bak.gz>:
+
+  bin/smolder_backup --compress
+
+Create a backup named C<backup.bak>:
+
+  bin/smolder_backup backup.bak
+
+=head1 DESCRIPTION
+
+This script creates a backup of a Smolder installation.  The C<.bak> (or
+C<.bak.gz>) file produced may be later fed to C<smolder_install --FromBackup>
+to recreate the Smolder installation.
+
+For more details, see L<docs/ops_backup.pod>.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --compress
+
+If this option is specified then the resulting file will be compressed
+using gzip.  For large installations this can be very slow.
+
+=item --verbose
+
+Prints a running dialog of what's happening.  Repeat for more details.
+
+=item --help
+
+=item --man
+
+=back
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : 
+      "${lib}";
+    unshift @INC, $lib, "$lib/".$Config{archname};
+
+    # load Smolder::Conf
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
+use Getopt::Long;
+use Pod::Usage;
+use Sys::Hostname;
+use File::Path;
+use Cwd qw(cwd);
+
+my $ROOT       = InstallRoot();
+my $DATA_DIR   = catdir($ROOT, 'data');
+my $BACKUP_DIR = catdir($DATA_DIR, 'backup');
+
+my ($help, $man, $compress);
+my $verbose = 0;
+
+GetOptions(
+    'help'      => \$help,
+    'man'       => \$man,
+    'verbose+'  => \$verbose,
+    'compress'  => \$compress,
+) || pod2usage(2);
+pod2usage(1)             if $help;
+pod2usage(-verbose => 2) if $man;
+
+# figure out filename
+my $file;
+if (@ARGV == 1) {
+    $file = shift @ARGV;
+    die "Filename '$file' should end in .gz to be used with --compress.\n"
+      if $compress and $file !~ /.gz$/;
+} elsif (@ARGV) {
+    pod2usage("Too many arguments to $0.");
+} else {
+    my ($y, $m, $d) = (localtime)[5,4,3];
+    $file = sprintf(
+        'SMOLDER-%s-%04d%02d%02d.%s', 
+         hostname, 
+        ($y+1900), 
+        ($m+1), 
+        $d, 
+        ($compress ?'bak.gz':'bak')
+    );
+}
+die "File '$file' already exists.\n" if -e $file;
+print STDERR "Creating backup in '$file'...\n\n" if $verbose;
+
+# make backup directory if needed
+mkpath([$BACKUP_DIR]) unless -d $BACKUP_DIR;
+
+# dump all database tables into BACKUP_DIR
+my $dump_file = catfile($BACKUP_DIR, 'dump.sql');
+my $cmd = MYSQL_DUMP . ' -u' . DBUser .
+  (DBPass ? (' -p' . DBPass) : '') . ' -e -l --databases ' .
+  DBName . ">>$dump_file";
+
+# in case any addons are using InnoDB tables
+$cmd = "echo 'SET foreign_key_checks=0;' > $dump_file; $cmd";
+print STDERR "Dumping " . DBName . " database with command:" .
+  "\n\t$cmd\n\n"
+    if $verbose;
+system($cmd) && die "Dump of the MySQL databae failed. Please correct the error and try your backup again.\n";
+
+# create .bak tar file
+my $full_file = rel2abs($file);
+my $cmd = "tar cp" . ($verbose > 1 ? "v" : "") . 
+  "f $full_file --exclude $full_file --exclude $file " . 
+  ($compress ? " --gzip " : "") .  " .";
+
+print STDERR "Creating backup archive with command:\n\t$cmd\n\n"
+  if $verbose;
+
+# go to $ROOT if not already there and run the tar command
+chdir($ROOT) or die $!;
+system($cmd) &&die "taring of data failed... Please try again\n";
+
+# clean up backup dir
+rmtree([$BACKUP_DIR]);
+
+print "Backup complete in $file.\n";
+exit 0;

@@ -1,0 +1,359 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+=pod
+
+=head1 NAME
+
+smolder_build 
+
+build a Smolder binary distribution from source
+
+=head1 SYNOPSIS
+
+To automatically determine the platform:
+
+  smolder_build
+
+Or specify it explicitely:
+
+  smolder_build [platform]
+
+=head1 DESCRIPTION
+
+This script builds Smolder from source for the specified platform.  In
+most cases you must be running the platform for which you're building
+(i.e. no cross-compilation).
+
+Available platforms are the set of directories in F<platform/>.
+
+=head1 OPTIONS
+
+The script takes the following options:
+
+=over
+
+=item --no-apache
+
+By default the script will build apache and mod_perl for you.  This
+option skips those steps.
+
+=item --no-swishe
+
+By default the script will build swish-e for you.  This
+option skips that step.
+
+=item --module
+
+Specify a specific CPAN module to build.  The string you provide will
+be checked as a substring against the distribution file name. You can 
+specify this option multiple times to build a specific set of modules.
+
+When this is specified it automatically sets C<no-apache> and C<no-swishe>
+to true.
+
+=item --skip-module
+
+Same as C<module> above, but skips the specified modules and builds
+everything else.  
+The C<--module>, C<--skip-module> and C<--no-module>
+options are not intended to be used together.
+
+=item --no-module
+
+This option is similar to C<--skip-module> except that it skips every
+perl module.
+The C<--module>, C<--skip-module> and C<--no-module>
+options are not intended to be used together.
+
+=item --help
+
+=item --man
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir($RealBin);
+
+    #remove any blank elements on the end of the @dir
+    pop(@dir) while ( !$dir[$#dir] );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # add in $SMOLDER_ROOT/platform for platform build modules
+    my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
+    $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
+    unshift @INC, $plib;
+}
+use Pod::Usage;
+use Getopt::Long;
+use File::Temp qw(tempdir);
+
+# setup path variables
+my $ROOT            = $ENV{SMOLDER_ROOT};
+my $SRC_DIR         = catdir( $ROOT, 'src' );
+my $DEST_DIR        = catdir( $ROOT, 'lib' );
+my $APACHE_DEST_DIR = catdir( $ROOT, 'apache' );
+my $BUILD_DIR       = tempdir( DIR => catdir( $ROOT, 'tmp' ) );
+my $PLATFORM_DIR    = catdir( $ROOT, 'platform' );
+
+# a few useful constants
+my $APACHE       = 'Apache-MOD_PERL/apache_1.3.34.tar.gz';
+my $MOD_SSL      = 'Apache-MOD_PERL/mod_ssl-2.8.25-1.3.34.tar.gz';
+my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
+my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
+my $LIBAPREQ     = 'libapreq';
+my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
+
+# options
+my $skip_apache = 0;
+my $skip_swishe = 0;
+my $no_module   = 0;
+my ( @modules, @skip_modules, $help, $man );
+GetOptions(
+    'no-apache'     => \$skip_apache,
+    'no-swishe'     => \$skip_swishe,
+    'no-module'     => \$no_module,
+    'module=s'      => \@modules,
+    'skip-module=s' => \@skip_modules,
+    'help'          => \$help,
+    'man'           => \$man,
+) or pod2usage(2);
+
+pod2usage(1) if $help;
+pod2usage( -verbose => 2 ) if $man;
+
+if( @modules ) {
+    $skip_apache = 1;
+    $skip_swishe = 1;
+}
+
+# get platform arg
+pod2usage("Wrong number of arguments.\n") if @ARGV > 1;
+my $platform;
+opendir( DIR, $PLATFORM_DIR ) or die $!;
+my @platforms = grep { 
+    $_ !~ /^\.\.?$/     # not the parent or a hidden file
+    and 
+    $_ !~ /CVS/         # ignore CVS cruft
+    and 
+    $_ !~ /\.svn/       # ignore SVN cruft
+} sort readdir DIR;
+
+# check that we're not trying to build on top of an existing build
+#die "A build of Smolder already exists here.  Run 'n' to remove it".
+#    "\nbefore trying again.\n"
+#    if -e catfile($ROOT, 'data', 'build.db');
+
+if (@ARGV) {
+    $platform = shift;
+
+    # check for bad platform
+    unless ( -d catdir( $PLATFORM_DIR, $platform ) ) {
+        die "Platform '$platform' is not supported.  "
+          . "Available platforms are:\n\n\t"
+          . join( "\n\t", @platforms ) . "\n\n";
+    }
+} else {
+
+    # look for a platform that wants to handle this
+    my $found;
+    foreach my $plat (@platforms) {
+        my $pkg = $plat . '::Platform';
+        eval "use $pkg";
+        die "Unable to load platform modules '$pkg': $@\n" if $@;
+
+        if ( $pkg->guess_platform ) {
+            $found    = 1;
+            $platform = $plat;
+            print "Building for platform '$plat'.\n";
+            last;
+        }
+    }
+    die "Unable to automatically determine your platform, you must\n"
+      . "provide one on the command line.  Available platforms are:\n\n\t"
+      . join( "\n\t", @platforms ) . "\n\n"
+      unless $found;
+}
+
+# load the platform build module, reference via $pkg
+my $pkg = $platform . '::Platform';
+eval "use $pkg";
+die "Unable to load platform modules '$pkg': $@\n" if $@;
+
+# verify the platform
+$pkg->verify_dependencies( mode => 'build' );
+
+# now build swish-e first since SWISH-API requires it's libs
+unless ($skip_swishe) {
+    #now let's extract swish-e
+    goto_build_dir();
+    my $swishe_gz = catfile( $SRC_DIR, $SWISHE );
+    system("tar zxf $swishe_gz") == 0
+      or die "Couldn't unpack file $swishe_gz: $?";
+    my ($swishe_dir) = $swishe_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find swish-e dir '$swishe_dir'." unless -d $swishe_dir;
+
+    chdir($swishe_dir) or die "Unable to chdir($swishe_dir): $!";
+    $pkg->build_swishe(
+        swishe_dir => catdir($ROOT),
+    );
+}
+
+# get list of files to build, considering --module and --skip-module opts
+opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";
+my @files = sort readdir(SRC);
+
+unless ($no_module) {
+
+    if (@modules) {
+        @files = grep { contains( \@modules, $_ ) } @files;
+    } elsif (@skip_modules) {
+        @files = grep { !contains( \@skip_modules, $_ ) } @files;
+    }
+
+    # TODO - do we want to put this list somewhere else so it's subclassable?
+    # shuffle these modules to the back to get proper build order
+    foreach my $distribution qw(DBD-mysql) {
+        my ($file) = grep( /$distribution/, @files );
+        @files = grep( !/$distribution/, @files );
+        push @files, $file if $file;
+    }
+
+    # TODO - do we want to put this list somewhere else so it's subclassable?
+    # shuffle these modules to the front since they're needed by later build steps
+    foreach my $distribution qw(Module-Build Expect IO-Tty) {
+        my ($file) = grep( /$distribution/, @files );
+        @files = grep( !/$distribution/, @files );
+        unshift @files, $file if $file;
+    }
+
+    # loop through files, unpacking and calling build_perl_module()
+    foreach my $file (@files) {
+        next unless $file =~ /gz$/;
+
+        # wait to build libapreq till after building Apache
+        next if $file =~ /^$LIBAPREQ/o;
+
+        build_module($file);
+    }
+}
+
+# build Apache/mod_perl
+unless ($skip_apache) {
+    goto_build_dir();
+
+    my $apache_gz = catfile( $SRC_DIR, $APACHE );
+    system("tar zxf $apache_gz") == 0 or die "Couldn't unpack file: $?";
+    my ($apache_dir) = $apache_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find Apache dir '$apache_dir'." unless -d $apache_dir;
+
+    my $mod_perl_gz = catfile( $SRC_DIR, $MOD_PERL );
+    system("tar zxf $mod_perl_gz") == 0 or die "Couldn't unpack file: $?";
+    my ($mod_perl_dir) = $mod_perl_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find Mod_perl dir '$mod_perl_dir'." unless -d $mod_perl_dir;
+
+    my $mod_auth_tkt_gz = catfile( $SRC_DIR, $MOD_AUTH_TKT );
+    system("tar zxf $mod_auth_tkt_gz") == 0 or die "Couldn't unpack file: $?";
+    my ($mod_auth_tkt_dir) = $mod_auth_tkt_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find Mod_auth_tkt dir '$mod_auth_tkt_dir'."
+      unless -d $mod_auth_tkt_dir;
+
+    my $mod_ssl_gz = catfile( $SRC_DIR, $MOD_SSL );
+    system("tar zxf $mod_ssl_gz") == 0 or die "Couldn't unpack file: $?";
+    my ($mod_ssl_dir) = $mod_ssl_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find Mod_ssl dir '$mod_ssl_dir'." unless -d $mod_ssl_dir;
+
+    $pkg->build_apache_modperl(
+        apache_dir       => $apache_dir,
+        mod_perl_dir     => $mod_perl_dir,
+        mod_auth_tkt_dir => $mod_auth_tkt_dir,
+        mod_ssl_dir      => $mod_ssl_dir,
+    );
+
+    # build libapreq now that mod_perl is in place
+    if ( my ($libapreq) = grep /^$LIBAPREQ/, @files ) {
+        build_module($libapreq);
+    }
+}
+
+# drop a build.db file describing the build, used by smolder_makedist
+# and smolder_install
+print "Writing data/build.db\n";
+open( DB, '>', catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' ) )
+  or die "Unable to open 'data/build.db': $!";
+print DB "Platform $platform\n";
+print DB sprintf "Perl \"%d.%d.%d\"\n", ( map { ord($_) } split( "", $^V, 3 ) );
+print DB "Arch \"$Config{archname}\"\n";
+close DB;
+
+# all done, cleanup build dir
+print "Cleaning temporary build directory $BUILD_DIR.\n";
+
+rmdir($BUILD_DIR);
+
+print "\n\nBuild complete!\n";
+
+#
+# Subroutines
+#
+
+# unpack a distribution and use the platform module to build it
+sub build_module {
+    my $file = shift;
+
+    # unpack distribution
+    my $dist_file = catfile( $SRC_DIR, $file );
+    print "Unpacking $dist_file...\n";
+    goto_build_dir();
+    system("tar zxf $dist_file") == 0 or die "Couldn't unpack file: $?";
+
+    $dist_file =~ m!([^/]+)\.(tar\.|t)gz!;
+    my $dist_dir = $1;
+
+    die "Can't determine dist_dir for '$dist_file'." unless $dist_dir;
+    chdir $dist_dir or die "Unable to chdir($dist_dir): $!";
+
+    # if it's SWISH-API then add the swishe bin to our path
+    if( $file =~ /SWISH-API/ ) {
+        $ENV{SWISHBINDIR} = catdir($ENV{SMOLDER_ROOT}, 'swish-e', 'bin'); 
+    }
+    eval { $pkg->build_perl_module( name => $dist_dir ); };
+    die "Problem building $dist_dir in $BUILD_DIR:\n\n$@\n"
+      if $@;
+
+    # clean up dist dir
+    system("rm -rf $dist_dir") == 0 or die "Error cleaning $dist_dir: $?";
+}
+
+sub goto_build_dir {
+    chdir $BUILD_DIR or die "Unable to chdir($BUILD_DIR): $!";
+}
+
+# returns true if list contains a string which contains the target string
+sub contains {
+    my ( $list, $string ) = @_;
+    $string =~ s/::/-/g;    # allow '::' to be used instead of '-'
+    return grep { index( $string, $_ ) > -1 } @{$list};
+}
+
+# print all those nice asterisks
+sub print_message {
+
+    print "\n\n************************************************\n\n", shift,
+      "\n\n************************************************\n\n";
+}

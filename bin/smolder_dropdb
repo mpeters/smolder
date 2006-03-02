@@ -1,0 +1,126 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Config;
+use FindBin qw($RealBin);
+use File::Spec::Functions qw(catfile catdir splitdir );
+use Getopt::Long;
+
+=head1 NAME
+
+smolder_dropdb
+
+=head1 SYNOPSIS
+
+    ./bin/smolder_dropdb --password s3cr3t
+
+=head1 DESCRIPTION
+
+Script used to drop the Smolder database
+
+=head1 OPTIONS
+
+=over 8
+
+=item * password
+
+The password of the 'root' DB user. Defaults to ''.
+
+=item * help
+
+Show a brief help message.
+
+=item * man
+
+Show a more detailed help message.
+
+=back
+
+=cut
+
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir($RealBin);
+
+    #remove any blank elements on the end of the @dir
+    pop(@dir) while ( !$dir[$#dir] );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+
+    unshift( @INC,
+        catfile( $FindBin::Bin, '..', 'lib' ),
+        catfile( $FindBin::Bin, '..', 'lib', $Config{archname} ) );
+}
+
+use DBI;
+use Smolder::Conf qw(DBName DBHost);
+use Pod::Usage qw(pod2usage);
+
+# setup the defaults
+my $password = '';
+my $help     = 0;
+my $man      = 0;
+
+GetOptions(
+    'password=s' => \$password,
+    'help!'      => \$help,
+    'man!'       => \$man,
+) || pod2usage();
+
+if ($help) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 1,
+    );
+} elsif ($man) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 2,
+    );
+}
+
+my $db_name = DBName();
+my $db_host = DBHost();
+
+print "Dropping database: $db_name\n";
+
+eval {
+    my $dbh =
+      DBI->connect(
+        "dbi:mysql:mysql_read_default_group=client;database=$db_name",
+        'root', $password, { RaiseError => 1 } );
+
+    $dbh->do(qq/DROP DATABASE $db_name/);
+};
+
+if ( $@ =~ /Unknown database/ ) {
+
+    # okay
+} elsif ($@) {
+    die $@;
+}
+

@@ -1,0 +1,40 @@
+<div id="developer_prefs_[% pref.id %]">
+<form class="ajaxable for_developer_prefs_[% pref.id %]" name="update_pref_[% pref.id %]" action="/app/developer_prefs/update_pref" method="post">  
+<input type="hidden" name="project" value="[% project.id %]" />
+
+[% IF success %]
+  <p class="warn">
+    Preferences successfully updated.
+  </p>
+[% END %]
+[% PROCESS form_header.tmpl %]
+
+<table>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type *</td>
+  <td>
+    <select name="email_type">
+      <option value="full" [% IF pref.email_type == 'full' %]selected="selected"[% END %]>Full HTML Report</option>
+      <option value="summary" [% IF pref.email_type == 'summary' %]selected="selected"[% END %]>Simple Summary of Pass/Fail/Skip</option>
+      <option value="link" [% IF pref.email_type == 'link' %]selected="selected"[% END %]>A Link to the Full Summary</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency *</td>
+  <td>
+    <select name="email_freq">
+      <option value="on_new" [% IF pref.email_freq == 'on_new' %]selected="selected"[% END %]>Everytime a new Test Report is Added </option>
+      <option value="on_fail" [% IF pref.email_freq == 'on_fail' %]selected="selected"[% END %]>Only when a new Test Report has Failures</option>
+      <option value="never" [% IF pref.email_freq == 'never' %]selected="selected"[% END %]>Never</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Update" />
+  </td>
+</tr>
+</table>
+</form>
+</div>

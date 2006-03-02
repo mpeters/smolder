@@ -1,0 +1,50 @@
+###########################################################################
+#
+# Global Smolder Setup
+#
+###########################################################################
+
+#
+# User and Group: the UNIX user and group for Smolder.  All
+# Smolder processes run as this user/group and all files must be owned by
+# this user.
+#
+User  "<tmpl_var User>"
+Group "<tmpl_var Group>"
+
+#
+# MySQL user and password for Smolder
+#
+DBUser "<tmpl_var DBUser>"
+DBPass "<tmpl_var DBPass>"
+DBName "<tmpl_var DBName>"
+<tmpl_if DBHost>
+DBHost "<tmpl_var DBHost>"
+</tmpl_if>
+
+# 
+# ApacheAddr and ApachePort: the IP and port for the Apache server
+#
+ApacheAddr <tmpl_var IPAddress>
+ApachePort <tmpl_var ApachePort>
+
+#
+# HostName: the virtual host for the Smolder server.
+#
+HostName "<tmpl_var HostName>"
+
+#
+# LogLevel: how much logging detail to include in krang.log.  Valid setting are
+# 1 (critical only), 2 (critical and info) and 3 (critical, info and
+# debug).  A setting of 2 is standard for production use.
+#
+LogLevel 2
+
+#
+# Set the number of child processes the scheduler daemon
+# can spawn when handling tasks.
+# Current wisdom suggests a 3:1 ratio of children to available CPUs.
+#
+SchedulerMaxChildren 3
+SchedulerInterval    5
+

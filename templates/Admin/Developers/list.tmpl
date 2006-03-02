@@ -1,0 +1,42 @@
+[% SET page_title = "Admin - Developers" %]
+
+<h2>Developer List</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_developers/add">Add New Developer</a>
+    <a class="sub_menu" href="/app/admin_projects/developers">Assign Developers to Projects</a>
+</div>
+
+[% IF developers %]
+    <table class="boxed" id="developer_list">
+    <tr class="header">
+      <td>Username</td>
+      <td>Name</td>
+      <td>Email</td>
+      <td>Admin</td>
+      <td>Edit</td>
+      <td>Delete</td>
+    </tr>
+    [% FOREACH developer IN developers %]
+      <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
+        <td width="100px"><a href="/app/admin_developers/details/[% developer.id %]">[% developer.username %]</a></td>
+        <td width="180px">[% IF developer.lname %][% developer.lname %], [% END %][% developer.fname %]</td>
+        <td width="100px">[% developer.email %]</td>
+        <td width="80px">[% IF developer.admin %]Yes[% ELSE %]No[% END %]</td>
+        <td width="50px"><a href="/app/admin_developers/edit/[% developer.id %]">[Edit]</a></td>
+        <td width="60px">
+          <a href="#" class="popup_form" id="delete_developer_form_[% developer.id %]_trigger">[Delete]</a>
+          <div id="delete_developer_form_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
+            <form class="ajaxable" name="delete_[% developer.id %]" action="/app/admin_developers/process_delete/[% developer.id %]" method="post">
+            Upon deletion, all information about this project will be removed.<br />
+            Are you sure this is what you want?
+            <input type="submit" value="Yes">
+            </form>
+          </div>
+        </td>
+      </tr>
+    [% END %]
+    </table>
+[% ELSE %]
+    <p>No Developers currently exist</p>
+[% END %]

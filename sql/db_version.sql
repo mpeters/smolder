@@ -1,0 +1,7 @@
+SET FOREIGN_KEY_CHECKS=0;
+CREATE TABLE db_version (
+  db_version VARCHAR(255) NOT NULL DEFAULT ''
+) TYPE=InnoDB;
+
+INSERT INTO db_version VALUES ('0.1');
+

@@ -1,0 +1,54 @@
+[% SET page_title = 'Admin - Developers' %]
+
+<h2>Add a New Developer</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_developers/list">All Developers</a>
+</div>
+
+[% PROCESS form_header.tmpl %]
+
+<form class="ajaxable" name="add" action="/app/admin_developers/process_add" method="post">
+
+<table class="boxed">
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_username || err_unique_username %] warn[% END %]">Username *</label></td>
+  <td><input class="first" type="text" name="username" size="25" /></td>
+  [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
+  <td><em class="warn">A developer with that username already exists.</em></td>
+  [% END %]
+</tr>
+<tr class="even">
+  <td><label class="required[% IF c.dfv_msgs.err_fname %] warn[% END %]">First Name *</label></td>
+  <td><input type="text" name="fname" size="25" /></td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_lname %] warn[% END %]">Last Name *</label></td>
+  <td><input type="text" name="lname" size="25" /></td>
+</tr>
+<tr class="even">
+  <td><label class="required[% IF c.dfv_msgs.err_email %] warn[% END %]">Email Address *</label></td>
+  <td><input type="text" name="email" size="25" /></td>
+  [% IF c.dfv_msgs.invalid_email %]
+  <td><em class="warn">Not a valid email address!</em></td>
+  [% END %]
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_password %] warn[% END %]">Password *</label></td>
+  <td><input type="text" name="password" size="25" /></td>
+  [% IF c.dfv_msgs.invalid_password %]
+  <td><em class="warn">Must be at leat 4 characters!</em></td>
+  [% END %]
+</tr>
+<tr class="even">
+  <td><label class="required[% IF c.dfv_msgs.err_admin %] warn[% END %]">Site Admin? *</label></td>
+  <td>
+    <input type="radio" name="admin" value="1"> Yes
+    <input type="radio" name="admin" value="0"> No
+  </td>
+</tr>
+<tr>
+    <td colspan="2" align="right"><input type="submit" value="Add" /></td>
+</tr>
+</table>
+</form>

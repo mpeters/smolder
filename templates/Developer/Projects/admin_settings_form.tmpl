@@ -1,0 +1,41 @@
+[% INCLUDE form_header.tmpl %]
+[% IF success %]
+  <span class="warn">Project settings successfully updated.</span>
+[% END %]
+
+<div class="boxed">
+<form action="/app/developer_projects/process_admin_settings/[% project.id %]" class="ajaxable for_admin_settings" name="admin_settings_form" method="post">
+<table>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_default_platform %]class="warn"[% END %]>Default Platform</label></td>
+  <td><input class="first" type="text" name="default_platform" /></td>
+  [% IF c.dfv_msgs.invalid_default_platform %]
+  <td class="warn">
+    Too long. Must be under 255 characters.
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_default_arch %]class="warn"[% END %]>Default Architecture</label></td>
+  <td><input type="text" name="default_arch" /></td>
+  [% IF c.dfv_msgs.invalid_default_arch %]
+  <td class="warn">
+    Too long. Must be under 255 characters.
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_allow_anon %] warn[% END %]">Allow Anonymous Reports? *</label></td>
+  <td>
+    <input type="radio" name="allow_anon" value="1"/>Yes
+    <input type="radio" name="allow_anon" value="0"/>No
+  </td>
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Update Settings" />
+  </td>
+</tr>
+</table>
+</form>
+</div>

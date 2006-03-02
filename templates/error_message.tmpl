@@ -1,0 +1,11 @@
+[% SET page_title = 'Error' %]
+<p class="warn">
+  [% IF message %]
+    [% message %] 
+  [% ELSE %]
+    An internal error occurred. 
+    <br />
+    Please notify your administrator of the date and time and what action you were trying to perform.
+  [% END %]
+</p>
+

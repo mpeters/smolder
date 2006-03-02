@@ -1,0 +1,50 @@
+[% SET page_title = 'Change Password' %]
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_prefs">Preferences</a>
+</div>
+
+[% PROCESS form_header.tmpl %]
+
+[% IF success %]
+  <span class="warn">Password successfully changed!</span>
+[% END %]
+
+<div class="boxed">
+<form action="/app/developer_prefs/process_change_pw" class="ajaxable" name="change_pw" id="change_pw" method="post">
+<table>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_current_pw %] warn[% END %]">Current Password *</label></td>
+  <td><input class="first" type="password" name="current_pw" /></td>
+  [% IF c.dfv_msgs.invalid_current_pw %]
+  <td class="warn">
+    Does not match your current password!
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_new_pw %] warn[% END %]">New Password *</label></td>
+  <td><input type="password" name="new_pw" /></td>
+  [% IF c.dfv_msgs.invalid_new_pw %]
+  <td class="warn">
+    Must be at least 4 characters long!
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_new_pw_retyped %] warn[% END %]">New Password <em>(Retyped)</em> *</label></td>
+  <td><input type="password" name="new_pw_retyped" /></td>
+  [% IF c.dfv_msgs.invalid_new_pw_retyped %]
+  <td class="warn">
+    Does not match your New Password!
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Change Password" />
+  </td>
+</tr>
+</table>
+</form>
+</div>

@@ -1,0 +1,91 @@
+body {
+    text-align: center;
+}
+
+#container {
+    text-align: left;
+}
+
+#header_container {
+    margin: 0 auto;
+    width: 750px;
+    height: 100px;
+    background-color: #EEEEEE;
+    margin-bottom: 20px;
+    border-width: 1px;
+    border-color: #666666;
+    border-style: solid;
+    padding: 3px;
+    -moz-border-radius: 10px;
+}
+
+#header {
+    width: 100%;
+    height: 100%;
+    border-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-color: #CCCCCC;
+    border-style: solid;
+    -moz-border-radius: 10px;
+    position: relative;
+    background-image: url(/images/gride.png);
+}
+
+#main_container {
+    margin: 0 auto;
+    width: 750px;
+    min-height: 550px;
+    background-color: #EEEEEE;
+    border-width: 1px;
+    border-color: #666666;
+    border-style: solid;
+    padding: 3px;
+    -moz-border-radius: 10px;
+}
+
+#main {
+    border-width: 0px;
+    min-height: 550px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-color: #CCCCCC;
+    border-style: solid;
+    -moz-border-radius: 10px;
+    background-image: url(/images/smolder_large_bg.png);
+    background-repeat: no-repeat;
+    background-position: top right;
+    margin: 0px;
+    padding: 0px;
+}
+
+#top_nav {
+    margin: 0 auto;
+    width: 750px;
+    height: 15px;
+    position: relative;
+    top: -10px;
+    font-weight: bold;
+}
+
+#content {
+    padding: 3px;
+}
+
+#logo {
+    background-image: url(/images/smolder_small_no_text.png);
+    background-repeat: no-repeat;
+    width: 100px;
+    height: 100px;
+}
+
+#title {
+    background-image: url(/images/smolder_text.png);
+    background-repeat: no-repeat;
+    width: 291px;
+    height: 57px;
+    position: absolute;
+    right: 0px;
+    top: 84px;
+}
+

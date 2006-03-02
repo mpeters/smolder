@@ -1,0 +1,100 @@
+[% SET page_title = 'New Smoke Report' %]
+
+<div id="add_report_[% project.id %]" class="boxed">
+
+<h2>[% project.name %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+[% INCLUDE form_header.tmpl %]
+
+<form action="/app/developer_projects/process_add_report/[% project.id %]" method="post" enctype="multipart/form-data" name="add_report"> 
+<table>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_architecture %]class="warn"[% END %]>Architecture</label></td>
+  <td>
+    <input class="first" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch %]" />
+    <div class="auto_complete" id="architecture_auto_complete" />
+  </td>
+  [% IF c.dfv_msgs.err_architecture %]
+  <td><span class="warn">
+    Must be less than 255 characters
+  </span></td>
+  [% END %]
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_platform %]class="warn"[% END %]>Platform</label></td>
+  <td>
+    <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform %]" />
+    <div class="auto_complete" id="platform_auto_complete" />
+  </td>
+  [% IF c.dfv_msgs.err_platform %]
+  <td><span class="warn">
+    Must be less than 255 characters
+  </span></td>
+  [% END %]
+</tr>
+[% SET categories = project.categories %]
+[% IF categories %]
+<tr>
+  <td><label [% IF c.dfv_msgs.err_category %]class="warn"[% END %]>Category</label></td>
+  <td>
+    <select name="category" id="category">
+      <option value="">--none--</option>
+      [% FOREACH category IN categories %]
+        <option value="[% category %]">[% category %]</option>
+      [% END %]
+    </select>
+  </td>
+</tr>
+[% END %]
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_format %] warn[% END %]">Format *</label></td>
+  <td>
+    <select name="format" id="format">
+      <option value="XML">XML</option>
+      <option value="YAML">YAML</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_report_file || err_valid_file %] warn[% END %]">Smoke Report File *</label></td>
+  <td><input type="file" name="report_file" id="report_file" /></td>
+  [% IF err_valid_file || c.dfv_msgs.err_report_file %] 
+  <td><span class="warn">
+    [% IF error_valid_xml %]
+        Was not a valid XML smoke test report!
+    [% ELSIF error_valid_yaml %]
+        Was not a valid YAML smoke test report!
+    [% ELSIF c.dfv_msgs.missing_report_file %]
+        You must upload a smoke test report!
+    [% ELSIF c.dfv_msgs.invalid_report_file %]
+        Was not the correct content type!
+    [% END %]
+  </span></td>
+  [% END %]
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_comments %]class="warn"[% END %]>Comments</label></td>
+  <td><textarea name="comments" id="comments" rows="4" cols="40"></textarea></td>
+  [% IF c.dfv_msgs.err_comments %]
+  <td><span class="warn">
+    Must be less than 1000 characters
+  </span></td>
+  [% END %]
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Upload Report" />
+  </td>
+</tr>
+</table>
+</form>
+
+</div>

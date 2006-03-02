@@ -1,0 +1,67 @@
+[% INCLUDE form_header.tmpl %]
+[% IF add_success %]
+  <span class="warn">Category succesfully added.</span>
+[% END %]
+[% IF delete_success %]
+  <span class="warn">Category succesfully deleted.</span>
+[% END %]
+
+<div class="boxed">
+<form action="/app/developer_projects/add_category/[% project.id %]" class="ajaxable for_project_categories" name="project_categories_form" method="post">
+<table>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_category %] warn[% END %]">Category Name *</label></td>
+  <td><input type="text" name="category" /></td>
+  [% IF c.dfv_msgs.invalid_category %]
+    <td class="warn">Too long. Must be under 255 characters.</td>
+  [% ELSIF err_duplicate_category %]
+    <td class="warn">A category with that name already exists for this project.</td>
+  [% END %]
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Add Category" />
+  </td>
+</tr>
+</table>
+</form>
+
+[% SET categories = project.categories %]
+<strong>Existing Categories</strong><br />
+[% IF categories %]
+<table width="300px">
+  [% FOREACH cat IN categories %]
+  <tr>
+    <td class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">[% cat %]</td>
+    <td>
+      <a href="#" class="button popup_form" id="delete_cat_[% loop.index %]_trigger">Delete</a>
+      <div id="delete_cat_[% loop.index %]" class="popup_form" style="position: absolute; display:none">
+      <form action="/app/developer_projects/delete_category/[% project.id %]" class="ajaxable for_project_categories" name="delete_categories" method="post">
+        <input type="hidden" name="category" value="[% cat %]" />
+        [% IF categories.size > 1 %]
+        Upon deletion, all reports uploaded as part of this category will be filed under
+        the following category:
+        <select name="replacement">
+          <option value=''>--none--</option>
+          [% FOREACH replacement IN categories %]
+            [% IF replacement != cat %]
+            <option>[% replacement %]</option>
+            [% END %]
+          [% END %]
+        </select>
+        <input type="submit" value="Delete" />
+        [% ELSE %]
+          All reports that have been uploaded under this category will not be associated
+          with any category. Are you sure you want to proceed with deletion?
+          <input type="submit" value="Yes" />
+        [% END %]
+      </form>
+      </div>
+    </td>
+  </tr>
+  [% END %]
+</table>
+[% ELSE %]
+<em>none</em>
+[% END %]
+</div>

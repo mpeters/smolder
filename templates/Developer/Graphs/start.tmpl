@@ -1,0 +1,79 @@
+[% SET page_title = 'Progress Graphs' %]
+
+<div id="graphs_[% project.id %]" class="boxed">
+
+<h2>[% project.name %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/">Project Settings</a>
+    [% END %]
+</div>
+
+[% SET no_required_fields = 1 %]
+[% INCLUDE form_header.tmpl %]
+
+<form class="change_smoke_graph" id="change_smoke_graph_[% project.id %]" name="change_smoke_graph" method="get">  
+<table>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_start %]class="warn"[% END %]>Start Date</label></td>
+  <td>
+    <input type="text" size="10" name="start" id="start" />
+    <a href="#" id="start_calendar_trigger" class="calendar_trigger">&nbsp;</a>
+    <div id="start_calendar" class="calendar_container" />
+  </td>
+  <td><label [% IF c.dfv_msgs.err_stop %]class="warn"[% END %]>Stop Date</label></td>
+  <td>
+    <input type="text" size="10" name="stop" id="stop" />
+    <a href="#" id="stop_calendar_trigger" class="calendar_trigger">&nbsp;</a>
+    <div id="stop_calendar" class="calendar_container" />
+  </td>
+</tr>
+<tr>
+  <td><label>Fields</label></td>
+  <td colspan="3">
+    <input type="checkbox" id="total" name="total" value="1" />Total
+    <input type="checkbox" id="pass"  name="pass"  value="1" />Pass
+    <input type="checkbox" id="fail"  name="fail"  value="1" />Fail
+    <input type="checkbox" id="todo"  name="todo"  value="1" />Todo
+    <input type="checkbox" id="skip"  name="skip"  value="1" />Skip
+  </td>
+</tr>
+<tr>
+  <td><label>Graph Type</label></td>
+  <td>
+    <select name="type" id="type">
+      <option value="bar">Bar</option>
+      <option value="line">Line</option>
+      <option value="area">Area</option>
+      <option value="points">Points</option>
+    </select>
+  </td>
+  [% SET cats = project.categories %]
+  [% IF cats %]
+  <td><label>Category</label></td>
+  <td>
+    <select name="category" id="category">
+    <option value="">--none--</option>
+    [% FOREACH cat IN cats %]
+    <option value="[% cat %]">[% cat %]</option>
+    [% END %]
+    </select>
+  </td>
+  [% END %]
+</tr>
+<tr>
+  <td colspan="4" align="right">
+    <input type="submit" value="Update" />
+  </td>
+</tr>
+</table>
+</form>
+
+<div id="graph_container" style="width: 650px; padding-left: 30px; margin-left: 25px">
+  <img id="graph_image" src="/app/developer_graphs/image/[% project.id %]" width="600px" height="300px" />
+</div>
+
+</div>

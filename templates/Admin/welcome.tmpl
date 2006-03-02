@@ -1,0 +1,28 @@
+[% SET page_title = 'Welcome ' _ c.developer.username %]
+
+<div class="accordion at_100" id="accordion_menu">
+  <div class="panel">
+    <div class="header">
+        Manage Developers
+    </div>
+    <div class="content">
+        <ul>
+          <li><a href="/app/admin_developers/add">Add a new Developer</a></li>
+          <li><a href="/app/admin_developers/list">Find an existing Developer</a></li>
+          <li><a href="/app/admin_projects/developers">Add Developers to Projects</a></li>
+        </ul>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="header">
+        Manage Projects
+    </div>
+    <div class="content">
+        <ul>
+          <li><a href="/app/admin_projects/add">Add a new Project</a></li>
+          <li><a href="/app/admin_projects/list">Find an existing Project</a></li>
+          <li><a href="/app/admin_projects/developers">Add Developers to Projects</a></li>
+        </ul>
+    </div>
+  </div>
+</div>

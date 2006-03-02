@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs);
+use FindBin qw($RealBin);
+use Config;
+
+=head1 NAME
+
+smolder_swishe_index 
+
+Create a Swish-E index of HTML documents for Smolder
+
+=head1 DESCRIPTION
+
+This script will use Swish-E to create an inverted index
+of words to be used by Swish-E (usually through L<CGI::Application::Search>
+for searching a directory of HTML documents.
+
+=head1 USAGE
+
+    ./bin/smolder_swishe_index --site
+
+    ./bin/smolder_swishe_index --docs
+
+For indexing a changing B<ApacheDocumentRoot>, it is best to set this
+script to run periodically under C<cron>. The indexing of the
+Smolder Developer Documents should happen as needed.
+
+After indexing, it will also create a file that simply contains
+the words that are in the index, one word per line in alphabetical
+order.
+
+=head1 OPTIONS
+
+=over
+
+=item site
+
+Indicates that we just want to index the docs found under the 
+B<ApacheDocumentRoot> as specified in F<conf/smolder.conf>.
+It cannot be used in conjunction with C<--docs>.
+
+   ./bin/swishe_index --site
+
+=item docs
+
+Indicates that we just want to index the technical documentation
+found under F<InstallRoot/docs/html>.
+It cannot be used in conjunction with C<--site>.
+
+    ./bin/swishe_index --docs
+
+=back
+
+=cut
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir($RealBin);
+
+    #remove any blank elements on the end of the @dir
+    pop(@dir) while ( !$dir[$#dir] );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+    $ENV{LD_LIBRARY_PATH} = catdir( $ENV{SMOLDER_ROOT}, "swish-e", "lib" );
+}
+
+use HTML::Template;
+use Smolder::Conf;
+use Pod::Usage;
+use Getopt::Long; 
+
+# defaults
+my $site   = 0;
+my $docs   = 0;
+my $prefix = '';
+
+GetOptions(
+    site    => \$site,
+    docs    => \$docs,
+);
+
+# site and docs are mutually exclusive
+if( $site && $docs ) {
+    print "You can't use --docs and --site at the same time!\n";
+    exit(1);
+} elsif(!( $site || $docs)) {
+    print "You must specify either --docs or --site!\n";
+} elsif( $site ) {
+    $prefix = 'site_';
+} elsif( $docs ) {
+    $prefix = 'docs_';
+}
+
+my $config = Smolder::Conf->get_config();
+my $root = $config->get('InstallRoot');
+
+#create the full swish-e config file
+my $tmpl_file  = catfile( $root, 'conf',    "${prefix}swish-e.conf.tmpl" );
+my $conf_file  = catfile( $root, 'tmp',     "${prefix}swish-e.conf" );
+my $index_file = catfile( $root, 'data',    "${prefix}swish-e.index" );
+my $word_file  = catfile( $root, 'data',    "${prefix}indexed_words" );
+my $swishe_bin = catfile( $root, 'swish-e', 'bin', 'swish-e' );
+
+my $tmpl = HTML::Template->new( 
+    filename          => $tmpl_file,
+    die_on_bad_params => 0, 
+);
+$tmpl->param(
+    InstallRoot        => $root,
+    ApacheDocumentRoot => $config->get('ApacheDocumentRoot')
+);
+
+#now let's print it out
+open( TMPL_OUT, ">$conf_file" )
+  or die "could not open $conf_file for writing! $!";
+print TMPL_OUT $tmpl->output;
+close(TMPL_OUT)
+  or die "could not close $conf_file! $!";
+
+#ok, now let's use swish-e to index the right dir
+system(qq($swishe_bin -v 0 -c $conf_file -f $index_file)) == 0
+  or die "Could not use swish-e with conf $conf_file and index $index_file!";
+
+# now create a listing of all the indexed words
+system(
+    "$swishe_bin -T INDEX_WORDS_META -f $index_file"    # list of all the words with other junk
+    . ' | grep -o -P "^\S+" '                           # just get the word portion of each line
+    . ' | grep -P "[a-z]{2}" '                           # just words with at least 2 letters
+    . " > $word_file"
+) == 0 or die "Could not create word index! $!";
+
+
+#now exit;
+exit(0);
+
