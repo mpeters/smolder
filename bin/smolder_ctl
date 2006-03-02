@@ -80,8 +80,6 @@ usage()
 
 my @ctl = (
     [ smolder_apachectl => ApachePort() ],
-# TODO - uncomment if we ever need a scheduler
-#    [ smolder_schedulectl => '' ],
 );
 
 # if we are stopping, then we want to do it in the reverse order
