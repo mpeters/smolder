@@ -102,6 +102,9 @@ Following is a list of the tasks the installer script will perform.
   --User                - UNIX user for process ownership
   --Group               - UNIX group for process ownership
   --ApachePort          - Port on which CMS HTTP server should run
+  --FromAddress         - Email address to use as the From field on outbound messages
+  --SMTPHost            - Hostname of the SMTP server to use for sending outbound messages
+
   --FromBackup          - the name of a backup file to restore from.
   --run-tests           - run Smolder "make test", defaults off
   --help                - Show usage
@@ -156,6 +159,8 @@ my @opt_params = qw(
     User 
     Group 
     ApachePort 
+    FromAddress
+    SMTPHost
     verbose
 );
 
@@ -241,14 +246,19 @@ sub unpack_backup {
     $BACKUP_CONF->read(catfile($BACKUP_DIR, 'conf', 'smolder.conf'));    
 
     # load option defaults from conf    
-    $options{HostName}      ||= $BACKUP_CONF->get('HostName');
-    $options{IPAddress}     ||= $BACKUP_CONF->get('ApacheAddr');
-    $options{DBUser}        ||= $BACKUP_CONF->get('DBUser');
-    $options{DBPass}        ||= $BACKUP_CONF->get('DBPass');
-    $options{DBName}        ||= $BACKUP_CONF->get('DBName');
-    $options{User}          ||= $BACKUP_CONF->get('User');
-    $options{Group}         ||= $BACKUP_CONF->get('Group');
-    $options{ApachePort}    ||= $BACKUP_CONF->get('ApachePort');
+    my @backup_options = qw(
+        HostName
+        IPAddress
+        DBUser
+        DBName
+        User
+        Group
+        FromAddress
+        SMTPHost
+    );
+    foreach $opt (@backup_options) {
+        $options{$opt} ||= $BACKUP_CONF->get($opt);
+    }
 
     # set SMOLDER_ROOT to backup directory so backup will flow from there
     $ENV{SMOLDER_ROOT} = $BACKUP_DIR;
