@@ -105,26 +105,26 @@ use File::Copy;
 my $config = Smolder::Conf->get_config();
 
 # default options
-my $help        = 0;
-my $man         = 0;
-my $filename    = 'Smolder.png';
-my $DBUser      = $config->get('DBUser');
-my $DBPass     = $config->get('DBPass');
-my $DBHost      = $config->get('DBHost');
-my $DBName      = $config->get('DBName');
-my @tables      = ();
-my $title       = 'Smolder Schema';
+my $help     = 0;
+my $man      = 0;
+my $filename = 'Smolder.png';
+my $DBUser   = $config->get('DBUser');
+my $DBPass   = $config->get('DBPass');
+my $DBHost   = $config->get('DBHost');
+my $DBName   = $config->get('DBName');
+my @tables   = ();
+my $title    = 'Smolder Schema';
 
 GetOptions(
-    'help'      => \$help,
-    'man'       => \$man,
-    'filename=s'=> \$filename,
-    'DBPass=s'  => \$DBPass,
-    'DBUser=s'  => \$DBUser,
-    'DBName=s'  => \$DBName,
-    'DBHost=s'  => \$DBHost,
-    'tables=s'  => \@tables,
-    'title=s'   => \$title,
+    'help'       => \$help,
+    'man'        => \$man,
+    'filename=s' => \$filename,
+    'DBPass=s'   => \$DBPass,
+    'DBUser=s'   => \$DBUser,
+    'DBName=s'   => \$DBName,
+    'DBHost=s'   => \$DBHost,
+    'tables=s'   => \@tables,
+    'title=s'    => \$title,
   )
   or pod2usage(1);
 
@@ -141,8 +141,7 @@ my $tmp = File::Temp->new(
 );
 
 # create the mysqldump command
-my $dump =
-  "mysqldump -u$DBUser -p$DBPass -h$DBHost --no-data $DBName ";
+my $dump = "mysqldump -u$DBUser -p$DBPass -h$DBHost --no-data $DBName ";
 if (@tables) {
     $dump .= join( " ", @tables );
 }
@@ -159,8 +158,9 @@ if ($output) {
 print $tmp $output
   or die "Could not print to $tmp! $!";
 
-my $sqltdia = "sqlt-diagram -o $filename -i png --db=MySQL "
-    . "--gutter=70 -f medium $tmp -t '$title' --color ";
+my $sqltdia =
+    "sqlt-diagram -o $filename -i png --db=MySQL "
+  . "--gutter=70 -f medium $tmp -t '$title' --color ";
 
 system($sqltdia) == 0 or die "Could not execute sqlt-diagram with error: $?";
 

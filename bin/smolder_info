@@ -25,21 +25,23 @@ None at this time.
 
 =cut
 
-
 use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
 use FindBin qw($RealBin);
 use Config;
 
 BEGIN {
+
     # Find a SMOLDER_ROOT based on path to bin
-    my @dir = splitdir(canonpath($RealBin));
-    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
 
     # use SMOLDER_ROOT/lib for modules
-    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
-    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : 
-      "${lib}";
-    unshift @INC, $lib, "$lib/".$Config{archname};
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
 
     # load Smolder::Conf
     eval { require Smolder::Conf };
@@ -58,7 +60,6 @@ END
 
 use Smolder;
 my $version = $Smolder::VERSION;
-
 
 print STDOUT<<END;
 

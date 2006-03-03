@@ -93,16 +93,16 @@ $@
 END
 }
 
-my $MAX_RESTART_WAIT = 20;  # wait for stop on restart (in seconds)
+my $MAX_RESTART_WAIT = 20;                            # wait for stop on restart (in seconds)
 my $CONFIG           = Smolder::Conf->get_config();
 my $ROOT             = $CONFIG->get('InstallRoot');
-my $APACHE_ROOT      = catdir($ROOT, 'apache');
-my $APACHE_BIN       = catfile($APACHE_ROOT, 'bin', 'httpd');
-my $HTTPD_CONF_TMPL  = catfile($ROOT, 'conf', 'httpd.conf.tmpl');
-my $HTTPD_CONF       = catfile($ROOT, 'tmp', 'httpd.conf');
-my $HTTPD_PID        = catfile($ROOT, 'tmp', 'httpd.pid');
-my $HTTPD_CMD        = "$APACHE_BIN -f $HTTPD_CONF";
-my $SCRIPT_NAME      = 'smolder_apachectl';
+my $APACHE_ROOT      = catdir( $ROOT, 'apache' );
+my $APACHE_BIN      = catfile( $APACHE_ROOT, 'bin', 'httpd' );
+my $HTTPD_CONF_TMPL = catfile( $ROOT, 'conf', 'httpd.conf.tmpl' );
+my $HTTPD_CONF      = catfile( $ROOT, 'tmp', 'httpd.conf' );
+my $HTTPD_PID       = catfile( $ROOT, 'tmp', 'httpd.pid' );
+my $HTTPD_CMD       = "$APACHE_BIN -f $HTTPD_CONF";
+my $SCRIPT_NAME     = 'smolder_apachectl';
 
 # get status from the pid file
 my $running = 0;
@@ -227,9 +227,9 @@ sub write_conf {
         loop_context_vars => 1
     );
 
-    my @directives = $CONFIG->get();
+    my @directives  = $CONFIG->get();
     my %tmpl_params = (
-        ApacheRoot  => $APACHE_ROOT, 
+        ApacheRoot  => $APACHE_ROOT,
         PidFile     => $HTTPD_PID,
         InstallRoot => rel2abs($ROOT),
     );
@@ -237,7 +237,7 @@ sub write_conf {
     # add each directive from the conf file
     foreach my $directive (@directives) {
         $tmpl_params{$directive} = $CONFIG->get($directive)
-            unless (exists $tmpl_params{$directive} );
+          unless ( exists $tmpl_params{$directive} );
     }
     $template->param(%tmpl_params);
 
@@ -269,11 +269,11 @@ sub write_conf {
 
 # make sure the tmp dir is writeable for new files/dirs
 sub fix_perms {
-    my $dir   = catdir($CONFIG->get('InstallRoot'), 'tmp');
+    my $dir   = catdir( $CONFIG->get('InstallRoot'), 'tmp' );
     my $user  = $CONFIG->get('User');
     my $group = $CONFIG->get('Group');
 
     system("chown -R $user.$group $dir") == 0
-        or die "Could not change permissions on directory '$dir': $!";
+      or die "Could not change permissions on directory '$dir': $!";
 }
 

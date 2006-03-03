@@ -40,7 +40,6 @@ Show a more detailed help message.
 
 =cut
 
-
 BEGIN {
 
     # Find a SMOLDER_ROOT based on path to bin
@@ -89,7 +88,8 @@ GetOptions(
     'password=s' => \$password,
     'help!'      => \$help,
     'man!'       => \$man,
-) || pod2usage();
+  )
+  || pod2usage();
 
 if ($help) {
     pod2usage(
@@ -109,9 +109,7 @@ my $db_host = DBHost();
 print "Dropping database: $db_name\n";
 
 eval {
-    my $dbh =
-      DBI->connect(
-        "dbi:mysql:mysql_read_default_group=client;database=$db_name",
+    my $dbh = DBI->connect( "dbi:mysql:mysql_read_default_group=client;database=$db_name",
         'root', $password, { RaiseError => 1 } );
 
     $dbh->do(qq/DROP DATABASE $db_name/);

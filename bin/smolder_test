@@ -120,12 +120,12 @@ extension.
 =cut
 
 # default options
-my $verbose     = 0;
-my $quiet       = 0;
-my $xml         = 0;
-my @testfiles   = ();
-my $help        = 0;
-my $man         = 0;
+my $verbose   = 0;
+my $quiet     = 0;
+my $xml       = 0;
+my @testfiles = ();
+my $help      = 0;
+my $man       = 0;
 
 GetOptions(
     'verbose!'     => \$verbose,
@@ -136,7 +136,8 @@ GetOptions(
     'help!'        => \$help,
     'man!'         => \$man,
     'xml'          => \$xml,
-) || pod2usage();
+  )
+  || pod2usage();
 
 if ($help) {
     pod2usage(
@@ -152,6 +153,7 @@ if ($help) {
 
 my $junk     = '';
 my $junk_err = '';
+
 # if we want to be quite then surpress printing to STDOUT
 if ($quiet) {
     tie( *STDOUT, 'IO::Scalar', \$junk );
@@ -170,14 +172,16 @@ print_header("Running Tests");
 
 # if we don't have anything in tests
 if ( !scalar(@testfiles) ) {
+
     # do a depth-first search on the 't' directory to find all of the files
     find(
         sub {
-            if($_ =~ /\.t$/) {
-                push(@testfiles, $File::Find::name);
+            if ( $_ =~ /\.t$/ ) {
+                push( @testfiles, $File::Find::name );
             }
         },
-        ,'t',
+        ,
+        't',
     );
 } else {
 
@@ -189,12 +193,12 @@ if ( !scalar(@testfiles) ) {
 }
 
 # if we want XML output
-if( $xml ) {
+if ($xml) {
     my $test_model = Test::TAP::XML->new();
     $test_model->run_tests(@testfiles);
     print $test_model->xml();
 
-# else we just want to run normal Test::Harness tests
+    # else we just want to run normal Test::Harness tests
 } else {
     $Test::Harness::Verbose = $verbose;
     eval { runtests(@testfiles) };

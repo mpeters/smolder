@@ -123,15 +123,18 @@ use Config;
 
 # Set up SMOLDER_ROOT and PERL5LIB
 BEGIN {
+
     # Find a SMOLDER_ROOT based on path to bin
-    my @dir = splitdir(canonpath($RealBin));
-    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
 
     # use $SMOLDER_ROOT/lib for modules
-    my $lib = catdir($ENV{SMOLDER_ROOT}, "lib");
-    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" :
-      "${lib}";
-    unshift @INC, $lib, "$lib/".$Config{archname};
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
 }
 
 use Smolder;
@@ -141,34 +144,33 @@ use HTML::Template;
 use File::Temp qw(tempdir);
 
 my @original_args = ();
-my $uniqueness = time();
-my ($help, $man, $run_tests);
-my @req_params = qw( 
-    HostName
-    IPAddress
-    DBUser 
-    DBPass
-    DBName
+my $uniqueness    = time();
+my ( $help, $man, $run_tests );
+my @req_params = qw(
+  HostName
+  IPAddress
+  DBUser
+  DBPass
+  DBName
 );
 
-my @opt_params = qw( 
-    FromBackup
-    AdminDBPass 
-    DBHost 
-    InstallPath 
-    User 
-    Group 
-    ApachePort 
-    FromAddress
-    SMTPHost
-    verbose
+my @opt_params = qw(
+  FromBackup
+  AdminDBPass
+  DBHost
+  InstallPath
+  User
+  Group
+  ApachePort
+  FromAddress
+  SMTPHost
+  verbose
 );
 
-my %options = ( map { $_ => undef } @req_params, @opt_params);
+my %options = ( map { $_ => undef } @req_params, @opt_params );
 
 do_install();
 exit(0);
-
 
 ################################
 ####  MAKE INSTALL METHODS  ####
@@ -179,7 +181,7 @@ sub do_install {
 
     # Must be running as root, check now to avoid unpacking backup
     # only to fail on this trivial condition
-    exit_error("Must be run as root.") unless ($> eq "0");
+    exit_error("Must be run as root.") unless ( $> eq "0" );
 
     # unpack backup, which contributes to options
     unpack_backup() if $options{FromBackup};
@@ -215,7 +217,8 @@ sub unpack_backup {
     # open up the backup
     my $bak = $options{'FromBackup'};
     exit_error("FromBackup file '$bak' should end in .kba or .kba.gz")
-      unless $bak =~ /\.bak\.gz$/ or $bak =~ /\.bak$/;
+      unless $bak =~ /\.bak\.gz$/
+      or $bak     =~ /\.bak$/;
     exit_error("FromBackup file '$bak' does not exist.")
       unless -e $bak;
     $bak = rel2abs($bak);
@@ -223,38 +226,41 @@ sub unpack_backup {
     # make temp directory for backup files
     $BACKUP_DIR = tempdir(
         CLEANUP => 1,
-        DIR     => catdir($ENV{SMOLDER_ROOT}, 'tmp')
+        DIR     => catdir( $ENV{SMOLDER_ROOT}, 'tmp' )
     );
 
     print "Unpacking backup file '$bak'.\n";
-    my $cmd = "tar -x" . ($bak =~ /gz$/ ? 'z' : '') . "f $bak -C $BACKUP_DIR";
+    my $cmd = "tar -x" . ( $bak =~ /gz$/ ? 'z' : '' ) . "f $bak -C $BACKUP_DIR";
     system($cmd) && die("Error un-tarring file '$bak' to '$BACKUP_DIR'.\n");
     exit_error("FromBackup file '$bak' is not a valid backup - missing conf/smolder.conf.")
-      unless -e catfile($BACKUP_DIR, 'conf', 'smolder.conf');
+      unless -e catfile( $BACKUP_DIR, 'conf', 'smolder.conf' );
 
     # make sure the versions match
-    my $this_version = _get_version("$ENV{SMOLDER_ROOT}/lib/Smolder.pm");
+    my $this_version   = _get_version("$ENV{SMOLDER_ROOT}/lib/Smolder.pm");
     my $backup_version = _get_version("$BACKUP_DIR/lib/Smolder.pm");
-    exit_error("Backup file '$bak' was made with version '$backup_version' of Smolder!  This is version '$this_version'.")
+    exit_error(
+"Backup file '$bak' was made with version '$backup_version' of Smolder!  This is version '$this_version'."
+      )
       unless $this_version == $backup_version;
 
     # load configuration file from backup to get defaults
     print "Loading backup configuration.\n";
     require Config::ApacheFormat;
     $BACKUP_CONF = Config::ApacheFormat->new();
-    $BACKUP_CONF->read(catfile($BACKUP_DIR, 'conf', 'smolder.conf'));    
+    $BACKUP_CONF->read( catfile( $BACKUP_DIR, 'conf', 'smolder.conf' ) );
 
-    # load option defaults from conf    
+    # load option defaults from conf
     my @backup_options = qw(
-        HostName
-        IPAddress
-        DBUser
-        DBName
-        User
-        Group
-        FromAddress
-        SMTPHost
+      HostName
+      IPAddress
+      DBUser
+      DBName
+      User
+      Group
+      FromAddress
+      SMTPHost
     );
+
     foreach my $opt (@backup_options) {
         $options{$opt} ||= $BACKUP_CONF->get($opt);
     }
@@ -273,12 +279,12 @@ sub load_platform {
     our $PLATFORM;
 
     exit_error("Can't find data/build.db.  Do you need to run smolder_build?")
-      unless -e catfile($ENV{SMOLDER_ROOT}, 'data', 'build.db');
+      unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
     require Smolder::Platform;
     my %build_params = Smolder::Platform->build_params;
 
     # add in $SMOLDER_ROOT/platform for platform build modules
-    my $plib    = catdir($ENV{SMOLDER_ROOT}, "platform");
+    my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
     $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
     unshift @INC, $plib;
 
@@ -289,16 +295,16 @@ sub load_platform {
       if $@;
 
     # find paths to binaries
-    $MYSQL_BIN = $PLATFORM->find_bin(bin => 'mysql');
-    $COPY_BIN  = $PLATFORM->find_bin(bin => 'cp');
-    $CHOWN_BIN = $PLATFORM->find_bin(bin => 'chown');
-    $CHMOD_BIN = $PLATFORM->find_bin(bin => 'chmod');
-    $XARGS_BIN = $PLATFORM->find_bin(bin => 'xargs');
-    $FIND_BIN  = $PLATFORM->find_bin(bin => 'find');
-    $MAKE_BIN  = $PLATFORM->find_bin(bin => 'make');
-    $ECHO_BIN  = $PLATFORM->find_bin(bin => 'echo');
-    $TAR_BIN   = $PLATFORM->find_bin(bin => 'tar');
-    $LN_BIN    = $PLATFORM->find_bin(bin => 'ln');
+    $MYSQL_BIN = $PLATFORM->find_bin( bin => 'mysql' );
+    $COPY_BIN  = $PLATFORM->find_bin( bin => 'cp' );
+    $CHOWN_BIN = $PLATFORM->find_bin( bin => 'chown' );
+    $CHMOD_BIN = $PLATFORM->find_bin( bin => 'chmod' );
+    $XARGS_BIN = $PLATFORM->find_bin( bin => 'xargs' );
+    $FIND_BIN  = $PLATFORM->find_bin( bin => 'find' );
+    $MAKE_BIN  = $PLATFORM->find_bin( bin => 'make' );
+    $ECHO_BIN  = $PLATFORM->find_bin( bin => 'echo' );
+    $TAR_BIN   = $PLATFORM->find_bin( bin => 'tar' );
+    $LN_BIN    = $PLATFORM->find_bin( bin => 'ln' );
 }
 
 sub check_prereqs {
@@ -307,47 +313,57 @@ sub check_prereqs {
 
     # check that the platform is set up right.  This will check Perl,
     # MySQL and any libraries needed.
-    $PLATFORM->verify_dependencies(mode => 'install');
+    $PLATFORM->verify_dependencies( mode => 'install' );
 
     # check IP address
     my $IPAddress = $options{'IPAddress'};
     exit_error("IPAddress '$IPAddress' not bound to machine")
-      unless $PLATFORM->check_ip(ip => $IPAddress);
+      unless $PLATFORM->check_ip( ip => $IPAddress );
 
     # InstallPath must NOT exist.
     my $InstallPath = $options{InstallPath};
-    if (-e $InstallPath) {
-        if (-e catfile($InstallPath,'bin','smolder_uninstall')) {
-             exit_error("Will not proceed due to existing Smolder install.") 
-                unless prompt("y", "InstallPath '$InstallPath' already exists and seems to contain\nan existing Smolder instance.\nThis program must totally and permanently\nremove this Smolder installation in order to proceed.\n\nIs this what you really want to do?", "y/n", "n");
-             {
-                 local $ENV{SMOLDER_ROOT} = $InstallPath;
-                 my $cmd = catfile($InstallPath,'bin','smolder_uninstall') .
-                            ' --no_prompt --verbose';
-                 $cmd .= ' --admin_db_password=' . $options{AdminDBPass} 
-                  if length($options{AdminDBPass});
-                 system($cmd) && die("Unable to uninstall existing Smolder Instance at $InstallPath.  Please remove this directory manually before running smolder_install again.\n\n");
-             }
-         } else { 
-             exit_error("InstallPath '$InstallPath' already exists and does not appear to belong to an existing Smolder instance.  Cannot continue.");
-         }
+    if ( -e $InstallPath ) {
+        if ( -e catfile( $InstallPath, 'bin', 'smolder_uninstall' ) ) {
+            exit_error("Will not proceed due to existing Smolder install.")
+              unless prompt(
+                "y",
+"InstallPath '$InstallPath' already exists and seems to contain\nan existing Smolder instance.\nThis program must totally and permanently\nremove this Smolder installation in order to proceed.\n\nIs this what you really want to do?",
+                "y/n",
+                "n"
+              );
+            {
+                local $ENV{SMOLDER_ROOT} = $InstallPath;
+                my $cmd =
+                  catfile( $InstallPath, 'bin', 'smolder_uninstall' ) . ' --no_prompt --verbose';
+                $cmd .= ' --admin_db_password=' . $options{AdminDBPass}
+                  if length( $options{AdminDBPass} );
+                system($cmd)
+                  && die(
+"Unable to uninstall existing Smolder Instance at $InstallPath.  Please remove this directory manually before running smolder_install again.\n\n"
+                  );
+            }
+        } else {
+            exit_error(
+"InstallPath '$InstallPath' already exists and does not appear to belong to an existing Smolder instance.  Cannot continue."
+            );
+        }
     }
 
     # AdminDBPass must be valid, and MySQL should be running
     my $AdminDBPass = $options{'AdminDBPass'};
-    my $DBHost          = $options{'DBHost'};
-    my $mysql_bin = $MYSQL_BIN;
-    my $test_mysql = $ECHO_BIN ." 'select \"world\" as hello' | $mysql_bin -uroot";
-    $test_mysql .= " -p$AdminDBPass" if (length($AdminDBPass));
-    $test_mysql .= " -h$DBHost" if (defined($DBHost));
+    my $DBHost      = $options{'DBHost'};
+    my $mysql_bin   = $MYSQL_BIN;
+    my $test_mysql  = $ECHO_BIN . " 'select \"world\" as hello' | $mysql_bin -uroot";
+    $test_mysql .= " -p$AdminDBPass" if ( length($AdminDBPass) );
+    $test_mysql .= " -h$DBHost"      if ( defined($DBHost) );
     $test_mysql .= " 2>&1";
     my $mysql_test_output = `$test_mysql`;
 
-    unless (($mysql_test_output =~ /hello/) and ($mysql_test_output =~ /world/)) {
+    unless ( ( $mysql_test_output =~ /hello/ ) and ( $mysql_test_output =~ /world/ ) ) {
         print STDERR "$mysql_test_output";
-        if ($mysql_test_output =~ /ERROR 1045: Access denied/) {
+        if ( $mysql_test_output =~ /ERROR 1045: Access denied/ ) {
             exit_error("AdminDBPass '$AdminDBPass' is not valid");
-        } elsif ($mysql_test_output =~ /ERROR 2002: Can\'t connect/) {
+        } elsif ( $mysql_test_output =~ /ERROR 2002: Can\'t connect/ ) {
             exit_error("Can't connect to MySQL.  Start MySQL and try again.");
         } else {
             exit_error("Unable to verify AdminDBPass.");
@@ -358,7 +374,7 @@ sub check_prereqs {
 # sort of simulates Term::Prompt, but not really
 sub prompt {
 
-    my($yes_val, $prompt_string,$choices,$default_val) = @_;
+    my ( $yes_val, $prompt_string, $choices, $default_val ) = @_;
 
     #  if there is a default value, print it
     if ($default_val) {
@@ -367,20 +383,19 @@ sub prompt {
         print $prompt_string, "($choices)", ": ";
     }
 
-    $_ = <STDIN>;         # get the input from STDIN 
-
+    $_ = <STDIN>;    # get the input from STDIN
 
     # remove the newline character from the end of user input
     chomp;
 
     if ($_) {
-        if ($_ eq $yes_val) {
+        if ( $_ eq $yes_val ) {
             return 1;
         } else {
             return 0;
-        } 
+        }
     } else {
-        if ($default_val eq $yes_val) {
+        if ( $default_val eq $yes_val ) {
             return 1;
         } else {
             return 0;
@@ -389,35 +404,35 @@ sub prompt {
 }
 
 sub create_mysql_user {
+
     # AdminDBPass must be valid, and MySQL should be running
-    my $mysql_bin = $MYSQL_BIN;
+    my $mysql_bin   = $MYSQL_BIN;
     my $AdminDBPass = $options{'AdminDBPass'};
-    my $DBName = $options{'DBName'};
-    my $DBUser = $options{'DBUser'};
-    my $DBPass = $options{'DBPass'};
-    my $DBHost = $options{'DBHost'};
+    my $DBName      = $options{'DBName'};
+    my $DBUser      = $options{'DBUser'};
+    my $DBPass      = $options{'DBPass'};
+    my $DBHost      = $options{'DBHost'};
 
     my $grant = "grant all on $DBName\.* to $DBUser";
-    $grant .= '@localhost' if (!defined($DBHost));
+    $grant .= '@localhost' if ( !defined($DBHost) );
     $grant .= " identified by '$DBPass'" if ($DBPass);
 
-    my $mysql_grant = $ECHO_BIN ." \"$grant\" | $mysql_bin -uroot";
-    $mysql_grant .= " -p$AdminDBPass" if (length($AdminDBPass));
-    $mysql_grant .= " -h$DBHost" if (defined($DBHost));
+    my $mysql_grant = $ECHO_BIN . " \"$grant\" | $mysql_bin -uroot";
+    $mysql_grant .= " -p$AdminDBPass" if ( length($AdminDBPass) );
+    $mysql_grant .= " -h$DBHost"      if ( defined($DBHost) );
 
     print "Granting MySQL access to user '$DBUser' for database '$DBName'\n";
     system($mysql_grant) && exit_error("Can't grant DB access to $DBUser for $DBName.");
     print "  MySQL access granted.\n";
 }
 
-
 sub create_unix_user_group {
 
     our $PLATFORM;
 
-    my $gid = $PLATFORM->create_group(options => \%options);
+    my $gid = $PLATFORM->create_group( options => \%options );
 
-    my $uid = $PLATFORM->create_user(group_id => $gid, options => \%options);
+    my $uid = $PLATFORM->create_user( group_id => $gid, options => \%options );
 
 }
 
@@ -427,114 +442,108 @@ sub install_smolder {
 
     print "Installing Smolder files into '$InstallPath'\n";
 
-    chdir($ENV{SMOLDER_ROOT});
-    my $copy = $COPY_BIN ." -r * $InstallPath\/";
+    chdir( $ENV{SMOLDER_ROOT} );
+    my $copy = $COPY_BIN . " -r * $InstallPath\/";
     system($copy) && die("Can't copy: $!");
 
     # remove scripts that won't do anything useful in an installed
     # system
     my @dont_keep = (
-        "$InstallPath/bin/smolder_install",
-        "$InstallPath/bin/smolder_makedist",
-        "$InstallPath/bin/smolder_upgrade",
-        "$InstallPath/bin/smolder_build",
+        "$InstallPath/bin/smolder_install", "$InstallPath/bin/smolder_makedist",
+        "$InstallPath/bin/smolder_upgrade", "$InstallPath/bin/smolder_build",
         "$InstallPath/tmp",
     );
     foreach my $dont_keep (@dont_keep) {
-        if( -d $dont_keep ) {
-            system("rm -rf $dont_keep") == 0 
-                or die "Could not remove $dont_keep! $!";
-        } elsif( -e $dont_keep ) {
+        if ( -d $dont_keep ) {
+            system("rm -rf $dont_keep") == 0
+              or die "Could not remove $dont_keep! $!";
+        } elsif ( -e $dont_keep ) {
             unlink($dont_keep) or die "Could not remove $dont_keep! $!";
         }
     }
 
     # add some extra directories
-    my @add_extras = (
-        "$InstallPath/tmp",
-    );
+    my @add_extras = ( "$InstallPath/tmp", );
     foreach my $add_extra (@add_extras) {
-        if( !-d $add_extra ) {
+        if ( !-d $add_extra ) {
             mkdir($add_extra) or die "Could not add directory $add_extra! $!";
         }
     }
 
     print "  Fixing ownership\n";
-    my $User = $options{User};
+    my $User  = $options{User};
     my $Group = $options{Group};
-    my $chown = $CHOWN_BIN ." -R $User\:$Group $InstallPath";
+    my $chown = $CHOWN_BIN . " -R $User\:$Group $InstallPath";
     system($chown) && die("Can't update ownership: $!");
 
     # For commands
     my $chmod;
 
     print "  Setting group write permissions\n";
-    $chmod = $CHMOD_BIN ." -R g+w $InstallPath";
+    $chmod = $CHMOD_BIN . " -R g+w $InstallPath";
     system($chmod) && die("Can't set group write permissions: $!");
 
     print "  Fixing file read permissions\n";
-    $chmod = $CHMOD_BIN ." -R +r $InstallPath";
+    $chmod = $CHMOD_BIN . " -R +r $InstallPath";
     system($chmod) && die("Can't fix file read permissions: $!");
 
     print "  Fixing directory read permissions\n";
-    $chmod = $FIND_BIN ." $InstallPath -type d | ". $XARGS_BIN ." ". $CHMOD_BIN ." +rx";
+    $chmod = $FIND_BIN . " $InstallPath -type d | " . $XARGS_BIN . " " . $CHMOD_BIN . " +rx";
     system($chmod) && die("Can't fix directory read permissions: $!");
 
     print "  Setting #! on scripts to " . $PERL_BIN . "\n";
-    opendir(DIR, catdir($InstallPath, "bin")) or die $!;
+    opendir( DIR, catdir( $InstallPath, "bin" ) ) or die $!;
     my @scripts = grep { -f $_ }
-                    map { catfile($InstallPath, "bin", $_) } readdir(DIR);
+      map { catfile( $InstallPath, "bin", $_ ) } readdir(DIR);
     closedir DIR;
     foreach my $script (@scripts) {
         my $basename = basename($script);
-        next if( $basename =~ /^\./ );    # parental controls
-        open(SOURCE, $script) or die "Unable to $script: $!";
+        next if ( $basename =~ /^\./ );    # parental controls
+        open( SOURCE, $script ) or die "Unable to $script: $!";
         my $source = do { local $/; <SOURCE> };
 
-        $source =~ s/^#!.*$/#!$PERL_BIN/m or
-          die "Couldn't find shebang line in $script to replace!";
+        $source =~ s/^#!.*$/#!$PERL_BIN/m
+          or die "Couldn't find shebang line in $script to replace!";
 
-        open(SOURCE, '>', $script) or die "Unable to write $script: $!";
+        open( SOURCE, '>', $script ) or die "Unable to write $script: $!";
         print SOURCE $source;
         close SOURCE;
     }
 
     # fix scripts shebang line
     my @dirs = (
-        catdir($InstallPath, 'htdocs'), 
-        catdir($InstallPath, 'docs'), 
-        catdir($InstallPath, 'bench'),
-        catdir($InstallPath, 'conf'),
-    ); 
+        catdir( $InstallPath, 'htdocs' ),
+        catdir( $InstallPath, 'docs' ),
+        catdir( $InstallPath, 'bench' ),
+        catdir( $InstallPath, 'conf' ),
+    );
 
-    my $wanted = 
-        sub {
-            my $script = $File::Find::name;
+    my $wanted = sub {
+        my $script = $File::Find::name;
 
-            if ($script =~ /\.(?:pl|cgi)$/) {
-                open(SOURCE, $script) or die "Unable to $script: $!";
-                my $source = do { local $/; <SOURCE> };
+        if ( $script =~ /\.(?:pl|cgi)$/ ) {
+            open( SOURCE, $script ) or die "Unable to $script: $!";
+            my $source = do { local $/; <SOURCE> };
 
-                $source =~ s/^#![\w\/\.]+(\s*.*)$/#!$PERL_BIN$1/m 
-                    or warn "can't find shebang line in $script\n";
+            $source =~ s/^#![\w\/\.]+(\s*.*)$/#!$PERL_BIN$1/m
+              or warn "can't find shebang line in $script\n";
 
-                open(SOURCE, '>', $script) or die "Unable to write $script: $!";
-                print SOURCE $source;
-                close SOURCE;
+            open( SOURCE, '>', $script ) or die "Unable to write $script: $!";
+            print SOURCE $source;
+            close SOURCE;
 
-                system("$CHMOD_BIN +x $script") && die "Can't set execute bit for $script: $!";
-            }
-        };
+            system("$CHMOD_BIN +x $script") && die "Can't set execute bit for $script: $!";
+        }
+    };
 
-    find($wanted, @dirs);
+    find( $wanted, @dirs );
 
     # Set all files in Smolder/bin/*
-    $chmod = $CHMOD_BIN ." +x $InstallPath/bin/*";
+    $chmod = $CHMOD_BIN . " +x $InstallPath/bin/*";
     system($chmod) && die("Can't set execute bits: $!");
 
     print "  Smolder files installed.\n";
 }
-
 
 sub configure_smolder {
     print "Configuring Smolder installation\n";
@@ -542,43 +551,42 @@ sub configure_smolder {
     my $InstallPath = $options{InstallPath};
     chdir($InstallPath);
 
-    if ($options{FromBackup}) {
+    if ( $options{FromBackup} ) {
         print "Updating backup smolder.conf\n";
 
         # processing existing smolder.conf, replacing IPAddress and
         # HostName parameters needed to migrate a backup to a new machine
-        open(CONF, "<", "conf/smolder.conf") 
+        open( CONF, "<", "conf/smolder.conf" )
           or die "Unable to open conf/smolder.conf : $!";
         my @conf = <CONF>;
         close(CONF);
 
-        open(CONF, ">", "conf/smolder.conf") 
+        open( CONF, ">", "conf/smolder.conf" )
           or die "Unable to open conf/smolder.conf : $!";
         foreach my $line (@conf) {
-            if ($line =~ /^\s*ApacheAddr\s/i) {
+            if ( $line =~ /^\s*ApacheAddr\s/i ) {
                 print CONF "ApacheAddr $options{IPAddress}\n";
-            } elsif ($line =~ /^\s*HostName\s/i) {
+            } elsif ( $line =~ /^\s*HostName\s/i ) {
                 print CONF "HostName $options{HostName}\n";
             } else {
                 print CONF $line;
             }
         }
         close CONF;
-        
 
     } else {
-    
+
         # Make custom smolder.conf
         print "Creating smolder.conf from specification\n";
         my $t = HTML::Template->new(
-            filename            => $ENV{SMOLDER_ROOT} ."/conf/smolder.conf.tmpl",
-            die_on_bad_params   => 0,
+            filename          => $ENV{SMOLDER_ROOT} . "/conf/smolder.conf.tmpl",
+            die_on_bad_params => 0,
         );
-        foreach my $param (keys(%options)) {
-            $t->param($param => $options{$param});
+        foreach my $param ( keys(%options) ) {
+            $t->param( $param => $options{$param} );
         }
-        my $output_conf = $InstallPath ."/conf/smolder.conf";
-        open(OUTPUT, ">$output_conf") || die("Can't open '$output_conf' for writing: $!");
+        my $output_conf = $InstallPath . "/conf/smolder.conf";
+        open( OUTPUT, ">$output_conf" ) || die("Can't open '$output_conf' for writing: $!");
         print OUTPUT $t->output();
         close(OUTPUT);
     }
@@ -586,45 +594,46 @@ sub configure_smolder {
     print "  Conf written to '$InstallPath/conf/smolder.conf'.\n";
 }
 
-
 # create the DB
 sub create_database {
     my $InstallPath = $options{InstallPath};
     chdir($InstallPath);
 
-    if ($options{FromBackup}) {
+    if ( $options{FromBackup} ) {
+
         # load database SQL
-        opendir(BACKUP, catdir($ENV{SMOLDER_ROOT}, 'data', 'backup'))
+        opendir( BACKUP, catdir( $ENV{SMOLDER_ROOT}, 'data', 'backup' ) )
           or die "Unable to open data/backup: $!";
         my @sql = grep { /\.sql$/ } readdir(BACKUP);
         closedir(BACKUP);
-                
+
         foreach my $sql (@sql) {
             print "Creating MySQL database from backup source '$sql'.\n";
-            my $file = catfile($ENV{SMOLDER_ROOT}, 'data', 'backup', $sql);
+            my $file = catfile( $ENV{SMOLDER_ROOT}, 'data', 'backup', $sql );
             my $cmd = "cat $file | mysql -uroot ";
-            $cmd .= " -p$options{'AdminDBPass'}" 
+            $cmd .= " -p$options{'AdminDBPass'}"
               if length $options{'AdminDBPass'};
-            $cmd .= " -h$options{'DBHost'}" 
+            $cmd .= " -h$options{'DBHost'}"
               if defined $options{'DBHost'};
             system($cmd);
         }
     } else {
+
         # Create DB
         print "Creating MySQL database and loading schema\n";
         my $AdminDBPass = $options{'AdminDBPass'};
-        my $DBHost = $options{'DBHost'};
-        my $createdb = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin/smolder_createdb ";
-        $createdb .= " --password $AdminDBPass" if (length($AdminDBPass));
-        $createdb .= " --hostname $options{'DBHost'}" if (defined($DBHost));
-        system($createdb) == 0 
+        my $DBHost      = $options{'DBHost'};
+        my $createdb    = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin/smolder_createdb ";
+        $createdb .= " --password $AdminDBPass"       if ( length($AdminDBPass) );
+        $createdb .= " --hostname $options{'DBHost'}" if ( defined($DBHost) );
+        system($createdb) == 0
           or die("Error calling smolder_createdb.  Unable to continue");
     }
 }
 
 sub finish_install {
     our $PLATFORM;
-    $PLATFORM->finish_installation(options => \%options);
+    $PLATFORM->finish_installation( options => \%options );
 }
 
 sub start_smolder {
@@ -634,27 +643,21 @@ sub start_smolder {
     system($start) && die("Can't start Smolder: $!");
 }
 
-
 sub make_test {
     print "Running Smolder tests...\n";
 
-    my $InstallPath =  $options{InstallPath};
+    my $InstallPath = $options{InstallPath};
     chdir($InstallPath);
 
-    my $make_bin = $MAKE_BIN;
+    my $make_bin  = $MAKE_BIN;
     my $make_test = "SMOLDER_ROOT='' PERL5LIB='' $make_bin test";
     system($make_test) && die("Error running tests: $!");
 }
 
-
 sub output_report {
     our $PLATFORM;
-    $PLATFORM->post_install_message(options => \%options);
+    $PLATFORM->post_install_message( options => \%options );
 }
-
-
-
-
 
 ###########################
 ####  PRIVATE METHODS  ####
@@ -669,29 +672,31 @@ sub exit_error {
     exit(1);
 }
 
-
 sub setup_getopts {
+
     # Copy the original args for re-invoking later
     @original_args = @ARGV;
 
-    GetOptions( 
+    GetOptions(
         'help'      => \$help,
         'man'       => \$man,
         'run-tests' => \$run_tests,
-        (map { $_."=s" => \$options{$_} } @req_params, @opt_params) 
-    ) || pod2usage(2);
+        ( map { $_ . "=s" => \$options{$_} } @req_params, @opt_params )
+      )
+      || pod2usage(2);
 
-    pod2usage(1)             if $help;
-    pod2usage(-verbose => 2) if $man;
+    pod2usage(1) if $help;
+    pod2usage( -verbose => 2 ) if $man;
 
 }
 
 sub enforce_requirements {
+
     # Enforce required params
     my $error_output = "";
     foreach my $p (@req_params) {
-        next if defined($options{$p});
-        $error_output .= "Missing --". $p ."\n";
+        next if defined( $options{$p} );
+        $error_output .= "Missing --" . $p . "\n";
     }
     if ($error_output) {
         print "Error:\n\n$error_output\n";
@@ -701,7 +706,6 @@ sub enforce_requirements {
     # Set opt defaults
     set_param_defaults();
 }
-
 
 sub set_param_defaults {
     my %defaults = (
@@ -713,9 +717,10 @@ sub set_param_defaults {
     );
 
     # Set up defaults if value is not otherwise set
-    while (my ($k, $dv) = each(%defaults)) {
+    while ( my ( $k, $dv ) = each(%defaults) ) {
+
         # Skip if value already defined
-        next if (defined $options{$k});
+        next if ( defined $options{$k} );
 
         # Set default
         $options{$k} = $dv;

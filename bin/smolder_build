@@ -132,12 +132,13 @@ GetOptions(
     'skip-module=s' => \@skip_modules,
     'help'          => \$help,
     'man'           => \$man,
-) or pod2usage(2);
+  )
+  or pod2usage(2);
 
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
-if( @modules ) {
+if (@modules) {
     $skip_apache = 1;
     $skip_swishe = 1;
 }
@@ -146,12 +147,10 @@ if( @modules ) {
 pod2usage("Wrong number of arguments.\n") if @ARGV > 1;
 my $platform;
 opendir( DIR, $PLATFORM_DIR ) or die $!;
-my @platforms = grep { 
-    $_ !~ /^\.\.?$/     # not the parent or a hidden file
-    and 
-    $_ !~ /CVS/         # ignore CVS cruft
-    and 
-    $_ !~ /\.svn/       # ignore SVN cruft
+my @platforms = grep {
+    $_ !~ /^\.\.?$/        # not the parent or a hidden file
+      and $_ !~ /CVS/      # ignore CVS cruft
+      and $_ !~ /\.svn/    # ignore SVN cruft
 } sort readdir DIR;
 
 # check that we're not trying to build on top of an existing build
@@ -200,6 +199,7 @@ $pkg->verify_dependencies( mode => 'build' );
 
 # now build swish-e first since SWISH-API requires it's libs
 unless ($skip_swishe) {
+
     #now let's extract swish-e
     goto_build_dir();
     my $swishe_gz = catfile( $SRC_DIR, $SWISHE );
@@ -209,9 +209,7 @@ unless ($skip_swishe) {
     die "Can't find swish-e dir '$swishe_dir'." unless -d $swishe_dir;
 
     chdir($swishe_dir) or die "Unable to chdir($swishe_dir): $!";
-    $pkg->build_swishe(
-        swishe_dir => catdir($ROOT),
-    );
+    $pkg->build_swishe( swishe_dir => catdir($ROOT), );
 }
 
 # get list of files to build, considering --module and --skip-module opts
@@ -329,8 +327,8 @@ sub build_module {
     chdir $dist_dir or die "Unable to chdir($dist_dir): $!";
 
     # if it's SWISH-API then add the swishe bin to our path
-    if( $file =~ /SWISH-API/ ) {
-        $ENV{SWISHBINDIR} = catdir($ENV{SMOLDER_ROOT}, 'swish-e', 'bin'); 
+    if ( $file =~ /SWISH-API/ ) {
+        $ENV{SWISHBINDIR} = catdir( $ENV{SMOLDER_ROOT}, 'swish-e', 'bin' );
     }
     eval { $pkg->build_perl_module( name => $dist_dir ); };
     die "Problem building $dist_dir in $BUILD_DIR:\n\n$@\n"

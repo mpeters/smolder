@@ -51,15 +51,18 @@ password for the L<admin_db_user>
 =cut
 
 BEGIN {
+
     # Find a SMOLDER_ROOT based on path to bin
-    my @dir = splitdir(canonpath($RealBin));
-    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
 
     # use $SMOLDER_ROOT/lib for modules
-    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
-    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" :
-      "${lib}";
-    unshift @INC, $lib, "$lib/".$Config{archname};
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
 
     # load Smolder::Conf
     eval { require Smolder::Conf };
@@ -79,33 +82,37 @@ END
 use Term::Prompt qw(prompt);
 use Smolder::Conf qw(InstallRoot HostName DBUser DBPass DBHost);
 
-my $help            = 0;
-my $man             = 0;
-my $no_prompt       = 0;
-my $admin_db_pass   = '';
-my $admin_db_user   = 'root';
+my $help          = 0;
+my $man           = 0;
+my $no_prompt     = 0;
+my $admin_db_pass = '';
+my $admin_db_user = 'root';
 my $verbose;
 
 GetOptions(
-    help                => \$help,
-    man                 => \$man,
-    verbose             => \$verbose,
-    no_prompt           => \$no_prompt,
-    'admin_db_user=s'   => \$admin_db_user,
-    'admin_db_pass=s'   => \$admin_db_pass,
-) || pod2usage(2);
+    help              => \$help,
+    man               => \$man,
+    verbose           => \$verbose,
+    no_prompt         => \$no_prompt,
+    'admin_db_user=s' => \$admin_db_user,
+    'admin_db_pass=s' => \$admin_db_pass,
+  )
+  || pod2usage(2);
 
-pod2usage(1)             if $help;
-pod2usage(-verbose => 2) if $man;
+pod2usage(1) if $help;
+pod2usage( -verbose => 2 ) if $man;
 
 unless ($no_prompt) {
     exit 1
-      unless prompt("y", "This program will totally and permanently remove this Smolder installation.\n\nAre you sure you
-want to proceed?", "y/n", "y");
+      unless prompt(
+        "y",
+"This program will totally and permanently remove this Smolder installation.\n\nAre you sure you
+want to proceed?", "y/n", "y"
+      );
 }
 
 # Must be running as root.
-exit_error("Must be run as root.") unless ($> eq "0");
+exit_error("Must be run as root.") unless ( $> eq "0" );
 my $root = InstallRoot();
 
 # stop Smolder services
@@ -113,8 +120,8 @@ system("$root/bin/smolder_ctl stop");
 
 # drop all databases
 my $cmd = "$root/bin/smolder_dropdb";
-$cmd .= "--admin_db_user=$admin_db_user "if $admin_db_user;
-$cmd .= "--admin_db_pass=$admin_db_pass "if $admin_db_pass;
+$cmd .= "--admin_db_user=$admin_db_user " if $admin_db_user;
+$cmd .= "--admin_db_pass=$admin_db_pass " if $admin_db_pass;
 
 system($cmd) == 0
   or die "Unable to remove existing database: $?";

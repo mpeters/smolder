@@ -78,26 +78,25 @@ usage()
   or $command     eq 'stop'
   or $command     eq 'restart';
 
-my @ctl = (
-    [ smolder_apachectl => ApachePort() ],
-);
+my @ctl = ( [ smolder_apachectl => ApachePort() ], );
 
 # if we are stopping, then we want to do it in the reverse order
 if ( $command eq 'stop' ) {
     @ctl = reverse @ctl;
 }
+
 # call ctl scripts
 foreach (@ctl) {
-    _call_script($_->[0], $command, $_->[1]);
+    _call_script( $_->[0], $command, $_->[1] );
 }
 
 sub _call_script {
-    my ($script, $command, $port) = @_;
+    my ( $script, $command, $port ) = @_;
     $command ||= '';
     $script = catfile( InstallRoot, 'bin', $script );
 
     # will need sudo?
-    if (($< != 0 or $> != 0) and $port <= 1024) {
+    if ( ( $< != 0 or $> != 0 ) and $port <= 1024 ) {
         $script = "sudo $script";
     }
 

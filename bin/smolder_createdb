@@ -67,15 +67,18 @@ use FindBin qw($RealBin);
 use Config;
 
 BEGIN {
+
     # Find a SMOLDER_ROOT based on path to bin
-    my @dir = splitdir(canonpath($RealBin));
-    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
 
     # use $SMOLDER_ROOT/lib for modules
-    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
-    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : 
-      "${lib}";
-    unshift @INC, $lib, "$lib/".$Config{archname};
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
 
     # load Smolder
     eval { require Smolder };
@@ -98,17 +101,17 @@ use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost);
 use Getopt::Long;
 use Pod::Usage;
 
-my $help            = 0;
-my $man             = 0;
-my $admin_password  = '';
-my $hostname        = DBHost;
-my $db_name         = DBName;
-my $db_user         = DBUser;
-my $db_pass         = DBPass;
-my $destroy         = 0;
-my $no_prompt       = 0;
-my $no_create       = 0;
-my $verbose         = 0;
+my $help           = 0;
+my $man            = 0;
+my $admin_password = '';
+my $hostname       = DBHost;
+my $db_name        = DBName;
+my $db_user        = DBUser;
+my $db_pass        = DBPass;
+my $destroy        = 0;
+my $no_prompt      = 0;
+my $no_create      = 0;
+my $verbose        = 0;
 
 GetOptions(
     'help'       => \$help,
@@ -119,27 +122,29 @@ GetOptions(
     'no_create'  => \$no_create,
     'password=s' => \$admin_password,
     'hostname=s' => \$hostname,
-) or pod2usage(2);
-pod2usage(1)             if $help;
-pod2usage(-verbose => 2) if $man;
+  )
+  or pod2usage(2);
+pod2usage(1) if $help;
+pod2usage( -verbose => 2 ) if $man;
 
 # make sure MySQL has what it needs
 my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
 $test_mysql .= " -p$admin_password" if $admin_password;
-$test_mysql .= " -h$hostname" if defined $hostname;
+$test_mysql .= " -h$hostname"       if defined $hostname;
 $test_mysql .= " 2>&1";
 my $output = `$test_mysql`;
-unless ($output =~ /hello.*world/s) {
-    if ($output =~ /Access denied/) {
-        if (defined $admin_password) {
+unless ( $output =~ /hello.*world/s ) {
+    if ( $output =~ /Access denied/ ) {
+        if ( defined $admin_password ) {
             my $msg = "MySQL root password '$admin_password' is not valid";
             $msg .= "for this host '$hostname'.\n" if defined $hostname;
             die($msg);
         } else {
-            my $msg = "Unable to connect to MySQL as root with no password.  ".
-                      "Maybe you need to use --password?";
-            $msg .=   " or --hostname?" if not defined $hostname;
-            $msg .=   "\n";
+            my $msg =
+                "Unable to connect to MySQL as root with no password.  "
+              . "Maybe you need to use --password?";
+            $msg .= " or --hostname?" if not defined $hostname;
+            $msg .= "\n";
             die($msg);
         }
     } else {
@@ -147,27 +152,26 @@ unless ($output =~ /hello.*world/s) {
     }
 }
 
-
 # leave no database standing
 if ($destroy) {
 
     # make sure they really meant --destroy
     unless ($no_prompt) {
-        exit 1      
-        unless prompt(
-            "y", 
+        exit 1
+          unless prompt(
+            "y",
             "This program will drop and recreate Smolder the database \n"
-            . "for this installation.\n\nAre you sure you want to proceed?", 
-            "y/n", 
+              . "for this installation.\n\nAre you sure you want to proceed?",
+            "y/n",
             "y"
-        );
+          );
     }
 
     print STDERR "Dropping database '$db_name'...\n" if $verbose;
     my $cmd = "mysql -uroot -e 'DROP DATABASE IF EXISTS $db_name'";
     $cmd .= " -p$admin_password" if $admin_password;
-    $cmd .= " -h$hostname" if defined $hostname;
-    $cmd .= " -v" if $verbose > 1;
+    $cmd .= " -h$hostname"       if defined $hostname;
+    $cmd .= " -v"                if $verbose > 1;
     print "Running '$cmd'\n" if $verbose > 1;
     system($cmd) && die "Couldn't drop database $db_name: $?";
 }
@@ -176,50 +180,51 @@ exit 0 if $no_create;
 
 # skip if database exists
 my $cmd = qq{mysql -uroot -e 'select "$db_name exists"' $db_name};
-$cmd .= " -p$db_pass" if defined $db_pass;
+$cmd .= " -p$db_pass"  if defined $db_pass;
 $cmd .= " -h$hostname" if defined $hostname;
-$cmd .= " -v" if $verbose > 1;
+$cmd .= " -v"          if $verbose > 1;
 $cmd .= " 2>&1";
 print "Running '$cmd'\n" if $verbose > 1;
 
 # if the database already exists
-if (`$cmd` =~ /$db_name exists/) {
+if ( `$cmd` =~ /$db_name exists/ ) {
     print "Database '$db_name' already exists, skipping create.\n";
-# else create the database
+
+    # else create the database
 } else {
     print STDERR "Creating database '$db_name'...\n" if $verbose;
     $cmd = "mysql -uroot -e 'CREATE DATABASE $db_name'";
     $cmd .= " -p$admin_password" if $admin_password;
-    $cmd .= " -h$hostname" if defined $hostname;
-    $cmd .= " -v" if $verbose > 1;
+    $cmd .= " -h$hostname"       if defined $hostname;
+    $cmd .= " -v"                if $verbose > 1;
     print "Running '$cmd'\n" if $verbose > 1;
     system($cmd) && die "Couldn't create database: $?";
-    
+
     # grant access to the database to DBUser
     $cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
-    $cmd .= q{@localhost} if !defined $hostname;
+    $cmd .= q{@localhost}                  if !defined $hostname;
     $cmd .= qq{ identified by "$db_pass" } if $db_pass;
     $cmd .= "'";
-    $cmd .= " -p$admin_password" if $admin_password;
-    $cmd .= " -h$hostname" if defined $hostname;
-    $cmd .= " -v" if $verbose > 1;
+    $cmd .= " -p$admin_password"           if $admin_password;
+    $cmd .= " -h$hostname"                 if defined $hostname;
+    $cmd .= " -v"                          if $verbose > 1;
     print "Running '$cmd'\n" if $verbose > 1;
     system($cmd) && die "Couldn't grant all: $?";
-    
+
     # load all sql files as the DBUser
-    my $sql_dir = catdir(InstallRoot, 'sql');
+    my $sql_dir = catdir( InstallRoot, 'sql' );
     my $DIR;
-    opendir($DIR, $sql_dir) or die "Could not open $sql_dir for reading! $!";
-    while(my $file = readdir($DIR) ) {
-        next if $file =~ /^\./;     # parental controls
-        next if $file !~ /\.sql$/;  # only SQL files
-        $file = catfile($sql_dir, $file);
-        
+    opendir( $DIR, $sql_dir ) or die "Could not open $sql_dir for reading! $!";
+    while ( my $file = readdir($DIR) ) {
+        next if $file =~ /^\./;    # parental controls
+        next if $file !~ /\.sql$/; # only SQL files
+        $file = catfile( $sql_dir, $file );
+
         print STDERR "Loading SQL for '$db_name' from $file...\n" if $verbose;
         $cmd = "mysql -u$db_user $db_name ";
-        $cmd .= " -p$db_pass" if $db_pass;
+        $cmd .= " -p$db_pass"  if $db_pass;
         $cmd .= " -h$hostname" if defined $hostname;
-        $cmd .= " -v" if $verbose > 1;
+        $cmd .= " -v"          if $verbose > 1;
         $cmd .= " < $file ";
         print "Running '$cmd'\n" if $verbose > 1;
         system($cmd) && die "Couldn't load SQL: $?: $!";
@@ -229,12 +234,11 @@ if (`$cmd` =~ /$db_name exists/) {
     my $version = $Smolder::VERSION;
     $cmd = qq{mysql -uroot -e 'UPDATE db_version set db_version=$version' $db_name};
     $cmd .= " -p$admin_password" if $admin_password;
-    $cmd .= " -h$hostname" if defined $hostname;
-    $cmd .= " -v" if $verbose > 1;
+    $cmd .= " -h$hostname"       if defined $hostname;
+    $cmd .= " -v"                if $verbose > 1;
     print "Running '$cmd'\n" if $verbose > 1;
     system($cmd) && die "Couldn't update db_version: $?";
 }
-
 
 print "Databases created successfully.\n";
 
