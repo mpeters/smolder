@@ -199,6 +199,7 @@ __PACKAGE__->add_callback(
         my $query = $self->query();
         $self->param(
             'dfv_defaults' => {
+                filters                 => ['trim'],
                 msgs                    => \&_create_dfv_msgs,
                 untaint_all_constraints => 1,
             }
