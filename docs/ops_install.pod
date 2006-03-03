@@ -186,7 +186,7 @@ does not exist.
 
 Defaults to 80.  Port on which the Apache server should run.
 
-=item SMTPServer
+=item SMTPHost
 
 Defaults to localhost (127.0.0.1).  Address of SMTP mail server used
 by Smolder for sending email alerts.
