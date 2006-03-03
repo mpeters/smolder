@@ -514,7 +514,7 @@ sub install_smolder {
     my @dirs = (
         catdir( $InstallPath, 'htdocs' ),
         catdir( $InstallPath, 'docs' ),
-        catdir( $InstallPath, 'bench' ),
+        #catdir( $InstallPath, 'bench' ),   # doesn't exist yet
         catdir( $InstallPath, 'conf' ),
     );
 
