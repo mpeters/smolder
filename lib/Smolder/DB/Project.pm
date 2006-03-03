@@ -9,8 +9,8 @@ use File::Spec::Functions qw(catdir);
 use DateTime::Format::MySQL;
 
 __PACKAGE__->set_up_table('project');
-__PACKAGE__->has_many('project_developers' => 'Smolder::DB::ProjectDeveloper');
-__PACKAGE__->has_many('smoke_reports' => 'Smolder::DB::SmokeReport');
+__PACKAGE__->has_many( 'project_developers' => 'Smolder::DB::ProjectDeveloper' );
+__PACKAGE__->has_many( 'smoke_reports'      => 'Smolder::DB::SmokeReport' );
 
 =head1 NAME
 
@@ -32,17 +32,17 @@ The following columns will return objects instead of the value contained in the 
 =cut
 
 __PACKAGE__->has_a(
-    start_date   => 'DateTime',
-    inflate      => sub { DateTime::Format::MySQL->parse_datetime(shift) },
-    deflate      => sub { DateTime::Format::MySQL->format_datetime(shift) },
+    start_date => 'DateTime',
+    inflate    => sub { DateTime::Format::MySQL->parse_datetime(shift) },
+    deflate    => sub { DateTime::Format::MySQL->format_datetime(shift) },
 );
 
 # make sure we delete any test_report directories associated with us
 __PACKAGE__->add_trigger(
     before_delete => sub {
         my $self = shift;
-        my $dir = catdir(InstallRoot, 'data', 'smoke_reports', $self->id);
-        rmtree($dir) if( -d $dir );
+        my $dir = catdir( InstallRoot, 'data', 'smoke_reports', $self->id );
+        rmtree($dir) if ( -d $dir );
     }
 );
 
@@ -67,12 +67,14 @@ Project (using the C<project_developer> join table.
 
 sub developers {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my $sth  = $self->db_Main->prepare_cached(
+        qq(
         SELECT developer.* FROM developer, project_developer
         WHERE project_developer.project = ? AND project_developer.developer = developer.id
         ORDER BY project_developer.added
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
     return Smolder::DB::Developer->sth_to_objects($sth);
 }
 
@@ -88,12 +90,14 @@ of this Project.
 =cut
 
 sub has_developer {
-    my ($self, $developer) = @_;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my ( $self, $developer ) = @_;
+    my $sth = $self->db_Main->prepare_cached(
+        qq(
         SELECT COUNT(*) FROM project_developer
         WHERE project = ? AND developer = ?
-    ));
-    $sth->execute($self->id, $developer->id);
+    )
+    );
+    $sth->execute( $self->id, $developer->id );
     return $sth->select_val || 0;
 }
 
@@ -106,12 +110,14 @@ for this Project
 
 sub admins {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my $sth  = $self->db_Main->prepare_cached(
+        qq(
         SELECT d.* FROM project_developer pd, developer d
         WHERE pd.project = ? AND pd.developer = d.id AND pd.admin = 1
         ORDER BY d.id
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
     my @admins = Smolder::DB::Developer->sth_to_objects($sth);
     return @admins;
 }
@@ -128,13 +134,15 @@ for this Project.
 =cut
 
 sub is_admin {
-    my ($self, $developer) = @_;
-    if( $developer ) {
-        my $sth = $self->db_Main->prepare_cached(qq(
+    my ( $self, $developer ) = @_;
+    if ($developer) {
+        my $sth = $self->db_Main->prepare_cached(
+            qq(
             SELECT admin FROM project_developer
             WHERE developer = ? AND project = ?
-        ));
-        $sth->execute($developer->id, $self->id);
+        )
+        );
+        $sth->execute( $developer->id, $self->id );
         my $row = $sth->fetchrow_arrayref();
         $sth->finish();
         return $row->[0];
@@ -151,11 +159,13 @@ Removes the 'admin' flag from any Developers associated with this Project.
 
 sub clear_admins {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my $sth  = $self->db_Main->prepare_cached(
+        qq(
         UPDATE project_developer SET admin = 0
         WHERE project_developer.project = ?
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
 }
 
 =head3 set_admins
@@ -166,14 +176,14 @@ to be an admin of the Project.
 =cut
 
 sub set_admins {
-    my ($self, @admins) = @_;
-    my $place_holders = join(', ', ('?') x scalar @admins); 
-    my $sql = qq(
+    my ( $self, @admins ) = @_;
+    my $place_holders = join( ', ', ('?') x scalar @admins );
+    my $sql           = qq(
         UPDATE project_developer SET admin = 1
         WHERE project = ? AND developer IN ($place_holders)
     );
     my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute($self->id, @admins);
+    $sth->execute( $self->id, @admins );
 }
 
 =head3 all_reports
@@ -209,25 +219,25 @@ are returned.
 =cut
 
 sub all_reports {
-    my ($self, %args) = @_;
-    my $limit     = $args{limit} || 0;
-    my $offset    = $args{offset} || 0;
+    my ( $self, %args ) = @_;
+    my $limit     = $args{limit}     || 0;
+    my $offset    = $args{offset}    || 0;
     my $direction = $args{direction} || 'DESC';
     my $category  = $args{category};
-    my @bind_vars = ($self->id);
+    my @bind_vars = ( $self->id );
 
     my $sql = q(
         SELECT smoke_report.* FROM smoke_report, project
         WHERE smoke_report.project = project.id 
         AND project.id = ?
     );
-    if( $category ) {
-        push(@bind_vars, $category);
+    if ($category) {
+        push( @bind_vars, $category );
         $sql .= " AND smoke_report.category = ? ";
     }
 
     $sql .= " ORDER BY added $direction, smoke_report.id DESC";
-    $sql .= " LIMIT $offset, $limit " if( $limit );
+    $sql .= " LIMIT $offset, $limit " if ($limit);
 
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_vars);
@@ -242,13 +252,13 @@ The number of reports associated with this Project
 
 sub report_count {
     my $self = shift;
-    my $sql = q(
+    my $sql  = q(
         SELECT COUNT(*) FROM smoke_report, project
         WHERE smoke_report.project = project.id
         AND project.id = ?
     );
     my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute($self->id);
+    $sth->execute( $self->id );
     return $sth->select_val() || 0;
 }
 
@@ -268,40 +278,42 @@ L<DateTime> parameter.
 =cut
 
 sub report_graph_data {
-    my ($self, %args) = @_;
-    my $fields = $args{fields};
-    my $start = $args{start};
-    my $stop = $args{stop};
+    my ( $self, %args ) = @_;
+    my $fields   = $args{fields};
+    my $start    = $args{start};
+    my $stop     = $args{stop};
     my $category = $args{category};
     my @data;
-    my @bind_cols = ($self->id);
+    my @bind_cols = ( $self->id );
 
     # we need the date before anything else
     my $added = "DATE_FORMAT(added, '%m/%d/%Y')";
-    
-    my $sql = "SELECT " . join(', ', $added, @$fields) . " FROM smoke_report "
-    . " WHERE project = ? AND invalid = 0 ";
+
+    my $sql = "SELECT "
+      . join( ', ', $added, @$fields )
+      . " FROM smoke_report "
+      . " WHERE project = ? AND invalid = 0 ";
 
     # if we need to limit by date
-    if( $start ) {
+    if ($start) {
         $sql .= " AND DATE(smoke_report.added) >= ? ";
-        push(@bind_cols,$start->strftime('%Y-%m-%d'));
+        push( @bind_cols, $start->strftime('%Y-%m-%d') );
     }
-    if( $stop ) {
+    if ($stop) {
         $sql .= " AND DATE(smoke_report.added) <= ? ";
-        push(@bind_cols, $stop->strftime('%Y-%m-%d'));
+        push( @bind_cols, $stop->strftime('%Y-%m-%d') );
     }
 
-    if( $category ) {
+    if ($category) {
         $sql .= " AND category = ? ";
-        push(@bind_cols, $category);
+        push( @bind_cols, $category );
     }
 
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_cols);
-    while( my $row = $sth->fetchrow_arrayref() ) {
-        for my $i (0.. scalar(@$row) -1) {
-            push(@{$data[$i]}, $row->[$i]);
+    while ( my $row = $sth->fetchrow_arrayref() ) {
+        for my $i ( 0 .. scalar(@$row) - 1 ) {
+            push( @{ $data[$i] }, $row->[$i] );
         }
     }
     return \@data;
@@ -318,14 +330,16 @@ Returns a list of all of categories that have been added to this project
 
 sub categories {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my $sth  = $self->db_Main->prepare_cached(
+        qq(
         SELECT category FROM project_category WHERE project = ?
         ORDER BY category
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
     my @cats;
-    while( my $row = $sth->fetchrow_arrayref() ) {
-        push(@cats, $row->[0]);
+    while ( my $row = $sth->fetchrow_arrayref() ) {
+        push( @cats, $row->[0] );
     }
     return @cats;
 }
@@ -339,11 +353,13 @@ Adds the given category to this project.
 =cut
 
 sub add_category {
-    my ($self, $cat) = @_;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my ( $self, $cat ) = @_;
+    my $sth = $self->db_Main->prepare_cached(
+        qq(
         INSERT INTO project_category (project, category) VALUES (?,?)
-    ));
-    $sth->execute($self->id, $cat);
+    )
+    );
+    $sth->execute( $self->id, $cat );
 }
 
 =head3 delete_category
@@ -355,13 +371,14 @@ Deletes a category in the project_category table associated with this Project.
 =cut
 
 sub delete_category {
-    my ($self, $cat) = @_;
-    my $sth = $self->db_Main->prepare_cached(qq(
+    my ( $self, $cat ) = @_;
+    my $sth = $self->db_Main->prepare_cached(
+        qq(
         DELETE FROM project_category WHERE project = ? AND category = ?
-    ));
-    $sth->execute($self->id, $cat);
+    )
+    );
+    $sth->execute( $self->id, $cat );
 }
-
 
 =head2 CLASS METHODS
 
@@ -374,14 +391,14 @@ not be returned.
 =cut
 
 sub all_names {
-    my ($class, $id) = @_;
+    my ( $class, $id ) = @_;
     my $sql = "SELECT NAME FROM project";
-    $sql .= " WHERE id != $id" if( $id );
+    $sql .= " WHERE id != $id" if ($id);
     my $sth = $class->db_Main->prepare_cached($sql);
     $sth->execute();
     my @names;
-    while( my $row = $sth->fetchrow_arrayref() ) {
-        push(@names, $row->[0]);
+    while ( my $row = $sth->fetchrow_arrayref() ) {
+        push( @names, $row->[0] );
     }
     return @names;
 }

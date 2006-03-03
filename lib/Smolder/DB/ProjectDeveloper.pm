@@ -24,9 +24,9 @@ The following columns will return objects instead of the value contained in the 
 
 =cut
 
-__PACKAGE__->has_a(project    => 'Smolder::DB::Project');
-__PACKAGE__->has_a(developer  => 'Smolder::DB::Developer');
-__PACKAGE__->has_a(preference => 'Smolder::DB::Preference');
+__PACKAGE__->has_a( project    => 'Smolder::DB::Project' );
+__PACKAGE__->has_a( developer  => 'Smolder::DB::Developer' );
+__PACKAGE__->has_a( preference => 'Smolder::DB::Preference' );
 
 __PACKAGE__->has_a(
     added   => 'DateTime',
@@ -34,20 +34,17 @@ __PACKAGE__->has_a(
     deflate => sub { DateTime::Format::MySQL->format_datetime(shift) },
 );
 
-
 # make sure we delete any preferences that are attached to us
-__PACKAGE__->add_trigger(
-    after_delete => sub { shift->preference->delete },
-);
+__PACKAGE__->add_trigger( after_delete => sub { shift->preference->delete }, );
 
 # create a new preference based on our developer's preference
 __PACKAGE__->add_trigger(
-    before_create   => sub { 
+    before_create => sub {
         my $self = shift;
-        $self->_attribute_set(preference => $self->developer->preference->copy)
-            unless $self->_attribute_exists('preference');
-        $self->_attribute_set(admin => 0) 
-            unless $self->_attribute_exists('admin');
+        $self->_attribute_set( preference => $self->developer->preference->copy )
+          unless $self->_attribute_exists('preference');
+        $self->_attribute_set( admin => 0 )
+          unless $self->_attribute_exists('admin');
     },
 );
 
@@ -55,10 +52,9 @@ __PACKAGE__->add_trigger(
 __PACKAGE__->add_trigger(
     before_create => sub {
         my $self = shift;
-        $self->_attribute_set( added => DateTime->now());
+        $self->_attribute_set( added => DateTime->now() );
     },
 );
-
 
 =over
 

@@ -36,9 +36,9 @@ The following columns will return objects instead of the value contained in the 
 =cut
 
 __PACKAGE__->has_a(
-    added        => 'DateTime',
-    inflate      => sub { DateTime::Format::MySQL->parse_datetime(shift) },
-    deflate      => sub { DateTime::Format::MySQL->format_datetime(shift) },
+    added   => 'DateTime',
+    inflate => sub { DateTime::Format::MySQL->parse_datetime(shift) },
+    deflate => sub { DateTime::Format::MySQL->format_datetime(shift) },
 );
 __PACKAGE__->has_a( developer => 'Smolder::DB::Developer' );
 __PACKAGE__->has_a( project   => 'Smolder::DB::Project' );
@@ -47,9 +47,7 @@ __PACKAGE__->has_a( project   => 'Smolder::DB::Project' );
 __PACKAGE__->add_trigger(
     before_create => sub {
         my $self = shift;
-        $self->_attribute_set(
-            added => DateTime->now(time_zone => 'local'),
-        );
+        $self->_attribute_set( added => DateTime->now( time_zone => 'local' ), );
     },
 );
 
@@ -82,18 +80,12 @@ yet exist, it will be created.
 sub file {
     my $self = shift;
     my $date = $self->added()->strftime('%Y%m');
-    my $dir = catdir(
-        InstallRoot, 
-        'data',
-        'smoke_reports',
-        $self->project->id,
-        $date,
-    );
+    my $dir  = catdir( InstallRoot, 'data', 'smoke_reports', $self->project->id, $date, );
 
     # create it if it doesn't exist
-    mkpath($dir) if( ! -d $dir );
+    mkpath($dir) if ( !-d $dir );
 
-    return catfile($dir, $self->id . '.xml');
+    return catfile( $dir, $self->id . '.xml' );
 }
 
 =head3 html
@@ -106,14 +98,12 @@ sub html {
     my $self = shift;
 
     # if we already have the file then use it
-    if( $self->html_file && -e $self->html_file ) {
-        return $self->_slurp_file($self->html_file);
+    if ( $self->html_file && -e $self->html_file ) {
+        return $self->_slurp_file( $self->html_file );
     }
 
     # else we need to generate a new HTML file
-    my $model = Test::TAP::Model::Visual->new_with_struct(
-        $self->model_obj->structure
-    );
+    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
 
     # create some header text based on the info of the smoke_report
     my $extra = <<END_EXTRA;
@@ -126,38 +116,33 @@ Duration      %i secs
 Comments:     %s
 
 END_EXTRA
-    $extra = sprintf(
-        $extra,
-        $self->project->name,
-        $self->added->strftime('%A, %B %e %Y, %l:%M:%S %p'),
-        $self->developer->username,
-        $self->platform || 'Unknown',
-        $self->architecture || 'Unknown',
-        $self->duration,
-        $self->comments || 'none',
-    );
+    $extra = sprintf( $extra,
+        $self->project->name,       $self->added->strftime('%A, %B %e %Y, %l:%M:%S %p'),
+        $self->developer->username, $self->platform || 'Unknown',
+        $self->architecture || 'Unknown', $self->duration,
+        $self->comments     || 'none', );
 
-    my $v = Test::TAP::HTMLMatrix->new($model, $extra);
+    my $v = Test::TAP::HTMLMatrix->new( $model, $extra );
     $v->has_inline_css(1);
     my $html = $v->html;
 
     # save this to a file
-    my $dir = catdir(InstallRoot, 'tmp', 'html_smoke_reports');
-    unless( -d $dir ) {
+    my $dir = catdir( InstallRoot, 'tmp', 'html_smoke_reports' );
+    unless ( -d $dir ) {
         mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
     my $tmp = new File::Temp(
-        UNLINK => 0, 
+        UNLINK => 0,
         SUFFIX => '.html',
         DIR    => $dir,
     );
     print $tmp $html
-        or croak "Could not print to $tmp! $!";
+      or croak "Could not print to $tmp! $!";
     close($tmp);
-    $self->html_file($tmp->filename);
+    $self->html_file( $tmp->filename );
     $self->update();
     Smolder::DB->dbi_commit();
-    
+
     return \$html;
 }
 
@@ -177,15 +162,15 @@ sub html_nonref {
 }
 
 sub _slurp_file {
-    my ($self, $file_name) = @_;
+    my ( $self, $file_name ) = @_;
     my $text;
     local $/;
-    open(my $IN, $file_name)
-        or croak "Could not open file '$file_name' for reading! $!";
+    open( my $IN, $file_name )
+      or croak "Could not open file '$file_name' for reading! $!";
 
     $text = <$IN>;
     close($IN)
-        or croak "Could not close file '$file_name'! $!";
+      or croak "Could not close file '$file_name'! $!";
     return \$text;
 }
 
@@ -197,7 +182,7 @@ A reference to the XML text of this Test Report.
 
 sub xml {
     my $self = shift;
-    return $self->_slurp_file($self->file);
+    return $self->_slurp_file( $self->file );
 }
 
 =head3 yaml
@@ -207,9 +192,9 @@ A reference to the YAML representation of this Test Report
 =cut
 
 sub yaml {
-    my $self = shift;
+    my $self  = shift;
     my $model = $self->model_obj;
-    my $yaml = YAML::Dump($model->structure);
+    my $yaml  = YAML::Dump( $model->structure );
     return \$yaml;
 }
 
@@ -221,9 +206,9 @@ The L<Test::TAP::XML> object for this smoke test run.
 
 sub model_obj {
     my $self = shift;
-    if( ! $self->{__TAP_MODEL_XML} ) {
-        $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file($self->file);
-    };
+    if ( !$self->{__TAP_MODEL_XML} ) {
+        $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $self->file );
+    }
     return $self->{__TAP_MODEL_XML};
 }
 
@@ -236,16 +221,18 @@ depending on this report's status.
 =cut
 
 sub send_emails {
-    my $self = shift;
+    my $self  = shift;
     my %types = (
         full    => [],
         summary => [],
         link    => [],
     );
-    
+
     # get the addresses from the DB
-    my $freq_clause = $self->fail ? "(pref.email_freq IN ('on_fail', 'on_new'))"
-        : " pref.email_freq = 'on_new' ";
+    my $freq_clause =
+      $self->fail
+      ? "(pref.email_freq IN ('on_fail', 'on_new'))"
+      : " pref.email_freq = 'on_new' ";
 
     my $sql = qq(
         SELECT d.email, pref.email_type 
@@ -255,19 +242,17 @@ sub send_emails {
         WHERE p.id = ? AND $freq_clause
     );
     my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute($self->project->id);
-    while( my $row = $sth->fetchrow_arrayref ) {
-        push(@{ $types{$row->[1]} }, $row->[0]);
+    $sth->execute( $self->project->id );
+    while ( my $row = $sth->fetchrow_arrayref ) {
+        push( @{ $types{ $row->[1] } }, $row->[0] );
     }
 
     # now send each type their mail
-    foreach my $type (keys %types) {
-        my $subject = "Smolder - new " . ($self->fail ? "failed " : '') . "smoke report";
-        my $tt_params = {
-            report => $self,
-        };
+    foreach my $type ( keys %types ) {
+        my $subject = "Smolder - new " . ( $self->fail ? "failed " : '' ) . "smoke report";
+        my $tt_params = { report => $self, };
 
-        foreach my $email (@{ $types{$type} } ) {
+        foreach my $email ( @{ $types{$type} } ) {
             my $error = Smolder::Email->send_mime_mail(
                 to        => $email,
                 name      => "smoke_report_$type",
@@ -275,7 +260,7 @@ sub send_emails {
                 tt_params => $tt_params,
             );
             croak "Could not send smoke_report_$type email to $email! $error"
-                if( $error );
+              if ($error);
         }
     }
 }
@@ -290,10 +275,10 @@ files can't be deleted for some reason. Returns true if all is good.
 
 sub delete_files {
     my $self = shift;
-    if( $self->file && -e $self->file ) {
+    if ( $self->file && -e $self->file ) {
         unlink $self->file or die "Could not delete file '" . $self->file . "'! $!";
     }
-    if( $self->html_file && -e $self->html_file ) {
+    if ( $self->html_file && -e $self->html_file ) {
         unlink $self->html_file or die "Could not delete file '" . $self->html_file . "'! $!";
     }
     $self->file(undef);
@@ -302,7 +287,6 @@ sub delete_files {
     Smolder::DB->dbi_commit();
     return 1;
 }
-
 
 =head2 CLASS METHODS
 
@@ -320,17 +304,16 @@ category into another.
 =cut
 
 sub change_category {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
+
     # TODO - use Params::Validate to validate these args
-    my $sth = $self->db_Main->prepare_cached(q(
+    my $sth = $self->db_Main->prepare_cached(
+        q(
         UPDATE smoke_report SET category = ?
         WHERE project = ? AND category = ?
-    ));
-    $sth->execute(
-        $args{replacement}, 
-        $args{project}->id, 
-        $args{category}
-    ); 
+    )
+    );
+    $sth->execute( $args{replacement}, $args{project}->id, $args{category} );
 }
 
 1;
