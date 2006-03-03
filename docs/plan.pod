@@ -76,7 +76,7 @@ Show as much data as possible (or desired). This includes the following reports:
 
 =item 1 - By project summary of most recent test results
 
-=item 2 - Detailed view of each test result, showing all test files run and which tests passed or failed. (My Current test report).
+=item 2 - Detailed view of each test result, showing all test files run and which tests passed or failed.
 
 =item 3 - Drill down from the above report to see more verbose listing of each file, or the reason for a test failure.
 
@@ -91,9 +91,6 @@ Show as much data as possible (or desired). This includes the following reports:
 =item * time to run
 
 =item * percentage of pass/fail
-
-The most common graphs will be generated in batch processes every time the data changes.
-The un-common graphs will be created on the fly.
 
 =back
 
@@ -110,10 +107,10 @@ Nice look a feel. Simple, but modern.
 =head1 WORKFLOW
 
 The testers would be encouraged to run their tests, automatically and periodically.
-We will provide scripts to at least convert TAP to TAML, and upload it to a running
+We will provide modules to at least convert TAP to XML, and upload it to a running
 instance of smolder. Remember, the goal is to change as little as possible about their
 existing project structure, so we probably don't want to actually run their tests for
-them (since this might require other steps other than simply calling test.pl, etc).
+them (since this might require other steps other than simply calling prove, etc).
 
 The user (or script) would log in and upload the XML file to smolder, which would collate
 it with the others from the same project, create the detailed reports for that run, collect 
@@ -157,14 +154,11 @@ other information like:
 
 =item * Developer name
 
-=item * Architecture
+=item * Architecture and Platform
+
+=item * Project Defined categories
 
 =back
-
-Maybe even make this a micro-format and not a full blown XML language.
-
-If I<TAML> doesn't pan out as a good idea, then just collect this information
-from the user when they upload the data.
 
 =item MVC
 
@@ -205,15 +199,7 @@ in a speedy manner. This will also let us limit the images (graphs/charts) that 
 be seen to only the project to which they belong and will allow authentication to
 occur at the proxy level if we ever decide to go with a built-in proxy.
 
-=item Built in scheduler daemon
-
-Similar to Krang, there will be a built-in daemon running that will pull scheduled
-jobs from the database to run. These job can be set as periodic, or one time occurrences.
-This will (at least at first) be a single threaded daemon to reduce the complexity
-of concurrent access.
-
 =back
-
 
 
 
