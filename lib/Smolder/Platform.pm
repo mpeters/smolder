@@ -139,45 +139,6 @@ END
       unless $version >= 0.13;
 }
 
-=head2 check_expat
-
-Checks to see that the Expat library is installed.  The default
-implementation looks in $Config{libpth} for libexpat.so.
-
-    check_expat(
-        lib_files => \@libs, 
-        includes  => \@incs, 
-        mode      => 'install',
-    );
-
-=cut
-
-sub check_expat {
-    my ( $pkg, %args ) = @_;
-    my $mode = $args{mode};
-
-    unless ( grep { /^libexpat\./ } @{ $args{lib_files} } ) {
-        die <<END;
-
-Expat XML parser library not found.  Install expat
-(http://expat.sf.net) and try again.
-
-END
-    }
-
-    # look for Expat headers, if building
-    if ( $mode eq 'build' and not( grep { -e catfile( $_, 'expat.h' ) } @{ $args{includes} } ) ) {
-        die <<END;
-
-Expat XML parser header files not found, although the library is
-present.  Re-install expat (http://expat.sf.net), or install the
-appropriate devel package and try again.
-
-END
-    }
-
-}
-
 =back
 
 =item C<< $bin = find_bin(bin => $bin_name) >>

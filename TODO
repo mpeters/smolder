@@ -8,6 +8,8 @@ FOR 0.1
 FOR 0.2
 ====================
 
++ fix some POD style issues leftover from Krang
+
 + top level Makefile for common tasks (make test, make db, etc)
 
 + searchable HTML docs
