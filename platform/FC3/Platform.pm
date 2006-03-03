@@ -1,8 +1,8 @@
-package FedoraCore3::Platform;
+package FC3::Platform;
 use strict;
 use warnings;
 
-use base 'FedoraCore1::Platform';
+use base 'FC1::Platform';
 
 use Cwd qw(cwd);
 

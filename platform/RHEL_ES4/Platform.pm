@@ -42,7 +42,7 @@ sub finish_installation {
     my ($pkg, %arg) = @_;
     my %options = %{$arg{options}};
 
-    my $init_script = "SMOLDER-". $options{HostName} .".init";    
+    my $init_script = "smolder-". $options{HostName} .".init";    
     print "Installing Smolder init.d script '$init_script'\n";
 
     my $old = cwd;

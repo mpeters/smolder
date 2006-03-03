@@ -37,7 +37,7 @@ sub finish_installation {
     my ($pkg, %arg) = @_;
     my %options = %{$arg{options}};
 
-    my $init_script = "SMOLDER-". $options{HostName};
+    my $init_script = "smolder-". $options{HostName};
     print "Installing Smolder init.d script '$init_script'\n";
 
     my $old = cwd;
@@ -60,7 +60,7 @@ sub post_install_message {
     $pkg->SUPER::post_install_message(%arg);
 
     # return a note about setting up smolder_ctl on boot.
-    my $init_script = "SMOLDER-". $options{HostName};
+    my $init_script = "smolder-". $options{HostName};
 
     print <<EOREPORT;
 

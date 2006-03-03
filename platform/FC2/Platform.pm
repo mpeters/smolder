@@ -1,8 +1,8 @@
-package FedoraCore4::Platform;
+package FC2::Platform;
 use strict;
 use warnings;
 
-use base 'FedoraCore1::Platform';
+use base 'FC1::Platform';
 
 use Cwd qw(cwd);
 
@@ -11,7 +11,7 @@ sub guess_platform {
     open(RELEASE, '/etc/redhat-release') or return 0;
     my $release = <RELEASE>;
     close RELEASE;
-    return 1 if $release =~ /Fedora Core release 4/;
+    return 1 if $release =~ /Fedora Core release 2/;
     return 0;
 }
 

@@ -1,4 +1,4 @@
-package Redhat7_3::Platform;
+package FC1::Platform;
 use strict;
 use warnings;
 
@@ -11,7 +11,7 @@ sub guess_platform {
     open(RELEASE, '/etc/redhat-release') or return 0;
     my $release = <RELEASE>;
     close RELEASE;
-    return 1 if $release =~ /Red Hat Linux release 7/;
+    return 1 if $release =~ /Fedora Core release 1/;
     return 0;
 }
 
@@ -20,7 +20,7 @@ sub finish_installation {
     my ($pkg, %arg) = @_;
     my %options = %{$arg{options}};
 
-    my $init_script = "SMOLDER-". $options{HostName} .".init";    
+    my $init_script = "smolder-". $options{HostName} .".init";    
     print "Installing Smolder init.d script '$init_script'\n";
 
     my $old = cwd;
@@ -32,9 +32,7 @@ sub finish_installation {
     system($link_init) && die ("Can't link init script: $!");
 
     print "Setting $init_script to start on boot\n";
-
     my $chkconfig_bin = $pkg->find_bin(bin => 'chkconfig');
-
     my $chkconfig = "$chkconfig_bin --add $init_script";
     system($chkconfig) && die("Can't chkconfig --add $init_script: $!");
 
@@ -43,6 +41,5 @@ sub finish_installation {
 
     chdir $old;
 }
-
 
 1;
