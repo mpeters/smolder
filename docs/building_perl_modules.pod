@@ -1,0 +1,53 @@
+=head1 How to add a CPAN module to Smolder
+
+This document describes how to add a new CPAN module to Smolder, or
+update an existing one. You might need to add a CPAN module when
+you're adding new functionality to Smolder. Updating an existing module
+is usually done to fix bugs or add new functionality.
+
+Follow these steps to add a new module:
+
+=over
+
+=item 1
+
+First, collect two pieces of information about the module: its license
+and what other modules it requires.  If the module does not have a
+license, or the license does not allow free distribution do not add it
+to Smolder. Ensure that any required modules are already in Smolder. 
+You can do this by using the F<smolder_src_dependency_check> script.
+
+    $] ./bin/smolder_src_dependency_check --file src/HTML-Template-2.7.tar.gz
+
+    Test::More    => OK     (Found in CORE)
+    Digest::MD5   => OK     (Found in Smolder lib)
+    File::Spec    => OK     (Found in CORE)
+    Carp          => OK?    (Found in Vendor lib)
+    
+
+If a required module is not found, follow this same process for adding
+it to Smolder first.
+
+=item 2
+
+Copy the module distribution into the src/ directory of Smolder.  This
+can be either a CVS checkout of Smolder or a source distribution (ex:
+smolder-1.011-src.tar.gz).
+
+=item 3
+
+Attempt to rebuild Smolder:
+
+  make build
+
+If this completes successfully then the module is now installed into
+Smolder. Run tests and commit your changes if everything passes.
+
+=item 4
+
+If step 4 failed you may need to modify
+L<Smolder::Plaftorm>::build_perl_module() to successfully build the new
+module. If the module asks any questions during build then you'll
+need to modify the Expect calls to provide the appropriate answers.
+
+=back

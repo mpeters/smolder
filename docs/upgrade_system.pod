@@ -1,0 +1,77 @@
+=head1 Smolder Upgrade System
+
+This document describes the Smolder upgrade system for developers.  If
+you just want to upgrade Smolder, see HREF[Upgrade|ops_upgrade.html].
+
+=head2 Introduction
+
+Smolder provides an upgrade system to allow existing Smolder installations
+to use new code without losing data and configuration.  When you make
+changes to Smolder you may need to add commands to an upgrade module.
+This document will show you how.
+
+=head2 Automatic Code Upgrades
+
+The only thing that Smolder does automatically is overwrite old source
+files with new source files.  For example, if you fix a bug in
+C<lib/Smolder/Story.pm> and the fix doesn't require a database update
+then your work is almost certainly done.
+
+=head2 Database Upgrades
+
+If you make a change to the DB schema, or the contents of the database
+then you need to add code to affect that change during the upgrade.
+For example, let's say I've added a new property for preferences called
+'foo'.  That will naturally require a new column in the C<preference>
+table, which I will add to C<preference.sql>:
+
+  foo INT UNSIGNED NOT NULL,
+
+That's fine for new installations, which will use C<preference.sql> to
+construct the C<preference> table, but for upgrades I need to make that
+change to the live database.  To do so I add a line to the
+C<upgrade> subroutine in the upgrade module for this release,
+C<upgrade/V0_022.pm>:
+
+  sub upgrade {
+      my $self = shift;
+      my $dbh = Smolder::DB->db_Main();
+
+      # add the foo_id column
+      $dbh->do("ALTER TABLE preference ADD COLUMN foo INT UNSIGNED NOT NULL");
+  }
+
+If an upgrade module for the current version doesn't exist yet just
+copy an older one and use it as a template.  For more details, see
+L<Smolder::Upgrade>.
+
+=head2 Data Changes
+
+Smolder does nothing with the C<data/> directory during upgrade unless
+you write code to do it.  If you make a change to how files are stored
+under C<data/> then you'll need to add code to make the change.  
+
+=head2 Other Changes
+
+Virtually any change you can write can be accomodated by the upgrade
+module.
+
+=head2 How Smolder Uses Upgrade Modules
+
+When Smolder is running an upgrade it determines which upgrade modules
+to run by looking at the source and target versions.  For example, to
+upgrade from v1.001 to v1.004 Smolder would run, if available: 
+
+   upgrade/V1_002.pm
+   upgrade/V1_003.pm
+   upgrade/V1_004.pm
+
+=head2 How to Run an Upgrade Module Manually
+
+While testing upgrade modules it helps to be able to run them by hand,
+rather than as part of a full C<smolder_upgrade> run.  Here's how it's
+done, using V1_000.pm as an example:
+
+   KRANG_ROOT=`pwd` perl -Ilib -Iupgrade -MSmolder::Script \
+   -MV1_000 -e 'V1_000->new()->upgrade()'
+

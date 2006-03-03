@@ -1,0 +1,55 @@
+=head1 Upgrading Smolder
+
+=head2 Upgrading Smolder from a Binary Release
+
+To upgrade an existing Smolder installation, first unpack the new
+version of Smolder and enter the created directory
+
+  $ tar zxvf smolder-1.013-Redhat7_3-perl5.6.1-i686-linux.tar.gz
+  $ cd smolder-1.013-Redhat7_3-perl5.6.1-i686-linux
+
+Then, as root, run the Smolder upgrade script:
+
+  # ./bin/smolder_upgrade
+
+If Smolder isn't installed in C</usr/local/smolder> then you'll need to
+point C<smolder_upgrade> in the right direction:
+
+  # ./bin/smolder_upgrade --SmolderRoot /path/to/smolder/install
+
+
+=head1 Upgrading Smolder from a Source Release
+
+Before you can upgrade Smolder, you must build necessary packages out of
+the source release:
+
+  $ cd SMOLDER_ROOT
+  $ make build
+
+Once built, you need to create a distribution package:
+
+  $ make dist
+
+You can then use the resulting tarball and follow the instructions
+above for Binary Releases.
+
+=head2 A Note for SVN Users
+
+First, you should only use the SVN tree if you are involved in Smolder
+development. The SVN tree is not stable for production use!
+
+If you are attempting to upgrade an existing Smolder installation from a
+SVN checkout, you must build a distribution first using
+C<bin/smolder_makedist>.  If you run C<smolder_upgrade> directly from the
+SVN release, you run the risk of crucial config files being
+overwritten, along with getting your directory tree polluted with
+unnecessary SVN directories.
+
+  # make build
+  # make dist
+  # cp smolder-versionnum-platformname-perlversion.tar.gz /usr/local/src/.
+  # cd /usr/local/src
+  # tar zxf smolder-versionnum-platformname-perlversion.tar.gz
+  # cd smolder-versionnum-platformname-perlversion/
+  # ./bin/smolder_upgrade --smolderRoot /path/to/smolder/install
+

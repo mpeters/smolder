@@ -1,0 +1,28 @@
+=head1 Smolder Configuration
+
+Smolder is configured through a single configuration file called
+F<smolder.conf>.  This file is stored in the F<conf/> directory inside
+Smolder.  Smolder's configuration file is in the same format as Apache.
+Simple directives are set using the name and value, separated by a
+space.  For example:
+
+    ApachePort 8000
+
+Multiple values are separated by spaces.  Example:
+
+    Foo bar baz 
+
+If a value contains a space, it must be enclosed in quotes (single or
+double):
+
+    FromAddress "Smolder <smolder@mydomain.com>"
+
+The actual configuration directives used to configure Smolder are
+documented inside the C<smolder.conf>.
+
+B<NOTE:> After you edit F<smolder.conf> don't forget to restart Smolder
+so your changes can take effect:
+
+  bin/smolder_ctl restart
+
+

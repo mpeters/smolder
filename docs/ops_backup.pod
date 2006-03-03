@@ -1,0 +1,73 @@
+=head1 Smolder Backup and Restore
+
+B<This functionality is currently not-finished!>
+
+Smolder includes completely automated backup and restore procedures.
+This file explains how to use them.
+
+=head2 Making a Backup
+
+To make a backup of a Smolder installation, use the C<smolder_backup>
+script:
+
+  $ cd /path/to/smolder
+  $ bin/smolder_backup
+
+By default this will create a Smolder Backup Archive (C<.kba>) with a
+filename of the form 'I<smolder-hostname-YYYYMMDD.kba>'.  For example,
+I<smolder-valis-20031011.kba>.  You can provide your own name as an
+argument to C<smolder_backup>:
+
+  $ bin/smolder_backup mybackup.kba
+
+You can also create a compressed backup with the C<--compress> option,
+but beware that this can take much longer than creating an
+uncompressed backup:
+
+  $ bin/smolder_backup --compress mybackup.kba.gz
+
+Full documentation for C<smolder_backup> is available by typing:
+
+  $ bin/smolder_backup --help
+
+Or you can read it here: HREF[Smolder Backup|script_smolder_backup.html]
+
+
+=head2 Restoring from Backup
+
+You can restore from a backup file using C<smolder_install>.  To start,
+download the source for the version of Smolder used to create the
+backup, uncompress it and enter the directory:
+
+  $ tar zxvf smolder-1.018.tar.gz
+  $ cd smolder-1.018
+
+If you're unsure which version to use, you can peek inside the C<.kba>
+file with C<tar> and look at the contents of I<lib/Smolder.pm>.
+
+Then call C<smolder_install> with the C<--FromBackup> option.  For
+example, to restore C<mybackup.kba> into C</usr/local/smolder> (the
+default InstallPath):
+
+  $ bin/smolder_install --FromBackup mybackup.kba
+
+To restore elsewhere, include the C<InstallPath> option as with a
+normal install:
+
+  $ bin/smolder_install --FromBackup mybackup.kba --InstallPath /path/to/smolder
+
+If you're restoring onto a different machine then you'll need to
+supply correct HostName and IPAddress settings on the command line:
+
+  $ bin/smolder_install --FromBackup mybackup.kba --InstallPath /path/to/smolder \
+                      --IPAddress 127.0.0.1  --HostName localhost.localdomain
+
+C<smolder_install> will automatically call C<smolder_uninstall> if the
+target C<InstallPath> already exists, so this procedure can be used to
+restore a backup over an existing installation.
+
+Full documentation for C<smolder_install> is available by typing:
+
+  $ bin/smolder_install --help
+
+Or you can read it here: HREF[Smolder Install|script_smolder_install.html]

@@ -1,0 +1,203 @@
+=head1 Smolder Coding Standards
+
+The Smolder project using coding standards that are fairly common
+but mainly just because I like them :). It's not completely trivial
+and many developers will probably be involved during it's lifetime.
+To arrive at a maintainable code-base we must develop and adhere to a
+strict set of coding guidelines.
+
+=head2 Code Formating
+
+=over 4
+
+=item Indentation
+
+Code must be indented using 4 spaces, and never with hard tabs.  A 2
+space indent for continued lines is recommended, but not mandatory.
+Similarly, breaking lines at 100 columns is generally prefered but not
+a requirement.
+
+Using Emacs cperl-mode, automatic indenting should be setup using:
+
+  (custom-set-variables
+   '(cperl-indent-level 4)
+   '(cperl-continued-statement-offset 2)
+   '(cperl-tab-always-indent t)
+   '(indent-tabs-mode nil))
+
+Using VIM, these settings will accomplish similar goals:
+
+   source $VIMRUNTIME/indent.vim
+   set tabstop=8
+   set softtabstop=4
+   set shiftwidth=4
+   set expandtab
+
+=item Perl Tidy
+
+Before any code is committed to the repository it must first be run
+through C<perltidy> (preferrably before testing since in some rare
+cases C<perltidy> can introduce bugs).  The project uses the following 
+C<perltidy> settings.
+
+    -i=4
+    -b
+    -pt=1
+    -ci=2
+    -ce
+    -bt=1
+    -sbt=1
+    -l=100
+
+=back
+
+=head2 Testing
+
+=over 4
+
+=item Module Test Suites
+
+All modules will have a dedicated test suite built using L<Test::More>.
+All controller modules will have tests that use L<Test::WWW::Mechanize>.
+This test suite must be created as the module is written.  Every
+significant addition to the module must be accompanied by additional
+tests in the test suite.
+
+=back
+
+=head2 Documentation
+
+=over 4
+
+=item Module Documentation
+
+All modules must have full POD documentation containing the following
+sections:
+
+=over 4
+
+=item NAME
+
+Name and short description of the module.
+
+=item SYNOPSIS
+
+This section must contain a working example of every method or
+function in the interface offered by the module.
+
+=item DESCRIPTION
+
+A general description of the purpose of the module.
+
+=item INTERFACE/METHODS
+
+A listing of each method or function in the public interface.  Must
+include parameter descriptions, return values and side-effects if any.
+
+=back
+
+If appropriate, modules should include:
+
+=over
+
+=item TODO
+
+A list of known issues in the module.  If you put a B<FIXME> comment
+in the code then you should list the issue here.
+
+=item SEE ALSO
+
+A list of modules related to this module.
+
+=back
+
+
+=item Script Documentation
+
+All command-line scripts will have full POD documentation describing
+their usage.  Scripts should use L<Pod::Usage> and L<GetOpt::Long>.  Scripts
+must support C<--man> and C<--help> options as shown in the L<Pod::Usage>
+documentation.
+
+
+=item Configuration Documentation
+
+New configuration directives for F<smolder.conf> need two pieces of
+documentation.  First, they need a comment in the default
+F<smolder.conf> explaining their usage along with a reasonable default
+setting.  Second, they need an entry in F<docs/configuration.pod>.
+
+=back
+
+
+
+=head2 SVN
+
+=over 4
+
+=item Commit Comments
+
+All SVN commits must come with a fully descriptive comment.  These
+comments will be sent to the SVN commit mailing-list (currently
+C<smolder-svn@lists.sourceforge.net>) and will allow
+developers to stay up-to-date with code changes.
+
+=item Commit Requirements
+
+All commited code must pass the full application test suite.  This is
+defined as running F<bin/smolder_test> at the project root and finding no
+failures.  
+
+=back
+
+
+=head2 Database Conventions
+
+=over 4
+
+=item Table Names
+
+Tables should be named with singluar nouns.  For example, the table
+containing data managed by L<Smolder::Project> is called C<project> not
+C<projects>.
+
+=item Join Table Names
+
+Tables that establish relationships between two tables should be named
+by combining the two table names.  For example, the C<project> table is
+joined to the C<developer> table using the C<project_developer> table.
+Consider choosing the first member based on which module "owns" the
+data in the table.  For example, C<project_developer> is better than
+C<developer_project> because C<Smolder::Project> is responsible for
+maintaining this relationship.
+
+=item Primary Keys
+
+When an auto-incrementing integer is used for the primary key of a
+table, it should be named simply C<id>.
+
+=item VARCHAR columns
+
+All VARCHAR columns must be of the maximum allowed width (255 in MySQL
+3.23) unless there is a compelling reason to do otherwise.  VARCHARs
+should be used when users will access the data in a text input through
+the UI.
+
+=item TEXT columns
+
+When a textarea is used in the UI, the column recieving the data
+should be of the TEXT type.  This will avoid unnecessary restrictions
+on the length of the data entered.
+
+=item SQL comments
+
+An SQL comment at the beginning of each table definition is required.
+It should identify the code module responsible for the table as well
+as any other modules which access the table.  This will be helpful
+when changes are required and all table accesses must be examined.
+For example:
+
+  /* The users table holds data managed by Smolder::User and 
+     accessed by Smolder::CGI::Login */
+
+=back

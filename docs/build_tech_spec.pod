@@ -1,0 +1,232 @@
+=head1 Smolder Build System Design
+
+The Smolder build system is responsible for compiling Smolder from source
+into a form suitable for distribution and installation. It is based on
+the build system of Krang (L<http://krang.sourceforge.net>). This document
+describes the design of the build system.
+
+=head2 Background
+
+Smolder's first releases included binaries built for Fedora Core 3 on the
+i686 platform. Binaries for all CPAN XS modules as well as
+Apache/mod_perl are included in the distribution tar-ball.  The
+installation system (C<smolder_install>) simply copies these binaries
+into place, sets up the database and configures Smolder using
+information provided by the user.  This system works very well,
+provided you're running FC3 or a compatible system.
+
+The goal of the build system is to produce pre-compiled packages for a
+variety of platforms which will be installable via C<smolder_install>
+the same way the original FC3 package works.  After this work
+is complete future development may produce native packages (C<RPM>,
+C<DEB>, etc.) as an alternative to C<smolder_install>.
+
+This system will expect the target environment to include suitable versions
+of Perl and MySQL prior to installation.
+
+=head2 Design Considerations
+
+The following factors are important to the success of the build
+system.
+
+=over 4
+
+=item *
+
+Perl
+
+Each distribution must target a particular version of Perl.  This is
+necessary for the correct operation of both compiled XS modules and
+Apache/mod_perl.
+
+=item * 
+
+System Libraries
+
+Each distribution will require certain system libraries, such as libgd.
+
+=item * 
+
+MySQL
+
+Smolder depends on MySQL but does not include MySQL in its distribution.
+
+=item *
+
+Build Automation
+
+It must be very easy to build a distribution for a supported platform.
+
+=item * 
+
+Build Testing
+
+Automated testing against all supported platforms will be useful in
+preventing broken releases. 
+
+=item * 
+
+Code Duplication
+
+Although each platform will have certain peculiarities, much of the
+process will be the same.  This is particular true for various
+versions of a platform (FC1, FC2, FC3 for example).
+
+=item *
+
+Install-Time Activities
+
+Aside from building binaries, some install-time activities vary
+between platforms.  For example, the original distribution sets up
+Smolder to start when the system boots by putting a link to C<smolder_ctl>
+in F</etc/init.d>.  This may not be correct for all platforms.
+
+=back
+
+=head2 Architecture
+
+=head3 Naming Conventions
+
+Smolder distributions are created to work on a specific platform with a
+specific version of Perl.  For example, typical distribution filenames
+might be:
+
+  smolder-1.101-FC3-perl5.6.1-i686-linux.tar.gz
+  smolder-1.101-FC4-perl5.8.2-i686-linux.tar.gz
+
+The build system will supply the distribution name (RH9, RH7.3, FC3, etc)
+and Perl will provide the Perl version and architecture using:
+
+  perl -MConfig -e 'printf "perl%d.%d.%d-%s",
+                    (map { ord($_) } split("", $^V, 3)), $Config{archname}'
+
+End-users must choose the distribution that matches their platform,
+although C<smolder_install> will check to make sure they made the right
+reasonable choice.
+
+A special source distribution is made without building platform
+binaries.  Users of this distribution will need to use the Smolder build
+system to produce a distribution they can install.  The source
+distribution will be named:
+
+  smolder-1.101-src.tar.gz
+
+=head3 Platform Files
+
+Each supported platform must have a directory in the F<platforms/>
+directory inside Smolder.  This directory will contain at least one
+module, C<Platform.pm>, which is a sub-classes of L<Smolder::Platform>.
+This module may actually be a sub-class of another platform's module:
+ex. the platform module for FC3 could be based on the module for
+FC1.
+
+A F<README> file may also be present which will be copied as
+"F<README.$Platform>" into compiled distributions.
+
+=head2 Implementation
+
+=head3 C<smolder_build>
+
+To generate a build for a platform, the C<smolder_build> script will be
+run with a single argument:
+
+  smolder_build FC2
+
+This will cause the build system to use the F<Platform.pm> module in
+platform/FC2.  If all goes well the final line of output should
+be something like:
+
+   Build finished, created smolder-1.101-FC2-perl5.6.1-i686-linux.tar.gz
+
+The build a distribution using a different version Perl, just run
+C<smolder_build> using the desired C<perl>:
+
+   perl5.8.3 smolder_build FC2
+
+In general, building a distribution for a platform will only work on
+the platform itself.  Automation using VMWare and Tinderbox may reduce
+the work associated with building and testing on each platform.
+
+=head3 Smolder::Platform
+
+The L<Smolder::Platform> module will serve as a base-class for all
+platform modules.  The following methods will be available for
+overriding in sub-classes.  See the module documentation in
+L<Smolder::Platform> for authoritative details.
+
+=over
+
+=item C<verify_dependencies()>
+
+Makes sure all required dependencies are in place before starting the
+build, and before beginning installation.  Smolder::Platform will
+provide a way to know whether the system is being built or installed.
+
+=item C<build_perl_module($src)>
+
+Called to build a specific Perl module from the C<$src> file.  The
+default implementation will simply use C<make install>, but platforms
+can override this to provide special processing for difficult modules.
+
+=item C<build_apache()>
+
+Called to build Apache.  The default implementation will work the way
+the current Makefile in F<src/Apache-MOD_PERL> works.
+
+=item C<apache_build_parameters()>
+
+Override to modify the parameters passed to Apache's C<configure>
+script.  This should provide an easy way to fix Apache compilation on
+most platforms.
+
+=item C<build_modperl()>
+
+Called to build Apache.  The default implementation will work the way
+the current Makefile in F<src/Apache-MOD_PERL> works.
+
+=item C<modperl_build_parameters()>
+
+Override to modify the parameters passed to mod_perl's C<Makefile.PL>
+script.  This should provide an easy way to fix mod_perl compilation
+on most platforms.
+
+=item C<finish_installation()>
+
+Anything that needs to be done at the end of installation can be done
+here.  This is where the Redhat based modules would add a link in
+F</etc/init.d>, for example.
+
+=item C<finish_upgrade()>
+
+Anything that needs to be done at the end of an upgrade can be done
+here.
+
+=back
+
+=head2 Questions
+
+=over
+
+=item * 
+
+Do we need a F<platform.conf>?  This would be a configuration file
+created during build (and possibly modified during installation)
+collecting information about the platform.  Could be used at run-time
+to find binaries like C<mysql>, C<tar>, etc.
+
+=item *
+
+Are there methods missing from the Smolder::Platform section that we'll
+probably need?
+
+=item *
+
+Which platforms should we target for the first release?  FC3 and FC4
+are easy enough for the current team (me). Maybe using SF's build farm
+would help out with this.
+
+=item *
+
+What changes will be needed to smolder_makedist?
+
+=back
