@@ -127,17 +127,6 @@ sub _check_libs
 }
 
 # MacOSX uses the .dylib extension for shared libraries
-sub check_expat {
-    my ($pkg, %args) = @_;
-    my $mode = $args{mode};
-                      
-    $pkg->_check_libs(%args,
-                      name => 'libexpat',
-                      so   => 'libexpat.dylib',
-                      h    => 'expat.h');
-}
-
-# MacOSX uses the .dylib extension for shared libraries
 sub check_libjpeg {
 
     my ($pkg, %args) = @_;
