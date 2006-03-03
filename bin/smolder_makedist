@@ -10,19 +10,16 @@ use File::Copy;
 
 smolder_makedist - make a release of Smolder
 
-
 =head1 SYNOPSIS
 
 Build a distribution from the contents of the current directory.
 
   $ bin/smolder_makedist
 
-
 =head1 DESCRIPTION
 
 This script will create a distribution tar file for Smolder, using the
 contents of a Smolder source tree.
-
 
 =head2 What C<smolder_makedist> does
 
@@ -120,12 +117,12 @@ my $platform;
 if (-e catfile($ENV{SMOLDER_ROOT}, 'data', 'build.db')) {
     # get information for a binary distribution
     my %params = Smolder::Platform->build_params();
-    $name = 'SMOLDER-' . $Smolder::VERSION . '-' . $params{Platform} . 
+    $name = 'smolder-' . $Smolder::VERSION . '-' . $params{Platform} . 
       '-perl' . $params{Perl} . '-' . $params{Arch};
     $platform = $params{Platform};
 } else {
     $source_dist = 1;
-    $name = 'SMOLDER-' . $Smolder::VERSION . '-src';
+    $name = 'smolder-' . $Smolder::VERSION . '-src';
 }
 
 # make sure it's not already taken
