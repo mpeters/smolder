@@ -158,7 +158,7 @@ Other variables may be required, depending on your installation needs:
 
 =over 4
 
-=item MySQLRootPassword
+=item AdminDBPass
 
 Defaults to "" (none).  The password for the MySQL user "root" who is
 assumed to exist, and to have full access to MySQL.  If the "root"
