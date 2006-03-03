@@ -1,3 +1,7 @@
+--
+-- Projects being looked after in this installation
+--
+
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE project (
     id                  INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 

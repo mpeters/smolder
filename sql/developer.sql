@@ -1,3 +1,9 @@
+--
+-- The list of registered developers (or users) or Smolder.
+-- They have a default 'preference' but are also associated
+-- with a project and a project specific preference via the
+-- project_developer table
+--
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE developer (
     id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 

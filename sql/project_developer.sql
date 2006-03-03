@@ -1,3 +1,7 @@
+--
+-- Which developers are assigned to which projects
+-- and what are their project specific preferences
+--
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE project_developer (
     project     INT UNSIGNED NOT NULL, 

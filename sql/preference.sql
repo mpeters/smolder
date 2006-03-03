@@ -1,3 +1,7 @@
+--
+-- Developer's preferences. Linked to by the developer and
+-- project_developer tables
+--
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE preference (
     id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 

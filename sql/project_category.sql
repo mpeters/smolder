@@ -1,3 +1,7 @@
+--
+-- Project admin specified list of categories 
+-- for a given project.
+--
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE project_category (
     project             INT UNSIGNED NOT NULL, 

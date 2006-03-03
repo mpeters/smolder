@@ -1,3 +1,9 @@
+--
+-- Individual smoke report uploaded for a project. Contains
+-- summary information (pass, fail, skip, todo, test_files, total, etc)
+-- even though they are contained in the actual XMl files stored for
+-- each report. This allows for faster access to this summary info
+--
 SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE smoke_report  (
     id              INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
