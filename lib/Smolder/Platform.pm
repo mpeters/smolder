@@ -474,19 +474,19 @@ sub build_perl_module {
 
 sub perl_module_questions {
     return {
-        "ParserDetails.ini? [Y]"                                 => 'n',
-        "remove gif support? [Y/n]"                              => 'n',
-        "mech-dump utility? [y]"                                 => 'n',
-        "configuration (y|n) ? [no]"                             => 'n',
-        "unicode entities? [no]"                                 => 'n',
-        "Do you want to skip these tests? [y]"                   => 'y',
-        "('!' to skip)"                                          => '!',
-        "Mail::Sender? (y/N)"                                    => 'n',
-        "It requires access to an existing test database. [y]"   => 'n',
-        "Do you want to build the XS Stash module? [y]"          => 'y',
-        "Do you want to use the XS Stash for all Templates? [y]" => 'y',
-        "Do you want to enable the latex filter? [y]"            => 'n',
-        "Do you want to install these components? [y]"           => 'n',
+        "ParserDetails.ini?"                                 => 'n',
+        "remove gif support?"                                => 'n',
+        "mech-dump utility?"                                 => 'n',
+        "configuration (y|n) ?"                              => 'n',
+        "unicode entities?"                                  => 'n',
+        "Do you want to skip these tests?"                   => 'y',
+        "('!' to skip)"                                      => '!',
+        "Mail::Sender? (y/N)"                                => 'n',
+        "It requires access to an existing test database."   => 'n',
+        "Do you want to build the XS Stash module?"          => 'y',
+        "Do you want to use the XS Stash for all Templates?" => 'y',
+        "Do you want to enable the latex filter?"            => 'n',
+        "Do you want to install these components?"           => 'n',
     };
 }
 
