@@ -78,11 +78,7 @@ Returns a DBI database handle.
 
 sub connect {
     my $dsn = "dbi:mysql:database=" . DBName() . ";host=" . ( DBHost() || 'localhost' );
-    return DBI->connect_cached(
-        $dsn,
-        DBUser(),
-        DBPass(), $db_options
-    );
+    return DBI->connect_cached( $dsn, DBUser(), DBPass(), $db_options );
 }
 
 =head2 vars
@@ -108,11 +104,13 @@ This must be used in a sub class (it's an abstract method).
 =cut
 
 sub enum_values {
-    my ($self, $column) = @_;
+    my ( $self, $column ) = @_;
     my $table = $self->table();
-    my $sth = Smolder::DB->db_Main()->prepare_cached(qq(
+    my $sth   = Smolder::DB->db_Main()->prepare_cached(
+        qq(
         SHOW COLUMNS FROM $table LIKE '$column';
-    ));;
+    )
+    );
     $sth->execute();
     my $row = $sth->fetchrow_arrayref();
     $sth->finish();
@@ -139,26 +137,26 @@ begin with the letter 's':
 =cut
 
 sub column_values {
-    my ($self, $column, $substr) = @_;
+    my ( $self, $column, $substr ) = @_;
     my $table = $self->table();
-    my $sql = qq(
+    my $sql   = qq(
         SELECT DISTINCT $column FROM $table WHERE $column IS NOT NULL
         AND $column != ''
     );
     my @bind_cols = ();
 
     # add the substring clause if we need to
-    if( $substr ) {
+    if ($substr) {
         $substr .= '%';
-        $sql .= " AND $column LIKE ? ";
-        push(@bind_cols, $substr);
+        $sql    .= " AND $column LIKE ? ";
+        push( @bind_cols, $substr );
     }
 
     my $sth = Smolder::DB->db_Main()->prepare_cached($sql);
     $sth->execute(@bind_cols);
     my @values;
-    while( my $row = $sth->fetchrow_arrayref() ) {
-        push(@values, $row->[0]);
+    while ( my $row = $sth->fetchrow_arrayref() ) {
+        push( @values, $row->[0] );
     }
     return \@values;
 }
@@ -180,12 +178,11 @@ sub refresh {
     my $self = shift;
     $self->remove_from_object_index();
     my $class = ref $self;
-    my $id = $self->id;
+    my $id    = $self->id;
     $self = undef;
     $self = $class->retrieve($id);
     return $self;
 }
-
 
 =head2 retrieve_all_sorted_by($column_name)
 

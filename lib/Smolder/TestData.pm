@@ -10,19 +10,19 @@ use File::Copy qw(copy);
 our $config = Smolder::Conf->get_config();
 
 our @EXPORT_OK = qw(
-    create_project
-    delete_projects
-    create_developer
-    delete_developers
-    create_preference
-    delete_preferences
-    create_smoke_report
-    delete_smoke_reports
-    login
-    logout
-    is_apache_running
-    base_url
-    db_field_value
+  create_project
+  delete_projects
+  create_developer
+  delete_developers
+  create_preference
+  delete_preferences
+  create_smoke_report
+  delete_smoke_reports
+  login
+  logout
+  is_apache_running
+  base_url
+  db_field_value
 );
 
 =head1 NAME
@@ -60,33 +60,34 @@ Will delete all projects that were created by L<create_project>.
 my $count = 0;
 {
 
-my @projects;
-sub create_project {
-    my %args = @_;
-    require DateTime;
-    require Smolder::DB::Project;
+    my @projects;
 
-    # set some defaults
-    %args = (
-        name        => "Testing" . $count++,
-        start_date  => DateTime->now(),
-        public      => 1,
-        %args,
-    );
-    my $proj = Smolder::DB::Project->create(\%args);
-    push(@projects, $proj);
-    Smolder::DB->dbi_commit();
-    return $proj;
-}
+    sub create_project {
+        my %args = @_;
+        require DateTime;
+        require Smolder::DB::Project;
 
-sub delete_projects {
-    foreach my $proj (@projects) {
-        if( $proj && ref $proj ne 'Class::DBI::Object::Has::Been::Deleted' ) {
-            $proj->delete();
-        }
+        # set some defaults
+        %args = (
+            name       => "Testing" . $count++,
+            start_date => DateTime->now(),
+            public     => 1,
+            %args,
+        );
+        my $proj = Smolder::DB::Project->create( \%args );
+        push( @projects, $proj );
+        Smolder::DB->dbi_commit();
+        return $proj;
     }
-    Smolder::DB->dbi_commit();
-}
+
+    sub delete_projects {
+        foreach my $proj (@projects) {
+            if ( $proj && ref $proj ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+                $proj->delete();
+            }
+        }
+        Smolder::DB->dbi_commit();
+    }
 }
 
 =head2 create_developer
@@ -104,36 +105,37 @@ Will delete all developers that were created by L<create_developer>.
 =cut
 
 {
-my @developers = ();
-sub create_developer {
-    my %args = @_;
-    require Smolder::DB::Developer;
+    my @developers = ();
 
-    # set some defaults
-    %args = (
-        username    => 'testing_' . $count++,
-        fname       => 'Name' . $count++,
-        lname       => 'Developer' . $count++,
-        email       => 'test_' . $count++ . '@test.com',
-        password    => 'testing',
-        admin       => 0,
-        preference  => create_preference(),
-        %args,
-    );
-    my $dev = Smolder::DB::Developer->create(\%args);
-    push(@developers, $dev);
-    Smolder::DB->dbi_commit();
-    return $dev;
-}
+    sub create_developer {
+        my %args = @_;
+        require Smolder::DB::Developer;
 
-sub delete_developers {
-    foreach my $dev (@developers) {
-        if( $dev && ref $dev ne 'Class::DBI::Object::Has::Been::Deleted' ) {
-            $dev->delete();
-        }
+        # set some defaults
+        %args = (
+            username   => 'testing_' . $count++,
+            fname      => 'Name' . $count++,
+            lname      => 'Developer' . $count++,
+            email      => 'test_' . $count++ . '@test.com',
+            password   => 'testing',
+            admin      => 0,
+            preference => create_preference(),
+            %args,
+        );
+        my $dev = Smolder::DB::Developer->create( \%args );
+        push( @developers, $dev );
+        Smolder::DB->dbi_commit();
+        return $dev;
     }
-    Smolder::DB->dbi_commit();
-}
+
+    sub delete_developers {
+        foreach my $dev (@developers) {
+            if ( $dev && ref $dev ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+                $dev->delete();
+            }
+        }
+        Smolder::DB->dbi_commit();
+    }
 
 }
 
@@ -150,32 +152,34 @@ Name-value args may be passed in to override the defaults.
 Will delete all preferences that were created by L<create_preference>.
 
 =cut
+
 {
-my @preferences = ();
-sub create_preference {
-    my %args = @_;
-    require Smolder::DB::Preference;
+    my @preferences = ();
 
-    # set some defaults
-    %args = (
-        email_type  => 'full',
-        email_freq  => 'daily',
-        %args,
-    );
-    my $pref = Smolder::DB::Preference->create(\%args);
-    push(@preferences, $pref);
-    Smolder::DB->dbi_commit();
-    return $pref;
-}
+    sub create_preference {
+        my %args = @_;
+        require Smolder::DB::Preference;
 
-sub delete_preferences {
-    foreach my $pref (@preferences) {
-        if( $pref && ref $pref ne 'Class::DBI::Object::Has::Been::Deleted' ) {
-            $pref->delete();
-        }
+        # set some defaults
+        %args = (
+            email_type => 'full',
+            email_freq => 'daily',
+            %args,
+        );
+        my $pref = Smolder::DB::Preference->create( \%args );
+        push( @preferences, $pref );
+        Smolder::DB->dbi_commit();
+        return $pref;
     }
-    Smolder::DB->dbi_commit();
-}
+
+    sub delete_preferences {
+        foreach my $pref (@preferences) {
+            if ( $pref && ref $pref ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+                $pref->delete();
+            }
+        }
+        Smolder::DB->dbi_commit();
+    }
 
 }
 
@@ -202,42 +206,43 @@ Will delete all test reports create by L<create_smoke_report>.
 =cut
 
 {
-my @reports;
-sub create_smoke_report {
-    my %args = @_;
-    require Smolder::DB::SmokeReport;
+    my @reports;
 
-    # set some defaults
-    %args = (
-        architecture    => 'x386',
-        platform        => 'Linux',
-        pass            => 62,
-        fail            => 5,
-        skip            => 5,
-        todo            => 5,
-        test_files      => 3,
-        total           => 67,
-        format          => 'XML',
-        %args,
-    );
-    my $report = Smolder::DB::SmokeReport->create(\%args);
-    
-    # copy the bad report to the file's location
-    my $orig_file = catfile($config->get('InstallRoot'), 't', 'data', 'report_bad.xml');
-    copy($orig_file, $report->file);
-    push(@reports, $report);
-    Smolder::DB->dbi_commit();
-    return $report;
-}
+    sub create_smoke_report {
+        my %args = @_;
+        require Smolder::DB::SmokeReport;
 
-sub delete_smoke_reports  {
-    foreach my $report (@reports) {
-        if( $report && ref $report ne 'Class::DBI::Object::Has::Been::Deleted' ) {
-            $report->delete();
-        }
+        # set some defaults
+        %args = (
+            architecture => 'x386',
+            platform     => 'Linux',
+            pass         => 62,
+            fail         => 5,
+            skip         => 5,
+            todo         => 5,
+            test_files   => 3,
+            total        => 67,
+            format       => 'XML',
+            %args,
+        );
+        my $report = Smolder::DB::SmokeReport->create( \%args );
+
+        # copy the bad report to the file's location
+        my $orig_file = catfile( $config->get('InstallRoot'), 't', 'data', 'report_bad.xml' );
+        copy( $orig_file, $report->file );
+        push( @reports, $report );
+        Smolder::DB->dbi_commit();
+        return $report;
     }
-    Smolder::DB->dbi_commit();
-}
+
+    sub delete_smoke_reports {
+        foreach my $report (@reports) {
+            if ( $report && ref $report ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+                $report->delete();
+            }
+        }
+        Smolder::DB->dbi_commit();
+    }
 }
 
 =head2 login
@@ -273,13 +278,13 @@ The text to use for the password field. If none is given, it will use
 sub login {
     my %args = @_;
     my $mech = $args{mech};
-    my $url = base_url() . '/public_auth/login';
+    my $url  = base_url() . '/public_auth/login';
     $mech->get($url);
     $mech->form_name('login');
     $mech->set_fields(
         username => $args{username},
         password => $args{password},
-    ); 
+    );
     $mech->submit();
 }
 
@@ -294,7 +299,7 @@ Logout the current user given a L<Test::WWW::Mechanize> object
 sub logout {
     my %args = @_;
     my $mech = $args{mech};
-    my $url = base_url() . '/public_auth/logout';
+    my $url  = base_url() . '/public_auth/logout';
     $mech->get($url);
 }
 
@@ -308,7 +313,7 @@ apache is not running.
 
 sub is_apache_running {
     require File::Spec::Functions;
-    return -e File::Spec::Functions::catfile($config->get('InstallRoot'), 'tmp', 'httpd.pid');
+    return -e File::Spec::Functions::catfile( $config->get('InstallRoot'), 'tmp', 'httpd.pid' );
 }
 
 =head2 base_url
@@ -330,7 +335,7 @@ Returns the value for a given database field given the table, field and id.
 =cut
 
 sub db_field_value {
-    my ($table, $field, $id) = @_;
+    my ( $table, $field, $id ) = @_;
     my $sth = Smolder::DB->db_Main->prepare_cached("SELECT $field FROM $table WHERE id = ?");
     $sth->execute($id);
     my $row = $sth->fetchrow_arrayref();

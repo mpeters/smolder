@@ -11,21 +11,21 @@ use File::Temp;
 use File::MMagic;
 use File::Spec::Functions qw(catdir);
 
-our @ISA = qw(Exporter);
+our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(
-    email
-    unsigned_int
-    bool
-    length_max
-    length_min
-    length_between
-    pref_email_type 
-    pref_email_freq
-    smoke_report_format
-    unique_field_value
-    existing_field_value
-    existing_project_category
-    file_mtype
+  email
+  unsigned_int
+  bool
+  length_max
+  length_min
+  length_between
+  pref_email_type
+  pref_email_freq
+  smoke_report_format
+  unique_field_value
+  existing_field_value
+  existing_project_category
+  file_mtype
 );
 
 =head1 NAME
@@ -63,11 +63,11 @@ Returns a method which validates an email address
 
 sub email {
     return sub {
-        my ($dfv, $value) = @_;
-        if( Email::Valid->address($value) ) {
+        my ( $dfv, $value ) = @_;
+        if ( Email::Valid->address($value) ) {
             return $value;
         } else {
-            return
+            return;
         }
     };
 }
@@ -124,7 +124,7 @@ at least $min and at most $max number of printable characters.
 =cut
 
 sub length_between {
-    my ($min, $max) = sort { $a <=> $b}  @_;
+    my ( $min, $max ) = sort { $a <=> $b } @_;
     return qr/^[[:print:]]{$min,$max}$/;
 }
 
@@ -138,14 +138,14 @@ option for the C<email_type> column in the C<preference> table.
 sub pref_email_type {
     my $enums = Smolder::DB::Preference->enum_values('email_type');
     return sub {
-        my ($dfv, $value) = @_;
+        my ( $dfv, $value ) = @_;
         foreach my $enum (@$enums) {
-            if( $enum eq $value ) {
+            if ( $enum eq $value ) {
                 return $value;
             }
         }
         return;
-    }
+      }
 }
 
 =head2 pref_email_freq
@@ -158,14 +158,14 @@ option for the C<email_freq> column in the C<preference> table.
 sub pref_email_freq {
     my $enums = Smolder::DB::Preference->enum_values('email_freq');
     return sub {
-        my ($dfv, $value) = @_;
+        my ( $dfv, $value ) = @_;
         foreach my $enum (@$enums) {
-            if( $enum eq $value ) {
+            if ( $enum eq $value ) {
                 return $value;
             }
         }
         return;
-    }
+      }
 }
 
 =head2 smoke_report_format
@@ -178,14 +178,14 @@ option for the C<format> column in the C<smoke_report> table.
 sub smoke_report_format {
     my $enums = Smolder::DB::SmokeReport->enum_values('format');
     return sub {
-        my ($dfv, $value) = @_;
+        my ( $dfv, $value ) = @_;
         foreach my $enum (@$enums) {
-            if( $enum eq $value ) {
+            if ( $enum eq $value ) {
                 return $value;
             }
         }
         return;
-    }
+      }
 }
 
 =head2 unique_field_value
@@ -206,25 +206,25 @@ or
 =cut
 
 sub unique_field_value {
-    my ($table, $field, $id) = @_;
+    my ( $table, $field, $id ) = @_;
 
     return sub {
-        my ($dfv, $value) = @_;
+        my ( $dfv, $value ) = @_;
         $dfv->set_current_constraint_name("unique_${table}_${field}");
 
         # get all the values of a certain field
         my $sql = "SELECT $field FROM $table WHERE $field = ?";
-        $sql .= " AND id != $id" if( $id );
+        $sql .= " AND id != $id" if ($id);
         my $sth = Smolder::DB->db_Main->prepare_cached($sql);
         $sth->execute($value);
         my $row = $sth->fetchrow_arrayref();
         $sth->finish();
-        if( $row ) {
+        if ($row) {
             return;
         } else {
             return $value;
         }
-    }
+      }
 }
 
 =head2 existing_field_value 
@@ -237,21 +237,23 @@ table in a particular column.
 =cut 
 
 sub existing_field_value {
-    my ($table, $column) = @_;
+    my ( $table, $column ) = @_;
     return sub {
-        my ($dfv, $value) = @_;
-        my $sth = Smolder::DB->db_Main->prepare_cached(qq(
+        my ( $dfv, $value ) = @_;
+        my $sth = Smolder::DB->db_Main->prepare_cached(
+            qq(
             SELECT $column FROM $table WHERE $column = ?
-        ));
+        )
+        );
         $sth->execute($value);
         my $row = $sth->fetchrow_arrayref();
         $sth->finish();
-        if( defined $row->[0] ) {
+        if ( defined $row->[0] ) {
             return $value;
         } else {
             return;
         }
-    }
+      }
 }
 
 =head2 existing_project_category
@@ -266,15 +268,17 @@ as an existing category.
 sub existing_project_category {
     my $project = shift;
     return sub {
-        my ($dfv, $value) = @_;
-        my $sth = Smolder::DB->db_Main->prepare_cached(q(
+        my ( $dfv, $value ) = @_;
+        my $sth = Smolder::DB->db_Main->prepare_cached(
+            q(
             SELECT category FROM project_category
             WHERE project = ? AND category = ?
-        ));
-        $sth->execute($project, $value);
+        )
+        );
+        $sth->execute( $project, $value );
         my $row = $sth->fetchrow_arrayref();
         $sth->finish();
-        if( defined $row->[0] ) {
+        if ( defined $row->[0] ) {
             return $value;
         } else {
             return;
@@ -295,46 +299,47 @@ being used.
 sub file_mtype {
     my @types = @_;
     return sub {
-        my ($dfv, $filename) = @_;
-        my $fh = $dfv->get_input_data()->upload(
-            $dfv->get_current_constraint_field()
-        )->fh;
-        my ($suffix) = (basename($filename) =~ /(\..*)$/);
+        my ( $dfv, $filename ) = @_;
+        my $fh = $dfv->get_input_data()->upload( $dfv->get_current_constraint_field() )->fh;
+        my ($suffix) = ( basename($filename) =~ /(\..*)$/ );
+
         # save the file to a temp location
         my $tmp = File::Temp->new(
-            UNLINK  => 0,
-            SUFFIX  => ($suffix || '.tmp'),
-            DIR     => catdir(InstallRoot, 'tmp'),
-        ) or die "Could not create tmp file!";
-        while(my $line = <$fh>) {
+            UNLINK => 0,
+            SUFFIX => ( $suffix || '.tmp' ),
+            DIR    => catdir( InstallRoot, 'tmp' ),
+          )
+          or die "Could not create tmp file!";
+        while ( my $line = <$fh> ) {
             print $tmp $line or die "Could not print to file '$tmp': $!";
         }
         close($tmp) or die "Could not close file '$tmp': $!";
-        close($fh) or die "Could not close upload FH: $!";
+        close($fh)  or die "Could not close upload FH: $!";
 
         # now get the file's mime-type
-        my $mm = File::MMagic->new();
-        my $type = $mm->checktype_filename($tmp->filename);
+        my $mm   = File::MMagic->new();
+        my $type = $mm->checktype_filename( $tmp->filename );
         foreach my $t (@types) {
-            if( $t eq $type ) {
+            if ( $t eq $type ) {
                 return $tmp->filename;
             }
         }
 
         # if we got here then it wasn't valid, so remove the temp file
-        unlink($tmp->filename) or die "Could not remove file '$tmp': $!";
+        unlink( $tmp->filename ) or die "Could not remove file '$tmp': $!";
         return;
-    }
+      }
 }
-
 
 # query for the enum def of a $table and $column then
 # turn the enum definition into an array ref
 sub _enum_values {
-    my ($table, $column) = @_;
-    my $sth = Smolder::DB->db_Main()->prepare_cached(qq(
+    my ( $table, $column ) = @_;
+    my $sth = Smolder::DB->db_Main()->prepare_cached(
+        qq(
         SHOW COLUMNS FROM $table LIKE '$column';
-    ));;
+    )
+    );
     $sth->execute();
     my $row = $sth->fetchrow_arrayref();
     $sth->finish();
@@ -342,6 +347,5 @@ sub _enum_values {
     $text =~ s/^enum//;
     return eval "[$text]";
 }
-    
 
 1;

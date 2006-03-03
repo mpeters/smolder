@@ -52,27 +52,17 @@ are all overrideable):
 
 sub verify_dependencies {
 
-    my ($pkg, %arg) = @_;
+    my ( $pkg, %arg ) = @_;
     my $mode = $arg{mode};
-    my @PATH = split(':', ($ENV{PATH} || ""));
+    my @PATH = split( ':', ( $ENV{PATH} || "" ) );
 
     # check perl
-    if ($mode eq 'install') {
+    if ( $mode eq 'install' ) {
         $pkg->check_perl();
     }
 
     # check mysql
     $pkg->check_mysql();
-
-#    # build lib/includes for following searches.
-#    my @libs = split(" ", $Config{libpth});
-#    my @lib_files;
-#    foreach my $lib (@libs) {
-#        opendir(DIR, $lib) or die $!;
-#        push(@lib_files, grep { not -d $_ } readdir(DIR));
-#        closedir(DIR);
-#    }
-#    my @incs = ($Config{usrinc}, '/include', '/usr/local/include');
 }
 
 =head2 check_perl
@@ -90,8 +80,8 @@ sub check_perl {
     # check that Perl is right for this build
     my %params = $pkg->build_params();
 
-    my $perl = join('.', (map { ord($_) } split("", $^V, 3)));
-    if ($perl ne $params{Perl}) {
+    my $perl = join( '.', ( map { ord($_) } split( "", $^V, 3 ) ) );
+    if ( $perl ne $params{Perl} ) {
         die <<END;
 
 This distribution of Smolder is compiled for Perl version
@@ -103,7 +93,7 @@ more details.
 END
     }
 
-    if ($Config{archname} ne $params{Arch}) {
+    if ( $Config{archname} ne $params{Arch} ) {
         die <<END;
 
 This distribution of Smolder is compiled for the '$params{Arch}'
@@ -116,7 +106,6 @@ END
     }
 }
 
-
 =head2 check_mysql
 
 The C<mysql> shell is available and MySQL is v4.0.13 or higher.
@@ -124,11 +113,11 @@ The C<mysql> shell is available and MySQL is v4.0.13 or higher.
 =cut
 
 sub check_mysql {
-    my ($pkg, %arg) = @_;
-    my @PATH = split(':', ($ENV{PATH} || ""));
+    my ( $pkg, %arg ) = @_;
+    my @PATH = split( ':', ( $ENV{PATH} || "" ) );
 
     # look for MySQL command shell
-    die <<END unless grep { -e catfile($_, 'mysql') } @PATH;
+    die <<END unless grep { -e catfile( $_, 'mysql' ) } @PATH;
 
 MySQL not found. Smolder requires MySQL v4.0.13 or later.  If MySQL is 
 installed, ensure that the 'mysql' client is in your PATH and try again.
@@ -138,19 +127,17 @@ END
     # check the version of MySQL
     no warnings qw(exec);
     my $mysql_version = `mysql -V 2>&1`;
-    die "\n\nUnable to determine MySQL version using 'mysql -V'.\n" .
-      "Error was '$!'.\n\n"
-        unless defined $mysql_version and length $mysql_version;
+    die "\n\nUnable to determine MySQL version using 'mysql -V'.\n" . "Error was '$!'.\n\n"
+      unless defined $mysql_version
+      and length $mysql_version;
     chomp $mysql_version;
     my ($version) = $mysql_version =~ /\s4\.(\d+\.\d+)/;
-    die "\n\nMySQL version 4 not found.  'mysql -V' returned:" .
-      "\n\n\t$mysql_version\n\n"
-        unless defined $version;
-    die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n" .
-      "'mysql -V' returned:\n\n\t$mysql_version\n\n"
-        unless $version >= 0.13;
+    die "\n\nMySQL version 4 not found.  'mysql -V' returned:" . "\n\n\t$mysql_version\n\n"
+      unless defined $version;
+    die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n"
+      . "'mysql -V' returned:\n\n\t$mysql_version\n\n"
+      unless $version >= 0.13;
 }
-
 
 =head2 check_expat
 
@@ -166,10 +153,10 @@ implementation looks in $Config{libpth} for libexpat.so.
 =cut
 
 sub check_expat {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $mode = $args{mode};
 
-    unless (grep { /^libexpat\./ } @{$args{lib_files}}) {
+    unless ( grep { /^libexpat\./ } @{ $args{lib_files} } ) {
         die <<END;
 
 Expat XML parser library not found.  Install expat
@@ -179,8 +166,7 @@ END
     }
 
     # look for Expat headers, if building
-    if ($mode eq 'build' and not 
-        ( grep { -e catfile($_, 'expat.h') } @{$args{includes}}  )) {
+    if ( $mode eq 'build' and not( grep { -e catfile( $_, 'expat.h' ) } @{ $args{includes} } ) ) {
         die <<END;
 
 Expat XML parser header files not found, although the library is
@@ -207,27 +193,29 @@ will die() with error if it cannot find the desired executable.
 
 sub find_bin {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
     my $bin = $args{bin};
     my $dir;
 
-    my %additional_paths = (catdir('/', 'sbin') => 1,
-                            catdir('/', 'usr', 'sbin') => 1);
+    my %additional_paths = (
+        catdir( '/', 'sbin' ) => 1,
+        catdir( '/', 'usr', 'sbin' ) => 1
+    );
 
-    my @PATH = split(':', ($ENV{PATH} || ""));
+    my @PATH = split( ':', ( $ENV{PATH} || "" ) );
 
     foreach $dir (@PATH) {
-        delete($additional_paths{$dir}) if ($additional_paths{$dir});
+        delete( $additional_paths{$dir} ) if ( $additional_paths{$dir} );
     }
 
     push @PATH, keys(%additional_paths);
 
     foreach $dir (@PATH) {
 
-        my $exec = catfile($dir, $bin);
+        my $exec = catfile( $dir, $bin );
 
-        return $exec if (-e $exec);
+        return $exec if ( -e $exec );
     }
 
     my $path = join ':', @PATH;
@@ -235,7 +223,6 @@ sub find_bin {
     die "Cannot find required utility '$bin' in PATH=$path\n\n";
 
 }
-
 
 =item C<< check_ip(ip => $ip) >>
 
@@ -247,23 +234,21 @@ Should return 1 if the IP address is ok, 0 otherwise.
 =cut
 
 sub check_ip {
-    my ($pkg, %arg) = @_;
+    my ( $pkg, %arg ) = @_;
     my $IPAddress = $arg{ip};
 
     my $ifconfig = `/sbin/ifconfig`;
     my @ip_addrs = ();
-    foreach my $if_line (split(/\n/, $ifconfig)) {
-        next unless ($if_line =~ /inet\ addr\:(\d+\.\d+\.\d+\.\d+)/);
+    foreach my $if_line ( split( /\n/, $ifconfig ) ) {
+        next unless ( $if_line =~ /inet\ addr\:(\d+\.\d+\.\d+\.\d+)/ );
         my $ip = $1;
-        push(@ip_addrs, $ip);
+        push( @ip_addrs, $ip );
     }
-    unless (grep {$_ eq $IPAddress} @ip_addrs) {
+    unless ( grep { $_ eq $IPAddress } @ip_addrs ) {
         return 0;
     }
     return 1;
 }
-
-
 
 =item C<< $gid = create_group(options => \%options) >>
 
@@ -283,23 +268,23 @@ This sub will die with an error if it cannot create --Group.
 =cut
 
 sub create_group {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
-    my %options = %{$args{options}};
+    my %options = %{ $args{options} };
 
-    my $groupadd_bin = $pkg->find_bin(bin => 'groupadd');
+    my $groupadd_bin = $pkg->find_bin( bin => 'groupadd' );
 
-    my $group   = $options{Group};
+    my $group = $options{Group};
 
     print "Creating UNIX group ('$group')\n";
-    my ($gname,$gpasswd,$gid,$gmembers) = getgrnam($group);
+    my ( $gname, $gpasswd, $gid, $gmembers ) = getgrnam($group);
 
-    unless (defined($gid)) {
+    unless ( defined($gid) ) {
         my $groupadd = $groupadd_bin;
         $groupadd .= " $group";
         system($groupadd) && die("Can't add group: $!");
 
-        ($gname,$gpasswd,$gid,$gmembers) = getgrnam($group);
+        ( $gname, $gpasswd, $gid, $gmembers ) = getgrnam($group);
         print "  Group created (gid $gid).\n";
 
     } else {
@@ -332,50 +317,51 @@ This sub will die with an error if it cannot create --User.
 
 sub create_user {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
-    my %options = %{$args{options}};
+    my %options = %{ $args{options} };
 
-    my $useradd_bin = $pkg->find_bin(bin => 'useradd');
+    my $useradd_bin = $pkg->find_bin( bin => 'useradd' );
 
-    my $user   = $options{User};
-    my $group  = $options{Group};
+    my $user        = $options{User};
+    my $group       = $options{Group};
     my $InstallPath = $options{InstallPath};
 
     # Get group info.
-    my ($gname,$gpasswd,$gid,$gmembers) = getgrnam($group);
+    my ( $gname, $gpasswd, $gid, $gmembers ) = getgrnam($group);
 
     # Create user, if necessary
     print "Creating UNIX user ('$user')\n";
-    my ($uname,$upasswd,$uid,$ugid,$uquota,$ucomment,$ugcos,$udir,$ushell,$uexpire) = getpwnam($user);
+    my ( $uname, $upasswd, $uid, $ugid, $uquota, $ucomment, $ugcos, $udir, $ushell, $uexpire ) =
+      getpwnam($user);
 
-    unless (defined($uid)) {
+    unless ( defined($uid) ) {
         my $useradd = $useradd_bin;
 
         $useradd .= " -d $InstallPath -M $user -g $gid";
         system($useradd) && die("Can't add user: $!");
 
         # Update user data
-        ($uname,$upasswd,$uid,$ugid,$uquota,$ucomment,$ugcos,$udir,$ushell,$uexpire) = getpwnam($user);
+        ( $uname, $upasswd, $uid, $ugid, $uquota, $ucomment, $ugcos, $udir, $ushell, $uexpire ) =
+          getpwnam($user);
         print "  User created (uid $uid).\n";
     } else {
         print "  User already exists (uid $uid).\n";
     }
 
     # Sanity check - make sure the user is a member of the group.
-    ($gname,$gpasswd,$gid,$gmembers) = getgrnam($group);
+    ( $gname, $gpasswd, $gid, $gmembers ) = getgrnam($group);
 
-    my @group_members = ( split(/\s+/, $gmembers) );
+    my @group_members = ( split( /\s+/, $gmembers ) );
     my $user_is_group_member = ( grep { $_ eq $user } @group_members );
 
-    unless (($ugid eq $gid) or $user_is_group_member) {
-        $pkg->smolder_usermod(options => \%options);
+    unless ( ( $ugid eq $gid ) or $user_is_group_member ) {
+        $pkg->smolder_usermod( options => \%options );
     }
 
     return $uid;
 
 }
-
 
 =item C<< usermod(options => \%options) >>
 
@@ -391,18 +377,17 @@ of --Group.
 
 =cut
 
-
 sub smolder_usermod {
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
-    my %options = %{$args{options}};
+    my %options = %{ $args{options} };
 
     my $user  = $options{User};
     my $group = $options{Group};
 
     print "  Adding user $user to group $group.\n";
 
-    my $usermod = $pkg->find_bin(bin => 'usermod');
+    my $usermod = $pkg->find_bin( bin => 'usermod' );
 
     $usermod .= " -G $group $user";
 
@@ -426,26 +411,25 @@ results of the build.  The default is SMOLDER_ROOT/lib.
 =cut
 
 sub build_perl_module {
-    my ($pkg, %arg) = @_;
-    my $name        = $arg{name};
-    my $dest_dir    = $arg{dest_dir} || catdir($ENV{SMOLDER_ROOT}, 'lib');
+    my ( $pkg, %arg ) = @_;
+    my $name     = $arg{name};
+    my $dest_dir = $arg{dest_dir} || catdir( $ENV{SMOLDER_ROOT}, 'lib' );
 
     # load expect unless we're building it
-    my $use_expect = ($name =~ /IO-Tty/ or $name =~ /Expect/) ? 0 : 1;
+    my $use_expect = ( $name =~ /IO-Tty/ or $name =~ /Expect/ ) ? 0 : 1;
     _load_expect() if $use_expect;
 
-    my $trash_dir = catdir(cwd, '..', 'trash');
- 
-    print "\n\n************************************************\n\n",
-          " Building $name",
-          "\n\n************************************************\n\n";
-         
+    my $trash_dir = catdir( cwd, '..', 'trash' );
+
+    print "\n\n************************************************\n\n", " Building $name",
+      "\n\n************************************************\n\n";
+
     # Net::FTPServer needs this to not try to install /etc/ftp.conf
     local $ENV{NOCONF} = 1 if $name =~ /Net-FTPServer/;
 
     # Module::Build or MakeMaker?
-    my ($cmd, $make_cmd);
-    if (-e 'Build.PL') {
+    my ( $cmd, $make_cmd );
+    if ( -e 'Build.PL' ) {
         $cmd =
             "$^X Build.PL "
           . " --install_path lib=$dest_dir"
@@ -457,10 +441,11 @@ sub build_perl_module {
 
         $make_cmd = './Build';
     } else {
-        $cmd = "$^X Makefile.PL LIB=$dest_dir PREFIX=$trash_dir INSTALLMAN3DIR=' ' INSTALLMAN1DIR=' '";
+        $cmd =
+          "$^X Makefile.PL LIB=$dest_dir PREFIX=$trash_dir INSTALLMAN3DIR=' ' INSTALLMAN1DIR=' '";
         $make_cmd = 'make';
     }
-    
+
     # We only want the libs, not the executables or man pages
     if ($use_expect) {
         print "Running $cmd...\n";
@@ -468,14 +453,15 @@ sub build_perl_module {
             cmd       => $cmd,
             questions => $pkg->perl_module_questions(),
         );
-    
+
         print "Running $make_cmd...\n";
         $pkg->expect_questions(
-            cmd => $make_cmd,
+            cmd       => $make_cmd,
             questions => $pkg->perl_module_questions(),
         );
 
     } else {
+
         # do it without Expect for IO-Tty and Expect installation.
         # Fortunately they don't ask any questions.
         print "Running $cmd...\n";
@@ -486,33 +472,32 @@ sub build_perl_module {
     system("$make_cmd install") == 0 or die "$make_cmd install failed: $?";
 }
 
-
 sub perl_module_questions {
     return {
-        "ParserDetails.ini? [Y]"                                => 'n',
-        "remove gif support? [Y/n]"                             => 'n',
-        "mech-dump utility? [y]"                                => 'n',
-        "configuration (y|n) ? [no]"                            => 'n',
-        "unicode entities? [no]"                                => 'n',
-        "Do you want to skip these tests? [y]"                  => 'y',
-        "('!' to skip)"                                         => '!',
-        "Mail::Sender? (y/N)"                                   => 'n',
-        "It requires access to an existing test database. [y]"  => 'n',
-        "Do you want to build the XS Stash module? [y]"         => 'y',
-        "Do you want to use the XS Stash for all Templates? [y]"=> 'y',
-        "Do you want to enable the latex filter? [y]"           => 'n',
-        "Do you want to install these components? [y]"          => 'n',
+        "ParserDetails.ini? [Y]"                                 => 'n',
+        "remove gif support? [Y/n]"                              => 'n',
+        "mech-dump utility? [y]"                                 => 'n',
+        "configuration (y|n) ? [no]"                             => 'n',
+        "unicode entities? [no]"                                 => 'n',
+        "Do you want to skip these tests? [y]"                   => 'y',
+        "('!' to skip)"                                          => '!',
+        "Mail::Sender? (y/N)"                                    => 'n',
+        "It requires access to an existing test database. [y]"   => 'n',
+        "Do you want to build the XS Stash module? [y]"          => 'y',
+        "Do you want to use the XS Stash for all Templates? [y]" => 'y',
+        "Do you want to enable the latex filter? [y]"            => 'n',
+        "Do you want to install these components? [y]"           => 'n',
     };
 }
 
 sub expect_questions {
-    my ($pkg, %options) = @_;
-    my $command = Expect->spawn($options{cmd});
+    my ( $pkg, %options ) = @_;
+    my $command   = Expect->spawn( $options{cmd} );
     my @responses = values %{ $options{questions} };
-    my @questions = keys   %{ $options{questions} };
+    my @questions = keys %{ $options{questions} };
 
-    while ( my $match = $command->expect(undef, @questions) ) {
-          $command->send( $responses[ $match - 1 ] . "\n" );
+    while ( my $match = $command->expect( undef, @questions ) ) {
+        $command->send( $responses[ $match - 1 ] . "\n" );
     }
     $command->soft_close();
     if ( $command->exitstatus() != 0 ) {
@@ -537,36 +522,34 @@ Apache installation in C<apache/>.
 =cut
 
 sub build_apache_modperl {
-    my ($pkg, %arg) = @_;
-    my ($apache_dir, $mod_perl_dir, $mod_auth_tkt_dir, $mod_ssl_dir) = 
-        @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir mod_ssl_dir)};
+    my ( $pkg, %arg ) = @_;
+    my ( $apache_dir, $mod_perl_dir, $mod_auth_tkt_dir, $mod_ssl_dir ) =
+      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir mod_ssl_dir)};
     _load_expect();
 
     print "\n\n************************************************\n\n",
-          "  Building Apache/mod_ssl/mod_perl/mod_auth_tkt",
-          "\n\n************************************************\n\n";
+      "  Building Apache/mod_ssl/mod_perl/mod_auth_tkt",
+      "\n\n************************************************\n\n";
 
     # gather params
-    my $apache_params = $pkg->apache_build_parameters(%arg);
+    my $apache_params   = $pkg->apache_build_parameters(%arg);
     my $mod_perl_params = $pkg->mod_perl_build_parameters(%arg);
-    my $mod_ssl_params = $pkg->mod_ssl_build_parameters(%arg);
-    my $old_dir = cwd;
+    my $mod_ssl_params  = $pkg->mod_ssl_build_parameters(%arg);
+    my $old_dir         = cwd;
 
-    print "\n\n************************************************\n\n",
-          "  Building mod_ssl",
-          "\n\n************************************************\n\n";
+    print "\n\n************************************************\n\n", "  Building mod_ssl",
+      "\n\n************************************************\n\n";
 
     # build mod_ssl
     chdir($mod_ssl_dir) or die "Unable to chdir($mod_ssl_dir): $!";
     my $cmd = "./configure --with-apache=../$apache_dir $mod_ssl_params";
     print "Calling '$cmd'\n";
-    system( $cmd ) == 0
+    system($cmd ) == 0
       or die "Unable to configure mod_ssl: $!";
     chdir($old_dir);
 
-    print "\n\n************************************************\n\n",
-          "  Building mod_perl",
-          "\n\n************************************************\n\n";
+    print "\n\n************************************************\n\n", "  Building mod_perl",
+      "\n\n************************************************\n\n";
 
     # build mod_perl
     chdir($mod_perl_dir) or die "Unable to chdir($mod_perl_dir): $!";
@@ -583,12 +566,11 @@ sub build_apache_modperl {
     system("make install PERL=$^X") == 0
       or die "mod_perl make install failed: $?";
 
-    print "\n\n************************************************\n\n",
-          "  Building Apache",
-          "\n\n************************************************\n\n";
+    print "\n\n************************************************\n\n", "  Building Apache",
+      "\n\n************************************************\n\n";
 
     # build Apache
-    chdir($old_dir) or die $!;
+    chdir($old_dir)    or die $!;
     chdir($apache_dir) or die "Unable to chdir($apache_dir): $!";
     print "Calling './configure $apache_params'.\n";
     system("./configure $apache_params") == 0
@@ -604,9 +586,8 @@ sub build_apache_modperl {
     my $root = $ENV{SMOLDER_ROOT};
     system("rm -rf $root/apache/man $root/apache/htdocs/*");
 
-    print "\n\n************************************************\n\n",
-          "  Building mod_auth_tkt",
-          "\n\n************************************************\n\n";
+    print "\n\n************************************************\n\n", "  Building mod_auth_tkt",
+      "\n\n************************************************\n\n";
 
     # build mod_auth_tkt
     chdir($old_dir)          or die $!;
@@ -630,18 +611,17 @@ C<configure> script by C<build_apache_modperl()>.
 
 sub apache_build_parameters {
     my $root = $ENV{SMOLDER_ROOT};
-    return "--prefix=${root}/apache ".
-           "--activate-module=src/modules/perl/libperl.a ".
-           "--disable-shared=perl ".
-           "--enable-module=ssl          --enable-shared=ssl " .
-           "--enable-module=rewrite      --enable-shared=rewrite ".
-           "--enable-module=proxy        --enable-shared=proxy ".
-           "--enable-module=mime_magic   --enable-shared=mime_magic ".
-           "--enable-module=unique_id    --enable-shared=unique_id ".
-"--without-execstrip " .
-           "--enable-module=so";
+    return "--prefix=${root}/apache "
+      . "--activate-module=src/modules/perl/libperl.a "
+      . "--disable-shared=perl "
+      . "--enable-module=ssl          --enable-shared=ssl "
+      . "--enable-module=rewrite      --enable-shared=rewrite "
+      . "--enable-module=proxy        --enable-shared=proxy "
+      . "--enable-module=mime_magic   --enable-shared=mime_magic "
+      . "--enable-module=unique_id    --enable-shared=unique_id "
+      . "--without-execstrip "
+      . "--enable-module=so";
 }
-
 
 =item C<mod_perl_build_parameters(apache_dir => $dir, modperl_dir => $dir)>
 
@@ -651,15 +631,15 @@ C<Makefile.PL> script by C<build_apache_modperl()>.
 =cut
 
 sub mod_perl_build_parameters {
-    my ($pkg, %arg) = @_;
+    my ( $pkg, %arg ) = @_;
     my $root  = $ENV{SMOLDER_ROOT};
-    my $trash = catdir(cwd, '..', 'trash');
+    my $trash = catdir( cwd, '..', 'trash' );
 
-    return "LIB=$root/lib " .
-           "PREFIX=$trash " .
-	   "APACHE_SRC=$arg{apache_dir}/src " .
-   	   "USE_APACI=1 " .
-	   "PERL_DEBUG=1 APACI_ARGS='--without-execstrip' EVERYTHING=1";
+    return "LIB=$root/lib "
+      . "PREFIX=$trash "
+      . "APACHE_SRC=$arg{apache_dir}/src "
+      . "USE_APACI=1 "
+      . "PERL_DEBUG=1 APACI_ARGS='--without-execstrip' EVERYTHING=1";
 }
 
 =item C<mod_ssl_build_parameters(apache_dir => $dir)>
@@ -674,12 +654,10 @@ sub mod_ssl_build_parameters {
 }
 
 sub build_swishe {
-    my ($pkg, %options) = @_;
+    my ( $pkg, %options ) = @_;
     my $dir = $options{swishe_dir};
 
-    system( "./configure --prefix=$dir/swish-e "
-        . "--exec_prefix=$dir/swish-e"
-      ) == 0
+    system( "./configure --prefix=$dir/swish-e " . "--exec_prefix=$dir/swish-e" ) == 0
       or die "Unable to configure swish-e! $!";
     system("make && make install") == 0
       or die "Unable to make swish-e! $!";
@@ -693,7 +671,7 @@ contains all the options passed to C<smolder_install> (ex: InstallPath).
 
 =cut
 
-sub finish_installation {}
+sub finish_installation { }
 
 =item C<finish_upgrade()>
 
@@ -702,7 +680,7 @@ here.  The default implementation does nothing.
 
 =cut
 
-sub finish_upgrade {}
+sub finish_upgrade { }
 
 =item C<< post_install_message(options => \%options) >>
 
@@ -713,9 +691,9 @@ is complete.
 
 sub post_install_message {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
-    my %options = %{$args{options}};
+    my %options = %{ $args{options} };
 
     print <<EOREPORT;
 
@@ -748,9 +726,9 @@ is complete.
 
 sub post_upgrade_message {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
-    my %options = %{$args{options}};
+    my %options = %{ $args{options} };
 
     print <<EOREPORT;
 
@@ -773,8 +751,6 @@ sub post_upgrade_message {
 EOREPORT
 
 }
-
-
 
 =item C<guess_platform()>
 
@@ -801,7 +777,7 @@ a hash of the values available (Platform, Perl, Arch).
 =cut
 
 sub build_params {
-    my $db_file = catfile($ENV{SMOLDER_ROOT}, 'data', 'build.db');
+    my $db_file = catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
     return () unless -e $db_file;
 
     # it would be nice to use Config::ApacheFormat here, but
@@ -809,9 +785,9 @@ sub build_params {
     # because it uses Scalar::Util which is an XS module.  If the
     # caller isn't running the right architecture then it will fail to
     # load.  So, fall back to parsing by hand...
-    open(DB, $db_file) or die "Unable to open '$db_file': $!\n";
-    my ($platform, $perl, $arch);
-    while(<DB>) {
+    open( DB, $db_file ) or die "Unable to open '$db_file': $!\n";
+    my ( $platform, $perl, $arch );
+    while (<DB>) {
         chomp;
         next if /^\s*#/;
         if (/^\s*platform\s+["']?([^'"]+)["']?/i) {
@@ -824,16 +800,16 @@ sub build_params {
     }
     close DB;
 
-    return ( Platform => $platform,
-             Perl     => $perl,
-             Arch     => $arch );
+    return (
+        Platform => $platform,
+        Perl     => $perl,
+        Arch     => $arch
+    );
 }
 
 =back
 
 =cut
-
-
 
 #
 # internal method to actually search for libraries.
@@ -843,7 +819,7 @@ sub build_params {
 
 sub _check_libs {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $mode = $args{mode};
 
     my $name = $args{name};
@@ -852,22 +828,19 @@ sub _check_libs {
 
     my $re = qr/^$so/;
 
-    die "\n\n$name is missing from your system.\n".
-      "This library is required by Smolder.\n\n"
-        unless grep { /^$re/ } @{$args{lib_files}};
-    die <<END unless $mode eq 'install' or grep { -e catfile($_, $h) } @{$args{includes}};
+    die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
+      unless grep { /^$re/ } @{ $args{lib_files} };
+    die <<END unless $mode eq 'install' or grep { -e catfile( $_, $h ) } @{ $args{includes} };
 
 The header file for $name, '$h', is missing from your system.
 This file is needed to compile the Imager module which uses $name.
 
 END
 
-
 }
 
-
-
 sub _load_expect {
+
     # load Expect - don't load at compile time because this module is
     # used during install when Expect isn't needed
     eval "use Expect;";
@@ -882,6 +855,5 @@ Project:
 
 END
 }
-
 
 1;

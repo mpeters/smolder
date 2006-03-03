@@ -5,6 +5,7 @@ use base 'CGI::Application';
 use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
+
 #use CGI::Application::Plugin::DebugScreen;
 use CGI::Application::Plugin::HTMLPrototype;
 use Smolder::Util;
@@ -12,7 +13,6 @@ use File::Spec::Functions qw(catdir catfile);
 
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
-
 
 # it's all dynamic, so don't let the browser cache anything
 __PACKAGE__->add_callback(
@@ -44,10 +44,9 @@ from the C<$ENV{REMOTE_USER}> which is set by C<mod_auth_tkt>.
 
 sub developer {
     my $self = shift;
+
     # REMOTE_USER is set bv mod_auth_tkt
-    return Smolder::DB::Developer->retrieve(
-        $ENV{REMOTE_USER}
-    );
+    return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
 }
 
 =head2 error_message
@@ -58,14 +57,9 @@ messages, but rather to display un-recoverable and un-expected occurances.
 =cut
 
 sub error_message {
-    my ($self, $msg) = @_;
+    my ( $self, $msg ) = @_;
     warn "An error occurred: $msg";
-    return $self->tt_process(
-        'error_message.tmpl',
-        {
-            message => $msg,
-        },
-    );
+    return $self->tt_process( 'error_message.tmpl', { message => $msg, }, );
 }
 
 =head2 tt_process
@@ -98,10 +92,11 @@ See L<FORM VALIDATION> for more information.
 sub dfv_msgs {
     my $self = shift;
     my $results;
+
     # we need to eval{} 'cause ValidateRM doesn't like dfv_results() being called
     # without check_rm() being called first.
     eval { $results = $self->dfv_results };
-    if( ! $@ ) {
+    if ( !$@ ) {
         return $results->msgs();
     } else {
         return {};
@@ -146,40 +141,41 @@ my $TT_CONFIG = {
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,
-        FILTERS      => {
-            pass_fail_color => \&Smolder::Util::pass_fail_color,
-        },
+        FILTERS      => { pass_fail_color    => \&Smolder::Util::pass_fail_color, },
     },
     TEMPLATE_NAME_GENERATOR => sub {
         my $self = shift;
+
         # the directory is based on the object's package name
         my $mod = ref $self;
         $mod =~ s/Smolder::Control:://;
-        my $dir = catdir(split(/::/, $mod));
+        my $dir = catdir( split( /::/, $mod ) );
 
         # the filename is the method name of the caller
-        (caller(2))[3] =~ /([^:]+)$/;
+        ( caller(2) )[3] =~ /([^:]+)$/;
         my $name = $1;
-        if ($name eq 'tt_process') {
+        if ( $name eq 'tt_process' ) {
+
             # we were called from tt_process, so go back once more on the caller stack
-            (caller(3))[3] =~ /([^:]+)$/;
+            ( caller(3) )[3] =~ /([^:]+)$/;
             $name = $1;
         }
-        return catfile($dir, $name.'.tmpl');
-    }
+        return catfile( $dir, $name . '.tmpl' );
+      }
 };
 __PACKAGE__->tt_config($TT_CONFIG);
 
-__PACKAGE__->add_callback('tt_pre_process', sub {
-    my ($self, $file, $vars) = @_;
-    if( $self->query->param('ajax') ) {
-        $vars->{no_wrapper} = 1;
-        $vars->{ajax} = 1;
+__PACKAGE__->add_callback(
+    'tt_pre_process',
+    sub {
+        my ( $self, $file, $vars ) = @_;
+        if ( $self->query->param('ajax') ) {
+            $vars->{no_wrapper} = 1;
+            $vars->{ajax}       = 1;
+        }
+        return;
     }
-    return;
-});
-
-
+);
 
 =head1 FORM VALIDATION
 
@@ -199,13 +195,13 @@ Also, the 'any_errors' message will be set.
 
 __PACKAGE__->add_callback(
     init => sub {
-        my $self = shift;
+        my $self  = shift;
         my $query = $self->query();
-        $self->param( 
-            'dfv_defaults' => { 
+        $self->param(
+            'dfv_defaults' => {
                 msgs                    => \&_create_dfv_msgs,
                 untaint_all_constraints => 1,
-            } 
+            }
         );
     }
 );
@@ -213,34 +209,36 @@ __PACKAGE__->add_callback(
 sub _create_dfv_msgs {
     my $dfv = shift;
     my %msgs;
+
     # if there's anything wrong
-    if( ! $dfv->success ) {
+    if ( !$dfv->success ) {
+
         # add 'any_errors'
         $msgs{any_errors} = 1;
 
-        if( $dfv->has_invalid ) {
+        if ( $dfv->has_invalid ) {
+
             # add any error messages for failed (possibly named) constraints
-            foreach my $failed ($dfv->invalid) {
-                $msgs{"err_$failed"} = 1;
+            foreach my $failed ( $dfv->invalid ) {
+                $msgs{"err_$failed"}     = 1;
                 $msgs{"invalid_$failed"} = 1;
                 my $names = $dfv->invalid($failed);
                 foreach my $name (@$names) {
-                    next if( ref $name ); # skip regexes
+                    next if ( ref $name );    # skip regexes
                     $msgs{"invalid_$name"} = 1;
                 }
             }
         }
 
         # now add for missing
-        if( $dfv->has_missing ) {
-            foreach my $missing ($dfv->missing) {
-                $msgs{"err_$missing"} = 1;
+        if ( $dfv->has_missing ) {
+            foreach my $missing ( $dfv->missing ) {
+                $msgs{"err_$missing"}     = 1;
                 $msgs{"missing_$missing"} = 1;
             }
         }
     }
     return \%msgs;
 }
-
 
 1;

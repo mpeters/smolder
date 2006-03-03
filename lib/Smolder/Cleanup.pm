@@ -1,7 +1,7 @@
 package Smolder::Cleanup;
 use Smolder::DB;
 
-sub handler :method {
+sub handler : method {
     my $r = shift;
     Smolder::DB->clear_object_index();
 }

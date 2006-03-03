@@ -3,37 +3,38 @@ use strict;
 use warnings;
 
 # all valid configuration directives must be listed here
-our (@VALID_DIRECTIVES, @REQUIRED_DIRECTIVES);
+our ( @VALID_DIRECTIVES, @REQUIRED_DIRECTIVES );
+
 BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
-        ApacheAddr
-        ApachePort
-        DBHost
-        DBName
-        DBPass
-        DBUser
-        FromAddress
-        Group
-        HostName
-        InstallRoot
-        LogLevel
-        SchedulerMaxChildren
-        SMTPHost
-        User
+      ApacheAddr
+      ApachePort
+      DBHost
+      DBName
+      DBPass
+      DBUser
+      FromAddress
+      Group
+      HostName
+      InstallRoot
+      LogLevel
+      SchedulerMaxChildren
+      SMTPHost
+      User
     );
-    
+
     @REQUIRED_DIRECTIVES = qw(
-        ApacheAddr 
-        ApachePort 
-        DBName
-        DBPass
-        DBUser
-        FromAddress
-        Group 
-        HostName 
-        LogLevel
-        SMTPHost
-        User 
+      ApacheAddr
+      ApachePort
+      DBName
+      DBPass
+      DBUser
+      FromAddress
+      Group
+      HostName
+      LogLevel
+      SMTPHost
+      User
     );
 }
 
@@ -76,12 +77,13 @@ our $CONF;
 # internal routine to load the conf file.  Called by a BEGIN during
 # startup, and used during testing.
 sub _load {
+
     # find a default conf file
     my $conf_file;
-    if (exists $ENV{SMOLDER_CONF}) {
+    if ( exists $ENV{SMOLDER_CONF} ) {
         $conf_file = $ENV{SMOLDER_CONF};
-    } else { 
-        $conf_file = catfile($ENV{SMOLDER_ROOT}, "conf", "smolder.conf");
+    } else {
+        $conf_file = catfile( $ENV{SMOLDER_ROOT}, "conf", "smolder.conf" );
     }
 
     croak(<<CROAK) unless -e $conf_file and -r _;
@@ -96,9 +98,7 @@ CROAK
 
     # load conf file into package global
     eval {
-        our $CONF = Config::ApacheFormat->new(
-            valid_directives => \@VALID_DIRECTIVES,
-        );
+        our $CONF = Config::ApacheFormat->new( valid_directives => \@VALID_DIRECTIVES, );
         $CONF->read($conf_file);
     };
     croak("Unable to read config file '$conf_file'.  Error was: $@")
@@ -106,8 +106,8 @@ CROAK
     croak("Unable to read config file '$conf_file'.")
       unless $CONF;
 
-    my $extra = qq(InstallRoot "$ENV{SMOLDER_ROOT}"\n);
-    my $extra_fh = IO::Scalar->new(\$extra);
+    my $extra    = qq(InstallRoot "$ENV{SMOLDER_ROOT}"\n);
+    my $extra_fh = IO::Scalar->new( \$extra );
     $CONF->read($extra_fh);
 }
 
@@ -139,7 +139,7 @@ Directive names are case-insensitive.
 =cut
 
 sub get {
-    return $CONF->get($_[1]);
+    return $CONF->get( $_[1] );
 }
 
 =head2 check
@@ -157,17 +157,18 @@ sub check {
 
     # check required directives
     foreach my $dir (@REQUIRED_DIRECTIVES) {
-        _broked("Missing required $dir directive") 
+        _broked("Missing required $dir directive")
           unless defined $CONF->get($dir);
     }
 
     # make sure User and Group exist
-    _broked("User '" . $CONF->get("User") . "' does not exist") 
-      unless getpwnam($CONF->get("User"));
-    _broked("Group '" . $CONF->get("Group") . "' does not exist") 
-      unless getgrnam($CONF->get("Group"));
+    _broked( "User '" . $CONF->get("User") . "' does not exist" )
+      unless getpwnam( $CONF->get("User") );
+    _broked( "Group '" . $CONF->get("Group") . "' does not exist" )
+      unless getgrnam( $CONF->get("Group") );
 
 }
+
 =head1 ACCESSOR METHODS
 
 All configuration directives can be accessed as methods themselves.
@@ -205,23 +206,21 @@ Case-insensitive.
 =cut
 
 sub import {
-    my $pkg = shift;
+    my $pkg     = shift;
     my $callpkg = caller(0);
-    
-    foreach my $name (@_) {
-        no strict 'refs'; # needed for glob refs
-        *{"$callpkg\::$name"} = sub () { $pkg->get($name) };
-    } 
-}
 
+    foreach my $name (@_) {
+        no strict 'refs';    # needed for glob refs
+        *{"$callpkg\::$name"} = sub () { $pkg->get($name) };
+    }
+}
 
 sub _broked {
     warn("Error found in smolder.conf: $_[0].\n");
     exit(1);
 }
- 
-# run the check ASAP, unless we're in upgrade mode
-BEGIN { __PACKAGE__->check() unless ($ENV{SMOLDER_CONF_NOCHECK}) }
 
+# run the check ASAP, unless we're in upgrade mode
+BEGIN { __PACKAGE__->check() unless ( $ENV{SMOLDER_CONF_NOCHECK} ) }
 
 1;

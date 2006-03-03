@@ -5,8 +5,8 @@ use warnings;
 
 sub dispatch_args {
     return {
-        prefix  => 'Smolder::Control',
-        table   => [
+        prefix => 'Smolder::Control',
+        table  => [
             ''                      => { app => 'Public' },
             ':app/:rm?/:id?/:type?' => {},
         ],

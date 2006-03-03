@@ -24,9 +24,7 @@ our $TEMPLATE = Template->new(
     INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
     COMPILE_EXT  => '.ttc',
     WRAPPER      => 'Email/wrapper.tmpl',
-    FILTERS      => {
-        pass_fail_color => \&Smolder::Util::pass_fail_color,
-    },
+    FILTERS      => { pass_fail_color    => \&Smolder::Util::pass_fail_color, },
 );
 
 =head1 METHODS
@@ -75,31 +73,31 @@ returned.
 =cut
 
 sub send_mime_mail {
-    my ($class, %args) = @_;
-    my ($to, $subject, $tt_params, $name) = @args{qw(to subject tt_params name)};
+    my ( $class, %args ) = @_;
+    my ( $to, $subject, $tt_params, $name ) = @args{qw(to subject tt_params name)};
     $tt_params->{host_name} = HostName();
-    $tt_params->{subject} = $subject;
+    $tt_params->{subject}   = $subject;
 
     # get the HTML and plain text content
     my $html;
-    $TEMPLATE->process("Email/$name.tmpl", $tt_params, \$html)
-        || croak $TEMPLATE->error();
+    $TEMPLATE->process( "Email/$name.tmpl", $tt_params, \$html )
+      || croak $TEMPLATE->error();
     my $text = HTML::FormatText::WithLinks->new()->parse($html);
 
     # create the multipart text and html message
     my $mime = MIME::Lite->new(
-        From    => FromAddress(), 
+        From    => FromAddress(),
         To      => $to,
         Subject => $subject,
         Type    => 'multipart/alternative',
     );
     $mime->attach(
-        Type    => 'text/plain',
-        Data    => $text
+        Type => 'text/plain',
+        Data => $text
     );
     $mime->attach(
-        Type    => 'text/html',
-        Data    => $html,
+        Type => 'text/html',
+        Data => $html,
     );
 
     # set the SMTP host

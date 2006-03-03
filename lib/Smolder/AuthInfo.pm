@@ -22,11 +22,8 @@ Returns the Apache::AuthTkt object with our site configuration.
 
 =cut
 
-
 sub new {
-    my $at = Apache::AuthTkt->new(
-        conf    => catfile(InstallRoot, 'tmp', 'httpd.conf'),
-    );
+    my $at = Apache::AuthTkt->new( conf => catfile( InstallRoot, 'tmp', 'httpd.conf' ), );
     $at->ignore_ip(1);
     return $at;
 }
