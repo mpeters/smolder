@@ -1,0 +1,9 @@
+=head1 SMOLDER CHANGES
+
+=head2 0.01 (March 04, 2006)
+
+=over
+
+=item Initial public release
+
+=back
