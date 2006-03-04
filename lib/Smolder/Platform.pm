@@ -139,9 +139,7 @@ END
       unless $version >= 0.13;
 }
 
-=back
-
-=item C<< $bin = find_bin(bin => $bin_name) >>
+=head2 C<< $bin = find_bin(bin => $bin_name) >>
 
 If $ENV{PATH} exists, searches $ENV{PATH} for $bin_name, returning the
 full path to the desired executable.
@@ -185,7 +183,7 @@ sub find_bin {
 
 }
 
-=item C<< check_ip(ip => $ip) >>
+=head2 C<< check_ip(ip => $ip) >>
 
 Called by the installation system to check whether an IP address is
 correct for the machine.  The default implementation runs
@@ -211,7 +209,7 @@ sub check_ip {
     return 1;
 }
 
-=item C<< $gid = create_group(options => \%options) >>
+=head2 C<< $gid = create_group(options => \%options) >>
 
 Called to create a Smolder Group, as specified by the command-line
 argument to bin/smolder_install (--Group).  Takes the %options hash
@@ -255,7 +253,7 @@ sub create_group {
     return $gid;
 }
 
-=item C<< $uid = create_user(group_id => $gid, options => \%options) >>
+=head2 C<< $uid = create_user(group_id => $gid, options => \%options) >>
 
 Called to create a Smolder User, as specified by the command-line
 argument to bin/smolder_install (--User).  Takes the %options hash
@@ -324,7 +322,7 @@ sub create_user {
 
 }
 
-=item C<< usermod(options => \%options) >>
+=head2 C<< usermod(options => \%options) >>
 
 Called when --User is not a member of --Group.  This sub
 adds --User to --Group.
@@ -356,7 +354,7 @@ sub smolder_usermod {
     print "  User added to group.\n";
 }
 
-=item C<< build_perl_module(name => $name) >>
+=head2 C<< build_perl_module(name => $name) >>
 
 Called to build a specific Perl module distribution called C<$name> in
 the current directory.  The result of calling this method should be
@@ -473,7 +471,7 @@ sub apache_modperl_questions {
     };
 }
 
-=item C<< build_apache_modperl(apache_dir => $dir, modperl_dir => $dir, mod_auth_tkt_dir => $dir, mod_ssl_dir => $dir) >>
+=head2 C<< build_apache_modperl(apache_dir => $dir, modperl_dir => $dir, mod_auth_tkt_dir => $dir, mod_ssl_dir => $dir) >>
 
 Called to build Apache and mod_perl in their respective locations.
 Uses C<apache_build_parameters()> and C<modperl_build_parameters()>
@@ -563,7 +561,7 @@ sub build_apache_modperl {
       or die "mod_auth_tkt installation failed: $?";
 }
 
-=item C<< apache_build_parameters(apache_dir => $dir, modperl_dir => $dir) >>
+=head2 C<< apache_build_parameters(apache_dir => $dir, modperl_dir => $dir) >>
 
 Returns a string containing the parameters passed to Apache's
 C<configure> script by C<build_apache_modperl()>.
@@ -584,7 +582,7 @@ sub apache_build_parameters {
       . "--enable-module=so";
 }
 
-=item C<mod_perl_build_parameters(apache_dir => $dir, modperl_dir => $dir)>
+=head2 C<mod_perl_build_parameters(apache_dir => $dir, modperl_dir => $dir)>
 
 Returns a string containing the parameters passed to mod_perl's
 C<Makefile.PL> script by C<build_apache_modperl()>.
@@ -603,7 +601,7 @@ sub mod_perl_build_parameters {
       . "PERL_DEBUG=1 APACI_ARGS='--without-execstrip' EVERYTHING=1";
 }
 
-=item C<mod_ssl_build_parameters(apache_dir => $dir)>
+=head2 C<mod_ssl_build_parameters(apache_dir => $dir)>
 
 Returns a string containing the parameters passed to configure.
 
@@ -624,7 +622,7 @@ sub build_swishe {
       or die "Unable to make swish-e! $!";
 }
 
-=item C<finish_installation(options => \%options)>
+=head2 C<finish_installation(options => \%options)>
 
 Anything that needs to be done at the end of installation can be done
 here.  The default implementation does nothing.  The options hash
@@ -634,7 +632,7 @@ contains all the options passed to C<smolder_install> (ex: InstallPath).
 
 sub finish_installation { }
 
-=item C<finish_upgrade()>
+=head2 C<finish_upgrade()>
 
 Anything that needs to be done at the end of an upgrade can be done
 here.  The default implementation does nothing.
@@ -643,7 +641,7 @@ here.  The default implementation does nothing.
 
 sub finish_upgrade { }
 
-=item C<< post_install_message(options => \%options) >>
+=head2 C<< post_install_message(options => \%options) >>
 
 Called by bin/smolder_install, returns install information once everything
 is complete.
@@ -678,7 +676,7 @@ EOREPORT
 
 }
 
-=item C<post_upgrade_message(options => \%options)>
+=head2 C<post_upgrade_message(options => \%options)>
 
 Called by bin/smolder_upgrade, returns upgrade information once everything
 is complete.
@@ -713,7 +711,7 @@ EOREPORT
 
 }
 
-=item C<guess_platform()>
+=head2 C<guess_platform()>
 
 Called to guess whether this module should handle building on this
 platform.  This is used by C<smolder_build> when the user doesn't
@@ -730,7 +728,7 @@ sub guess_platform {
     return 0;
 }
 
-=item C<build_params()>
+=head2 C<build_params()>
 
 Reads the F<data/build.db> file produced by C<smolder_build> and returns
 a hash of the values available (Platform, Perl, Arch).
@@ -768,9 +766,6 @@ sub build_params {
     );
 }
 
-=back
-
-=cut
 
 #
 # internal method to actually search for libraries.
