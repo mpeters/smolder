@@ -446,6 +446,13 @@ sub perl_module_questions {
         "Do you want to use the XS Stash for all Templates?" => 'y',
         "Do you want to enable the latex filter?"            => 'n',
         "Do you want to install these components?"           => 'n',
+        # all Smolder graphs are PNGs, and this is a private copy
+        "Build PNG support? [y]"                             => 'y',
+        "Build JPEG support? [y]"                            => 'n',
+        "Build FreeType support? [y]"                        => 'n',
+        "Build support for animated GIFs? [y]"               => 'n',
+        "Build XPM support? [y]"                             => 'n',
+        "Where is libgd installed? [/usr/lib]"               => '/usr/lib',
     };
 }
 

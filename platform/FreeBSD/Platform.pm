@@ -160,4 +160,15 @@ sub post_install_message {
 
 }
 
+sub perl_module_questions {
+    my ($pkg, %arg) = @_;
+    my $result = $pkg->SUPER::perl_module_questions(%arg);
+
+    return {
+        %$result, 
+         "Where is libgd installed? [/usr/lib]" => '/usr/local/lib',
+    };
+}
+
+
 1;
