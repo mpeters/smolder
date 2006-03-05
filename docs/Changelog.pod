@@ -4,9 +4,9 @@
 
 =over
 
-=item Fixed building of GD.pm on FreeBSD - Mark Stosberg
+=item * Fixed building of GD.pm on FreeBSD - Mark Stosberg
 
-=item Added missing Perl modules to src/ directory - Michael Peters
+=item * Added missing Perl modules to src/ directory - Michael Peters
 
 =back
 
@@ -14,6 +14,6 @@
 
 =over
 
-=item Initial public release
+=item * Initial public release
 
 =back
