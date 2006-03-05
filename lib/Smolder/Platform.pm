@@ -67,7 +67,6 @@ sub verify_dependencies {
 
 =head2 check_perl
 
-
 Perl is the right version and compiled for the right architecture
 (skipped in build mode).
 
@@ -446,6 +445,30 @@ sub build_perl_module {
     system("$make_cmd install") == 0 or die "$make_cmd install failed: $?";
 }
 
+=head2 apache_modperl_questions
+
+This method returns a hashref where the keys are the questions (or the beginnings of
+those questions) that Apache/mod_perl may prompt the user to answer during the install.
+The values are the answers to those questions.
+
+=cut
+
+sub apache_modperl_questions {
+    return {
+        "Configure mod_perl with" => 'y',
+        "Shall I build httpd"     => 'n',
+    };
+}
+
+=head2 perl_module_questions
+
+This method returns a hashref where the keys are the questions (or the beginnings of
+those questions) that Perl modules may prompt the user to answer during the install.
+The values are the answers to those questions.
+Additions should be made as new CPAN modules are added.
+
+=cut
+
 sub perl_module_questions {
     return {
         "ParserDetails.ini?"                                 => 'n',
@@ -471,6 +494,18 @@ sub perl_module_questions {
     };
 }
 
+=head2 expect_questions
+
+Given a command and a hashref of questions this method will run the command
+and answer the questions as they appear (it is has a match).
+
+    expect_questions(
+        cmd         => 'Makefile.PL',
+        questions   => $pkg->perl_module_questions(),
+    );
+
+=cut
+
 sub expect_questions {
     my ( $pkg, %options ) = @_;
     my $command   = Expect->spawn( $options{cmd} );
@@ -484,13 +519,6 @@ sub expect_questions {
     if ( $command->exitstatus() != 0 ) {
         die "$options{cmd} failed: $?";
     }
-}
-
-sub apache_modperl_questions {
-    return {
-        "Configure mod_perl with" => 'y',
-        "Shall I build httpd"     => 'n',
-    };
 }
 
 =head2 build_apache_modperl
@@ -652,6 +680,14 @@ sub mod_ssl_build_parameters {
     my ( $pkg, %arg ) = @_;
     return "--enable-shared=ssl --apache=../$arg{apache_dir}";
 }
+
+=head2 build_swishe
+
+Given the directory where swish-e will be installed to, and assuming
+we are already in the directory where swish-e has been unpacked, run
+the commands to build swish-e.
+
+=cut
 
 sub build_swishe {
     my ( $pkg, %options ) = @_;
