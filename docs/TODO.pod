@@ -2,12 +2,6 @@
 FOR 0.1
 ====================
 
-+ Test out the build/makedist/install on a clean machine
-
-====================
-FOR 0.2
-====================
-
 + add --check_all to smolder_src_dependency_check
 
 + fix some POD style issues leftover from Krang
@@ -50,9 +44,13 @@ FOR 0.2
 
 + capture STDERR and associate with test files (will be done in Test::TAP::Model)
 
++ make sure it buitls/runs/installs on as many *nix platforms as possible
+
 ====================
 BEYOND
 ====================
+
++ support for PostgreSQL and SQLite
 
 + builtin SSL support?
 
