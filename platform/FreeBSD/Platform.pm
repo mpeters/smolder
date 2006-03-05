@@ -166,7 +166,7 @@ sub perl_module_questions {
 
     return {
         %$result, 
-         "Where is libgd installed? [/usr/lib]" => '/usr/local/lib',
+         "Where is libgd installed" => '/usr/local/lib',
     };
 }
 
