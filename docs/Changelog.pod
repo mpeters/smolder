@@ -1,5 +1,15 @@
 =head1 SMOLDER CHANGES
 
+=head2 0.02 (March 05, 2006)
+
+=over
+
+=item Fixed building of GD.pm on FreeBSD - Mark Stosberg
+
+=item Added missing Perl modules to src/ directory - Michael Peters
+
+=back
+
 =head2 0.01 (March 04, 2006)
 
 =over
