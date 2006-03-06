@@ -6,7 +6,7 @@
 
 =item * Allow smolder_createdb to use MySQL root passwords with spaces - Matisse Enzer
 
-=item 
+=item * Add "--dry-run" option to smolder_createdb. -Mark Stosberg 
 
 =back
 
