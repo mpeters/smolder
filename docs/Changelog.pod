@@ -2,6 +2,8 @@
 
 =head2 0.03 (March 06, 2006)
 
+=over
+
 =item * Added more missing Perl modules to src/ directory - Michael Peters
 
 =item * Allow smolder_createdb to use MySQL root passwords with spaces - Matisse Enzer
