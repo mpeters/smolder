@@ -212,7 +212,7 @@ if ($destroy) {
 exit 0 if $no_create;
 
 # skip if database exists
-my $db_exists_cmd = qq{mysql -uroot -e 'select "$db_name exists"' $db_name};
+my $db_exists_cmd = qq{mysql -u$db_user -e 'select "$db_name exists"' $db_name};
 $db_exists_cmd .= " -p$db_pass"  if defined $db_pass;
 $db_exists_cmd .= " -h$hostname" if defined $hostname;
 $db_exists_cmd .= " -v"          if $verbose > 1;
