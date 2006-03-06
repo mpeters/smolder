@@ -19,8 +19,9 @@ smolder_uninstall - delete a Smolder install
 
 =head1 DESCRIPTION
 
-This script will uninstall a Smolder installation by means
-of database and file removal.
+This script will uninstall a Smolder installation by dropping the Smolder 
+database and completely removing the directory that smolder was installed
+into (by default: /usr/local/smolder)
 
 This script must be run as root.
 

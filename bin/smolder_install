@@ -98,10 +98,10 @@ Following is a list of the tasks the installer script will perform.
  Optional parameters:
   --AdminDBPass         - Password for the DB user "root"
   --DBHost              - Host name for MySQL
-  --InstallPath         - Directory for Smolder install
-  --User                - UNIX user for process ownership
-  --Group               - UNIX group for process ownership
-  --ApachePort          - Port on which CMS HTTP server should run
+  --InstallPath         - Directory for Smolder install (Default: /usr/local/smolder)
+  --User                - UNIX user for process ownership (Default: smolder)
+  --Group               - UNIX group for process ownership (Default: smolder)
+  --ApachePort          - Port on which CMS HTTP server should run (Default: 80)
   --FromAddress         - Email address to use as the From field on outbound messages
   --SMTPHost            - Hostname of the SMTP server to use for sending outbound messages
 
@@ -112,6 +112,8 @@ Following is a list of the tasks the installer script will perform.
   --verbose             - Tell me everything
 
 =head1 SEE ALSO
+
+L<smolder_uninstall>, a companion uninstall utility for smolder. 
 
 Refer to F<docs/ops_install.pod>.
 
