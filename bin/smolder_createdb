@@ -231,6 +231,10 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
 
     # grant access to the database to DBUser
     my $grant_cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
+    # TODO: restrict access the current host for better security. The  
+    # only trick is get (or ask for) the IP address of the current machine. 
+    # Some MySQL servers aren't set up for DNS resolution of remote connections
+    # So IPs are preferred (and may be required!) over hostnames here. 
     $grant_cmd .= q{@localhost}                  if !defined $hostname;
     $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
     $grant_cmd .= "'";
