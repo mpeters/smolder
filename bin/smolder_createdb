@@ -60,6 +60,13 @@ provide it here.
 If you are running MySQL on another host then you'll need to
 provide it here.
 
+=item --ip_address [addr] 
+
+IP address of host connecting to MySQL. (Usually this matchine). By default we
+use the value of C<ApacheAddr> from <smolder.conf>, which defaults to
+C<127.0.0.1>. Connections to the smolder database will be allowed only from
+this machine.
+
 =item --verbose
 
 Once gives you a play-by-play. Twice gets you full SQL.
@@ -106,7 +113,7 @@ END
 }
 
 use Term::Prompt qw(prompt);
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost);
+use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost ApacheAddr);
 
 use Getopt::Long;
 use Pod::Usage;
@@ -114,6 +121,7 @@ use Pod::Usage;
 my $help           = 0;
 my $man            = 0;
 my $admin_password = '';
+my $ip_address     = ApacheAddr;
 my $hostname       = DBHost;
 my $db_name        = DBName;
 my $db_user        = DBUser;
@@ -134,6 +142,7 @@ GetOptions(
     'no_create'  => \$no_create,
     'password=s' => \$admin_password,
     'hostname=s' => \$hostname,
+    'ip_address=s' => \$ip_address,
   )
   or pod2usage(2);
 pod2usage(1) if $help;
@@ -231,11 +240,11 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
 
     # grant access to the database to DBUser
     my $grant_cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
-    # TODO: restrict access the current host for better security. The  
-    # only trick is get (or ask for) the IP address of the current machine. 
-    # Some MySQL servers aren't set up for DNS resolution of remote connections
-    # So IPs are preferred (and may be required!) over hostnames here. 
-    $grant_cmd .= q{@localhost}                  if !defined $hostname;
+
+    # If we have a remote connection to MySQL restrict connections by IP. 
+    my $connect_from_host = (defined $hostname) ? $ip_address : "localhost";
+
+    $grant_cmd .= qq{\@'$connect_from_host'};
     $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
     $grant_cmd .= "'";
     $grant_cmd .= " -p$admin_password"           if $admin_password;
