@@ -15,6 +15,11 @@ need one:
 
    smolder_createdb --password foobar
 
+If root access to the database is not directly available, you can instead print
+out the commands needs, and give them to someone with access to run manually.
+
+   smolder_createdb --dry_run
+
 =head1 DESCRIPTION
 
 Creates databases using information in F<smolder.conf>.
@@ -24,6 +29,11 @@ Creates databases using information in F<smolder.conf>.
 The script takes the following options:
 
 =over
+
+=item --dry_run 
+
+Simply print the commands that would be run, but don't actually run them. 
+Useful when root access is not directly available. 
 
 =item --destroy
 
@@ -112,11 +122,13 @@ my $destroy        = 0;
 my $no_prompt      = 0;
 my $no_create      = 0;
 my $verbose        = 0;
+my $dry_run        = 0;
 
 GetOptions(
     'help'       => \$help,
     'man'        => \$man,
     'verbose+'   => \$verbose,
+    'dry_run'    => \$dry_run, 
     'destroy'    => \$destroy,
     'no_prompt'  => \$no_prompt,
     'no_create'  => \$no_create,
@@ -127,28 +139,35 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
-# make sure MySQL has what it needs
-my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
-$test_mysql .= " -p$admin_password" if $admin_password;
-$test_mysql .= " -h$hostname"       if defined $hostname;
-$test_mysql .= " 2>&1";
-my $output = `$test_mysql`;
-unless ( $output =~ /hello.*world/s ) {
-    if ( $output =~ /Access denied/ ) {
-        if ( defined $admin_password ) {
-            my $msg = "MySQL root password '$admin_password' is not valid";
-            $msg .= "for this host '$hostname'.\n" if defined $hostname;
-            die($msg);
+if ($dry_run) {
+    print "-- This is a DRY RUN. No SQL is actually being executed. \n".
+    print "-- These commands need to be run by the MySQL root user\n";
+}
+
+if (not $dry_run) {
+    # make sure MySQL has what it needs
+    my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
+    $test_mysql .= " -p$admin_password" if $admin_password;
+    $test_mysql .= " -h$hostname"       if defined $hostname;
+    $test_mysql .= " 2>&1";
+    my $output = `$test_mysql`;
+    unless ( $output =~ /hello.*world/s ) {
+        if ( $output =~ /Access denied/ ) {
+            if ( defined $admin_password ) {
+                my $msg = "MySQL root password '$admin_password' is not valid";
+                $msg .= "for this host '$hostname'.\n" if defined $hostname;
+                die($msg);
+            } else {
+                my $msg =
+                    "Unable to connect to MySQL as root with no password.  "
+                  . "Maybe you need to use --password?";
+                $msg .= " or --hostname?" if not defined $hostname;
+                $msg .= "\n";
+                die($msg);
+            }
         } else {
-            my $msg =
-                "Unable to connect to MySQL as root with no password.  "
-              . "Maybe you need to use --password?";
-            $msg .= " or --hostname?" if not defined $hostname;
-            $msg .= "\n";
-            die($msg);
+            die("Unable to access MySQL client.\n");
         }
-    } else {
-        die("Unable to access MySQL client.\n");
     }
 }
 
@@ -156,7 +175,7 @@ unless ( $output =~ /hello.*world/s ) {
 if ($destroy) {
 
     # make sure they really meant --destroy
-    unless ($no_prompt) {
+    if ((not $no_prompt) and (not $dry_run)) {
         exit 1
           unless prompt(
             "y",
@@ -172,8 +191,13 @@ if ($destroy) {
     $dropdb_cmd .= " -p$admin_password" if $admin_password;
     $dropdb_cmd .= " -h$hostname"       if defined $hostname;
     $dropdb_cmd .= " -v"                if $verbose > 1;
-    print "Running '$dropdb_cmd'\n" if $verbose > 1;
-    system($dropdb_cmd) && die "Couldn't drop database $db_name: $?";
+    if ($dry_run) {
+        print "$dropdb_cmd\n"
+    }
+    else {
+        print "Running '$dropdb_cmd'\n" if $verbose > 1;
+        system($dropdb_cmd) && die "Couldn't drop database $db_name: $?";
+    }
 }
 
 exit 0 if $no_create;
@@ -187,7 +211,7 @@ $db_exists_cmd .= " 2>&1";
 print "Running '$db_exists_cmd'\n" if $verbose > 1;
 
 # if the database already exists
-if ( `$db_exists_cmd` =~ /$db_name exists/ ) {
+if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
     print "Database '$db_name' already exists, skipping create.\n";
 
     # else create the database
@@ -197,8 +221,13 @@ if ( `$db_exists_cmd` =~ /$db_name exists/ ) {
     $createdb_cmd .= " -p$admin_password" if $admin_password;
     $createdb_cmd .= " -h$hostname"       if defined $hostname;
     $createdb_cmd .= " -v"                if $verbose > 1;
-    print "Running '$createdb_cmd'\n" if $verbose > 1;
-    system($createdb_cmd) && die "Couldn't create database: $?";
+    if ($dry_run) {
+        print "$createdb_cmd\n";
+    }
+    else {
+        print "Running '$createdb_cmd'\n" if $verbose > 1;
+        system($createdb_cmd) && die "Couldn't create database: $?";
+    }
 
     # grant access to the database to DBUser
     my $grant_cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
@@ -208,8 +237,17 @@ if ( `$db_exists_cmd` =~ /$db_name exists/ ) {
     $grant_cmd .= " -p$admin_password"           if $admin_password;
     $grant_cmd .= " -h$hostname"                 if defined $hostname;
     $grant_cmd .= " -v"                          if $verbose > 1;
-    print "Running '$grant_cmd'\n" if $verbose > 1;
-    system($grant_cmd) && die "Couldn't grant all: $?";
+    if ($dry_run) {
+        print "$grant_cmd\n";
+    }
+    else {
+        print "Running '$grant_cmd'\n" if $verbose > 1;
+        system($grant_cmd) && die "Couldn't grant all: $?";
+    }
+
+    if ($dry_run) {
+        print "-- these SQL commands can be run by $db_user\n";
+    }
 
     # load all sql files as the DBUser
     my $sql_dir = catdir( InstallRoot, 'sql' );
@@ -226,8 +264,13 @@ if ( `$db_exists_cmd` =~ /$db_name exists/ ) {
         $sql_file_cmd .= " -h$hostname" if defined $hostname;
         $sql_file_cmd .= " -v"          if $verbose > 1;
         $sql_file_cmd .= " < $file ";
-        print "Running '$sql_file_cmd'\n" if $verbose > 1;
-        system($sql_file_cmd) && die "Couldn't load SQL: $?: $!";
+        if ($dry_run) {
+            print "$sql_file_cmd\n";
+        }
+        else {
+            print "Running '$sql_file_cmd'\n" if $verbose > 1;
+            system($sql_file_cmd) && die "Couldn't load SQL: $?: $!";
+        }
     }
 
     # Set the db_version
@@ -236,9 +279,16 @@ if ( `$db_exists_cmd` =~ /$db_name exists/ ) {
     $update_ver_cmd .= " -p$admin_password" if $admin_password;
     $update_ver_cmd .= " -h$hostname"       if defined $hostname;
     $update_ver_cmd .= " -v"                if $verbose > 1;
-    print "Running '$update_ver_cmd'\n" if $verbose > 1;
-    system($update_ver_cmd) && die "Couldn't update db_version: $?";
+    if ($dry_run) {
+        print "$update_ver_cmd\n";
+    }
+    else {
+        print "Running '$update_ver_cmd'\n" if $verbose > 1;
+        system($update_ver_cmd) && die "Couldn't update db_version: $?";
+    }
 }
 
-print "Databases created successfully.\n";
+if (not $dry_run) {
+    print "Databases created successfully.\n";
+}
 
