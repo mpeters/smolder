@@ -156,7 +156,7 @@ if ($dry_run) {
 if (not $dry_run) {
     # make sure MySQL has what it needs
     my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
-    $test_mysql .= " -p$admin_password" if $admin_password;
+    $test_mysql .= " -p\"$admin_password\"" if $admin_password;
     $test_mysql .= " -h$hostname"       if defined $hostname;
     $test_mysql .= " 2>&1";
     my $output = `$test_mysql`;
@@ -197,7 +197,7 @@ if ($destroy) {
 
     print STDERR "Dropping database '$db_name'...\n" if $verbose;
     my $dropdb_cmd = "mysql -uroot -e 'DROP DATABASE IF EXISTS $db_name'";
-    $dropdb_cmd .= " -p$admin_password" if $admin_password;
+    $dropdb_cmd .= " -p\"$admin_password\"" if $admin_password;
     $dropdb_cmd .= " -h$hostname"       if defined $hostname;
     $dropdb_cmd .= " -v"                if $verbose > 1;
     if ($dry_run) {
@@ -227,7 +227,7 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
 } else {
     print STDERR "Creating database '$db_name'...\n" if $verbose;
     my $createdb_cmd = "mysql -uroot -e 'CREATE DATABASE $db_name'";
-    $createdb_cmd .= " -p$admin_password" if $admin_password;
+    $createdb_cmd .= " -p\"$admin_password\"" if $admin_password;
     $createdb_cmd .= " -h$hostname"       if defined $hostname;
     $createdb_cmd .= " -v"                if $verbose > 1;
     if ($dry_run) {
@@ -247,7 +247,7 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
     $grant_cmd .= qq{\@'$connect_from_host'};
     $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
     $grant_cmd .= "'";
-    $grant_cmd .= " -p$admin_password"           if $admin_password;
+    $grant_cmd .= " -p\"$admin_password\""           if $admin_password;
     $grant_cmd .= " -h$hostname"                 if defined $hostname;
     $grant_cmd .= " -v"                          if $verbose > 1;
     if ($dry_run) {
