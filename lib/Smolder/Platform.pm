@@ -397,6 +397,9 @@ sub build_perl_module {
     print "\n\n************************************************\n\n", " Building $name",
       "\n\n************************************************\n\n";
 
+    my $EXTRA_ARGS = '';
+    # Net::SSLeay needs this to find openssl
+    $EXTRA_ARGS = '/usr -- ' if $name =~ /Net_SSLeay/;
     # Net::FTPServer needs this to not try to install /etc/ftp.conf
     local $ENV{NOCONF} = 1 if $name =~ /Net-FTPServer/;
 
@@ -404,7 +407,7 @@ sub build_perl_module {
     my ( $cmd, $make_cmd );
     if ( -e 'Build.PL' ) {
         $cmd =
-            "$^X Build.PL "
+            "$^X Build.PL $EXTRA_ARGS "
           . " --install_path lib=$dest_dir"
           . " --install_path libdoc=$trash_dir"
           . " --install_path script=$trash_dir"
@@ -415,7 +418,11 @@ sub build_perl_module {
         $make_cmd = './Build';
     } else {
         $cmd =
-          "$^X Makefile.PL LIB=$dest_dir PREFIX=$trash_dir INSTALLMAN3DIR=' ' INSTALLMAN1DIR=' '";
+          "$^X Makefile.PL $EXTRA_ARGS "
+        . "LIB=$dest_dir "
+        . "PREFIX=$trash_dir "
+        . "INSTALLMAN3DIR=' ' "
+        . "INSTALLMAN1DIR=' '";
         $make_cmd = 'make';
     }
 
