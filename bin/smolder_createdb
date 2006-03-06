@@ -275,10 +275,10 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
 
     # Set the db_version
     my $version = $Smolder::VERSION;
-    my $update_ver_cmd = qq{mysql -uroot -e 'UPDATE db_version set db_version=$version' $db_name};
-    $update_ver_cmd .= " -p$admin_password" if $admin_password;
-    $update_ver_cmd .= " -h$hostname"       if defined $hostname;
-    $update_ver_cmd .= " -v"                if $verbose > 1;
+    my $update_ver_cmd = qq{mysql -u$db_user  -e 'UPDATE db_version set db_version=$version' $db_name};
+    $update_ver_cmd .= " -p$db_pass"  if $db_pass;
+    $update_ver_cmd .= " -h$hostname" if defined $hostname;
+    $update_ver_cmd .= " -v"          if $verbose > 1;
     if ($dry_run) {
         print "$update_ver_cmd\n";
     }
