@@ -166,7 +166,7 @@ if (not $dry_run) {
                 die($msg);
             }
         } else {
-            die("Unable to access MySQL client.\n");
+            die("Unable to access MySQL client. The error returned was:\n$output\n");
         }
     }
 }
