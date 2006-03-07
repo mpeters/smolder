@@ -123,12 +123,15 @@ use Smolder::Conf qw(InstallRoot DBDriver DBName DBUser DBPass DBHost ApacheAddr
 
 use Getopt::Long;
 use Pod::Usage;
+# made available by smolder_build 
+use DBIx::DBH;
 
 my $help           = 0;
 my $man            = 0;
 my $admin_password = '';
 my $ip_address     = ApacheAddr;
 my $hostname       = DBHost;
+my $db_driver      = DBDriver || 'mysql';
 my $db_name        = DBName;
 my $db_user        = DBUser;
 my $db_pass        = DBPass;
@@ -154,34 +157,48 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
+our %DB_User = (
+    driver   => $db_driver, 
+    dbname   => DBName,
+    user     => $db_user,
+    password => $db_pass, 
+    host     => $hostname,
+);
+our %DB_Root = (
+    %DB_User, 
+    user     => 'root',
+    password => $admin_password,
+);
+
+# create re-usable, package scope handles
+our ($User_DBH, $Root_DBH);
+DBI->trace(1) if $verbose > 1;
+
 if ($dry_run) {
-    print "-- This is a DRY RUN. No SQL is actually being executed. \n".
+    print "-- This is a DRY RUN. No SQL is actually being executed.\n";
     print "-- These commands need to be run by the root database user\n";
 }
 
 if (not $dry_run) {
-    # make sure MySQL has what it needs
-    my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
-    $test_mysql .= " -p\"$admin_password\"" if $admin_password;
-    $test_mysql .= " -h$hostname"       if defined $hostname;
-    $test_mysql .= " 2>&1";
-    my $output = `$test_mysql`;
+    # make sure DB is accessible. 
+    $Root_DBH = DBIx::DBH->connect(%DB_Root);
+    my $output = $Root_DBH->errstr;
     unless ( $output =~ /hello.*world/s ) {
         if ( $output =~ /Access denied/ ) {
             if ( defined $admin_password ) {
-                my $msg = "MySQL root password '$admin_password' is not valid";
+                my $msg = "database root password '$admin_password' is not valid";
                 $msg .= "for this host '$hostname'.\n" if defined $hostname;
                 die($msg);
             } else {
                 my $msg =
-                    "Unable to connect to MySQL as root with no password.  "
+                    "Unable to connect to database as root with no password.  "
                   . "Maybe you need to use --password?";
                 $msg .= " or --hostname?" if not defined $hostname;
                 $msg .= "\n";
                 die($msg);
             }
         } else {
-            die("Unable to access MySQL client. The error returned was:\n$output\n");
+            die("Unable to access database. The error returned was:\n$output\n");
         }
     }
 }
@@ -202,66 +219,65 @@ if ($destroy) {
     }
 
     print STDERR "Dropping database '$db_name'...\n" if $verbose;
-    my $dropdb_cmd = "mysql -uroot -e 'DROP DATABASE IF EXISTS $db_name'";
-    $dropdb_cmd .= " -p\"$admin_password\"" if $admin_password;
-    $dropdb_cmd .= " -h$hostname"       if defined $hostname;
-    $dropdb_cmd .= " -v"                if $verbose > 1;
+
+    my $Root_DBH ||= DBIx::DBH->connect(%DB_Root);
+    my $dropdb_cmd = "DROP DATABASE IF EXISTS $db_name'";
     if ($dry_run) {
         print "$dropdb_cmd\n"
     }
     else {
         print "Running '$dropdb_cmd'\n" if $verbose > 1;
-        system($dropdb_cmd) && die "Couldn't drop database $db_name: $?";
+        $Root_DBH->do($dropdb_cmd) || die "Couldn't drop database $db_name: $?";
     }
 }
 
 exit 0 if $no_create;
 
 # skip if database exists
-my $db_exists_cmd = qq{mysql -u$db_user -e 'select "$db_name exists"' $db_name};
-$db_exists_cmd .= " -p$db_pass"  if defined $db_pass;
-$db_exists_cmd .= " -h$hostname" if defined $hostname;
-$db_exists_cmd .= " -v"          if $verbose > 1;
-$db_exists_cmd .= " 2>&1";
+my $db_exists_cmd = qq{select "$db_name exists"};
 print "Running '$db_exists_cmd'\n" if $verbose > 1;
 
+my $db_exists_result;
+if (not $dry_run) {
+    $User_DBH ||= DBIx::DBH->connect(%DB_User);
+    ($db_exists_result) = $User_DBH->selectrow_array($db_exists_cmd);
+}
+
 # if the database already exists
-if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
+if (($db_exists_result =~ /$db_name exists/)) {
     print "Database '$db_name' already exists, skipping create.\n";
 
     # else create the database
 } else {
     print STDERR "Creating database '$db_name'...\n" if $verbose;
-    my $createdb_cmd = "mysql -uroot -e 'CREATE DATABASE $db_name'";
-    $createdb_cmd .= " -p\"$admin_password\"" if $admin_password;
-    $createdb_cmd .= " -h$hostname"       if defined $hostname;
-    $createdb_cmd .= " -v"                if $verbose > 1;
+    my $createdb_cmd = "CREATE DATABASE $db_name;";
     if ($dry_run) {
         print "$createdb_cmd\n";
     }
     else {
         print "Running '$createdb_cmd'\n" if $verbose > 1;
-        system($createdb_cmd) && die "Couldn't create database: $?";
+        $Root_DBH ||= DBIx::DBH->connect(%DB_Root);
+        $Root_DBH->do($createdb_cmd) || die "Couldn't create database: $?";
     }
 
-    # grant access to the database to DBUser
-    my $grant_cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
+    # grant access to the database to DBUser 
+    if (DBDriver eq 'mysql') {
+        my $grant_cmd = qq{grant all on $db_name.* to "$db_user";};
 
-    # If we have a remote connection to MySQL restrict connections by IP. 
-    my $connect_from_host = (defined $hostname) ? $ip_address : "localhost";
+        # If we have a remote connection to MySQL restrict connections by IP. 
+        my $connect_from_host = (defined $hostname) ? $ip_address : "localhost";
 
-    $grant_cmd .= qq{\@'$connect_from_host'};
-    $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
-    $grant_cmd .= "'";
-    $grant_cmd .= " -p\"$admin_password\""           if $admin_password;
-    $grant_cmd .= " -h$hostname"                 if defined $hostname;
-    $grant_cmd .= " -v"                          if $verbose > 1;
-    if ($dry_run) {
-        print "$grant_cmd\n";
-    }
-    else {
-        print "Running '$grant_cmd'\n" if $verbose > 1;
-        system($grant_cmd) && die "Couldn't grant all: $?";
+        $grant_cmd .= qq{\@'$connect_from_host'};
+        $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
+        $grant_cmd .= "'";
+        if ($dry_run) {
+            print "$grant_cmd\n";
+        }
+        else {
+            print "Running '$grant_cmd'\n" if $verbose > 1;
+            $Root_DBH ||= DBIx::DBH->connect(%DB_Root);
+            $Root_DBH->do($grant_cmd) || die "Couldn't grant all: $?";
+        }
     }
 
     if ($dry_run) {
@@ -269,7 +285,9 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
     }
 
     # load all sql files as the DBUser
-    my $sql_dir = catdir( InstallRoot, 'sql' );
+    # Non-MySQL drivers are stored in subdirs based on their driver name.
+    my $driver_subdir = DBDriver unless (DBDriver eq 'mysql');
+    my $sql_dir = catdir( InstallRoot, 'sql', $driver_subdir );
     my $DIR;
     opendir( $DIR, $sql_dir ) or die "Could not open $sql_dir for reading! $!";
     while ( my $file = readdir($DIR) ) {
@@ -278,32 +296,31 @@ if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
         $file = catfile( $sql_dir, $file );
 
         print STDERR "Loading SQL for '$db_name' from $file...\n" if $verbose;
-        my $sql_file_cmd = "mysql -u$db_user $db_name ";
-        $sql_file_cmd .= " -p$db_pass"  if $db_pass;
-        $sql_file_cmd .= " -h$hostname" if defined $hostname;
-        $sql_file_cmd .= " -v"          if $verbose > 1;
-        $sql_file_cmd .= " < $file ";
+
+        # Slurp the file. 
+        my $sql = do { local( @ARGV, $/ ) = $file ; <> } ;
+
         if ($dry_run) {
-            print "$sql_file_cmd\n";
+            print "$sql\n";
         }
         else {
-            print "Running '$sql_file_cmd'\n" if $verbose > 1;
-            system($sql_file_cmd) && die "Couldn't load SQL: $?: $!";
+            print "Running '$sql'\n" if $verbose > 1;
+            $User_DBH ||= DBIx::DBH->connect(%DB_User);
+            # Maybe some drivers will barf on more than one command per "do"?
+            $User_DBH->do($sql) || die "Couldn't load SQL: $?: $!";
         }
     }
 
     # Set the db_version
     my $version = $Smolder::VERSION;
-    my $update_ver_cmd = qq{mysql -u$db_user  -e 'UPDATE db_version set db_version=$version' $db_name};
-    $update_ver_cmd .= " -p$db_pass"  if $db_pass;
-    $update_ver_cmd .= " -h$hostname" if defined $hostname;
-    $update_ver_cmd .= " -v"          if $verbose > 1;
+    my $update_ver_cmd = qq{UPDATE db_version set db_version=$version';};
     if ($dry_run) {
         print "$update_ver_cmd\n";
     }
     else {
         print "Running '$update_ver_cmd'\n" if $verbose > 1;
-        system($update_ver_cmd) && die "Couldn't update db_version: $?";
+        $User_DBH ||= DBIx::DBH->connect(%DB_User);
+        $User_DBH->do($update_ver_cmd) || die "Couldn't update db_version: $?";
     }
 }
 

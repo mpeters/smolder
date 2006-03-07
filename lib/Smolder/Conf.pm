@@ -9,6 +9,7 @@ BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
       ApacheAddr
       ApachePort
+      DBDriver  
       DBHost
       DBName
       DBPass
