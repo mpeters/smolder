@@ -596,7 +596,6 @@ sub configure_smolder {
     print "  Conf written to '$InstallPath/conf/smolder.conf'.\n";
 }
 
-# create the DB
 sub create_database {
     my $InstallPath = $options{InstallPath};
     chdir($InstallPath);
