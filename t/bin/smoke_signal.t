@@ -52,65 +52,69 @@ $out = `$bin --server something.tld --project $project_name --username $username
 like($out, qr/Could not reach/i);
 
 # non-existant project
-$out = `$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $test_file 2>&1`;
-like($out, qr/you are not a member of/i);
+SKIP: {
+    $out = `$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $test_file 2>&1`;
+    skip("Smolder not running", 14)
+        if( $out =~ /Received status 500/ );
+    like($out, qr/you are not a member of/i);
 
-# invalid login
-$out = `$bin --server $host --project "$project_name" --username $username --password asdf --file $test_file 2>&1`;
-like($out, qr/Could not login/i);
+    # invalid login
+    $out = `$bin --server $host --project "$project_name" --username $username --password asdf --file $test_file 2>&1`;
+    like($out, qr/Could not login/i);
 
-# non-project-member
-$out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
-like($out, qr/you are not a member of/i);
+    # non-project-member
+    $out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
+    like($out, qr/you are not a member of/i);
 
-# add this person to the project
-Smolder::DB::ProjectDeveloper->create({
-    project     => $project,
-    developer   => $dev,
-    preference  => create_preference(),
-});
-Smolder::DB->dbi_commit();
+    # add this person to the project
+    Smolder::DB::ProjectDeveloper->create({
+        project     => $project,
+        developer   => $dev,
+        preference  => create_preference(),
+    });
+    Smolder::DB->dbi_commit();
 
-# successfull upload
-$out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
-like($out, qr/successfully uploaded/i);
+    # successfull upload
+    $out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
+    like($out, qr/successfully uploaded/i);
 
-# make sure it's uploaded to the server
-$out =~ /as #(\d+)/;
-my $report_id = $1; 
-my $report = Smolder::DB::SmokeReport->retrieve($report_id);
-isa_ok($report, 'Smolder::DB::SmokeReport');
+    # make sure it's uploaded to the server
+    $out =~ /as #(\d+)/;
+    my $report_id = $1; 
+    my $report = Smolder::DB::SmokeReport->retrieve($report_id);
+    isa_ok($report, 'Smolder::DB::SmokeReport');
 
-# test optional options
-# comments
-my $comments = "Some tests";
-$out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" 2>&1`;
-like($out, qr/successfully uploaded/i);
-$out =~ /as #(\d+)/;
-$report_id = $1; 
-$report = Smolder::DB::SmokeReport->retrieve($report_id);
-is($report->comments, $comments);
+    # test optional options
+    # comments
+    my $comments = "Some tests";
+    $out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" 2>&1`;
+    like($out, qr/successfully uploaded/i);
+    $out =~ /as #(\d+)/;
+    $report_id = $1; 
+    $report = Smolder::DB::SmokeReport->retrieve($report_id);
+    is($report->comments, $comments);
 
-# platform
-my $platform = "my platform";
-$out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" 2>&1`;
-like($out, qr/successfully uploaded/i);
-$out =~ /as #(\d+)/;
-$report_id = $1; 
-$report = Smolder::DB::SmokeReport->retrieve($report_id);
-is($report->comments, $comments);
-is($report->platform, $platform);
+    # platform
+    my $platform = "my platform";
+    $out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" 2>&1`;
+    like($out, qr/successfully uploaded/i);
+    $out =~ /as #(\d+)/;
+    $report_id = $1; 
+    $report = Smolder::DB::SmokeReport->retrieve($report_id);
+    is($report->comments, $comments);
+    is($report->platform, $platform);
 
-# architecture
-my $arch = "128 bit something";
-$out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
-like($out, qr/successfully uploaded/i);
-$out =~ /as #(\d+)/;
-$report_id = $1; 
-$report = Smolder::DB::SmokeReport->retrieve($report_id);
-is($report->comments, $comments);
-is($report->platform, $platform);
-is($report->architecture, $arch);
+    # architecture
+    my $arch = "128 bit something";
+    $out = `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
+    like($out, qr/successfully uploaded/i);
+    $out =~ /as #(\d+)/;
+    $report_id = $1; 
+    $report = Smolder::DB::SmokeReport->retrieve($report_id);
+    is($report->comments, $comments);
+    is($report->platform, $platform);
+    is($report->architecture, $arch);
 
-# category
-# TODO - add a category
+    # category
+    # TODO - add a category
+}
