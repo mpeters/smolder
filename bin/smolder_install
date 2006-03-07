@@ -632,6 +632,8 @@ sub create_database {
     }
 }
 
+# "finishing" typically involves installing a control script
+# that gets run at startup/shutdown time to manage the service.
 sub finish_install {
     our $PLATFORM;
     $PLATFORM->finish_installation( options => \%options );
