@@ -127,7 +127,7 @@ sub usermod {
 
 }
 
-# setup init script in /etc/rc.d.
+# setup init script in /usr/local/etc/rc.d.
 sub finish_installation {
     my ($pkg, %arg) = @_;
     my %options = %{$arg{options}};
@@ -136,7 +136,7 @@ sub finish_installation {
     print "Installing Smolder init script '$init_script'\n";
 
     my $old = cwd;
-    chdir("/etc/rc.d");
+    chdir("/usr/local/etc/rc.d");
 
     my $InstallPath = $options{InstallPath};
     unlink $init_script if -e $init_script;
@@ -156,7 +156,7 @@ sub post_install_message {
     my $init_script = "smolder-" . $options{HostName};
 
     # return a note about setting up smolder_ctl on boot.
-    print "   Smolder has installed a control script in: /etc/rc.d/$init_script\n\n";
+    print "   Smolder has installed a control script in: /usr/local/etc/rc.d/$init_script\n\n";
 
 }
 
