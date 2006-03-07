@@ -74,9 +74,11 @@ Following is a list of the tasks the installer script will perform.
 
 =item Install Smolder
 
-=item Configure Smolder.
+=item Configure Smolder
 
-=item Add Smolder to init.d startup scripts.
+=item Create Database 
+
+=item Add Smolder to startup scripts.
 
 =item Start Smolder
 
