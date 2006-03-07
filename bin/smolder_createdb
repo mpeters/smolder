@@ -10,10 +10,16 @@ smolder_createdb
 
 =head1 SYNOPSIS
 
+Create the database for smolder.
+
+=head2 For MySQL
+
 Provide the MySQL root password, required if MySQL is configured to
 need one:
 
    smolder_createdb --password foobar
+
+=head2 By Hand
 
 If root access to the database is not directly available, you can instead print
 out the commands needs, and give them to someone with access to run manually.
@@ -52,7 +58,7 @@ Do not prompt user for confirmation on any events
 
 =item --password [pass]
 
-If you configured MySQL to require a root password then you'll need to
+If you configured your database to require a root password then you'll need to
 provide it here.
 
 =item --hostname [host]
@@ -62,10 +68,10 @@ provide it here.
 
 =item --ip_address [addr] 
 
-IP address of host connecting to MySQL. (Usually this matchine). By default we
-use the value of C<ApacheAddr> from <smolder.conf>, which defaults to
-C<127.0.0.1>. Connections to the smolder database will be allowed only from
-this machine.
+IP address of host connecting to the database server. (Usually this matchine).
+By default we use the value of C<ApacheAddr> from <smolder.conf>, which
+defaults to C<127.0.0.1>. Connections to the smolder database will be allowed
+only from this machine.
 
 =item --verbose
 
@@ -113,7 +119,7 @@ END
 }
 
 use Term::Prompt qw(prompt);
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost ApacheAddr);
+use Smolder::Conf qw(InstallRoot DBDriver DBName DBUser DBPass DBHost ApacheAddr);
 
 use Getopt::Long;
 use Pod::Usage;
@@ -150,7 +156,7 @@ pod2usage( -verbose => 2 ) if $man;
 
 if ($dry_run) {
     print "-- This is a DRY RUN. No SQL is actually being executed. \n".
-    print "-- These commands need to be run by the MySQL root user\n";
+    print "-- These commands need to be run by the root database user\n";
 }
 
 if (not $dry_run) {
