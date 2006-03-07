@@ -2,8 +2,6 @@
 FOR 0.1
 ====================
 
-+ add --check_all to smolder_src_dependency_check
-
 + fix some POD style issues leftover from Krang
 
 + top level Makefile for common tasks (make test, make db, etc)
