@@ -72,6 +72,6 @@ While testing upgrade modules it helps to be able to run them by hand,
 rather than as part of a full C<smolder_upgrade> run.  Here's how it's
 done, using V1_000.pm as an example:
 
-   KRANG_ROOT=`pwd` perl -Ilib -Iupgrade -MSmolder::Script \
+   SMOLDER_ROOT=`pwd` perl -Ilib -Iupgrade -MSmolder::Script \
    -MV1_000 -e 'V1_000->new()->upgrade()'
 
