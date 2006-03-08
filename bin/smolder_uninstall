@@ -103,18 +103,19 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
+# Must be running as root.
+exit_error("Must be run as root.") unless ( $> eq "0" );
+# Now, use root again, but with a different meaning... 
+my $root = InstallRoot();
+
 unless ($no_prompt) {
     exit 1
       unless prompt(
         "y",
-"This program will totally and permanently remove this Smolder installation.\n\nAre you sure you
-want to proceed?", "y/n", "y"
+"This program will totally and permanently remove this Smolder installation located at:\n\n$root\n\nAre you sure you want to proceed?", "y/n", "n"
       );
 }
 
-# Must be running as root.
-exit_error("Must be run as root.") unless ( $> eq "0" );
-my $root = InstallRoot();
 
 # stop Smolder services
 system("$root/bin/smolder_ctl stop");
