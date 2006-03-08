@@ -50,7 +50,7 @@ Following is a list of the tasks the installer script will perform.
 
 =item IP address must be configured on host.
 
-=item Check for proper version of MySQL.
+=item Check for proper version of the database
 
 =item AdminDBPass must be valid for this box
 
@@ -93,13 +93,14 @@ Following is a list of the tasks the installer script will perform.
  Required parameters:
   --HostName            - Host name used
   --IPAddress           - IP address used for HTTP
-  --DBUser              - MySQL user used by Smolder
-  --DBPass              - MySQL user password used by Smolder
-  --DBName              - MySQL database name used by Smolder
 
  Optional parameters:
+  --DBName              - Database name used by Smolder (Default: smolder)
+  --DBUser              - Database user used by Smolder (Default: smolder)
+  --DBPass              - Database user password used by Smolder (Default: smolder)
+  --DBDriver            - defaults to 'MySQL'. "SQLite" is also supported. 
   --AdminDBPass         - Password for the DB user "root"
-  --DBHost              - Host name for MySQL
+  --DBHost              - Host name for Database server
   --InstallPath         - Directory for Smolder install (Default: /usr/local/smolder)
   --User                - UNIX user for process ownership (Default: smolder)
   --Group               - UNIX group for process ownership (Default: smolder)
@@ -146,6 +147,7 @@ use Getopt::Long;
 use Pod::Usage;
 use HTML::Template;
 use File::Temp qw(tempdir);
+use DBIx::DBH;
 
 my @original_args = ();
 my $uniqueness    = time();
@@ -153,14 +155,15 @@ my ( $help, $man, $run_tests );
 my @req_params = qw(
   HostName
   IPAddress
-  DBUser
-  DBPass
-  DBName
 );
 
 my @opt_params = qw(
+  DBUser
+  DBPass
+  DBName
   FromBackup
   AdminDBPass
+  DBDriver
   DBHost
   InstallPath
   User
@@ -200,7 +203,7 @@ sub do_install {
     check_prereqs();
 
     # working here - must create all users spec'd in backup conf
-    create_mysql_user();
+    create_mysql_user() if ($options{'DBDriver'} eq 'mysql');
     create_unix_user_group();
     install_smolder();
     configure_smolder();
@@ -316,7 +319,7 @@ sub check_prereqs {
     print "Checking prerequisites\n";
 
     # check that the platform is set up right.  This will check Perl,
-    # MySQL and any libraries needed.
+    # Database and any libraries needed.
     $PLATFORM->verify_dependencies( mode => 'install' );
 
     # check IP address
@@ -353,25 +356,30 @@ sub check_prereqs {
         }
     }
 
-    # AdminDBPass must be valid, and MySQL should be running
+    # AdminDBPass must be valid, and Database should be accessible.  
     my $AdminDBPass = $options{'AdminDBPass'};
     my $DBHost      = $options{'DBHost'};
-    my $mysql_bin   = $MYSQL_BIN;
-    my $test_mysql  = $ECHO_BIN . " 'select \"world\" as hello' | $mysql_bin -uroot";
-    $test_mysql .= " -p$AdminDBPass" if ( length($AdminDBPass) );
-    $test_mysql .= " -h$DBHost"      if ( defined($DBHost) );
-    $test_mysql .= " 2>&1";
-    my $mysql_test_output = `$test_mysql`;
+    if ($options{'DBDriver'} eq 'mysql') {
+        my $mysql_bin   = $MYSQL_BIN;
+        my $test_mysql  = $ECHO_BIN . " 'select \"world\" as hello' | $mysql_bin -uroot";
+        $test_mysql .= " -p$AdminDBPass" if ( length($AdminDBPass) );
+        $test_mysql .= " -h$DBHost"      if ( defined($DBHost) );
+        $test_mysql .= " 2>&1";
+        my $mysql_test_output = `$test_mysql`;
 
-    unless ( ( $mysql_test_output =~ /hello/ ) and ( $mysql_test_output =~ /world/ ) ) {
-        print STDERR "$mysql_test_output";
-        if ( $mysql_test_output =~ /ERROR 1045: Access denied/ ) {
-            exit_error("AdminDBPass '$AdminDBPass' is not valid");
-        } elsif ( $mysql_test_output =~ /ERROR 2002: Can\'t connect/ ) {
-            exit_error("Can't connect to MySQL.  Start MySQL and try again.");
-        } else {
-            exit_error("Unable to verify AdminDBPass.");
+        unless ( ( $mysql_test_output =~ /hello/ ) and ( $mysql_test_output =~ /world/ ) ) {
+            print STDERR "$mysql_test_output";
+            if ( $mysql_test_output =~ /ERROR 1045: Access denied/ ) {
+                exit_error("AdminDBPass '$AdminDBPass' is not valid");
+            } elsif ( $mysql_test_output =~ /ERROR 2002: Can\'t connect/ ) {
+                exit_error("Can't connect to MySQL.  Start MySQL and try again.");
+            } else {
+                exit_error("Unable to verify AdminDBPass.");
+            }
         }
+    }
+    else {
+        # This kind if reality check code is already in smolder_createdb, so skip it here. 
     }
 }
 
@@ -603,27 +611,29 @@ sub create_database {
     chdir($InstallPath);
 
     if ( $options{FromBackup} ) {
-
         # load database SQL
         opendir( BACKUP, catdir( $ENV{SMOLDER_ROOT}, 'data', 'backup' ) )
           or die "Unable to open data/backup: $!";
         my @sql = grep { /\.sql$/ } readdir(BACKUP);
         closedir(BACKUP);
 
-        foreach my $sql (@sql) {
-            print "Creating MySQL database from backup source '$sql'.\n";
-            my $file = catfile( $ENV{SMOLDER_ROOT}, 'data', 'backup', $sql );
-            my $cmd = "cat $file | mysql -uroot ";
-            $cmd .= " -p$options{'AdminDBPass'}"
-              if length $options{'AdminDBPass'};
-            $cmd .= " -h$options{'DBHost'}"
-              if defined $options{'DBHost'};
-            system($cmd);
+        if ($options{DBDriver} eq 'mysql') {
+            foreach my $sql (@sql) {
+                print "Creating database from backup source '$sql'.\n";
+                my $file = catfile( $ENV{SMOLDER_ROOT}, 'data', 'backup', $sql );
+                my $cmd = "cat $file | mysql -uroot ";
+                $cmd .= " -p$options{'AdminDBPass'}" if length $options{'AdminDBPass'};
+                $cmd .= " -h$options{'DBHost'}" if defined $options{'DBHost'};
+                system($cmd);
+            }
+        }
+        else {
+            die "Restore from backup not implemented yet for driver $options{DBDriver}. Use the Source, Luke!";
         }
     } else {
 
         # Create DB
-        print "Creating MySQL database and loading schema\n";
+        print "Creating database and loading schema\n";
         my $AdminDBPass = $options{'AdminDBPass'};
         my $DBHost      = $options{'DBHost'};
         my $createdb    = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin/smolder_createdb ";
@@ -719,6 +729,7 @@ sub set_param_defaults {
         User        => 'smolder',
         Group       => 'smolder',
         ApachePort  => '80',
+        DBDriver    => 'mysql',
     );
 
     # Set up defaults if value is not otherwise set

@@ -76,8 +76,9 @@ END
 }
 
 use DBI;
-use Smolder::Conf qw(DBName DBHost);
+use Smolder::Conf qw(DBName DBHost DBDriver);
 use Pod::Usage qw(pod2usage);
+use DBIx::DBH;
 
 # setup the defaults
 my $password = '';
@@ -103,22 +104,32 @@ if ($help) {
     );
 }
 
+# NOTE: $db_host is currently ignored!
 my $db_name = DBName();
 my $db_host = DBHost();
 
 print "Dropping database: $db_name\n";
 
 eval {
-    my $dbh = DBI->connect( "dbi:mysql:mysql_read_default_group=client;database=$db_name",
-        'root', $password, { RaiseError => 1 } );
-
-    $dbh->do(qq/DROP DATABASE $db_name/);
+    my @connect;
+    if (DBDriver eq 'mysql') {
+       @connect = ( "dbi:mysql:mysql_read_default_group=client;database=$db_name", 'root', $password, { RaiseError => 1 });
+        my $dbh = DBI->connect(@connect);
+        $dbh->do(qq/DROP DATABASE $db_name/);
+    }
+    # Take a shortcut with SQLite and just remove the file... 
+    elsif (DBDriver eq 'SQLite') {
+      my $db_file = catdir($ENV{SMOLDER_ROOT}, 'data' , $db_name);
+      system("rm -f $db_file") == 0 or die "Error removing SQLite db: $db_file: $?";
+    }
+    else {
+        die "Driver unsupported: ".DBDriver;
+    }
 };
-
 if ( $@ =~ /Unknown database/ ) {
-
     # okay
-} elsif ($@) {
+} 
+elsif ($@) {
     die $@;
 }
 

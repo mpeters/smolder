@@ -164,6 +164,9 @@ our %DB_User = (
     password => $db_pass, 
     host     => $hostname,
 );
+# For SQLite, turn the DB name into a file path. 
+$DB_User{dbname} = catdir($ENV{SMOLDER_ROOT}, 'data', DBName) if ($db_driver eq 'SQLite');
+
 our %DB_Root = (
     %DB_User, 
     user     => 'root',
@@ -182,8 +185,9 @@ if ($dry_run) {
 if (not $dry_run) {
     # make sure DB is accessible. 
     $Root_DBH = DBIx::DBH->connect(%DB_Root);
+
     my $output = $Root_DBH->errstr;
-    unless ( $output =~ /hello.*world/s ) {
+    unless ( $Root_DBH ) {
         if ( $output =~ /Access denied/ ) {
             if ( defined $admin_password ) {
                 my $msg = "database root password '$admin_password' is not valid";
