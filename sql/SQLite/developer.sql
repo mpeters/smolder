@@ -1,12 +1,3 @@
--- 
--- Created by SQL::Translator::Producer::SQLite
--- Created on Mon Mar  6 20:46:08 2006
--- 
-BEGIN TRANSACTION;
-
---
--- Table: developer
---
 CREATE TABLE developer (
   id INTEGER PRIMARY KEY NOT NULL,
   username VARCHAR(255) NOT NULL DEFAULT '',
@@ -20,4 +11,3 @@ CREATE TABLE developer (
 
 CREATE INDEX i_preference_developer on developer (preference);
 CREATE UNIQUE INDEX unique_username_developer on developer (username);
-COMMIT;

@@ -1,12 +1,3 @@
--- 
--- Created by SQL::Translator::Producer::SQLite
--- Created on Mon Mar  6 20:46:19 2006
--- 
-BEGIN TRANSACTION;
-
---
--- Table: smoke_report
---
 CREATE TABLE smoke_report (
   id INTEGER PRIMARY KEY NOT NULL,
   project int(11) NOT NULL,
@@ -33,4 +24,3 @@ CREATE INDEX i_project_smoke_report on smoke_report (project);
 CREATE INDEX i_developer_smoke_report on smoke_report (developer);
 CREATE INDEX i_category_smoke_report on smoke_report (category);
 CREATE INDEX i_project_category_smoke_repor on smoke_report (project, category);
-COMMIT;
