@@ -748,6 +748,7 @@ sub set_param_defaults {
         Group       => 'smolder',
         ApachePort  => '80',
         DBDriver    => 'mysql',
+        DBName      => 'smolder',
     );
 
     # Set up defaults if value is not otherwise set
