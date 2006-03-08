@@ -1,10 +1,11 @@
 package Smolder::DB;
 use strict;
 use warnings;
-use base 'Class::DBI::mysql';
+use Smolder::Conf qw(DBDriver DBName DBUser DBPass DBHost);
+use DBIx::DBH;
+use base ("Class::DBI::".DBDriver);
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
-use Smolder::Conf qw(DBName DBUser DBPass DBHost);
 
 # these are needed for Class::DBI to recognize the db handle properly
 our $db_options = {
@@ -77,7 +78,11 @@ Returns a DBI database handle.
 =cut
 
 sub connect {
-    my $dsn = "dbi:mysql:database=" . DBName() . ";host=" . ( DBHost() || 'localhost' );
+    my $dsn = DBIx::DBH->form_dsn(
+        driver => DBDriver,
+        dbname => DBName,
+        host => ( DBHost() || 'localhost' ),
+    );
     return DBI->connect_cached( $dsn, DBUser(), DBPass(), $db_options );
 }
 
