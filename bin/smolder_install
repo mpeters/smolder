@@ -454,8 +454,26 @@ sub install_smolder {
 
     print "Installing Smolder files into '$InstallPath'\n";
 
+    my @dirs_to_copy = (qw/
+            apache
+            bench
+            bin
+            conf
+            data
+            docs
+            htdocs
+            lib
+            logs
+            platform
+            sql
+            src
+            swish-e
+            t
+            templates
+            upgrades/);
+
     chdir( $ENV{SMOLDER_ROOT} );
-    my $copy = $COPY_BIN . " -r * $InstallPath\/";
+    my $copy = $COPY_BIN . " -r ".(join ' ',@dirs_to_copy)." $InstallPath\/";
     system($copy) && die("Can't copy: $!");
 
     # remove scripts that won't do anything useful in an installed
