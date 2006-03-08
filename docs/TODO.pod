@@ -1,78 +1,108 @@
-====================
-FOR 0.1
-====================
+=head1 TODO
 
-+ fix some POD style issues leftover from Krang
+=head2 FOR 0.1
 
-+ top level Makefile for common tasks (make test, make db, etc)
+=over
 
-+ searchable HTML docs
+=item * fix some POD style issues leftover from Krang
 
-+ make sure backup works
-    + install from backup too
+=item * top level Makefile for common tasks (make test, make db, etc)
 
-+ Add support for plain TAP
+=item * make sure backup works (and install from backup)
 
-+ document all classes
-    + Controller classes
-    + document all run modes (templates used, etc)
+=item * Add support for plain TAP
 
-+ Add a decent logging mechanism
+=item * document all classes
 
-+ import/export projects (all data and reports)
+Controller classes
 
-+ Precompile all templates at startup
+Document all run modes (templates used, etc)
 
-+ Add paging to other listing pages admin_developers/admin_projects, etc
-    + possibly add sortable table as well
+=item * Add a decent logging mechanism (Log::Dispatch and C::A::P::LogDispatch)
 
-+ escape all data that is displayed that could have come from users to prevent XSS
+=item * Precompile all templates at startup
 
-+ view graphs by platform/architecture
+=item * escape all data that is displayed that could have come from users to prevent XSS
 
-+ add help tooltips where appropriate
+=item * view graphs by platform/architecture
 
-+ Add 'public' projects
-    + allow anonymous test reports from public
-        ?+ add extra 'anonymous' user
-    + show listing on front page
-    + show test reports to the public
+=item * rendering in other browsers besides FF
 
-+ rendering in other browsers besides FF
+=item * Add customization of graph start/end date for graphs to Project Admin Settings
 
-+ capture STDERR and associate with test files (will be done in Test::TAP::Model)
+=back
 
-+ make sure it buitls/runs/installs on as many *nix platforms as possible
+=head2 FOR 0.2
 
-====================
-BEYOND
-====================
+=over
 
-+ support for PostgreSQL and SQLite
+=item * searchable HTML docs
 
-+ builtin SSL support?
+=item * built-in SQLite support
 
-+ add some benchmarks so we can see how things perform as changes are made
+=item * import/export projects (all data and reports)
 
-+ add CSV download option for tests?
-    + for projects?    
+=item * Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)
 
-+ look at using an XML schema that isn't so tied to the internal representation
-  of Test::TAP::Model
+=item * Add 'public' projects
 
-+ add coverage reports 
-    ?+ related to smoke tests
+=over
 
-+ add benchmarks?
+=item * allow anonymous test reports from public (add extra 'anonymous' user?)
 
-+ add RSS feeds per project
+=item * show listing on front page
 
-+ look at making skinning easier so that organizations can brand it
+=item * show test reports/graphs to the public
 
-+ support for non AJAX browsers
+=back
 
-+ support for other databases
-    + built in SQLite ?
+=back
+
+=head2 FOR 1.0
+
+=item * make sure it builds/runs/installs on as many *nix platforms as possible
+
+=item * capture STDERR and associate with test files 
+
+needs changes to Test::Harness::Straps and Test::TAP::Model
+
+=item * add help tooltips where appropriate
+
+=over
+
+=back
+
+=head2 BEYOND
+
+=over
+
+=item * built-in SSL support?
+
+=item * add some benchmarks so we can see how things perform as changes are made
+
+=item * add CSV download option for tests (for projects?)    
+
+=item * look at using an XML schema that isn't so tied to the internal representation of Test::TAP::Model and Test::Harness::Straps
+
+=item * add coverage reports (related to smoke tests?)
+
+=item * add benchmark gathering?
+
+=item * add RSS feeds per project
+
+=item * look at making skinning easier so that organizations can brand it
+
+=item * verify and test support for non AJAX browsers
+
+=item * support for other databases (need developers to support them)
+
+=over
+
+=item * PostgreSQL
+
+=back
+
+=back
     
 
 
