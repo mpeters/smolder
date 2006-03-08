@@ -122,8 +122,8 @@ system("$root/bin/smolder_ctl stop");
 
 # drop all databases
 my $cmd = "$root/bin/smolder_dropdb";
-$cmd .= "--admin_db_user=$admin_db_user " if $admin_db_user;
-$cmd .= "--admin_db_pass=$admin_db_pass " if $admin_db_pass;
+$cmd .= " --admin_db_user=$admin_db_user " if $admin_db_user;
+$cmd .= " --admin_db_pass=$admin_db_pass " if $admin_db_pass;
 
 system($cmd) == 0
   or die "Unable to remove existing database: $?";
