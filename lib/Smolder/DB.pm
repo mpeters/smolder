@@ -6,6 +6,7 @@ use DBIx::DBH;
 use base ("Class::DBI::".DBDriver);
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
+use File::Spec;
 
 # these are needed for Class::DBI to recognize the db handle properly
 our $db_options = {
@@ -78,9 +79,19 @@ Returns a DBI database handle.
 =cut
 
 sub connect {
+    # For SQLite, turn the DB name into a path
+
+    my $dbname;
+    if (DBDriver eq 'SQLite') {
+        $dbname = File::Spec->catdir($ENV{SMOLDER_ROOT}, 'data', DBName);
+    }
+    else {
+        $dbname = DBName,
+    }
+
     my $dsn = DBIx::DBH->form_dsn(
         driver => DBDriver,
-        dbname => DBName,
+        dbname => $dbname,
         host => ( DBHost() || 'localhost' ),
     );
     return DBI->connect_cached( $dsn, DBUser(), DBPass(), $db_options );
