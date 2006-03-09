@@ -4,8 +4,6 @@
 
 =over
 
-=item * top level Makefile for common tasks (make test, make db, etc)
-
 =item * make sure backup works (and install from backup)
 
 =item * Add support for plain TAP

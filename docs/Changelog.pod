@@ -4,6 +4,8 @@
 
 =over
 
+=item * Added top-level Makefile as a shortcut to various actions/scripts - M. Peters
+
 =item * Explicitly set Expires headers for CSS/JS/Image to improve caching - M. Peters
 
 =item * Run tests as User/Group if we can - M. Peters
