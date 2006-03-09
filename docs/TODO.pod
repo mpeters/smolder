@@ -6,8 +6,6 @@
 
 =item * make sure backup works (and install from backup)
 
-=item * Add support for plain TAP
-
 =item * document all classes
 
 Controller classes
@@ -18,11 +16,9 @@ Document all run modes (templates used, etc)
 
 =item * Precompile all templates at startup
 
-=item * escape all data that is displayed that could have come from users to prevent XSS
+=item * Escape all data that is displayed that could have come from users to prevent XSS
 
-=item * view graphs by platform/architecture
-
-=item * rendering in other browsers besides FF
+=item * View graphs by platform/architecture
 
 =item * Add customization of graph start/end date for graphs to Project Admin Settings
 
@@ -31,6 +27,10 @@ Document all run modes (templates used, etc)
 =head2 FOR 0.2
 
 =over
+
+=item * Rendering in other browsers besides FF and KHTML
+
+=item * Add support for plain TAP
 
 =item * searchable HTML docs
 
