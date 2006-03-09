@@ -4,8 +4,6 @@
 
 =over
 
-=item * tests should switch to the smolder user if possible
-
 =item * fix some POD style issues leftover from Krang
 
 =item * top level Makefile for common tasks (make test, make db, etc)
