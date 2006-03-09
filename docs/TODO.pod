@@ -4,8 +4,6 @@
 
 =over
 
-=item * fix some POD style issues leftover from Krang
-
 =item * top level Makefile for common tasks (make test, make db, etc)
 
 =item * make sure backup works (and install from backup)
