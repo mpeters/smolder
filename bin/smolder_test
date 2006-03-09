@@ -66,6 +66,7 @@ END
         catfile( $FindBin::Bin, '..', 'lib', $Config{archname} ) );
 }
 
+use Smolder::Script;
 use Smolder::Conf qw(InstallRoot);
 use Test::Harness;
 use Test::TAP::XML;
