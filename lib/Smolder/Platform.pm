@@ -63,6 +63,23 @@ sub verify_dependencies {
 
     # check mysql
     $pkg->check_mysql();
+
+    # build lib/includes for following searches.
+    my @libs = split(" ", $Config{libpth});
+    my @lib_files;
+    foreach my $lib (@libs) {
+        opendir(DIR, $lib) or die $!;
+        push(@lib_files, grep { not -d $_ } readdir(DIR));
+        closedir(DIR);
+    }
+    my @incs = ($Config{usrinc}, '/include', '/usr/local/include');
+
+    # look for libgd
+    $pkg->check_libgd(
+        mode      => $mode,
+        lib_files => \@lib_files,
+        includes  => \@incs,
+    );
 }
 
 =head2 check_perl
@@ -137,6 +154,71 @@ END
       . "'mysql -V' returned:\n\n\t$mysql_version\n\n"
       unless $version >= 0.13;
 }
+
+=head2 check_libgd
+
+Checks for the existance of the libgd shared object and header files.
+
+Looks for libgd.so in the C<lib_files>. Looks for libgd.h in 
+C<includes>.
+
+    check_libgd(
+        lib_files => \@libs, 
+        includes  => \@incs, 
+        mode      => 'install',
+    );
+
+=cut
+
+sub check_libgd {
+
+    my ($pkg, %args) = @_;
+
+    $pkg->_check_libs(
+        %args,
+        h      => 'gd.h',
+        name   => 'libgd',
+        so     => 'libgd.so',
+        module => 'GD',
+    );
+}
+
+#
+# internal method to actually search for libraries.
+# takes 'so' and 'h' args for the files to look for.
+# takes 'includes' and 'lib_files' as the directories to search for
+# as well as the 'module' that needs the lib
+#
+
+sub _check_libs {
+
+    my ($pkg, %args) = @_;
+    my $mode = $args{mode};
+
+    my $name = $args{name};
+    my $so   = $args{so};
+    my $h    = $args{h};
+    my $mod  = $args{module};
+
+    if( $so ) {
+        my $re = qr/^$so/;
+
+        die "\n\n$name is missing from your system.\n".
+          "This library is required by Smolder.\n\n"
+            unless grep { /^$re/ } @{$args{lib_files}};
+    }
+
+    if( $h ) {
+        die <<END unless $mode eq 'install' or grep { -e catfile($_, $h) } @{$args{includes}};
+
+The header file for $name, '$h', is missing from your system.
+This file is needed to compile the $mod module which uses $name.
+
+END
+    }
+}
+
+
 
 =head2 find_bin
 
@@ -856,34 +938,6 @@ sub build_params {
     );
 }
 
-
-#
-# internal method to actually search for libraries.
-# takes 'so' and 'h' args for the files to look for.
-# takes 'includes' and 'lib_files' as the directories to search for.
-#
-
-sub _check_libs {
-
-    my ( $pkg, %args ) = @_;
-    my $mode = $args{mode};
-
-    my $name = $args{name};
-    my $so   = $args{so};
-    my $h    = $args{h};
-
-    my $re = qr/^$so/;
-
-    die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
-      unless grep { /^$re/ } @{ $args{lib_files} };
-    die <<END unless $mode eq 'install' or grep { -e catfile( $_, $h ) } @{ $args{includes} };
-
-The header file for $name, '$h', is missing from your system.
-This file is needed to compile the Imager module which uses $name.
-
-END
-
-}
 
 sub _load_expect {
 
