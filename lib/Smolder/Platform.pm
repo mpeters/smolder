@@ -800,10 +800,10 @@ contains all the options passed to C<smolder_install> (ex: InstallPath).
 
 sub finish_installation { }
 
-=head2 C<finish_upgrade()>
+=head2 finish_upgrade
 
 Anything that needs to be done at the end of an upgrade can be done
-here.  The default implementation does nothing.
+here. The default implementation does nothing.
 
 =cut
 
