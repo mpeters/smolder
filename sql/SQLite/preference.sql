@@ -3,3 +3,4 @@ CREATE TABLE preference (
   email_type ENUM(7) NOT NULL DEFAULT 'full',
   email_freq ENUM(7) NOT NULL DEFAULT 'on_new'
 );
+INSERT INTO preference (id) VALUES (1);
