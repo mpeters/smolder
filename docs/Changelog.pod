@@ -4,6 +4,8 @@
 
 =over
 
+=item * Check for libgd on install
+
 =item * FreeBSD control scripts moved from /etc/rc.d to /usr/local/etc/rc.d.  Currently there is no automatic migration of scripts previously installed in /etc/rc.d by smolder. - Mark Stosberg
 
 =back

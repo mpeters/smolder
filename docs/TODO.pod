@@ -4,8 +4,6 @@
 
 =over
 
-=item * test for libgd being installed during install
-
 =item * tests should switch to the smolder user if possible
 
 =item * fix some POD style issues leftover from Krang
