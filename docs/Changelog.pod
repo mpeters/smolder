@@ -4,9 +4,11 @@
 
 =over
 
-=item * Run tests as User/Group if we can - Michael Peters
+=item * Explicitly set Expires headers for CSS/JS/Image to improve caching - M. Peters
 
-=item * Check for libgd on install - Michael Peters
+=item * Run tests as User/Group if we can - M. Peters
+
+=item * Check for libgd on install - M. Peters
 
 =item * FreeBSD control scripts moved from /etc/rc.d to /usr/local/etc/rc.d.  Currently there is no automatic migration of scripts previously installed in /etc/rc.d by smolder. - Mark Stosberg
 
@@ -16,7 +18,7 @@
 
 =over
 
-=item * Added more missing Perl modules to src/ directory - Michael Peters
+=item * Added more missing Perl modules to src/ directory - M. Peters
 
 =item * Allow smolder_createdb to use MySQL root passwords with spaces - Matisse Enzer
 
@@ -30,7 +32,7 @@
 
 =item * Fixed building of GD.pm on FreeBSD - Mark Stosberg
 
-=item * Added missing Perl modules to src/ directory - Michael Peters
+=item * Added missing Perl modules to src/ directory - M. Peters
 
 =back
 

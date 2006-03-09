@@ -53,6 +53,7 @@ AddModule mod_env.c
 AddModule mod_log_config.c
 AddModule mod_mime_magic.c
 AddModule mod_mime.c
+AddModule mod_expires.c
 
 # AddModule mod_negotiation.c
 # AddModule mod_status.c
@@ -140,5 +141,19 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthToken developer
         Require valid-user
     </LocationMatch>
+
+    # set the Expires headers to improve caching of static stuff
+    <Location /images>
+        ExpiresActive on
+        ExpiresDefault "access plus 1 hour"
+    </Location>
+    <Location /js>
+        ExpiresActive on
+        ExpiresDefault "access plus 1 hour"
+    </Location>
+    <Location /style>
+        ExpiresActive on
+        ExpiresDefault "access plus 1 hour"
+    </Location>
 
 </VirtualHost>
