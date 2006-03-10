@@ -19,7 +19,7 @@
 <tr>
   <td><label [% IF c.dfv_msgs.err_architecture %]class="warn"[% END %]>Architecture</label></td>
   <td>
-    <input class="first" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch %]" />
+    <input class="first" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch | html %]" />
     <div class="auto_complete" id="architecture_auto_complete" />
   </td>
   [% IF c.dfv_msgs.err_architecture %]
@@ -31,7 +31,7 @@
 <tr>
   <td><label [% IF c.dfv_msgs.err_platform %]class="warn"[% END %]>Platform</label></td>
   <td>
-    <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform %]" />
+    <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform | html %]" />
     <div class="auto_complete" id="platform_auto_complete" />
   </td>
   [% IF c.dfv_msgs.err_platform %]
@@ -48,7 +48,7 @@
     <select name="category" id="category">
       <option value="">--none--</option>
       [% FOREACH category IN categories %]
-        <option value="[% category %]">[% category %]</option>
+        <option value="[% category | html %]">[% category | html %]</option>
       [% END %]
     </select>
   </td>

@@ -4,6 +4,8 @@
 
 =over
 
+=item * Reviewed all templates and fixed potential XSS issue with non escaped data - M. Peters
+
 =item * Added top-level Makefile as a shortcut to various actions/scripts - M. Peters
 
 =item * Explicitly set Expires headers for CSS/JS/Image to improve caching - M. Peters

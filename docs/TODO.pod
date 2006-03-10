@@ -16,8 +16,6 @@ Document all run modes (templates used, etc)
 
 =item * Precompile all templates at startup
 
-=item * Escape all data that is displayed that could have come from users to prevent XSS
-
 =item * View graphs by platform/architecture
 
 =item * Add customization of graph start/end date for graphs to Project Admin Settings

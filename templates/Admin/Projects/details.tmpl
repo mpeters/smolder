@@ -18,7 +18,7 @@
 <table class="boxed">
 <tr class="even">
   <td><label>Project Name</label></td>
-  <td>[% project.name %]</td>
+  <td>[% project.name | html %]</td>
 </tr>
 <tr>
   <td><label>Start Date</label></td>
@@ -34,7 +34,7 @@
   <td valign="top"><label>Project Admin(s)</label></td>
   <td>
     [% FOREACH admin IN project.admins %]
-      <a href="/app/admin_developers/details/[% admin.id %]">[% admin.username %]</a>[% UNLESS loop.last %],[% END %]
+      <a href="/app/admin_developers/details/[% admin.id %]">[% admin.username | html %]</a>[% UNLESS loop.last %],[% END %]
     [% END %]
   </td>
 </tr>
@@ -44,7 +44,7 @@
   <td valign="top">
     [% IF project.developers %]
         [% FOREACH developer IN project.developers %]
-            <a href="/app/admin_developers/details/[% developer.id %]">[% developer.username %]</a>[% UNLESS loop.last() %],[% END %]
+            <a href="/app/admin_developers/details/[% developer.id %]">[% developer.username | html %]</a>[% UNLESS loop.last() %],[% END %]
         [% END %]
     [% ELSE %]
         <em>none</em>

@@ -32,12 +32,12 @@
 <table width="300px">
   [% FOREACH cat IN categories %]
   <tr>
-    <td class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">[% cat %]</td>
+    <td class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">[% cat | html %]</td>
     <td>
       <a href="#" class="button popup_form" id="delete_cat_[% loop.index %]_trigger">Delete</a>
       <div id="delete_cat_[% loop.index %]" class="popup_form" style="position: absolute; display:none">
       <form action="/app/developer_projects/delete_category/[% project.id %]" class="ajaxable for_project_categories" name="delete_categories" method="post">
-        <input type="hidden" name="category" value="[% cat %]" />
+        <input type="hidden" name="category" value="[% cat | html %]" />
         [% IF categories.size > 1 %]
         Upon deletion, all reports uploaded as part of this category will be filed under
         the following category:
@@ -45,7 +45,7 @@
           <option value=''>--none--</option>
           [% FOREACH replacement IN categories %]
             [% IF replacement != cat %]
-            <option>[% replacement %]</option>
+            <option>[% replacement | html %]</option>
             [% END %]
           [% END %]
         </select>

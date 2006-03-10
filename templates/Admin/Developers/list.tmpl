@@ -19,9 +19,9 @@
     </tr>
     [% FOREACH developer IN developers %]
       <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
-        <td width="100px"><a href="/app/admin_developers/details/[% developer.id %]">[% developer.username %]</a></td>
-        <td width="180px">[% IF developer.lname %][% developer.lname %], [% END %][% developer.fname %]</td>
-        <td width="100px">[% developer.email %]</td>
+        <td width="100px"><a href="/app/admin_developers/details/[% developer.id %]">[% developer.username | html %]</a></td>
+        <td width="180px">[% IF developer.lname %][% developer.lname | html %], [% END %][% developer.fname | html %]</td>
+        <td width="100px">[% developer.email | html %]</td>
         <td width="80px">[% IF developer.admin %]Yes[% ELSE %]No[% END %]</td>
         <td width="50px"><a href="/app/admin_developers/edit/[% developer.id %]">[Edit]</a></td>
         <td width="60px">

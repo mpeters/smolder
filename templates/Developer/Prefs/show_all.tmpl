@@ -22,7 +22,7 @@
   [% FOREACH project IN c.developer.projects %]
   <div class="panel" id="panel_[% project.id %]">
     <div class="header" id="panel_[% project.id %]_header">
-        [% project.name %]
+        [% project.name | html %]
     </div>
     <div class="content" id="panel_[% project.id %]_content">
         [% PROCESS Developer/Prefs/pref_form.tmpl pref = c.developer.project_pref(project) %]

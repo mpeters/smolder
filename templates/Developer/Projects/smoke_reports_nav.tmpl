@@ -7,7 +7,7 @@
       <select name="category" class="auto_submit">
         <option value="">--none--</option>
         [% FOREACH cat IN cats %]
-          <option value="[% cat %]"[% IF category == cat %]selected="selected"[% END %]>[% cat %]</option>
+          <option value="[% cat | html %]"[% IF category == cat %]selected="selected"[% END %]>[% cat | html %]</option>
         [% END %]
       </select>
       </span>

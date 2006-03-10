@@ -58,7 +58,7 @@
     <select name="category" id="category">
     <option value="">--none--</option>
     [% FOREACH cat IN cats %]
-    <option value="[% cat %]">[% cat %]</option>
+    <option value="[% cat | html %]">[% cat | html %]</option>
     [% END %]
     </select>
   </td>
