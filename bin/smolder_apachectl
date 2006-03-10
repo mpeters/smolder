@@ -273,7 +273,7 @@ sub fix_perms {
     my $user  = $CONFIG->get('User');
     my $group = $CONFIG->get('Group');
 
-    system("chown -R $user.$group $dir") == 0
+    system("chown -R $user\:$group $dir") == 0
       or die "Could not change permissions on directory '$dir': $!";
 }
 

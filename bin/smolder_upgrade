@@ -361,7 +361,7 @@ sub install_new_smolder {
     print "  Fixing ownership\n";
     my $user  = $OLD_CONF->get("User");
     my $group = $OLD_CONF->get("Group");
-    my $chown = "$CHOWN_BIN -R $user\.$group $InstallPath";
+    my $chown = "$CHOWN_BIN -R $user\:$group $InstallPath";
     system($chown)
       && die("Can't update ownership, chown exited with error code $?\n");
 
@@ -420,7 +420,7 @@ sub update_version {
     print "  Fixing ownership of lib/Smolder.pm\n";
     my $User  = $OLD_CONF->get("User");
     my $Group = $OLD_CONF->get("Group");
-    my $chown = "$CHOWN_BIN $User\.$Group $InstallPath/lib/Smolder.pm";
+    my $chown = "$CHOWN_BIN $User\:$Group $InstallPath/lib/Smolder.pm";
     system($chown)
       && die("Can't update ownership of lib/Smolder.pm: chown exited with error code: $?\n");
 }
