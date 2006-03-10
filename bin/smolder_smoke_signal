@@ -34,7 +34,7 @@ helpful when using a CLI makes things faster.
 
 =item server
 
-This is the hostname of the running Smolder server.
+This is the hostname (and port if not 80) of the running Smolder server.
 
 =item project
 

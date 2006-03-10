@@ -2,7 +2,7 @@ use strict;
 use Test::More;
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
-use Smolder::Conf qw(InstallRoot HostName);
+use Smolder::Conf qw(InstallRoot HostName ApachePort);
 use Smolder::DB::SmokeReport;
 use Smolder::DB::ProjectDeveloper;
 use Smolder::TestData qw(
@@ -17,7 +17,7 @@ use Smolder::TestData qw(
 plan('no_plan');
 
 my $bin          = catfile(InstallRoot(), 'bin', 'smolder_smoke_signal');
-my $host         = HostName();
+my $host         = HostName() . ':' . ApachePort();
 my $project      = create_project();
 my $project_name = $project->name;
 my $pw           = 's3cr3t';
