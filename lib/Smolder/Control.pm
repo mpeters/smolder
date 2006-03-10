@@ -71,7 +71,7 @@ to determine which template to use. For instance:
 
     $self->tt_process({ arg1 => 'foo', arg2 => 'bar' });
 
-If this was done in the 'Smolder::Control::Foo' package for the 'list' run mode then
+If this was done in the C<Smolder::Control::Foo> package for the 'list' run mode then
 it would use the F<templates/Foo/list.tmpl> template. If you want to use a different template
 then you can explicitly specify it as well:
 
