@@ -90,10 +90,10 @@ use Getopt::Long;
 use Pod::Usage;
 use Sys::Hostname;
 use File::Path;
+use File::Copy::Recursive qw(dircopy);
 use Cwd qw(cwd);
 
-my $ROOT       = InstallRoot();
-my $DATA_DIR   = catdir( $ROOT, 'data' );
+my $DATA_DIR   = catdir( InstallRoot, 'data' );
 my $BACKUP_DIR = catdir( $DATA_DIR, 'backup' );
 
 my ( $help, $man, $compress );
@@ -104,8 +104,7 @@ GetOptions(
     'man'      => \$man,
     'verbose+' => \$verbose,
     'compress' => \$compress,
-  )
-  || pod2usage(2);
+) || pod2usage(2);
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
@@ -120,7 +119,7 @@ if ( @ARGV == 1 ) {
 } else {
     my ( $y, $m, $d ) = (localtime)[ 5, 4, 3 ];
     $file = sprintf(
-        'SMOLDER-%s-%04d%02d%02d.%s',
+        'smolder-%s-%04d%02d%02d.%s',
         hostname,
         ( $y + 1900 ),
         ( $m + 1 ),
@@ -142,25 +141,31 @@ my $cmd =
   . DBName
   . ">>$dump_file";
 
-# in case any addons are using InnoDB tables
 $cmd = "echo 'SET foreign_key_checks=0;' > $dump_file; $cmd";
 print STDERR "Dumping " . DBName . " database with command:" . "\n\t$cmd\n\n"
   if $verbose;
 system($cmd)
   && die "Dump of the MySQL databae failed. Please correct the error and try your backup again.\n";
 
+# now copy the XML smoke test files into the backup dir
+my $smoke_dir = catdir( InstallRoot, 'data', 'smoke_reports' );
+print STDERR "Copying XML store of smoke_reports from $smoke_dir...\n\n"
+    if $verbose;
+dircopy($smoke_dir, catdir( $BACKUP_DIR, 'smoke_reports' ))
+    or die "Could not copy '$smoke_dir': $!";
+
 # create .bak tar file
 my $full_file = rel2abs($file);
-my $cmd       = "tar cp"
+$cmd = "tar cp"
   . ( $verbose > 1 ? "v" : "" )
   . "f $full_file --exclude $full_file --exclude $file "
-  . ( $compress ? " --gzip " : "" ) . " .";
+  . ( $compress ? " --gzip " : "" ) . " backup";
 
 print STDERR "Creating backup archive with command:\n\t$cmd\n\n"
   if $verbose;
 
-# go to $ROOT if not already there and run the tar command
-chdir($ROOT) or die $!;
+# go to the DATA_DIR if not already there and run the tar command
+chdir($DATA_DIR) or die $!;
 system($cmd) && die "taring of data failed... Please try again\n";
 
 # clean up backup dir
