@@ -8,6 +8,8 @@
 #
 #   restart       - restart the smolder services
 #
+#   stop          - stop the smolder services
+#
 #   dist          - build a Smolder distribution for release
 #
 #   clean         - remove the results of a build
@@ -46,6 +48,9 @@ db:
 
 restart:
 	bin/smolder_ctl restart
+
+stop:
+	bin/smolder_ctl stop
 
 empty_trash:
 	- find . \( -name '*.bak' -or -name '*~' \) -exec rm {} \;
