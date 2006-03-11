@@ -1,0 +1,74 @@
+#developers {
+    height: 232px;
+    width: 200px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 5px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+div.draggable_developer {
+    cursor: move;
+    border: 1px solid #FFFFFF;
+}
+
+div.draggable_developer:hover {
+    border: 1px solid #888888;
+}
+
+#projects {
+    min-height: 330px;
+    width: 480px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 5px;
+    float: left;
+}
+
+div.droppable_project, div.droppable_project_active {
+    height: 220px;
+    width: 144px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #EEEEEE;
+    float:left;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+div.droppable_project_active {
+    background-color: #FFFAAA;
+}
+
+div.draggable_project_developer {
+    cursor: move;
+    border: 1px solid #EEEEEE;
+}
+
+div.draggable_project_developer:hover {
+    border: 1px solid #888888;
+}
+
+#droppable_trash_can {
+    height: 100px;
+    width: 200px;
+    border: 1px solid #888888;
+    border-left-color: #CCCCCC;
+    border-top-color: #CCCCCC;
+    background-color: #FFFFFF;
+    padding: 3px;
+    margin-right: 20px;
+    background-image: url("/images/garbage.jpeg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+#droppable_trash_can.active {
+    border-color: #C47147;
+}
+
