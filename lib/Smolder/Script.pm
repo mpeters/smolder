@@ -29,43 +29,51 @@ use Smolder::Conf qw(User Group InstallRoot);
 use Carp qw(croak);
 
 BEGIN {
+
     # make sure we are User/Group
 
     # get current uid/gid
     my $uid = $>;
-    my %gid = map { ($_ => 1) } split( ' ', $) );
+    my %gid = map { ( $_ => 1 ) } split( ' ', $) );
 
     # extract desired uid/gid
     my @uid_data = getpwnam(User);
-    warn("Unable to find user for User '" . User . "'."), exit(1)
+    warn( "Unable to find user for User '" . User . "'." ), exit(1)
       unless @uid_data;
     my $krang_uid = $uid_data[2];
-    my @gid_data = getgrnam(Group);
-    warn("Unable to find user for Group '" . Group . "'."), exit(1)
+    my @gid_data  = getgrnam(Group);
+    warn( "Unable to find user for Group '" . Group . "'." ), exit(1)
       unless @gid_data;
     my $krang_gid = $gid_data[2];
 
     # become User/Group if necessary
-    if ($gid{$krang_gid}) {
+    if ( $gid{$krang_gid} ) {
         eval { $) = $krang_gid; };
-        warn("Unable to become Group '" . Group . "' : $@\n" . 
-            "Maybe you need to start this process as root.\n") and exit(1)
+        warn(   "Unable to become Group '" . Group
+              . "' : $@\n"
+              . "Maybe you need to start this process as root.\n" )
+          and exit(1)
           if $@;
-        warn("Failed to become Group '" . Group . "' : $!.\n" .
-            "Maybe you need to start this process as root.\n") and exit(1)
+        warn(   "Failed to become Group '" . Group
+              . "' : $!.\n"
+              . "Maybe you need to start this process as root.\n" )
+          and exit(1)
           unless $) == $krang_gid;
     }
 
-    if ($uid != $krang_uid) {
+    if ( $uid != $krang_uid ) {
         eval { $> = $krang_uid; };
-        warn("Unable to become User '" . User . "' : $@\n" .
-            "Maybe you need to start this process as root.\n") and exit(1)
+        warn(   "Unable to become User '" . User
+              . "' : $@\n"
+              . "Maybe you need to start this process as root.\n" )
+          and exit(1)
           if $@;
-        warn("Failed to become User '" . User . "' : $!\n" .
-             "Maybe you need to start this process as root.\n") and exit(1)
+        warn(   "Failed to become User '" . User
+              . "' : $!\n"
+              . "Maybe you need to start this process as root.\n" )
+          and exit(1)
           unless $> == $krang_uid;
     }
 }
-
 
 1;

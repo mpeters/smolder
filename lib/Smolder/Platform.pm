@@ -65,14 +65,14 @@ sub verify_dependencies {
     $pkg->check_mysql();
 
     # build lib/includes for following searches.
-    my @libs = split(" ", $Config{libpth});
+    my @libs = split( " ", $Config{libpth} );
     my @lib_files;
     foreach my $lib (@libs) {
-        opendir(DIR, $lib) or die $!;
-        push(@lib_files, grep { not -d $_ } readdir(DIR));
+        opendir( DIR, $lib ) or die $!;
+        push( @lib_files, grep { not -d $_ } readdir(DIR) );
         closedir(DIR);
     }
-    my @incs = ($Config{usrinc}, '/include', '/usr/local/include');
+    my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
 
     # look for libgd
     $pkg->check_libgd(
@@ -172,7 +172,7 @@ C<includes>.
 
 sub check_libgd {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
 
     $pkg->_check_libs(
         %args,
@@ -192,7 +192,7 @@ sub check_libgd {
 
 sub _check_libs {
 
-    my ($pkg, %args) = @_;
+    my ( $pkg, %args ) = @_;
     my $mode = $args{mode};
 
     my $name = $args{name};
@@ -200,16 +200,15 @@ sub _check_libs {
     my $h    = $args{h};
     my $mod  = $args{module};
 
-    if( $so ) {
+    if ($so) {
         my $re = qr/^$so/;
 
-        die "\n\n$name is missing from your system.\n".
-          "This library is required by Smolder.\n\n"
-            unless grep { /^$re/ } @{$args{lib_files}};
+        die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
+          unless grep { /^$re/ } @{ $args{lib_files} };
     }
 
-    if( $h ) {
-        die <<END unless $mode eq 'install' or grep { -e catfile($_, $h) } @{$args{includes}};
+    if ($h) {
+        die <<END unless $mode eq 'install' or grep { -e catfile( $_, $h ) } @{ $args{includes} };
 
 The header file for $name, '$h', is missing from your system.
 This file is needed to compile the $mod module which uses $name.
@@ -217,8 +216,6 @@ This file is needed to compile the $mod module which uses $name.
 END
     }
 }
-
-
 
 =head2 find_bin
 
@@ -480,8 +477,10 @@ sub build_perl_module {
       "\n\n************************************************\n\n";
 
     my $EXTRA_ARGS = '';
+
     # Net::SSLeay needs this to find openssl
     $EXTRA_ARGS = '/usr -- ' if $name =~ /Net_SSLeay/;
+
     # Net::FTPServer needs this to not try to install /etc/ftp.conf
     local $ENV{NOCONF} = 1 if $name =~ /Net-FTPServer/;
 
@@ -500,11 +499,11 @@ sub build_perl_module {
         $make_cmd = './Build';
     } else {
         $cmd =
-          "$^X Makefile.PL $EXTRA_ARGS "
-        . "LIB=$dest_dir "
-        . "PREFIX=$trash_dir "
-        . "INSTALLMAN3DIR=' ' "
-        . "INSTALLMAN1DIR=' '";
+            "$^X Makefile.PL $EXTRA_ARGS "
+          . "LIB=$dest_dir "
+          . "PREFIX=$trash_dir "
+          . "INSTALLMAN3DIR=' ' "
+          . "INSTALLMAN1DIR=' '";
         $make_cmd = 'make';
     }
 
@@ -573,13 +572,14 @@ sub perl_module_questions {
         "Do you want to use the XS Stash for all Templates?" => 'y',
         "Do you want to enable the latex filter?"            => 'n',
         "Do you want to install these components?"           => 'n',
+
         # all Smolder graphs are PNGs, and this is a private copy
-        "Build PNG support? [y]"                             => 'y',
-        "Build JPEG support? [y]"                            => 'n',
-        "Build FreeType support? [y]"                        => 'n',
-        "Build support for animated GIFs? [y]"               => 'n',
-        "Build XPM support? [y]"                             => 'n',
-        "Where is libgd installed? [/usr/lib]"               => '/usr/lib',
+        "Build PNG support? [y]"               => 'y',
+        "Build JPEG support? [y]"              => 'n',
+        "Build FreeType support? [y]"          => 'n',
+        "Build support for animated GIFs? [y]" => 'n',
+        "Build XPM support? [y]"               => 'n',
+        "Where is libgd installed? [/usr/lib]" => '/usr/lib',
     };
 }
 
@@ -938,7 +938,6 @@ sub build_params {
         Arch     => $arch
     );
 }
-
 
 sub _load_expect {
 

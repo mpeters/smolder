@@ -183,18 +183,18 @@ sub _create_progress_gd {
 
     # set the font to arial
     my $font = GD::Text->new();
-    $font->font_path(catdir(InstallRoot, 'data', 'fonts'));
-    $font->set_font('arial', 12) or croak("Can't set font: " . $font->error);
+    $font->font_path( catdir( InstallRoot, 'data', 'fonts' ) );
+    $font->set_font( 'arial', 12 ) or croak( "Can't set font: " . $font->error );
     $font->is_ttf() or croak("Font didn't really load!");
 
     # setup fonts
-    $graph->set_title_font('arialbd', 12)  or croak("Can't set font: " . $graph->error);
-    $graph->set_legend_font('arial', 10)  or croak("Can't set font: " . $graph->error);
-    $graph->set_x_label_font('arial', 10) or croak("Can't set font: " . $graph->error);
-    $graph->set_y_label_font('arial', 10) or croak("Can't set font: " . $graph->error);
-    $graph->set_x_axis_font('arial', 10)  or croak("Can't set font: " . $graph->error);
-    $graph->set_y_axis_font('arial', 10)  or croak("Can't set font: " . $graph->error);
-    $graph->set_values_font('arial', 10)  or croak("Can't set font: " . $graph->error);
+    $graph->set_title_font( 'arialbd', 12 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_legend_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_x_label_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_y_label_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_x_axis_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_y_axis_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
+    $graph->set_values_font( 'arial', 10 ) or croak( "Can't set font: " . $graph->error );
 
     my $gd = $graph->plot($data)
       or die "Could not plot graph into GD object! - " . $graph->error();
