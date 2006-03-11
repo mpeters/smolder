@@ -93,11 +93,11 @@ Following is a list of the tasks the installer script will perform.
  Required parameters:
   --HostName            - Host name used
   --IPAddress           - IP address used for HTTP
-  --DBUser              - MySQL user used by Smolder
-  --DBPass              - MySQL user password used by Smolder
-  --DBName              - MySQL database name used by Smolder
 
  Optional parameters:
+  --DBUser              - MySQL user used by Smolder (Default: smolder)
+  --DBPass              - MySQL user password used by Smolder (Default: smolder)
+  --DBName              - MySQL database name used by Smolder (Default: smolder)
   --AdminDBPass         - Password for the DB user "root"
   --DBHost              - Host name for MySQL
   --InstallPath         - Directory for Smolder install (Default: /usr/local/smolder)
@@ -146,6 +146,7 @@ use Getopt::Long;
 use Pod::Usage;
 use HTML::Template;
 use File::Temp qw(tempdir);
+use File::Copy::Recursive qw(dircopy);
 
 my @original_args = ();
 my $uniqueness    = time();
@@ -153,12 +154,12 @@ my ( $help, $man, $run_tests );
 my @req_params = qw(
   HostName
   IPAddress
-  DBUser
-  DBPass
-  DBName
 );
 
 my @opt_params = qw(
+  DBUser
+  DBPass
+  DBName
   FromBackup
   AdminDBPass
   DBHost
@@ -170,6 +171,8 @@ my @opt_params = qw(
   SMTPHost
   verbose
 );
+
+my ($backup_dir, $backup_conf);
 
 my %options = ( map { $_ => undef } @req_params, @opt_params );
 
@@ -214,13 +217,10 @@ sub do_install {
 # open up the backup file, if one is specified, and load unspecified
 # values from the config
 sub unpack_backup {
-    our $BACKUP_DIR;
-    our $BACKUP_CONF;
-    our @BACKUP_INSTANCES;
 
     # open up the backup
     my $bak = $options{'FromBackup'};
-    exit_error("FromBackup file '$bak' should end in .kba or .kba.gz")
+    exit_error("FromBackup file '$bak' should end in .bak or .bak.gz")
       unless $bak =~ /\.bak\.gz$/
       or $bak     =~ /\.bak$/;
     exit_error("FromBackup file '$bak' does not exist.")
@@ -228,35 +228,39 @@ sub unpack_backup {
     $bak = rel2abs($bak);
 
     # make temp directory for backup files
-    $BACKUP_DIR = tempdir(
+    $backup_dir = tempdir(
         CLEANUP => 1,
         DIR     => catdir( $ENV{SMOLDER_ROOT}, 'tmp' )
     );
 
     print "Unpacking backup file '$bak'.\n";
-    my $cmd = "tar -x" . ( $bak =~ /gz$/ ? 'z' : '' ) . "f $bak -C $BACKUP_DIR";
-    system($cmd) && die("Error un-tarring file '$bak' to '$BACKUP_DIR'.\n");
+    my $cmd = "tar -x" . ( $bak =~ /gz$/ ? 'z' : '' ) . "f $bak -C $backup_dir";
+    system($cmd) && die("Error un-tarring file '$bak' to '$backup_dir'.\n");
     exit_error("FromBackup file '$bak' is not a valid backup - missing conf/smolder.conf.")
-      unless -e catfile( $BACKUP_DIR, 'conf', 'smolder.conf' );
+      unless -e catfile( $backup_dir, 'backup', 'conf', 'smolder.conf' );
 
     # make sure the versions match
-    my $this_version   = _get_version("$ENV{SMOLDER_ROOT}/lib/Smolder.pm");
-    my $backup_version = _get_version("$BACKUP_DIR/lib/Smolder.pm");
+    my ($backup_version, $this_version);
+    my $ver_file = catfile( $backup_dir, 'backup', 'version' );
+    my $VER_FH;
+    open($VER_FH, $ver_file) or die "Could not open file '$ver_file': $!";
+    $backup_version = <$VER_FH>;
+    close($VER_FH);
+    chomp($backup_version);
+    $this_version = $Smolder::VERSION;
     exit_error(
-"Backup file '$bak' was made with version '$backup_version' of Smolder!  This is version '$this_version'."
-      )
-      unless $this_version == $backup_version;
+        "Backup file '$bak' was made with version '$backup_version' of Smolder! "
+        . "This is version '$this_version'."
+    ) unless $this_version == $backup_version;
 
     # load configuration file from backup to get defaults
     print "Loading backup configuration.\n";
     require Config::ApacheFormat;
-    $BACKUP_CONF = Config::ApacheFormat->new();
-    $BACKUP_CONF->read( catfile( $BACKUP_DIR, 'conf', 'smolder.conf' ) );
+    $backup_conf = Config::ApacheFormat->new();
+    $backup_conf->read( catfile( $backup_dir, 'backup', 'conf', 'smolder.conf' ) );
 
     # load option defaults from conf
     my @backup_options = qw(
-      HostName
-      IPAddress
       DBUser
       DBName
       User
@@ -266,16 +270,8 @@ sub unpack_backup {
     );
 
     foreach my $opt (@backup_options) {
-        $options{$opt} ||= $BACKUP_CONF->get($opt);
+        $options{$opt} ||= $backup_conf->get($opt);
     }
-
-    # set SMOLDER_ROOT to backup directory so backup will flow from there
-    $ENV{SMOLDER_ROOT} = $BACKUP_DIR;
-}
-
-# extract a version number from Smolder.pm
-sub _get_version {
-    `perl -e 'require qq{$_[0]}; print \$Smolder::VERSION'`;
 }
 
 # load the platform module for this dist
@@ -474,6 +470,14 @@ sub install_smolder {
         }
     }
 
+    # if we have a backup then copy those data files
+    if( $options{FromBackup} ) {
+        dircopy(
+            catdir($backup_dir, 'backup', 'smoke_reports'),
+            catdir($InstallPath, 'data', 'smoke_reports'),
+        ) or die "Could not copy data from backup: $!";
+    }
+
     print "  Fixing ownership\n";
     my $User  = $options{User};
     my $Group = $options{Group};
@@ -605,21 +609,14 @@ sub create_database {
     if ( $options{FromBackup} ) {
 
         # load database SQL
-        opendir( BACKUP, catdir( $ENV{SMOLDER_ROOT}, 'data', 'backup' ) )
-          or die "Unable to open data/backup: $!";
-        my @sql = grep { /\.sql$/ } readdir(BACKUP);
-        closedir(BACKUP);
-
-        foreach my $sql (@sql) {
-            print "Creating MySQL database from backup source '$sql'.\n";
-            my $file = catfile( $ENV{SMOLDER_ROOT}, 'data', 'backup', $sql );
-            my $cmd = "cat $file | mysql -uroot ";
-            $cmd .= " -p$options{'AdminDBPass'}"
-              if length $options{'AdminDBPass'};
-            $cmd .= " -h$options{'DBHost'}"
-              if defined $options{'DBHost'};
-            system($cmd);
-        }
+        my $sql_bak = catfile($backup_dir, 'backup', 'dump.sql');
+        print "Creating MySQL database from backup source '$sql_bak'.\n";
+        my $cmd = "mysql -uroot ";
+        $cmd .= " -p$options{'AdminDBPass'}"
+          if length $options{'AdminDBPass'};
+        $cmd .= " -h$options{'DBHost'}"
+          if defined $options{'DBHost'};
+        system("$cmd < $sql_bak");
     } else {
 
         # Create DB
@@ -719,6 +716,9 @@ sub set_param_defaults {
         User        => 'smolder',
         Group       => 'smolder',
         ApachePort  => '80',
+        DBName      => 'smolder',
+        DBUser      => 'smolder',
+        DBPass      => 'smolder',
     );
 
     # Set up defaults if value is not otherwise set

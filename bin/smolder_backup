@@ -85,13 +85,15 @@ $@
 END
 }
 
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
+use Cwd qw(cwd);
+use File::Copy qw(copy);
+use File::Copy::Recursive qw(dircopy);
+use File::Path;
 use Getopt::Long;
 use Pod::Usage;
+use Smolder;
+use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Sys::Hostname;
-use File::Path;
-use File::Copy::Recursive qw(dircopy);
-use Cwd qw(cwd);
 
 my $DATA_DIR   = catdir( InstallRoot, 'data' );
 my $BACKUP_DIR = catdir( $DATA_DIR, 'backup' );
@@ -146,6 +148,21 @@ print STDERR "Dumping " . DBName . " database with command:" . "\n\t$cmd\n\n"
   if $verbose;
 system($cmd)
   && die "Dump of the MySQL databae failed. Please correct the error and try your backup again.\n";
+
+# copy our smolder.conf
+my $conf_dir = catdir($BACKUP_DIR, 'conf');
+print STDERR "Copying smolder.conf...\n\n" if( $verbose );
+mkdir($conf_dir) or die "Could not create directory '$conf_dir': $!";
+copy(catfile(InstallRoot, 'conf', 'smolder.conf'), catfile($conf_dir, 'smolder.conf'))
+    or die "Could not copy smolder.conf to '$conf_dir': $!";
+
+# write out the version number
+print STDERR "Saving version '$Smolder::VERSION'...\n" if( $verbose );
+my $version_file = catfile($BACKUP_DIR, 'version');
+my $VER;
+open($VER, ">$version_file") or die "Could not open file '$version_file': $!";
+print $VER "$Smolder::VERSION\n";
+close($VER);
 
 # now copy the XML smoke test files into the backup dir
 my $smoke_dir = catdir( InstallRoot, 'data', 'smoke_reports' );
