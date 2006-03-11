@@ -4,6 +4,8 @@
 
 =over
 
+=item * Fixed smolder_backup and smolder_install to work together and allow installation from a backup - M. Peters
+
 =item * Reviewed all templates and fixed potential XSS issue with non escaped data - M. Peters
 
 =item * Added top-level Makefile as a shortcut to various actions/scripts - M. Peters
