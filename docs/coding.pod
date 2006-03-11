@@ -41,13 +41,19 @@ cases C<perltidy> can introduce bugs).  The project uses the following
 C<perltidy> settings.
 
     -i=4
-    -b
     -pt=1
     -ci=2
     -ce
     -bt=1
     -sbt=1
     -l=100
+
+If you use the supplied Makefile, you won't have to worry since it knows
+about these project specific settings:
+
+    make tidy
+or
+    make tidy_modified
 
 =back
 
