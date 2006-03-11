@@ -47,7 +47,7 @@ db:
 restart:
 	bin/smolder_ctl restart
 
-perltidy:
+tidy:
 	- find lib/Smolder/ -name '*.pm' | xargs perltidy -b
 	- find t/ -name '*.t' | xargs perltidy -b
 
