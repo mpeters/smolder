@@ -47,15 +47,15 @@ db:
 restart:
 	bin/smolder_ctl restart
 
-tidy:
-	- find lib/Smolder/ -name '*.pm' | xargs perltidy -b
-	- find t/ -name '*.t' | xargs perltidy -b
-
 empty_trash:
 	- find . \( -name '*.bak' -or -name '*~' \) -exec rm {} \;
 	- find tmp/ -mindepth 1 -maxdepth 1 ! \( -name '.svn' -o -name '*.conf' -o -name '*.pid' \) -exec rm -rf {} \;
 
+tidy:
+	- find lib/Smolder/ -name '*.pm' | xargs perltidy -b -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
+	- find t/ -name '*.t' | xargs perltidy -b -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
+
 tidy_modified:
-	svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy
+	svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
 
 .PHONY : all dist test clean docs build upgrade
