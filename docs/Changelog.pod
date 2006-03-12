@@ -4,6 +4,8 @@
 
 =over
 
+=item * Added logging to Apache::Log via Log::Dispatch and CGI::Application::Plugin::LogDispatch - M. Peters
+
 =item * Fixed smolder_backup and smolder_install to work together and allow installation from a backup - M. Peters
 
 =item * Reviewed all templates and fixed potential XSS issue with non escaped data - M. Peters

@@ -157,7 +157,7 @@ sub process_add_report {
 
     # if we couldn't create a model of the test
     if ( !$report_model ) {
-        warn "Could not create Test::TAP::XML from uploaded file! $@";
+        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $@");
         unlink( $valid->{report_file} );
         return $self->add_report(
             {

@@ -56,7 +56,7 @@ sub process_reset_pw {
     );
     if ($error) {
         my $msg = "Could not send 'reset_pw' email to " . $developer->email . "!";
-        warn "[WARN] - $msg - $error";
+        $self->log->warning("[WARN] - $msg - $error");
         return $self->error_message($msg);
     } else {
         return $self->details( $developer, 'reset_pw' );

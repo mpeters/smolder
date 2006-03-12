@@ -107,10 +107,11 @@ sub process_forgot_pw {
             },
         );
 
-        warn "\n\nNEW PASSWORD FOR DEVELOPER #"
-          . $developer->id . " ("
-          . $developer->username
-          . ") is '$new_pw'\n\n";
+        if( $self->log->would_log('debug') ) {
+            $self->log->debug(
+                "New password for developer " . $developer->username . " is '$new_pw'"
+            );
+        }
         $tt_params->{success} = 1;
         $tt_params->{email}   = $developer->email;
     } else {

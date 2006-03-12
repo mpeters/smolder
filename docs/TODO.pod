@@ -10,8 +10,6 @@ Controller classes
 
 Document all run modes (templates used, etc)
 
-=item * Add a decent logging mechanism (Log::Dispatch and C::A::P::LogDispatch)
-
 =item * Precompile all templates at startup
 
 =item * View graphs by platform/architecture
@@ -59,6 +57,8 @@ Document all run modes (templates used, etc)
 needs changes to Test::Harness::Straps and Test::TAP::Model
 
 =item * add help tooltips where appropriate
+
+=item * optional logging of critical problems to email?
 
 =over
 

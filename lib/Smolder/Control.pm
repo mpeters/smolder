@@ -5,6 +5,7 @@ use base 'CGI::Application';
 use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::LogDispatch;
 
 #use CGI::Application::Plugin::DebugScreen;
 use CGI::Application::Plugin::HTMLPrototype;
@@ -14,11 +15,23 @@ use File::Spec::Functions qw(catdir catfile);
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
 
-# it's all dynamic, so don't let the browser cache anything
+# turn off caching and setup our logging
 __PACKAGE__->add_callback(
     init => sub {
+        # it's all dynamic, so don't let the browser cache anything
         my $self = shift;
         $self->param('r')->no_cache(1);
+
+        # setup log dispatch to use Apache::Log
+        $self->log_config(
+            APPEND_NEWLINE       => 1,
+            LOG_DISPATCH_MODULES => [{
+                module          => 'Log::Dispatch::ApacheLog',
+                name            => 'apache_log',
+                min_level       => 'debug',
+                apache          => $self->param('r'),
+            }],
+        );
     }
 );
 
@@ -58,7 +71,7 @@ messages, but rather to display un-recoverable and un-expected occurances.
 
 sub error_message {
     my ( $self, $msg ) = @_;
-    warn "An error occurred: $msg";
+    $self->log->warning("An error occurred: $msg");
     return $self->tt_process( 'error_message.tmpl', { message => $msg, }, );
 }
 
