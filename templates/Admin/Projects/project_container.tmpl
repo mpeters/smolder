@@ -4,7 +4,7 @@
     -
   <a style="text-decoration: none" href="#" class="very_small popup_form" id="admin_form_[% project.id %]_trigger">Admins?</a>
   <div id="admin_form_[% project.id %]" class="popup_form" style="display:none; position: absolute;">
-    <form class="ajaxable for_project_container_[% project.id %] show_pc_indicator_[% project.id %]" action="/app/admin_projects/change_admins/[% project.id %]" method="post">
+    <form class="ajaxable for_project_container_[% project.id %]" action="/app/admin_projects/change_admins/[% project.id %]" method="post">
       <input type="hidden" name="project" value="[% project.id %]" />
       <table>
         <tr>
@@ -19,7 +19,6 @@
         [% END %]
         <tr>
           <td colspan="2" align="right">
-            <img src="/images/indicator.gif" style="display:none" class="indicator" id="pc_indicator_[% project.id %]" alt="loading" />
             <input type="submit" value="Submit Changes" />
           </td>
         </tr>
