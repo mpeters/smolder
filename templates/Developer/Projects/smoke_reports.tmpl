@@ -14,7 +14,7 @@
 <div class="fake_accordion" id="accordion_reports" style="margin-top: 25px">
   [% FOREACH report IN reports %]
   <div class="panel" id="smoke_test_[% report.id %]">
-    [% INCLUDE Developer/Projects/smoke_report.tmpl %]
+    [% INCLUDE Developer/Projects/smoke_report_details.tmpl %]
   </div>
   [% END %]
 </div>

@@ -218,7 +218,7 @@ sub smoke_report {
         return $self->error_message('Unauthorized for this project');
     }
 
-    return $self->tt_process({ report => $smoke });
+    return $self->tt_process({ report => $smoke, project => $project });
 }
 
 sub smoke_reports {
