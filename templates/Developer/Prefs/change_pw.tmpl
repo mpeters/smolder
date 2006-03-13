@@ -11,7 +11,7 @@
 [% END %]
 
 <div class="boxed">
-<form action="/app/developer_prefs/process_change_pw" class="ajaxable" name="change_pw" id="change_pw" method="post">
+<form action="/app/developer_prefs/process_change_pw" class="ajaxable show_indicator" name="change_pw" id="change_pw" method="post">
 <table>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_current_pw %] warn[% END %]">Current Password *</label></td>
@@ -42,6 +42,7 @@
 </tr>
 <tr>
   <td colspan="2" align="right">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
     <input type="submit" value="Change Password" />
   </td>
 </tr>

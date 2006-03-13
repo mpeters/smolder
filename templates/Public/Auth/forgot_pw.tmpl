@@ -2,7 +2,7 @@
 
 [% PROCESS form_header.tmpl %]
 
-<form class="ajaxable" id="forgot_pw" name="forgot_pw" action="/app/public_auth/process_forgot_pw" method="post">
+<form class="ajaxable show_indicator" id="forgot_pw" name="forgot_pw" action="/app/public_auth/process_forgot_pw" method="post">
 
 [% IF success %]
   <p class="warn">
@@ -23,7 +23,10 @@
   [% END %]
 </tr>
 <tr>
-  <td colspan="2" align="right"><input type="submit" id="submit" value="Reset" /></td>
+  <td colspan="2" align="right">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
+    <input type="submit" id="submit" value="Reset" />
+  </td>
 </tr>
 </table>
 </form>

@@ -92,24 +92,39 @@ var myrules = {
     // If no target is specified, then it will default to "content"
     'a.ajaxable' : function(element) {
         var divId;
+
+        // find which div it targets
         var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
         if( matches != null )
             divId = matches[2];
 
+        // find which indicator it uses
+        var indicatorId;
+        matches = element.className.match(/(^|\s)show_([^\s]+)($|\s)/);
+        if( matches != null )
+            indicatorId = matches[2];
+
         element.onclick = function(event) {
-            ajax_submit(element.href, divId);
+            ajax_submit(element.href, divId, indicatorId);
             return false;
         }
     },
 
     'form.ajaxable' : function(element) {
+        // find which div it targets
         var divId;
         var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
         if( matches != null )
             divId = matches[2];
 
+        // find which indicator it uses
+        var indicatorId;
+        matches = element.className.match(/(^|\s)show_([^\s]+)($|\s)/);
+        if( matches != null )
+            indicatorId = matches[2];
+
         element.onsubmit = function(event) {
-            ajax_form_submit(element, divId);
+            ajax_form_submit(element, divId, indicatorId);
             return false;
         }
     },

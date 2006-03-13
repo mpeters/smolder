@@ -9,11 +9,12 @@
 </div>
 
 <p>
-    <form class="ajaxable" name="reset_pw" action="/app/admin_developers/process_reset_pw/[% developer.id %]" method="post">
+    <form class="ajaxable show_indicator" name="reset_pw" action="/app/admin_developers/process_reset_pw/[% developer.id %]" method="post">
     Resetting the Developer's password will remove their old one and create a new
     random password and email this password to the developer.<br />
     Are you sure this is what you want?
     <input type="submit" value="Yes">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
     </form>
 </p>
 

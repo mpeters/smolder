@@ -1,5 +1,5 @@
 <div id="developer_prefs_[% pref.id %]">
-<form class="ajaxable for_developer_prefs_[% pref.id %]" name="update_pref_[% pref.id %]" action="/app/developer_prefs/update_pref" method="post">  
+<form class="ajaxable for_developer_prefs_[% pref.id %] show_pref_indicator_[% pref.id %]" name="update_pref_[% pref.id %]" action="/app/developer_prefs/update_pref" method="post">  
 <input type="hidden" name="project" value="[% project.id %]" />
 
 [% IF success %]
@@ -32,6 +32,7 @@
 </tr>
 <tr>
   <td colspan="2" align="right">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="pref_indicator_[% pref.id %]" alt="loading" />
     <input type="submit" value="Update" />
   </td>
 </tr>

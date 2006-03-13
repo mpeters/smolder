@@ -1,5 +1,6 @@
 <div style="float:right; padding-right: 30px;" id="smoke_reports_nav">
-  <form class="ajaxable" name="smoke_reports" id="smoke_reports" action="/app/developer_projects/smoke_reports/[% project.id %]" method="get">
+  <form class="ajaxable show_paging_indicator" name="smoke_reports" id="smoke_reports" action="/app/developer_projects/smoke_reports/[% project.id %]" method="get">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="paging_indicator" alt="loading" />
     [% SET cats = project.categories %]
     [% IF cats %]
       <span style="padding-right: 20px">
@@ -17,13 +18,13 @@
     [% SET forward_url = base_url _ '&offset=' _ (offset + limit) %]
     <span>
     [% UNLESS offset - limit < 0 %]
-      <a class="ajaxable" href="[% back_url %]" style="text-decoration: none">&lArr;</a>
+      <a class="ajaxable show_paging_indicator" href="[% back_url %]" style="text-decoration: none">&lArr;</a>
     [% ELSE %]
       &lArr;
     [% END %]
     |
     [% UNLESS (offset + limit) >= project.report_count %]
-      <a class="ajaxable" href="[% forward_url %]" style="text-decoration: none">&rArr;</a>
+      <a class="ajaxable show_paging_indicator" href="[% forward_url %]" style="text-decoration: none">&rArr;</a>
     [% ELSE %]
       &rArr;
     [% END %]

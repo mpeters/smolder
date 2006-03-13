@@ -7,7 +7,7 @@
 [% END %]
 
 <div class="boxed">
-<form action="/app/developer_projects/add_category/[% project.id %]" class="ajaxable for_project_categories" name="project_categories_form" method="post">
+<form action="/app/developer_projects/add_category/[% project.id %]" class="ajaxable for_project_categories show_categories_indicator" name="project_categories_form" method="post">
 <table>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_category %] warn[% END %]">Category Name *</label></td>
@@ -20,6 +20,7 @@
 </tr>
 <tr>
   <td colspan="2" align="right">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="categories_indicator" alt="loading" />
     <input type="submit" value="Add Category" />
   </td>
 </tr>
@@ -36,7 +37,7 @@
     <td>
       <a href="#" class="button popup_form" id="delete_cat_[% loop.index %]_trigger">Delete</a>
       <div id="delete_cat_[% loop.index %]" class="popup_form" style="position: absolute; display:none">
-      <form action="/app/developer_projects/delete_category/[% project.id %]" class="ajaxable for_project_categories" name="delete_categories" method="post">
+      <form action="/app/developer_projects/delete_category/[% project.id %]" class="ajaxable for_project_categories show_categories_indicator" name="delete_categories" method="post">
         <input type="hidden" name="category" value="[% cat | html %]" />
         [% IF categories.size > 1 %]
         Upon deletion, all reports uploaded as part of this category will be filed under

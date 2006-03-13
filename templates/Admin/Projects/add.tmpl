@@ -8,7 +8,7 @@
 
 [% PROCESS form_header.tmpl %]
 
-<form class="ajaxable" name="add" action="/app/admin_projects/process_add" method="post">
+<form class="ajaxable show_indicator" name="add" action="/app/admin_projects/process_add" method="post">
 
 <table class="boxed">
 <tr>
@@ -47,7 +47,10 @@
   </td>
 </tr>
 <tr>
-    <td colspan="2" align="right"><input type="submit" value="Add" /></td>
+    <td colspan="2" align="right">
+        <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
+        <input type="submit" value="Add" />
+    </td>
 </tr>
 </table>
 </form>

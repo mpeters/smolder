@@ -27,10 +27,11 @@
         <td width="60px">
           <a href="#" class="popup_form" id="delete_developer_form_[% developer.id %]_trigger">[Delete]</a>
           <div id="delete_developer_form_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
-            <form class="ajaxable" name="delete_[% developer.id %]" action="/app/admin_developers/process_delete/[% developer.id %]" method="post">
+            <form class="ajaxable show_indicator_[% developer.id %]" name="delete_[% developer.id %]" action="/app/admin_developers/process_delete/[% developer.id %]" method="post">
             Upon deletion, all information about this project will be removed.<br />
             Are you sure this is what you want?
             <input type="submit" value="Yes">
+            <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator_[% developer.id %]" alt="loading" />
             </form>
           </div>
         </td>
