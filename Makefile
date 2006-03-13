@@ -6,6 +6,8 @@
 #
 #   db            - recreates databases by calling bin/smolder_createdb
 #
+#   start         - start the smolder services
+#
 #   restart       - restart the smolder services
 #
 #   stop          - stop the smolder services
@@ -45,6 +47,9 @@ test:
 
 db:
 	bin/smolder_createdb --destroy
+
+start:
+	bin/smolder_ctl start
 
 restart:
 	bin/smolder_ctl restart
