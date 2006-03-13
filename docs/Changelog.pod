@@ -4,6 +4,8 @@
 
 =over
 
+=item * Added ability to see just a single report by id; Smoke report emails now link to single reports - M. Peters
+
 =item * Added logging to Apache::Log via Log::Dispatch and CGI::Application::Plugin::LogDispatch - M. Peters
 
 =item * Fixed smolder_backup and smolder_install to work together and allow installation from a backup - M. Peters
