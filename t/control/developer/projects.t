@@ -18,7 +18,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 128 );
+    plan( tests => 132 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -213,7 +213,6 @@ $mech->content_contains('My Projects');
     );
     my $report_id = $report->id;
 
-    #$report = undef;
     $mech->get_ok("$url/$report_id");
     $mech->content_contains("Not an admin of this project");
 
@@ -240,10 +239,25 @@ $mech->content_contains('My Projects');
     $report = undef;
     $report = Smolder::DB::SmokeReport->retrieve($report_id);
     ok( !$report->invalid );
-
 }
 
-# 87..94
+# 87..90
+# single smoke_report
+{
+    # not an admin of the project
+    my $report = create_smoke_report(
+        project   => $proj1,
+        developer => $dev,
+    );
+    my $url   = "/app/developer_projects/smoke_report/$report";
+    my $title = "Smoke Report #$report";
+    $mech->get_ok($url);
+    $mech->title_like(qr/\Q$title\E/);
+    $mech->content_contains('(' . $proj1->name . ')');
+    $mech->content_contains($dev->username);
+}
+
+# 90..98
 # admin_settings, process_admin_settings
 {
     my $url      = "/app/developer_projects/admin_settings";
@@ -291,7 +305,7 @@ $mech->content_contains('My Projects');
     }
 }
 
-# 95..113
+# 99..117
 # add_category, delete_category
 {
     my $url = "/app/developer_projects/admin_settings";
@@ -344,7 +358,7 @@ $mech->content_contains('My Projects');
     }
 }
 
-# 114..128
+# 118..132
 # authorization for non-public project
 {
 
