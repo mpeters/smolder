@@ -1,6 +1,6 @@
 =head1 SMOLDER CHANGES
 
-=head2
+=head2 0.04 (March 13, 2006)
 
 =over
 
