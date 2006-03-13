@@ -1,0 +1,17 @@
+[% SET page_title = 'Smoke Report #' _ report.id %]
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
+    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+<div class="fake_accordion" id="accordion_reports" style="margin-top: 25px">
+  <div class="panel" id="smoke_test_[% report.id %]">
+    [% INCLUDE Developer/Projects/smoke_report_details.tmpl %]
+  </div>
+</div>
+
