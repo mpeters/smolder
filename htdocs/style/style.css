@@ -436,15 +436,6 @@ div.auto_complete ul strong.highlight {
 }
 
 /* Indicator styles */
-#global_indicator {
-    float: right;
-    background-image: url(/images/indicator.gif);
-    background-repeat: no-repeat;
-    width: 20px;
-    height: 20px;
-    margin-top: 10px;
-    display: none;
-}
 
 img.indicator {
     width: 16px;

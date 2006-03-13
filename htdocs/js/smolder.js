@@ -11,9 +11,9 @@ function ajax_form_submit(form, div_name, indicator) {
 
 function ajax_submit (url, div_name, indicator) {
     // tell the user that we're doing something
-    if( indicator == null || indicator == '' )
-        indicator = 'global_indicator';
-    Element.show(indicator);
+    indicator = $(indicator);
+    if( indicator != null )
+        Element.show(indicator);
 
     // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
@@ -42,7 +42,8 @@ function ajax_submit (url, div_name, indicator) {
                 shownPopupForm = '';
                 shownForm = '';
                 // hide the indicator
-                Element.hide(indicator);
+                if( indicator != null )
+                    Element.hide(indicator);
             }
         }
     );

@@ -89,18 +89,3 @@ body {
     top: 84px;
 }
 
-#page_title_container {
-    width: 600px;
-    height: 40px;
-}
-
-#page_title {
-    float: left;
-}
-
-#global_indicator {
-    float: right;
-    margin-top: 10px;
-    display: none;
-}
-
