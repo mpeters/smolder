@@ -1,31 +1,21 @@
-function ajax_form_submit(form, div_name) {
+function ajax_form_submit(form, div_name, indicator) {
     var url = form.action;
-    var queryParams = Form.serialize(form) + '&ajax=1';
+    var queryParams = Form.serialize(form);
 
-    if( div_name == null || div_name == '' )
-        div_name = 'content';
-
-    new Ajax.Updater(
+    ajax_submit(
+        url + "?" + queryParams,
         div_name,
-        url,
-        {
-            parameters: queryParams,
-            asynchronous: true,
-            onComplete : function(request) {
-                // reapply any dynamic bits
-                Behaviour.apply();
-                Tooltip.setup();
-                // reset which forms are open
-                shownPopupForm = '';
-                shownForm = '';
-            }
-        }
+        indicator
     );
 };
 
-function ajax_submit (url, div_name) {
+function ajax_submit (url, div_name, indicator) {
+    // tell the user that we're doing something
+    if( indicator == null || indicator == '' )
+        indicator = 'global_indicator';
+    Element.show(indicator);
 
-    // split the URL on it's ? if it has one
+    // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
     var query_params;
     if( url_parts[1] == null || url_parts == '' ) {
@@ -34,6 +24,7 @@ function ajax_submit (url, div_name) {
         query_params = url_parts[1] + '&ajax=1'
     }
 
+    // the default div_name
     if( div_name == null )
         div_name = 'content';
 
@@ -50,6 +41,8 @@ function ajax_submit (url, div_name) {
                 // reset which forms are open
                 shownPopupForm = '';
                 shownForm = '';
+                // hide the indicator
+                Element.hide(indicator);
             }
         }
     );
