@@ -118,14 +118,15 @@ function changeSmokeGraph(form) {
 
 function toggleSmokeValid(form) {
     // TODO - replace with one regex
-    var smokeId = form.id.replace(/_trigger$/, '').replace(/^(in)?valid_form_/, '');
+    var trigger = form.id.replace(/_trigger$/, '');
+    var smokeId = trigger.replace(/^(in)?valid_form_/, '');
     var divId = "smoke_test_" + smokeId;
     
     // we are currently not showing any other forms
     // XXX - this is a global... probably not the best way to do this
     shownForm = '';
     
-    ajax_form_submit(form, divId);
+    ajax_form_submit(form, divId, trigger + "_indicator");
 }
 
 function newSmokeReportWindow(url) {
