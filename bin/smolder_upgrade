@@ -70,10 +70,6 @@ Update db_version in the database
 
 =item * 
 
-Clear out sessions from database.
-
-=item * 
-
 Start Smolder
 
 =item * 
@@ -85,7 +81,7 @@ Output results of upgrade to console.
 =head1 OPTIONS
 
  --InstallRoot       - Directory where Smolder is installed, defaults to 
-                       /usr/local/Smolder.
+                       /usr/local/smolder.
 
  --AdminDBPassword   - Password for the Database Admin user.  Defaults to
                        "".
@@ -196,7 +192,7 @@ sub check_prereqs {
     }
 
     # Does smolder.conf exist at that location?
-    my $conf = $root . "/conf/smolder.conf";
+    my $conf = catfile($root, 'conf', 'smolder.conf');;
     unless ( -r $conf ) {
         exit_error("'$conf' does not exists.  Cannot continue.");
     }
@@ -204,7 +200,7 @@ sub check_prereqs {
     # LOAD OLD smolder.conf
     # Start by getting old conf valid directives
     my $get_directives_perl = qq( print join("\\t", \@Smolder::Conf::VALID_DIRECTIVES). "\\n"; );
-    my $get_directives_cmd  = "KRANK_CONF_NOCHECK=1 smolder_CONF=$conf $PERL_BIN";
+    my $get_directives_cmd  = "SMOLDER_CONF_NOCHECK=1 SMOLDER_CONF=$conf $PERL_BIN";
     $get_directives_cmd .=
       " -MSmolder::Conf -e '$get_directives_perl' && echo \"Success $uniqueness\"";
 
@@ -233,7 +229,7 @@ sub check_prereqs {
       unless $OLD_CONF;
 
     # get Smolder version
-    $OLD_VERSION = get_smolder_version($root);
+    $OLD_VERSION = get_version($root);
 
     # Verify that this Smolder has been shut down.
     # get status from the pid file
@@ -248,10 +244,11 @@ sub check_prereqs {
         }
     }
     exit_error(
-"Smolder is still running.  You must shut down Smolder before upgrading.  Do this by running:\n\n\t"
-          . catfile( $root, "bin", "smolder_ctl" )
-          . " stop\n" )
-      if ($running);
+        "Smolder is still running. You must shut down Smolder before upgrading. "
+        . "Do this by running:\n\n\t"
+        . catfile( $root, "bin", "smolder_ctl" )
+        . " stop\n" 
+    ) if ($running);
 
     # AdminDBPassword must be valid, and the DB should be running
     my $mysql_bin       = $MYSQL_BIN;
@@ -269,7 +266,8 @@ sub check_prereqs {
             exit_error("AdminDBPassword '$AdminDBPassword' is not valid");
         } elsif ( $mysql_test_output =~ /ERROR 2002: Can\'t connect/ ) {
             exit_error(
-"Can't connect to MySQL. Do you need to use the DBHost option? Start MySQL and try again."
+                "Can't connect to MySQL. Do you need to use the DBHost option? "
+                . "Start MySQL and try again."
             );
         } else {
             exit_error("Unable to verify connection to MySQL.");
@@ -310,29 +308,29 @@ sub make_backups {
 
     # compute a backup filename
     my ( $y, $m, $d ) = (localtime)[ 5, 4, 3 ];
-    $BACKUP_FILENAME = sprintf( 'SMOLDER-upgrade-%04d%02d%02d.kba', ( $y + 1900 ), $m, $d );
+    $BACKUP_FILENAME = sprintf( 'smolder-upgrade-%04d%02d%02d.bak', ( $y + 1900 ), $m, $d );
 
     # find another name if this one exists
     if ( -e $BACKUP_FILENAME ) {
         my $x = 1;
-        $BACKUP_FILENAME =~ s!\.kba$!.$x.kba!;
+        $BACKUP_FILENAME =~ s!\.bak$!.$x.bak!;
         while ( -e $BACKUP_FILENAME and $x < 1024 ) {
             $x++;
-            $BACKUP_FILENAME =~ s!\.\d+\.kba$!.$x.kba!;
+            $BACKUP_FILENAME =~ s!\.\d+\.bak$!.$x.bak!;
         }
     }
 
     print "Creating backup in '$BACKUP_FILENAME'.\n";
 
     # run smolder_backup
-    my $backup =
-      catfile( $options{InstallRoot}, 'bin', 'smolder_backup' )
-      . " /tmp/$BACKUP_FILENAME" . " 2>&1";
+    my $backup = catfile( $options{InstallRoot}, 'bin', 'smolder_backup' )
+      . " " . catfile('tmp', $BACKUP_FILENAME) . " 2>&1";
     my $out = `SMOLDER_ROOT='' $backup`;
     exit_error(
-"Problem creating smolder_backup.  To suppress backup creation, run smolder_upgrade with --no-backup.  Error was:\n\n$out\n"
-      )
-      unless $out =~ /Backup complete/;
+        "Problem creating smolder_backup. "
+        . "To suppress backup creation, run smolder_upgrade with --no-backup. "
+        . "Error was:\n\n$out\n"
+    ) unless $out =~ /Backup complete/;
 
     system("mv /tmp/$BACKUP_FILENAME ./$BACKUP_FILENAME")
       && exit_error("Unable to move backup from /tmp/$BACKUP_FILENAME to ./$BACKUP_FILENAME");
@@ -403,7 +401,6 @@ sub apply_upgrades {
         $upgrade_cmd .= " -M$package -e 'my \$ug = $package->new(); \$ug->upgrade()'";
         system($upgrade_cmd) && die("Error using upgrade module '$module'");
     }
-
 }
 
 # copy lib/Smolder.pm into place, effectively updating Smolder's version
@@ -431,17 +428,13 @@ sub update_db_version {
     print "Updating db_version to $new_version\n";
 }
 
-sub clear_sessions {
-    print "Clearing out old sessions\n";
-
-    # TODO
-}
-
 sub start_smolder {
     my $InstallRoot = $options{InstallRoot};
-    print "Starting Smolder using $InstallRoot/bin/smolder_ctl\n";
-    my $start = "SMOLDER_ROOT='' PERL5LIB='' $InstallRoot/bin/smolder_ctl start";
-    system($start) && die("Can't start Smolder.\n");
+    my $start = "SMOLDER_ROOT='' PERL5LIB='' " .
+        catfile($InstallRoot, 'bin', 'smolder_ctl start');
+    print "Starting Smolder running '$start'\n";
+    system($start) == 0
+     or die("Can't start Smolder.\n");
 }
 
 sub output_report {
@@ -492,7 +485,7 @@ sub setup_getopts {
 
 sub set_param_defaults {
     my %defaults = (
-        InstallRoot     => '/usr/local/Smolder',
+        InstallRoot     => '/usr/local/smolder',
         AdminDBPassword => '',
         DBHost          => '',
     );
@@ -512,7 +505,7 @@ sub set_param_defaults {
 # Get the version of Smolder installed in a particular SMOLDER_ROOT
 sub get_version {
     my $InstallRoot = shift;
-    open( smolder_PM, '<', $InstallRoot . '/lib/Smolder.pm' )
+    open( smolder_PM, '<', catfile($InstallRoot, 'lib', 'Smolder.pm') )
       or die "Unable to open Smolder.pm: $!\n";
     my $text = do { local $/; <smolder_PM> };
     close smolder_PM;
@@ -522,7 +515,3 @@ sub get_version {
       unless $version;
     return $version;
 }
-
-###############
-####  EOF  ####
-###############
