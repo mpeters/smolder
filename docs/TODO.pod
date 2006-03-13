@@ -16,6 +16,8 @@ Document all run modes (templates used, etc)
 
 =item * Add customization of graph start/end date for graphs to Project Admin Settings
 
+=item * Review upgrade procedure to make sure it's working completely
+
 =back
 
 =head2 FOR 0.2
