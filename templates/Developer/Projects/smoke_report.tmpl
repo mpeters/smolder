@@ -1,4 +1,4 @@
-[% SET page_title = 'Smoke Report #' _ report.id %]
+[% SET page_title = 'Smoke Report #' _ report.id _ ' (' _ project.name _ ')' %]
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
