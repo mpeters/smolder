@@ -30,6 +30,7 @@ sub setup {
               add_report
               process_add_report
               smoke_reports
+              smoke_report
               report_details
               platform_options
               architecture_options
@@ -201,6 +202,23 @@ sub process_add_report {
     my $url = "/app/developer_projects/smoke_reports/$project";
     $self->header_add( -uri => $url );
     return "Redirecting to $url";
+}
+
+sub smoke_report {
+    my $self = shift;
+    my $query = $self->query();
+
+    my $smoke = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    return $self->error_message('Project does not exist')
+      unless $smoke;
+    my $project = $smoke->project;
+
+    # make sure ths developer is a member of this project
+    unless ( $project->public || $project->has_developer( $self->developer ) ) {
+        return $self->error_message('Unauthorized for this project');
+    }
+
+    return $self->tt_process({ report => $smoke });
 }
 
 sub smoke_reports {
