@@ -42,13 +42,13 @@ a:visited {
     color: #C47147;
 }
 
-button, input[type="submit"] {
+button, input[type="submit"], input[type="button"] {
     color: #C47147;
     background-color: #ffffff;
     border: 1px solid #555555;
 }
 
-input:hover[type="submit"] {
+input:hover[type="submit"], input:hover[type="button"] {
     color: #ffffff;
     background-color: #C47147;
 }
@@ -108,6 +108,7 @@ table.boxed, div.boxed {
     border-top-color: #CCCCCC;
     background-color: #FFFFFF;
     padding: 3px;
+    margin-bottom: 10px;
 }
 
 th, td {
@@ -117,6 +118,12 @@ th, td {
 tr.header, td.header {
     background-color: #C47147;
     color: #FFFFFF;
+    font-weight: bold;
+}
+
+tr.header2, td.header2 {
+    background-color: #C3C3C3;
+    color: #000000;
     font-weight: bold;
 }
 
@@ -442,4 +449,24 @@ img.indicator {
     height: 16px;
 }
 
+/* CRUD styles */
+table.crud, div.crud {
+    width: 720px;
+}
+
+div.crud_header {
+    width: 710px;
+    padding-bottom: 3px;
+    text-align: right;
+    vertical-align: middle;
+}
+
+div.crud_header a {
+    background-image: url('/images/new.png');
+    background-position: right;
+    background-repeat: no-repeat;
+    padding-right: 25px;
+    text-decoration: none;
+    font-weight: bold;
+}
 

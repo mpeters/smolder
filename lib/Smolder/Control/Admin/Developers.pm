@@ -19,23 +19,15 @@ sub setup {
               edit
               process_edit
               list
-              details
               delete
-              process_delete
               reset_pw
-              process_reset_pw
+              details
               )
         ]
     );
 }
 
 sub reset_pw {
-    my ( $self, $err_msgs ) = @_;
-    return $self->tt_process(
-        { developer => Smolder::DB::Developer->retrieve( $self->param('id') ), } );
-}
-
-sub process_reset_pw {
     my $self      = shift;
     my $developer = Smolder::DB::Developer->retrieve( $self->param('id') );
     return $self->error_message("Developer no longer exists!")
@@ -59,7 +51,10 @@ sub process_reset_pw {
         $self->log->warning("[WARN] - $msg - $error");
         return $self->error_message($msg);
     } else {
-        return $self->details( $developer, 'reset_pw' );
+        return $self->tt_process( 
+            'Admin/Developers/resetpw_success.tmpl',
+            { developer => $developer } 
+        );
     }
 }
 
@@ -128,16 +123,29 @@ sub process_edit {
     }
     Smolder::DB->dbi_commit();
 
-    # now show the developer's details page
-    return $self->details( $developer, 'edit' );
+    # now show the successful message
+    return $self->tt_process(
+        'Admin/Developers/edit_success.tmpl',
+        { developer => $developer },
+    );
 }
 
 sub list {
     my $self       = shift;
+    my $cgi        = $self->query();
     my @developers = Smolder::DB::Developer->retrieve_all();
+
     my %tt_params;
     $tt_params{developers} = \@developers if (@developers);
-    return $self->tt_process( \%tt_params );
+
+    if( $cgi->param('table_only') ) {
+        return $self->tt_process(
+           'Admin/Developers/list_table.tmpl',
+            \%tt_params,
+        );
+    } else {
+        return $self->tt_process( \%tt_params );
+    }
 }
 
 sub add {
@@ -186,8 +194,28 @@ sub process_add {
     }
     Smolder::DB->dbi_commit();
 
-    # now show the developer's details page
-    return $self->details( $developer, 'add' );
+    # now show the successful message
+    return $self->tt_process(
+        'Admin/Developers/add_success.tmpl',
+        { developer => $developer },
+    );
+}
+
+sub delete {
+    my $self      = shift;
+    my $id        = $self->param('id');
+    my $developer = Smolder::DB::Developer->retrieve($id);
+
+    # remove all reports from this developer
+    my @smokes = $developer->smoke_reports();
+    foreach my $smoke (@smokes) {
+        $smoke->delete_files();
+    }
+
+    $developer->delete();
+    Smolder::DB->dbi_commit();
+
+    return $self->list();
 }
 
 sub details {
@@ -208,23 +236,6 @@ sub details {
     $tt_params{$action} = 1 if ($action);
 
     return $self->tt_process( \%tt_params );
-}
-
-sub process_delete {
-    my $self      = shift;
-    my $id        = $self->param('id');
-    my $developer = Smolder::DB::Developer->retrieve($id);
-
-    # remove all reports from this developer
-    my @smokes = $developer->smoke_reports();
-    foreach my $smoke (@smokes) {
-        $smoke->delete_files();
-    }
-
-    $developer->delete();
-    Smolder::DB->dbi_commit();
-
-    return $self->list();
 }
 
 1;

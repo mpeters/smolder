@@ -1,39 +1,31 @@
-[% SET page_title = 'Admin - Developers' %]
-
-<h2>Edit Developer</h2>
-
-<div class="sub_menu">
-    <a class="sub_menu" href="/app/admin_developers/reset_pw/[% developer.id %]">Reset Password</a>
-    <a class="sub_menu" href="/app/admin_developers/delete/[% developer.id %]">Delete</a>
-    <a class="sub_menu" href="/app/admin_developers/list">All Developers</a>
-</div>
-
 [% PROCESS form_header.tmpl %]
 
-<form class="ajaxable show_indicator" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
+[% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id || c.dfv_msgs.invalid_email %]
+<ul>
+  [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
+  <li><em class="warn">A developer with that username already exists.</em></li>
+  [% END %]
+  [% IF c.dfv_msgs.invalid_email %]
+  <li><em class="warn">Not a valid email address!</em></li>
+  [% END %]
+</ul>
+[% END %]
 
-<table class="boxed">
+<form class="ajaxable for_crud_add_container show_indicator" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
+
+<table class="boxed crud">
+<tr><td colspan="4" class="header2">Edit Developer</td></tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_username || err_unique_username %] warn[% END %]">Username</label></td>
   <td><input class="first" type="text" name="username" size="25" /></td>
-  [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
-  <td><em class="warn">A developer with that username already exists.</em></td>
-  [% END %]
+  <td><label class="required[% IF c.dfv_msgs.err_email %] warn[% END %]">Email Address</label></td>
+  <td><input type="text" name="email" size="25" /></td>
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_fname %] warn[% END %]">First Name</label></td>
   <td><input type="text" name="fname" size="25" /></td>
-</tr>
-<tr>
   <td><label class="required[% IF c.dfv_msgs.err_lname %] warn[% END %]">Last Name</label></td>
   <td><input type="text" name="lname" size="25" /></td>
-</tr>
-<tr>
-  <td><label class="required[% IF c.dfv_msgs.err_email %] warn[% END %]">Email Address</label></td>
-  <td><input type="text" name="email" size="25" /></td>
-  [% IF c.dfv_msgs.invalid_email %]
-  <td><em class="warn">Not a valid email address!</em></td>
-  [% END %]
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_admin %] warn[% END %]">Site Admin?</label></td>
@@ -41,12 +33,11 @@
     <input type="radio" name="admin" value="1"> Yes
     <input type="radio" name="admin" value="0"> No
   </td>
-</tr>
-<tr>
-    <td colspan="2" align="right">
+  <td colspan="2" align="right">
       <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
+      <input type="button" id="crud_edit_cancel" value="Cancel" />
       <input type="submit" value="Update" />
-    </td>
+  </td>
 </tr>
 </table>
 </form>

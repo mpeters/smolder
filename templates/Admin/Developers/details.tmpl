@@ -3,19 +3,8 @@
 <h2>Details of '[% developer.username %]'</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/admin_developers/edit/[% developer.id %]">Edit</a>
-    <a class="sub_menu" href="/app/admin_developers/reset_pw/[% developer.id %]">Reset Password</a>
-    <a class="sub_menu" href="/app/admin_developers/add">Add New Developer</a>
     <a class="sub_menu" href="/app/admin_developers/list">All Developers</a>
 </div>
-
-[% IF add %]
-    <p class="warn">New developer successfully created.</p>
-[% ELSIF edit %]
-    <p class="warn">Developer successfully updated.</p>
-[% ELSIF reset_pw %]
-    <p class="warn">Password successfully reset.</p>
-[% END %]
 
 <table class="boxed">
 <tr class="even">

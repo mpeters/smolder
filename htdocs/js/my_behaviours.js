@@ -1,3 +1,6 @@
+var crudAddShown = '';
+var crudAddProcessing  = '';
+
 var myrules = {
     '#top_nav a.dropdownmenu' : function(element) {
         var menuId = element.id.replace(/_trigger$/, '');
@@ -91,42 +94,11 @@ var myrules = {
     // This will make the target a div named "some_div"
     // If no target is specified, then it will default to "content"
     'a.ajaxable' : function(element) {
-        var divId;
-
-        // find which div it targets
-        var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
-        if( matches != null )
-            divId = matches[2];
-
-        // find which indicator it uses
-        var indicatorId;
-        matches = element.className.match(/(^|\s)show_([^\s]+)($|\s)/);
-        if( matches != null )
-            indicatorId = matches[2];
-
-        element.onclick = function(event) {
-            ajax_submit(element.href, divId, indicatorId);
-            return false;
-        }
+        makeLinkAjaxable(element);
     },
 
     'form.ajaxable' : function(element) {
-        // find which div it targets
-        var divId;
-        var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
-        if( matches != null )
-            divId = matches[2];
-
-        // find which indicator it uses
-        var indicatorId;
-        matches = element.className.match(/(^|\s)show_([^\s]+)($|\s)/);
-        if( matches != null )
-            indicatorId = matches[2];
-
-        element.onsubmit = function(event) {
-            ajax_form_submit(element, divId, indicatorId);
-            return false;
-        }
+        makeFormAjaxable(element);
     },
 
     'div.draggable_developer' : function(element) {
@@ -194,7 +166,71 @@ var myrules = {
     'input.first' : function(element) {
         element.focus();
     },
-
+    '#crud_add_trigger': function(element) {
+        var container = 'crud_add_container';
+        element.onclick = function() {
+            if( crudAddShown == container ) {
+                //Effect.SlideUp(container);
+                $(container).innerHTML = '';
+                crudAddShown = '';
+            } else {
+                crudAddShown = container;
+                ajax_submit(
+                    '/app/admin_developers/add', 
+                    container, 
+                    'crud_indicator'
+                );
+                crudAddProcessing = 'crud_list';
+                //Effect.SlideDown(container);
+            }
+            return false;
+        };
+    },
+    '#crud_list_changed': function(element) {
+        var target = 'crud_list';
+        if( crudAddProcessing == target ) {
+            ajax_submit(
+                '/app/admin_developers/list?table_only=1',
+                target,
+                'crud_indicator'
+            );
+            crudAddProcessing = '';
+            crudAddShown = '';
+        }
+    },
+    'a.crud_edit_trigger': function(element) {
+        var container = 'crud_add_container'; 
+        var matches   = element.className.match(/(^|\s)for_item_(\d+)($|\s)/);
+        var itemId;
+        itemId = matches[2];
+        if( itemId != null ) {
+            element.onclick = function() {
+                ajax_submit(
+                    element.href,
+                    container,
+                    'crud_indicator'
+                );
+                crudAddShown = element.id;
+                return false;
+            };
+        }
+    },
+    '#crud_edit_cancel': function(element) {
+        element.onclick = function() {
+            $('crud_add_container').innerHTML = '';
+        };
+    },
+    'form.resetpw_form': function(element) {
+        makeFormAjaxable(element);
+        // extend the onsubmit handler to turn off the popup
+        var popupId = element.id.replace(/_form$/, '');
+        var oldOnSubmit = element.onsubmit;
+        element.onsubmit = function() {
+            oldOnSubmit();
+            togglePopupForm(popupId);
+            return false;
+        };
+    }
 };
 
 Behaviour.register(myrules);

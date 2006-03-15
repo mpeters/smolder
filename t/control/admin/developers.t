@@ -11,7 +11,7 @@ use Smolder::TestData qw(
 );
 
 if (is_apache_running) {
-    plan( tests => 61 );
+    plan( tests => 64 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -44,7 +44,6 @@ $mech->content_contains('Admin - Developers');
 # 5..26
 # add
 {
-
     # empty form
     $mech->follow_link_ok( { text => 'Add New Developer' } );
     $mech->form_name('add');
@@ -85,7 +84,7 @@ $mech->content_contains('Admin - Developers');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('New developer successfully created');
+    $mech->content_contains("New developer '$data{username}' successfully created");
     ($dev) = Smolder::DB::Developer->search( username => $data{username} );
     END { $dev->delete() if ($dev) }
 }
@@ -99,10 +98,11 @@ $mech->content_contains('Admin - Developers');
     $mech->content_contains( $dev->email );
 }
 
-# 31..48
+# 31..51
 # edit
 {
-    $mech->follow_link_ok( { text => 'Edit' } );
+    $mech->get_ok("$url/list"); 
+    $mech->follow_link_ok({ url => "/app/admin_developers/edit/$dev" });
 
     # make sure it's prefilled
     $mech->content_contains( 'value="' . $dev->username . '"' );
@@ -137,39 +137,41 @@ $mech->content_contains('Admin - Developers');
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Developer successfully updated');
+    $mech->content_contains("Developer '$data{username}' successfully updated");
+    $mech->get_ok("$url/list");
+    $mech->follow_link_ok({ url => "/app/admin_developers/edit/$dev" });
     $mech->content_contains( $new_data{fname} );
     $mech->content_lacks( $data{fname} );
 }
 
-# 49..51
+# 52..54
 # reset_pw
 {
-    $mech->follow_link_ok( { text => 'Reset Password' } );
-    $mech->form_name('reset_pw');
+    $mech->get_ok("$url/list");
+    $mech->form_name("resetpw_$dev");
     $mech->submit();
     ok( $mech->success );
     isnt( $dev->password, db_field_value( 'developer', 'password', $dev->id ) );
 }
 
-# 52..56
+# 55..59
 # list
 {
-    $mech->follow_link_ok( { text => 'All Developers' } );
+    $mech->get_ok("$url/list");
     $mech->content_contains( $dev->username );
     $mech->content_contains( $dev->email );
     $mech->content_contains( $dev->email );
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 57..61
+# 60..64
 # delete
 {
-    $mech->follow_link_ok( { text => 'All Developers' } );
+    $mech->get_ok("$url/list");
     ok( $mech->form_name("delete_$dev") );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Developer List');
+    $mech->content_contains('Developers');
     $mech->content_lacks( $dev->username );
 }
 
