@@ -1,5 +1,13 @@
 =head1 SMOLDER CHANGES
 
+=head2 0.05
+
+=over
+
+=item * Overhaul of Admin Developer CRUD to keep everything on one AJAXified screen - M. Peters
+
+=back
+
 =head2 0.04 (March 13, 2006)
 
 =over
