@@ -1,43 +1,27 @@
-[% SET page_title = 'Admin - Projects' %]
-
-<h2>Edit Project</h2>
-
-<div class="sub_menu">
-    <a class="sub_menu" href="/app/admin_projects/delete/[% project.id %]">Delete</a>
-    <a class="sub_menu" href="/app/admin_projects/developers">Add Developers To Projects</a>
-    <a class="sub_menu" href="/app/admin_projects/add">Add a New Project</a>
-    <a class="sub_menu" href="/app/admin_projects/list">All Projects</a>
-</div>
-
 [% PROCESS form_header.tmpl %]
 
-<form class="ajaxable show_indicator" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
+[% IF c.dfv_msgs.invalid_project_name || err_unique_project_name || c.dfv_msgs.invalid_unique_project_name || c.dfv_msgs.invalid_start_date %]
+<ul>
+    [% IF  err_unique_project_name || c.dfv_msgs.invalid_unique_project_name %]
+    <li><em class="warn">A project with that name already exists.</em></li>
+    [% ELSIF c.dfv_msgs.invalid_project_name %]
+    <li><em class="warn">Contains illegal characters.</em></li>
+    [% END %]
+    [% IF c.dfv_msgs.invalid_start_date %]
+    <li><em class="warn">Invalid Start Date</em></li>
+    [% END %]
+</ul>
+[% END %]
 
-<table class="boxed">
+<form class="ajaxable for_crud_add_container show_indicator" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
+<table class="boxed crud">
+<tr><td colspan="4" class="header2">Edit Project</td></tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name</label></td>
-  <td>
-    <input class="first" type="text" name="project_name" size="25" />
-    [% IF c.dfv_msgs.invalid_project_name || err_unique_project_name %]
-      </td>
-      <td>
-        <em class="warn">
-            [% IF c.dfv_msgs.invalid_unique_project_name || err_unique_project_name %]
-                A project with that name already exists.
-            [% ELSIF c.dfv_msgs.invalid_project_name %]
-                Contains illegal characters.
-            [% END %]
-        </em>
-    [% END %]
-  </td>
-</tr>
-<tr class="even">
+  <td><input class="first" type="text" name="project_name" size="25" /></td>
   <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date</label></td>
   <td>
     <input type="text" name="start_date" size="10" id="start_date" />
-    [% IF c.dfv_msgs.invalid_start_date %]
-        <em class="warn">Invalid Format</em>
-    [% END %]
     <a href="#" id="start_date_calendar_trigger" class="calendar_trigger">&nbsp;</a>
     <div id="start_date_calendar" class="calendar_container" />
   </td>
@@ -48,12 +32,11 @@
     <input type="radio" name="public" value="1" /> Yes
     <input type="radio" name="public" value="0" /> No
   </td>
-</tr>
-<tr>
-    <td colspan="2" align="right">
-      <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
-      <input type="submit" value="Update" />
-    </td>
+  <td colspan="2" align="right">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator" alt="loading" />
+    <input type="button" id="crud_edit_cancel" value="Cancel" />
+    <input type="submit" value="Update" />
+  </td>
 </tr>
 </table>
 </form>

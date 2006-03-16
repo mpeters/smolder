@@ -26,7 +26,6 @@ sub setup {
               list
               details
               delete
-              process_delete
               developers
               add_developer
               remove_developer
@@ -120,7 +119,7 @@ sub edit {
             qobject   => $query,
         );
 
-        # else fill in the data with the project's innards
+    # else fill in the data with the project's innards
     } else {
         my %project_data = (
             id           => $project->id,
@@ -137,12 +136,19 @@ sub edit {
 }
 
 sub list {
-    my ( $self, $action ) = @_;
+    my $self = shift;
     my @projects = Smolder::DB::Project->retrieve_all();
     my %tt_params;
     $tt_params{projects} = \@projects if (@projects);
-    $tt_params{$action} = 1 if ($action);
-    return $self->tt_process( \%tt_params );
+
+    if( $self->query->param('table_only') ) {
+        return $self->tt_process(
+            'Admin/Projects/list_table.tmpl',
+            \%tt_params,
+        );
+    } else {
+        return $self->tt_process( \%tt_params );
+    }
 }
 
 sub add {
@@ -200,11 +206,14 @@ sub process_add {
             die $@;
         }
     }
-
     Smolder::DB->dbi_commit();
 
-    # now show the project's details page
-    return $self->details( $project, $action );
+    # now show the project's success message
+    my $tmpl = $id ? "edit_success.tmpl" : "add_success.tmpl";
+    return $self->tt_process(
+        "Admin/Projects/$tmpl",
+        { project => $project },
+    );
 }
 
 sub details {
@@ -227,15 +236,6 @@ sub details {
 }
 
 sub delete {
-    my $self    = shift;
-    my $id      = $self->param('id');
-    my $project = Smolder::DB::Project->retrieve($id);
-    return $self->error_message("Can't find Project with id '$id'!") unless $project;
-
-    return $self->tt_process( { project => $project, } );
-}
-
-sub process_delete {
     my $self    = shift;
     my $id      = $self->param('id');
     my $project = Smolder::DB::Project->retrieve($id);

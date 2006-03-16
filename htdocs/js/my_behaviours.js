@@ -176,7 +176,7 @@ var myrules = {
             } else {
                 crudAddShown = container;
                 ajax_submit(
-                    '/app/admin_developers/add', 
+                    element.href,
                     container, 
                     'crud_indicator'
                 );
@@ -188,9 +188,12 @@ var myrules = {
     },
     '#crud_list_changed': function(element) {
         var target = 'crud_list';
+        var matches   = element.className.match(/(^|\s)for_(\w+)($|\s)/);
+        var url       = "/app/" + matches[2] + "/list?table_only=1";
+
         if( crudAddProcessing == target ) {
             ajax_submit(
-                '/app/admin_developers/list?table_only=1',
+                url,
                 target,
                 'crud_indicator'
             );
@@ -211,6 +214,7 @@ var myrules = {
                     'crud_indicator'
                 );
                 crudAddShown = element.id;
+                crudAddProcessing = 'crud_list';
                 return false;
             };
         }

@@ -3,58 +3,17 @@
 <h2>Project List</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/admin_projects/add">Add New Project</a>
     <a class="sub_menu" href="/app/admin_projects/developers">Add Developers to Projects</a>
 </div>
 
-[% IF delete %]
-    <p class="warn">Project successfully Deleted!</p>
-[% END %]
-
-
 [% IF projects %]
-    <table class="boxed" id="project_list">
-    <tr class="header">
-      <td>Project Name</td>
-      <td>Start Date</td>
-      <td>Public?</td>
-      <td>Edit</td>
-      <td>Delete</td>
-    </tr>
-    [% FOREACH project IN projects %]
-      <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
-        <td width="150px"><a href="/app/admin_projects/details/[% project.id %]">[% project.name | html %]</a></td>
-        <td width="100px">[% project.start_date.strftime('%d/%m/%Y') %]</td>
-        <td width="50px">[% IF project.public %]Yes[% ELSE %]No[% END %]</td>
-        <td width="50px"><a href="/app/admin_projects/edit/[% project.id %]">[Edit]</a></td>
-        <td width="60px">
-          <a href="#" class="popup_form" id="delete_project_[% project.id %]_trigger" >[Delete]</a>
-          <div class="popup_form" id="delete_project_[% project.id %]" style="display:none; position: absolute">
-          <form class="ajaxable show_indicator_[% project.id %]" name="delete_[% project.id %]" action="/app/admin_projects/process_delete/[% project.id %]" method="post">
-            Upon deletion, all information about this project will be removed.<br />
-            Are you sure this is what you want?
-            <input type="submit" value="Yes">
-            <img src="/images/indicator.gif" style="display:none" class="indicator" id="indicator_[% project.id %]" alt="loading" />
-          </form>
-          </div>
-        </td>
-      </tr>
-    [% END %]
-    </table>
+  <div class="crud_header">
+    <img src="/images/indicator.gif" style="display:none" class="indicator" id="crud_indicator" alt="loading" />
+    <a href="/app/admin_projects/add" id="crud_add_trigger">Add New Project</a>
+  </div>
+  <div id="crud_add_container" class="crud_add for_crud_list"></div>
+  <div id="crud_list">
+  [% PROCESS Admin/Projects/list_table.tmpl %]
 [% ELSE %]
     <p>No Projects currently exist</p>
 [% END %]
-
-<!--
-<script type="text/javascript">
-  var table = new SortableTable(
-    'project_list', 
-    {
-      ascImg: '/images/down.gif',
-      descImg: '/images/up.gif',
-      sortType: ['string', 'mmddyyyy', null, null]
-    }
-  );
-</script>
--->
-

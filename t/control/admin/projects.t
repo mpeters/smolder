@@ -14,7 +14,7 @@ use Smolder::TestData qw(
 use Smolder::DB::ProjectDeveloper;
 
 if (is_apache_running) {
-    plan( tests => 84 );
+    plan( tests => 85 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -75,7 +75,7 @@ $mech->content_contains('Admin - Projects');
     $mech->content_contains('name already exists');
 
     $mech->content_contains('class="required warn">Start Date');
-    $mech->content_contains('Invalid Format');
+    $mech->content_contains('Invalid Start Date');
     $mech->content_contains('class="required warn">Public Project?');
 
     # complete form
@@ -83,7 +83,7 @@ $mech->content_contains('Admin - Projects');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('New project successfully created');
+    $mech->content_contains("New project '$data{project_name}' successfully created");
     ($proj) = Smolder::DB::Project->search( name => $data{project_name} );
 
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
@@ -92,13 +92,13 @@ $mech->content_contains('Admin - Projects');
 # 20..23
 # details
 {
-    $mech->get_ok( $url . "/details/$proj" );
+    $mech->get_ok( "$url/details/$proj" );
     $mech->content_contains( $proj->name );
     $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
     $mech->content_contains( $proj->public ? 'Yes' : 'No' );
 }
 
-# 24..38
+# 24..39
 # edit
 {
     $mech->follow_link_ok( { text => 'Edit' } );
@@ -126,7 +126,7 @@ $mech->content_contains('Admin - Projects');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('name already exists');
     $mech->content_contains('class="required warn">Start Date');
-    $mech->content_contains('Invalid Format');
+    $mech->content_contains('Invalid Start Date');
     $mech->content_contains('class="required warn">Public Project?');
 
     # valid
@@ -136,12 +136,13 @@ $mech->content_contains('Admin - Projects');
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Project successfully updated');
+    $mech->content_contains("Project '$new_data{project_name}' successfully updated");
+    $mech->get_ok( "$url/details/$proj" );
     $mech->content_contains('Yes');
     $mech->content_lacks('No');
 }
 
-# 39..43
+# 40..44
 # list
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
@@ -151,12 +152,11 @@ $mech->content_contains('Admin - Projects');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 44..79
+# 45..80
 # add_developer, change_admins and remove_developer
 {
-
     # first 'add_developer'
-    $mech->follow_link_ok( { text => 'All Projects' } );
+    $mech->get_ok( "$url/list" );
     $mech->follow_link_ok( { text => 'Add Developers to Projects' } );
     my $dev1 = create_developer();
     my $dev2 = create_developer();
@@ -251,7 +251,7 @@ $mech->content_contains('Admin - Projects');
     $mech->content_contains( $dev3->username );
 }
 
-# 80..84
+# 81..85
 # delete
 {
     $mech->follow_link_ok( { text => 'All Projects' } );

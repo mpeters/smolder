@@ -11,10 +11,7 @@ function ajax_form_submit(form, div_name, indicator) {
 
 function ajax_submit (url, div_name, indicator) {
     // tell the user that we're doing something
-    indicator = $(indicator);
-    if( indicator != null )
-        Element.show(indicator);
-
+    showIndicator(indicator);
     // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
     var query_params;
@@ -42,8 +39,7 @@ function ajax_submit (url, div_name, indicator) {
                 shownPopupForm = '';
                 shownForm = '';
                 // hide the indicator
-                if( indicator != null )
-                    Element.hide(indicator);
+                hideIndicator(indicator);
             }
         }
     );
@@ -176,7 +172,17 @@ function makeLinkAjaxable(element) {
     };
 }
 
+function showIndicator(indicator) {
+    indicator = $(indicator);
+    if( indicator != null )
+        Element.show(indicator);
+}
 
+function hideIndicator(indicator) {
+    indicator = $(indicator);
+    if( indicator != null )
+        Element.hide(indicator);
+}
 
 
 
