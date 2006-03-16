@@ -4,7 +4,7 @@
 
 =over
 
-=item * Overhaul of Admin Developer CRUD to keep everything on one AJAXified screen - M. Peters
+=item * Overhaul of Admin Developer/Project CRUDs to keep everything on one AJAXified screen - M. Peters
 
 =back
 
