@@ -1,5 +1,6 @@
-var crudAddShown = '';
-var crudAddProcessing  = '';
+var CRUD_ADD_SHOWN    = false;
+var CRUD_EDIT_SHOWN   = false;
+var CRUD_LIST_UPDATED = true;
 
 var myrules = {
     '#top_nav a.dropdownmenu' : function(element) {
@@ -120,10 +121,10 @@ var myrules = {
                     var proj_id = element.id.replace(/^project_/, '');
                     var url = "/app/admin_projects/add_developer?ajax=1&project=" 
                         + proj_id + "&developer=" + dev_id;
-                    ajax_submit(
-                        url,
-                        "project_container_" + proj_id
-                    );
+                    ajax_submit({
+                        url : url,
+                        div : "project_container_" + proj_id
+                    });
                 }
             }
         );
@@ -139,10 +140,10 @@ var myrules = {
                     var matches = project_developer.id.match(/project_(\d+)_developer_(\d+)/);
                     var url = "/app/admin_projects/remove_developer?ajax=1&project=" 
                         + matches[1] + "&developer=" + matches[2];
-                    ajax_submit(
-                        url,
-                        "project_container_" + matches[1] 
-                    );
+                    ajax_submit({
+                        url : url,
+                        div : "project_container_" + matches[1] 
+                    });
                     Element.hide(project_developer);
                 }
             }
@@ -169,19 +170,24 @@ var myrules = {
     '#crud_add_trigger': function(element) {
         var container = 'crud_add_container';
         element.onclick = function() {
-            if( crudAddShown == container ) {
-                //Effect.SlideUp(container);
-                $(container).innerHTML = '';
-                crudAddShown = '';
+            if( CRUD_ADD_SHOWN ) {
+                Effect.SlideUp(container);
+                CRUD_ADD_SHOWN  = false;
+                CRUD_EDIT_SHOWN = false;
             } else {
-                crudAddShown = container;
-                ajax_submit(
-                    element.href,
-                    container, 
-                    'crud_indicator'
-                );
-                crudAddProcessing = 'crud_list';
-                //Effect.SlideDown(container);
+                ajax_submit({
+                    url        : element.href,
+                    div        : container, 
+                    indicator  : 'crud_indicator',
+                    onComplete : function(args) {
+                        if( ! CRUD_ADD_SHOWN && ! CRUD_EDIT_SHOWN ) {
+                            Effect.SlideDown(args['div']); 
+                        }
+                        CRUD_ADD_SHOWN    = true;
+                        CRUD_EDIT_SHOWN   = false;
+                        CRUD_LIST_UPDATED = false;
+                    }
+                });
             }
             return false;
         };
@@ -191,14 +197,15 @@ var myrules = {
         var matches   = element.className.match(/(^|\s)for_(\w+)($|\s)/);
         var url       = "/app/" + matches[2] + "/list?table_only=1";
 
-        if( crudAddProcessing == target ) {
-            ajax_submit(
-                url,
-                target,
-                'crud_indicator'
-            );
-            crudAddProcessing = '';
-            crudAddShown = '';
+        if( ! CRUD_LIST_UPDATED ) {
+            ajax_submit({
+                url       : url,
+                div       : target,
+                indicator : 'crud_indicator'
+            });
+            CRUD_LIST_UPDATED = true;
+            CRUD_ADD_SHOWN    = false;
+            CRUD_EDIT_SHOWN   = false;
         }
     },
     'a.crud_edit_trigger': function(element) {
@@ -208,20 +215,29 @@ var myrules = {
         itemId = matches[2];
         if( itemId != null ) {
             element.onclick = function() {
-                ajax_submit(
-                    element.href,
-                    container,
-                    'crud_indicator'
-                );
-                crudAddShown = element.id;
-                crudAddProcessing = 'crud_list';
+                ajax_submit({
+                    url        : element.href,
+                    div        : container,
+                    indicator  : 'crud_indicator',
+                    onComplete : function(args) {
+                        if( ! CRUD_ADD_SHOWN && ! CRUD_EDIT_SHOWN ) {
+                            Effect.SlideDown(args['div']);
+                        }
+                        CRUD_EDIT_SHOWN   = true;
+                        CRUD_ADD_SHOWN    = false;
+                        CRUD_LIST_UPDATED = false;
+                    },
+                });
                 return false;
             };
         }
     },
     '#crud_edit_cancel': function(element) {
         element.onclick = function() {
-            $('crud_add_container').innerHTML = '';
+            var container = 'crud_add_container';
+            Effect.SlideUp(container);
+            CRUD_ADD_SHOWN  = false;
+            CRUD_EDIT_SHOWN = false;
         };
     },
     'form.resetpw_form': function(element) {

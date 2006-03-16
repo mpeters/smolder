@@ -17,9 +17,9 @@
 <table class="boxed crud">
 <tr><td colspan="4" class="header2">Edit Project</td></tr>
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name</label></td>
+  <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name *</label></td>
   <td><input class="first" type="text" name="project_name" size="25" /></td>
-  <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date</label></td>
+  <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date *</label></td>
   <td>
     <input type="text" name="start_date" size="10" id="start_date" />
     <a href="#" id="start_date_calendar_trigger" class="calendar_trigger">&nbsp;</a>
@@ -27,7 +27,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_public %] warn[% END %]">Public Project?</label></td>
+  <td><label class="required[% IF c.dfv_msgs.err_public %] warn[% END %]">Public Project? *</label></td>
   <td>
     <input type="radio" name="public" value="1" /> Yes
     <input type="radio" name="public" value="0" /> No

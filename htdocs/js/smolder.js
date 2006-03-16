@@ -1,17 +1,51 @@
-function ajax_form_submit(form, div_name, indicator) {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FUNCTION: ajax_form_submit
+// takes the following named args
+// form      : the form object (required)
+// 
+// All other arguments are passed to the underlying ajax_submit() call
+//
+//  ajax_form_submit({
+//      form: formObj,
+//      div : 'div_name'
+//  });
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function ajax_form_submit(args) {
+    var form = args['form'];
     var url = form.action;
     var queryParams = Form.serialize(form);
+    args['url'] = url + "?" + queryParams;
 
-    ajax_submit(
-        url + "?" + queryParams,
-        div_name,
-        indicator
-    );
+    ajax_submit(args);
 };
 
-function ajax_submit (url, div_name, indicator) {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FUNCTION: ajax_submit
+// takes the following named args
+// url       : the full url of the request (required)
+// div       : the id of the div receiving the contents (optional defaults to 'content')
+// indicator : the id of the image to use as an indicator (optional defaults to 'indicator')
+// onComplete: a call back function to be executed after the normal processing (optional)
+//              Receives as arguments, the same args passed into ajax_submit
+//
+//  ajax_submit({
+//      url        : '/app/some_mod/something',
+//      div        : 'div_name',
+//      indicator  : 'add_indicator',
+//      onComplete : function(args) {
+//          // do something
+//      }
+//  });
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function ajax_submit (args) {
+    var url       = args['url'];
+    var div       = args['div'];
+    var indicator = args['indicator'];
+    var complete  = args['onComplete'] || Prototype.emptyFunction;;
+
     // tell the user that we're doing something
     showIndicator(indicator);
+
     // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
     var query_params;
@@ -21,12 +55,12 @@ function ajax_submit (url, div_name, indicator) {
         query_params = url_parts[1] + '&ajax=1'
     }
 
-    // the default div_name
-    if( div_name == null )
-        div_name = 'content';
+    // the default div
+    if( div == null || div == '' )
+        div = 'content';
 
     new Ajax.Updater(
-        { success : div_name, },
+        { success : div, },
         url_parts[0],
         {
             parameters  : query_params,
@@ -40,11 +74,15 @@ function ajax_submit (url, div_name, indicator) {
                 shownForm = '';
                 // hide the indicator
                 hideIndicator(indicator);
+                // do whatever else the user wants
+                complete(args);
             }
         }
     );
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function new_accordion (element_name, height) {
     new Rico.Accordion(
         $(element_name),
@@ -62,6 +100,8 @@ function new_accordion (element_name, height) {
     );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 var shownPopupForm = '';
 function togglePopupForm(formId) {
 
@@ -80,6 +120,8 @@ function togglePopupForm(formId) {
     return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function changeSmokeGraph(form) {
     var projectId = form.id.replace(/^change_smoke_graph_/, '');
     var type      = form.elements['type'].value;
@@ -112,6 +154,8 @@ function changeSmokeGraph(form) {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function toggleSmokeValid(form) {
     // TODO - replace with one regex
     var trigger = form.id.replace(/_trigger$/, '');
@@ -122,9 +166,15 @@ function toggleSmokeValid(form) {
     // XXX - this is a global... probably not the best way to do this
     shownForm = '';
     
-    ajax_form_submit(form, divId, trigger + "_indicator");
+    ajax_form_submit({
+        form      : form, 
+        div       : divId, 
+        indicator : trigger + "_indicator"
+    });
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function newSmokeReportWindow(url) {
     window.open(
         url,
@@ -133,6 +183,8 @@ function newSmokeReportWindow(url) {
     );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function makeFormAjaxable(element) {
     // find which div it targets
     var divId;
@@ -147,11 +199,17 @@ function makeFormAjaxable(element) {
         indicatorId = matches[2];
 
     element.onsubmit = function(event) {
-        ajax_form_submit(element, divId, indicatorId);
+        ajax_form_submit({
+            form      : element, 
+            div       : divId, 
+            indicator : indicatorId
+        });
         return false;
     };
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function makeLinkAjaxable(element) {
     var divId;
 
@@ -167,17 +225,25 @@ function makeLinkAjaxable(element) {
         indicatorId = matches[2];
 
     element.onclick = function(event) {
-        ajax_submit(element.href, divId, indicatorId);
+        ajax_submit({
+            url       : element.href, 
+            div       : divId, 
+            indicator : indicatorId
+        });
         return false;
     };
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function showIndicator(indicator) {
     indicator = $(indicator);
     if( indicator != null )
         Element.show(indicator);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function hideIndicator(indicator) {
     indicator = $(indicator);
     if( indicator != null )
