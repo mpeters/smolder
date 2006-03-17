@@ -48,7 +48,7 @@ __PACKAGE__->add_trigger(
 
 =over
 
-=item start_time
+=item start_date
 
 This is a L<DateTime> object representing the datetime stored.
 
@@ -424,6 +424,49 @@ sub delete_category {
     );
     $sth->execute( $self->id, $cat );
 }
+
+=head3 graph_start_datetime
+
+Returns a L<DateTime> object that represents the real date for the value
+stored in the 'graph_start' column. For example, if the current date
+were March 17, 2006 and the project was started on Feb 20th, 2006 
+then the following values would become the following dates:
+
+    project => Feb 20th, 2006
+    year    => Jan 1st,  2006
+    month   => Mar 1st,  2006
+    week    => Mar 13th, 2006
+    day     => Mar 17th, 2006
+
+=cut
+
+sub graph_start_datetime {
+    my $self = shift;
+    my $dt;
+    # the project's start date
+    if( $self->graph_start eq 'project' ) {
+        $dt = $self->start_date;
+    # the first day of this year
+    } elsif( $self->graph_start eq 'year' ) {
+        $dt = DateTime->today()->set(
+            month => 1,
+            day   => 1,
+        );
+    # the first day of this month
+    } elsif( $self->graph_start eq 'month' ) {
+        $dt = DateTime->today()->set(day => 1);
+    # the first day of this week 
+    } elsif( $self->graph_start eq 'week' ) {
+        $dt = DateTime->today;
+        my $day_diff = $dt->day_of_week - 1;
+        $dt->subtract(days => $day_diff) if( $day_diff );
+    # today
+    } elsif( $self->graph_start eq 'day' ) {
+        $dt = DateTime->today();
+    }
+    return $dt;
+}
+  
 
 =head2 CLASS METHODS
 

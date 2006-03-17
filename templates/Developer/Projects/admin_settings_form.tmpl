@@ -25,6 +25,18 @@
   [% END %]
 </tr>
 <tr>
+  <td><label [% IF c.dfv_msgs.err_graph_start %]class="warn"[% END %]>Graphs Start Date</label></td>
+  <td>
+    <select name="graph_start">
+      <option value="project">Project Start Date</option>
+      <option value="year">First Day of the Year</option>
+      <option value="month">First Day of the Month</option>
+      <option value="week">First Day of the Week</option>
+      <option value="day">Today</option>
+    </select>
+  </td>
+</tr>
+<tr>
   <td><label class="required[% IF c.dfv_msgs.err_allow_anon %] warn[% END %]">Allow Anonymous Reports? *</label></td>
   <td>
     <input type="radio" name="allow_anon" value="1"/>Yes

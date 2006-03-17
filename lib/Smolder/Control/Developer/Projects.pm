@@ -6,7 +6,7 @@ use warnings;
 use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
 use Smolder::Constraints qw(
-  smoke_report_format
+  enum_value
   length_max
   unsigned_int
   bool
@@ -131,7 +131,7 @@ sub process_add_report {
         required           => [qw(report_file format)],
         optional           => [qw(architecture platform comments category)],
         constraint_methods => {
-            format       => smoke_report_format(),
+            format       => enum_value('smoke_report', 'format'),
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
@@ -319,6 +319,7 @@ sub admin_settings {
             default_platform => $project->default_platform,
             default_arch     => $project->default_arch,
             allow_anon       => $project->allow_anon,
+            graph_start      => $project->graph_start,
         };
         $out = HTML::FillInForm->new()->fill(
             scalarref => $self->tt_process( { project => $project } ),
@@ -341,12 +342,13 @@ sub process_admin_settings {
 
     # validate the incoming data
     my $form = {
-        required           => [qw(allow_anon)],
+        required           => [qw(allow_anon graph_start)],
         optional           => [qw(default_arch default_platform)],
         constraint_methods => {
             allow_anon       => bool(),
             default_arch     => length_max(255),
             default_platform => length_max(255),
+            graph_start      => enum_value('project', 'graph_start'),
         },
     };
     my $results = $self->check_rm( 'admin_settings', $form )
@@ -354,7 +356,7 @@ sub process_admin_settings {
     my $valid = $results->valid();
 
     # set and save
-    foreach my $field qw(allow_anon default_arch default_platform) {
+    foreach my $field qw(allow_anon default_arch default_platform graph_start) {
         $project->$field( $valid->{$field} );
     }
     $project->update();

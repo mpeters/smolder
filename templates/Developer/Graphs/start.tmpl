@@ -8,7 +8,7 @@
     <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
     <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
     [% IF project.is_admin(c.developer) %]
-    <a class="sub_menu" href="/app/developer_projects/">Project Settings</a>
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
 </div>
 

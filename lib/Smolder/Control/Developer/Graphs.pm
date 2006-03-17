@@ -9,7 +9,7 @@ use Smolder::DB::SmokeReport;
 
 use DateTime;
 use DateTime::Format::Strptime;
-use File::Spec::Functions qw(catdir);
+use File::Spec::Functions qw(catdir catfile);
 use GD::Graph::area;
 use GD::Graph::bars3d;
 use GD::Graph::lines3d;
@@ -60,7 +60,7 @@ sub start {
 
     # the defaults
     my %fill_data = (
-        start => $project->start_date->strftime(' %m/%d/%Y'),
+        start => $project->graph_start_datetime->strftime(' %m/%d/%Y'),
         stop  => DateTime->today()->strftime('%m/%d/%Y'),
         pass  => 1,
         fail  => 1,
@@ -89,13 +89,14 @@ sub image {
     if ( $query->param('start') ) {
         $start = $dt_format->parse_datetime( $query->param('start') );
     } else {
-        $start = $project->start_date;
+        $start = $project->graph_start_datetime;
     }
     if ( $query->param('stop') ) {
         $stop = $dt_format->parse_datetime( $query->param('stop') );
     } else {
         $stop = DateTime->today();
     }
+    $self->log->debug("Graph starting $start and ending $stop");
 
     # which fields do we need to show?
     my @fields;
@@ -122,34 +123,40 @@ sub image {
         %search_params,
     );
 
-    # handle empty data results and redirect to a 'no_graph_data.png' file
-    if ( scalar @$data == 0 ) {
-        $self->header_add( -uri => '/images/no_graph_data.png' );
-        $self->header_type('redirect');
-        return "no data";
-    }
-
-    my @colors = map { $FIELDS{$_}->[0] } @fields;
-    my @legend = map { $FIELDS{$_}->[1] } @fields;
-
-    my $title = "'"
-      . $project->name
-      . "' Smoke Progress ("
-      . $start->strftime('%m/%d/%Y') . ' - '
-      . $stop->strftime('%m/%d/%Y') . ')';
-    my $gd = $self->_create_progress_gd(
-        colors => \@colors,
-        data   => $data,
-        legend => \@legend,
-        title  => $title,
-    );
-
+    # send out our headers
     $self->header_type('none');
     my $r = $self->param('r');
     $r->no_cache(1);
     $r->send_http_header('image/png');
 
-    print $gd->png();
+    # if we don't have any data, then just send the no_graph_data.png file
+    if ( scalar @$data == 0 ) {
+        my $NO_DATA_FH;
+        my $file = catfile(InstallRoot, 'htdocs', 'images', 'no_graph_data.png');
+        open($NO_DATA_FH, $file)
+            or die "Could not open '$file' for reading: $!";
+        local $/ = undef;
+        print $r->print(<$NO_DATA_FH>);
+        close($NO_DATA_FH) or die "Could not close file '$file': $!";
+    # else create the graph and send it
+    } else {
+
+        my @colors = map { $FIELDS{$_}->[0] } @fields;
+        my @legend = map { $FIELDS{$_}->[1] } @fields;
+
+        my $title = "'"
+          . $project->name
+          . "' Smoke Progress ("
+          . $start->strftime('%m/%d/%Y') . ' - '
+          . $stop->strftime('%m/%d/%Y') . ')';
+        my $gd = $self->_create_progress_gd(
+            colors => \@colors,
+            data   => $data,
+            legend => \@legend,
+            title  => $title,
+        );
+        $r->print($gd->png);
+    }
 }
 
 sub _create_progress_gd {

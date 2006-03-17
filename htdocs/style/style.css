@@ -94,10 +94,6 @@ label {
     font-weight: bold;
 }
 
-.accordion .header label, .fake_accordion .header label {
-    color: #FFFFFF;
-}
-
 .popup_form label {
     color: #555555;
 }
@@ -414,6 +410,10 @@ div.accordion div.panel div.attention_header, div.fake_accordion div.panel div.a
 
 div.accordion div.panel div.content, div.fake_accordion div.panel div.content {
     background-color: #FFFFFF;
+}
+
+.accordion .header label, .fake_accordion .header label {
+    color: #FFFFFF;
 }
 
 /* Auto-Complete styles */
