@@ -1,6 +1,6 @@
 =head1 TODO
 
-=head2 FOR 0.1
+=head2 FOR 1.0
 
 =over
 
@@ -16,7 +16,7 @@ Document all run modes (templates used, etc)
 
 =back
 
-=head2 FOR 0.2
+=head2 FOR 2.0
 
 =over
 
@@ -42,29 +42,21 @@ Document all run modes (templates used, etc)
 
 =item * show test reports/graphs to the public
 
-=back
-
-=back
-
-=head2 FOR 1.0
-
-=item * make sure it builds/runs/installs on as many *nix platforms as possible
-
 =item * capture STDERR and associate with test files 
 
 needs changes to Test::Harness::Straps and Test::TAP::Model
 
 =item * add help tooltips where appropriate
 
-=item * optional logging of critical problems to email?
-
-=over
-
 =back
 
 =head2 BEYOND
 
 =over
+
+=item * make sure it builds/runs/installs on as many *nix platforms as possible
+
+=item * optional logging of critical problems to email?
 
 =item * built-in SSL support?
 
