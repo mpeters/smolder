@@ -169,9 +169,18 @@ sub _create_progress_gd {
     # what type of graph are we?
     my $type = $TYPE_MAP{ $self->param('type') } || 'bars3d';
 
-    # we just want to show the first, middle and last
+    # we just want to show the first, middle and last labels
+    # on the X axis
     my $x_skip = int( ( scalar( @{ $data->[0] } ) - 1 ) / 2 ) + 1;
 
+    # find the maximun value for the Y axis
+    my $y_max = 0;
+    foreach my $point (@{$data->[1]}) {
+        $y_max = $point if( $point > $y_max );
+    }
+    # now round up to the nearest 100
+    $y_max = ($y_max + 100) - ( $y_max % 100);
+    
     my $class = 'GD::Graph::' . $type;
     my $graph = $class->new( 600, 300 );
     $graph->set(
@@ -183,6 +192,7 @@ sub _create_progress_gd {
         labelclr             => 'dgray',
         dclrs                => $colors,
         y_label              => '# of Tests',
+        y_max_value          => $y_max,
         x_label_skip         => $x_skip,
         overwrite            => 1,
         legend_placement     => 'RT',
