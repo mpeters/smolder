@@ -169,7 +169,6 @@ sub do_upgrade {
     apply_upgrades();
     update_version();
     update_db_version();
-    clear_sessions();
 
     start_smolder();
     output_report();
@@ -377,7 +376,7 @@ sub apply_upgrades {
     print "  Upgrading v$old_version to v$new_version\n";
 
     # Find upgrade modules
-    my $upmod_path = $InstallRoot . "/upgrade/";
+    my $upmod_path = $InstallRoot . "/upgrades/";
     print "  Upgrade path: $upmod_path\n";
     opendir( DIR, $upmod_path ) || die("Unable to open upgrade directory '$upmod_path': $!\n");
     my @upmodules =
@@ -389,7 +388,7 @@ sub apply_upgrades {
     print "    " . join( "\n    ", @upmodules ) . "\n" if (@upmodules);
 
     # Run upgrade modules
-    my $perl5lib = $InstallRoot . "/upgrade:" . $InstallRoot . "/lib";
+    my $perl5lib = $InstallRoot . "/upgrades:" . $InstallRoot . "/lib";
     foreach my $module (@upmodules) {
         print "  Running $module...\n";
 
@@ -445,7 +444,6 @@ sub output_report {
             HostName    => $OLD_CONF->get("HostName"),
             IPAddress   => $OLD_CONF->get("ApacheAddr"),
             ApachePort  => $OLD_CONF->get("ApachePort"),
-            FTPPort     => $OLD_CONF->get("FTPPort"),
         }
     );
 }

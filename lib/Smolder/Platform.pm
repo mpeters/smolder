@@ -878,7 +878,6 @@ sub post_upgrade_message {
 
    Running on $options{IPAddress} --
      http://$options{HostName}:$options{ApachePort}/
-     ftp://$options{HostName}:$options{FTPPort}/
 
 EOREPORT
 

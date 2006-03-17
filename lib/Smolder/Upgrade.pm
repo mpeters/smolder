@@ -65,14 +65,14 @@ sub upgrade {
     # find and run the SQL file
     my $file = catfile($ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql');
     if( -e $file ) {
-        print "Upgrading DB with file '$file'.\n";
+        print "    Upgrading DB with file '$file'.\n";
         my $mysql_bin = $platform->find_bin( bin => 'mysql' );
         my $cmd = "$mysql_bin " . DBName . " -u" . DBUser . " -p" . DBPass;
         $cmd .= " -h" . DBHost if( DBHost );
         system("$cmd < $file") == 0
             or die "Could not run SQL in '$file': $!";    
     } else {
-        print "Could not find SQL file '$file'. Skipping DB upgrade.\n";
+        print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
     }
     $self->post_db_upgrade($platform);
 }
