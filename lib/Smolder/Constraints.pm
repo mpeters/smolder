@@ -19,9 +19,7 @@ our @EXPORT_OK = qw(
   length_max
   length_min
   length_between
-  pref_email_type
-  pref_email_freq
-  smoke_report_format
+  enum_value
   unique_field_value
   existing_field_value
   existing_project_category
@@ -128,15 +126,18 @@ sub length_between {
     return qr/^[[:print:]]{$min,$max}$/;
 }
 
-=head2 pref_email_type
+=head2 enum_value
 
 Returns a method which will make sure that the value is an allowable
-option for the C<email_type> column in the C<preference> table.
+enum value for the given table and column.
+
+    enum_value('table', 'column');
 
 =cut
 
-sub pref_email_type {
-    my $enums = Smolder::DB::Preference->enum_values('email_type');
+sub enum_value {
+    my ($table, $column) = @_;
+    my $enums = Smolder::DB->enum_values($table, $column);
     return sub {
         my ( $dfv, $value ) = @_;
         foreach my $enum (@$enums) {
@@ -145,47 +146,7 @@ sub pref_email_type {
             }
         }
         return;
-      }
-}
-
-=head2 pref_email_freq
-
-Returns a method which will make sure that the value is an allowable
-option for the C<email_freq> column in the C<preference> table.
-
-=cut
-
-sub pref_email_freq {
-    my $enums = Smolder::DB::Preference->enum_values('email_freq');
-    return sub {
-        my ( $dfv, $value ) = @_;
-        foreach my $enum (@$enums) {
-            if ( $enum eq $value ) {
-                return $value;
-            }
-        }
-        return;
-      }
-}
-
-=head2 smoke_report_format
-
-Returns a method which will make sure that the value is an allowable
-option for the C<format> column in the C<smoke_report> table.
-
-=cut
-
-sub smoke_report_format {
-    my $enums = Smolder::DB::SmokeReport->enum_values('format');
-    return sub {
-        my ( $dfv, $value ) = @_;
-        foreach my $enum (@$enums) {
-            if ( $enum eq $value ) {
-                return $value;
-            }
-        }
-        return;
-      }
+    };
 }
 
 =head2 unique_field_value

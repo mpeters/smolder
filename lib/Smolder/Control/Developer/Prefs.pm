@@ -2,7 +2,7 @@ package Smolder::Control::Developer::Prefs;
 use base 'Smolder::Control';
 use strict;
 use warnings;
-use Smolder::Constraints qw(pref_email_type pref_email_freq length_between);
+use Smolder::Constraints qw(enum_value length_between);
 
 sub setup {
     my $self = shift;
@@ -91,8 +91,8 @@ sub update_pref {
         required           => [qw(email_type email_freq)],
         optional           => [qw(project)],
         constraint_methods => {
-            email_type => pref_email_type(),
-            email_freq => pref_email_freq(),
+            email_type => enum_value('preference', 'email_type'),
+            email_freq => enum_value('preference', 'email_freq'),
             project    => qr/^\d+$/,
         }
     };

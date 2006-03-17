@@ -59,18 +59,18 @@ _check_with_dfv( 'length_between', \@bad,  0, 5, 7 );
 _check_with_dfv( 'length_between', \@bad,  0, 7, 5 );
 
 # 32..36
-# pref_email_type
+# enum_value (preference, email_type)
 @good = ( 'full', 'summary', 'link' );
 @bad = ( 'stuff', 'more stuff' );
-_check_with_dfv( 'pref_email_type', \@good, 1 );
-_check_with_dfv( 'pref_email_type', \@bad,  0 );
+_check_with_dfv( 'enum_value', \@good, 1, 'preference', 'email_type' );
+_check_with_dfv( 'enum_value', \@bad,  0 , 'preference', 'email_type');
 
 # 37..41
-# pref_email_freq
+# enum_value (preference, email_freq)
 @good = ( 'on_new', 'on_fail', 'never' );
 @bad = ( 'stuff', 'more stuff' );
-_check_with_dfv( 'pref_email_freq', \@good, 1 );
-_check_with_dfv( 'pref_email_freq', \@bad,  0 );
+_check_with_dfv( 'enum_value', \@good, 1, 'preference', 'email_freq' );
+_check_with_dfv( 'enum_value', \@bad,  0, 'preference', 'email_freq' );
 
 # 42..44
 # unique_field_value
@@ -82,7 +82,7 @@ _check_with_dfv( 'unique_field_value', \@good, 1, 'project', 'name' );
 _check_with_dfv( 'unique_field_value', \@bad,  0, 'project', 'name' );
 
 sub _check_with_dfv {
-    my ( $name, $data, $good, @args ) = @_;
+    my ( $name, $data, $pass, @args ) = @_;
     my $sub_name = "Smolder::Constraints::$name";
     my $constraint;
     {
@@ -92,7 +92,7 @@ sub _check_with_dfv {
     foreach my $value (@$data) {
         my $results = Data::FormValidator->check( { $name => $value },
             { required => $name, constraint_methods => { $name => $constraint } } );
-        if ($good) {
+        if ($pass) {
             ok( defined $results->valid($name), "$name with '$value'" );
         } else {
             ok( !defined $results->valid($name), "$name with '$value'" );
