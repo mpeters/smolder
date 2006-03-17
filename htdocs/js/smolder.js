@@ -176,7 +176,7 @@ function newSmokeReportWindow(url) {
     window.open(
         url,
         'report_details',
-        'resizeable, width=750, height=600, scrollable'
+        'resizeable=yes,width=770,height=600,scrollbars=yes'
     );
 }
 
