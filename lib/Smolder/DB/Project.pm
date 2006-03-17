@@ -304,9 +304,12 @@ sub report_graph_data {
         push( @bind_cols, $stop->strftime('%Y-%m-%d') );
     }
 
-    if ($category) {
-        $sql .= " AND category = ? ";
-        push( @bind_cols, $category );
+    # add optional args
+    foreach my $extra_param qw(category architecture platform) {
+        if ($args{$extra_param}) {
+            $sql .= " AND $extra_param = ? ";
+            push( @bind_cols, $args{$extra_param} );
+        }
     }
 
     my $sth = $self->db_Main->prepare_cached($sql);
@@ -317,6 +320,48 @@ sub report_graph_data {
         }
     }
     return \@data;
+}
+
+=head3 platforms
+
+Returns an arrayref of all the platforms that have been associated with
+smoke tests uploaded for this project.
+
+=cut
+
+sub platforms {
+    my $self = shift;
+    my $sth = $self->db_Main->prepare_cached(q(
+        SELECT DISTINCT platform FROM smoke_report
+        WHERE platform != '' AND project = ? ORDER BY platform
+    ));
+    $sth->execute($self->id);
+    my @plats;
+    while(my $row = $sth->fetchrow_arrayref) {
+        push(@plats, $row->[0]);
+    }
+    return \@plats;
+}
+
+=head3 architectures
+
+Returns a list of all the architectures that have been associated with
+smoke tests uploaded for this project.
+
+=cut
+
+sub architectures {
+    my $self = shift;
+    my $sth = $self->db_Main->prepare_cached(q(
+        SELECT DISTINCT architecture FROM smoke_report
+        WHERE architecture != '' AND project = ? ORDER BY architecture
+    ));
+    $sth->execute($self->id);
+    my @archs;
+    while(my $row = $sth->fetchrow_arrayref) {
+        push(@archs, $row->[0]);
+    }
+    return \@archs;
 }
 
 =head3 categories

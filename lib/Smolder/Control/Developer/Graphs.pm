@@ -56,7 +56,7 @@ sub start {
     return $self->error_message('Project does not exist')
       unless $project;
 
-    $tt_params->{project} = $project;
+    $tt_params->{project}       = $project;
 
     # the defaults
     my %fill_data = (
@@ -97,23 +97,29 @@ sub image {
         $stop = DateTime->today();
     }
 
-    # by default, show pass vs fail
+    # which fields do we need to show?
     my @fields;
-
-    # which fields do we need?
     if ( $query->param('change') ) {
         foreach my $field (@FIELDS) {
             push( @fields, $field ) if ( $query->param($field) );
         }
+    # by default, show pass vs fail
     } else {
         @fields = qw(pass fail);
     }
 
+    my %search_params = (
+        start   => $start,
+        stop    => $stop,
+    );
+    foreach my $extra_param qw(category architecture platform) {
+        $search_params{$extra_param} = $query->param($extra_param)
+            if( $query->param($extra_param) ); 
+    }
+
     my $data = $project->report_graph_data(
         fields   => \@fields,
-        start    => $start,
-        stop     => $stop,
-        category => $category,
+        %search_params,
     );
 
     # handle empty data results and redirect to a 'no_graph_data.png' file

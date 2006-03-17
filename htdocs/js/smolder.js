@@ -126,13 +126,8 @@ function changeSmokeGraph(form) {
     var projectId = form.id.replace(/^change_smoke_graph_/, '');
     var type      = form.elements['type'].value;
     var url       = "/app/developer_graphs/image/" + projectId + "/" + escape(type) + "?change=1&";
-    var start     = form.elements['start'].value;
-    var stop      = form.elements['stop'].value;
-    var category  = '';
-    if( form.elements['category'] != null )
-        category = form.elements['category'].value;
 
-    // add each field to the URL
+    // add each field that we want to see to the URL
     var fields = new Array('total', 'pass', 'fail', 'skip', 'todo');
     fields.each(
         function(value, index) {
@@ -142,12 +137,14 @@ function changeSmokeGraph(form) {
         }
     );
 
-    if( start != '' )
-        url = url + 'start=' + escape(start) + '&';
-    if( stop != '' )
-        url = url + 'stop=' + escape(stop) + '&';
-    if( category != '' )
-        url = url + 'category=' + escape(category) + '&';
+    // add any extra args that we might want to search by
+    var extraArgs = ['start', 'stop', 'category', 'platform', 'architecture', 'category'];
+    for(var i = 0; i < extraArgs.length; i++) {
+        var arg = extraArgs[i];
+        if( form.elements[arg] != null && form.elements[arg].value != '') {
+            url = url + arg + '=' + escape(form.elements[arg].value) + '&';
+        }
+    }
 
     $('graph_image').src = url;
     new Effect.Highlight($('graph_container'), { startcolor: '#c3c3c3' });
