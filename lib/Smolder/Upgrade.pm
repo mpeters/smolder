@@ -63,7 +63,7 @@ sub upgrade {
 
     $self->pre_db_upgrade($platform);
     # find and run the SQL file
-    my $file = catfile($ENV{SMOLDER_ROOT}, 'upgrades', ref($self) . '.sql');
+    my $file = catfile($ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql');
     if( -e $file ) {
         print "Upgrading DB with file '$file'.\n";
         my $mysql_bin = $platform->find_bin( bin => 'mysql' );
