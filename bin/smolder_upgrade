@@ -101,7 +101,7 @@ Refer to F<docs/ops_upgrade.pod>.
 
 =cut
 
-use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath tmpdir);
 use FindBin qw($RealBin);
 use Config;
 
@@ -324,7 +324,7 @@ sub make_backups {
 
     # run smolder_backup
     my $backup = catfile( $options{InstallRoot}, 'bin', 'smolder_backup' )
-      . " " . catfile('tmp', $BACKUP_FILENAME) . " 2>&1";
+      . " " . catfile(tmpdir(), $BACKUP_FILENAME) . " 2>&1";
     my $out = `SMOLDER_ROOT='' $backup`;
     exit_error(
         "Problem creating smolder_backup. "
