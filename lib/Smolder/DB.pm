@@ -97,15 +97,27 @@ sub vars {
 =head2 enum_values
 
 Returns an arrayref containing the different values that an emum column can hold.
-This must be used in a sub class (it's an abstract method).
+If used as a method on a subclass then it will use that class to determine which
+table to use. Else, if called on the L<Smolder::DB> base class, it will accept
+2 arguments, the first being the table to use.
 
     my $values = Smolder::DB::Foo->enum_values('some_column');
+
+    my $value  = Smolder::DB->enum_values('table', 'some_column');
 
 =cut
 
 sub enum_values {
-    my ( $self, $column ) = @_;
-    my $table = $self->table();
+    my $self = shift;
+    my ($table, $column);;
+
+    if( ref $self || $self ne __PACKAGE__ ) {
+        $table = $self->table();
+    } else {
+        $table = shift;
+    }
+    $column = shift;
+
     my $sth   = Smolder::DB->db_Main()->prepare_cached(
         qq(
         SHOW COLUMNS FROM $table LIKE '$column';
