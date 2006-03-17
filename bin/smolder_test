@@ -193,6 +193,16 @@ if ( !scalar(@testfiles) ) {
     @testfiles = map { glob($_) } @testfiles;
 }
 
+# if we have aaa_dbcount and zzz_dbcount in the list, shuffle them to the
+# front and back respectively
+my ($file) = grep( /aaa_dbcount/, @testfiles );
+@testfiles = grep( !/aaa_dbcount/, @testfiles );
+unshift @testfiles, $file if $file;
+
+($file) = grep( /zzz_dbcount/, @testfiles );
+@testfiles = grep( !/zzz_dbcount/, @testfiles );
+push @testfiles, $file if $file;
+
 # if we want XML output
 if ($xml) {
     my $test_model = Test::TAP::XML->new();
