@@ -89,3 +89,7 @@ body {
     top: 84px;
 }
 
+#ajax_error_container {
+    display:none;
+}
+

@@ -76,6 +76,17 @@ function ajax_submit (args) {
                 hideIndicator(indicator);
                 // do whatever else the user wants
                 complete(args);
+            },
+            onFailure: function(request) {
+                new Notify.Alert(
+                    $('ajax_error_container').innerHTML,
+                    {
+                        messagecolor : '#FFFFFF',
+                        autoHide     : 'false',
+                        inEffect     : function(e) { Effect.BlindDown(e) },
+                        outEffect    : function(e) { Effect.BlindUp(e) },
+                    }
+                );
             }
         }
     );
