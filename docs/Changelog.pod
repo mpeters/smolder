@@ -4,6 +4,8 @@
 
 =over
 
+=item * Overhaul and review of upgrade system - M. Peters
+
 =item * Project admins can control when the project graph starts by default - M. Peters
 
 =item * Can now view progress graph by platform and architecture - M. Peters
