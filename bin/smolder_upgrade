@@ -429,6 +429,12 @@ sub update_db_version {
 
 sub start_smolder {
     my $InstallRoot = $options{InstallRoot};
+    # clean out the tmp dir
+    my $tmp_dir = catfile($InstallRoot, 'tmp', '*');
+    system("rm -rf $tmp_dir") == 0
+        or warn("Can't remote tmp directory! $!");
+
+    # now restart smolder
     my $start = "SMOLDER_ROOT='' PERL5LIB='' " .
         catfile($InstallRoot, 'bin', 'smolder_ctl start');
     print "Starting Smolder running '$start'\n";
