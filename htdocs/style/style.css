@@ -413,6 +413,10 @@ div.accordion div.panel div.content, div.fake_accordion div.panel div.content {
     background-color: #FFFFFF;
 }
 
+div.fake_accordion div.panel div.invalid_content {
+    background-color: #CCCCCC;
+}
+
 .accordion .header label, .fake_accordion .header label {
     color: #FFFFFF;
 }
