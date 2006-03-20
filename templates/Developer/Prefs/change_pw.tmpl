@@ -15,7 +15,7 @@
 <table>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_current_pw %] warn[% END %]">Current Password *</label></td>
-  <td><input class="first" type="password" name="current_pw" /></td>
+  <td><input class="first hl" type="password" name="current_pw" /></td>
   [% IF c.dfv_msgs.invalid_current_pw %]
   <td class="warn">
     Does not match your current password!
@@ -24,7 +24,7 @@
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_new_pw %] warn[% END %]">New Password *</label></td>
-  <td><input type="password" name="new_pw" /></td>
+  <td><input class="hl" type="password" name="new_pw" /></td>
   [% IF c.dfv_msgs.invalid_new_pw %]
   <td class="warn">
     Must be at least 4 characters long!
@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_new_pw_retyped %] warn[% END %]">New Password <em>(Retyped)</em> *</label></td>
-  <td><input type="password" name="new_pw_retyped" /></td>
+  <td><input class="hl" type="password" name="new_pw_retyped" /></td>
   [% IF c.dfv_msgs.invalid_new_pw_retyped %]
   <td class="warn">
     Does not match your New Password!

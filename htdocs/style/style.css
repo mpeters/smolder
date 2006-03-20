@@ -43,6 +43,7 @@ a:visited {
     color: #C47147;
 }
 
+/* Form elements */
 button, input[type="submit"], input[type="button"] {
     color: #C47147;
     background-color: #ffffff;

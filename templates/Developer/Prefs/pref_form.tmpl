@@ -13,7 +13,7 @@
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type *</td>
   <td>
-    <select name="email_type">
+    <select name="email_type" class="hl">
       <option value="full" [% IF pref.email_type == 'full' %]selected="selected"[% END %]>Full HTML Report</option>
       <option value="summary" [% IF pref.email_type == 'summary' %]selected="selected"[% END %]>Simple Summary of Pass/Fail/Skip</option>
       <option value="link" [% IF pref.email_type == 'link' %]selected="selected"[% END %]>A Link to the Full Summary</option>
@@ -23,7 +23,7 @@
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency *</td>
   <td>
-    <select name="email_freq">
+    <select name="email_freq" class="hl">
       <option value="on_new" [% IF pref.email_freq == 'on_new' %]selected="selected"[% END %]>Everytime a new Test Report is Added </option>
       <option value="on_fail" [% IF pref.email_freq == 'on_fail' %]selected="selected"[% END %]>Only when a new Test Report has Failures</option>
       <option value="never" [% IF pref.email_freq == 'never' %]selected="selected"[% END %]>Never</option>

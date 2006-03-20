@@ -20,19 +20,19 @@
 <tr><td class="header2" colspan="4">Add New Developer</td></tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_username || err_unique_username %] warn[% END %]">Username *</label></td>
-  <td><input class="first" type="text" name="username" size="25" autocomplete="off" /></td>
+  <td><input class="first hl" type="text" name="username" size="25" autocomplete="off" /></td>
   <td><label class="required[% IF c.dfv_msgs.err_email %] warn[% END %]">Email Address *</label></td>
-  <td><input type="text" name="email" size="25" autocomplete="off" /></td>
+  <td><input class="hl" type="text" name="email" size="25" autocomplete="off" /></td>
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_fname %] warn[% END %]">First Name *</label></td>
-  <td><input type="text" name="fname" size="25" /></td>
+  <td><input class="hl" type="text" name="fname" size="25" /></td>
   <td><label class="required[% IF c.dfv_msgs.err_lname %] warn[% END %]">Last Name *</label></td>
-  <td><input type="text" name="lname" size="25" /></td>
+  <td><input class="hl" type="text" name="lname" size="25" /></td>
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_password %] warn[% END %]">Password *</label></td>
-  <td><input type="text" name="password" size="25" /></td>
+  <td><input class="hl" type="text" name="password" size="25" /></td>
   <td><label class="required[% IF c.dfv_msgs.err_admin %] warn[% END %]">Site Admin? *</label></td>
   <td>
     <input type="radio" name="admin" value="1"> Yes

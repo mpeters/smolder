@@ -166,6 +166,7 @@ var myrules = {
 
     'input.first' : function(element) {
         element.focus();
+        highlight(element);
     },
     '#crud_add_trigger': function(element) {
         var container = 'crud_add_container';
@@ -250,7 +251,20 @@ var myrules = {
             togglePopupForm(popupId);
             return false;
         };
-    }
+    },
+    // hightlight selected text, textarea and select inputs
+    'input.hl': function(element) {
+        element.onfocus = function() { highlight(element);   };
+        element.onblur  = function() { unHighlight(element); };
+    },
+    'textarea.hl': function(element) {
+        element.onfocus = function() { highlight(element);   };
+        element.onblur  = function() { unHighlight(element); };
+    },
+    'select.hl': function(element) {
+        element.onfocus = function() { highlight(element);   };
+        element.onblur  = function() { unHighlight(element); };
+    },
 };
 
 Behaviour.register(myrules);
