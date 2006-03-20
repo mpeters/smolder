@@ -158,7 +158,14 @@ function changeSmokeGraph(form) {
     }
 
     $('graph_image').src = url;
-    new Effect.Highlight($('graph_container'), { startcolor: '#c3c3c3' });
+    new Effect.Highlight(
+        $('graph_container'), 
+        { 
+            startcolor  : '#FFFF99',
+            endcolor    : '#FFFFFF',
+            restorecolor: '#FFFFFF'
+        }
+    );
 }
 
 
