@@ -9,6 +9,7 @@ BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
       ApacheAddr
       ApachePort
+      DBPlatform
       DBHost
       DBName
       DBPass
@@ -18,7 +19,6 @@ BEGIN {
       HostName
       InstallRoot
       LogLevel
-      SchedulerMaxChildren
       SMTPHost
       User
     );
@@ -26,6 +26,7 @@ BEGIN {
     @REQUIRED_DIRECTIVES = qw(
       ApacheAddr
       ApachePort
+      DBPlatform
       DBName
       DBPass
       DBUser
