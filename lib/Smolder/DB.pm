@@ -1,21 +1,19 @@
 package Smolder::DB;
 use strict;
 use warnings;
-use base 'Class::DBI::mysql';
+use Smolder::DBPlatform;
+use Smolder::Conf qw(DBName DBUser DBPass DBHost DBPlatform);
+
+our $DB_PLATFORM;
+BEGIN {
+    $DB_PLATFORM = Smolder::DBPlatform->load();
+};
+use base $DB_PLATFORM->cdbi_class;
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
-use Smolder::Conf qw(DBName DBUser DBPass DBHost);
+use Smolder::DBPlatform;
 
 # these are needed for Class::DBI to recognize the db handle properly
-our $db_options = {
-    RaiseError         => 1,
-    PrintError         => 0,
-    AutoCommit         => 0,
-    FetchHashKeyName   => 'NAME_lc',
-    ShowErrorStatement => 1,
-    ChopBlanks         => 1,
-    RootClass          => 'DBIx::ContextualFetch'
-};
 
 # override default to avoid using Ima::DBI closure
 sub db_Main {
@@ -77,8 +75,13 @@ Returns a DBI database handle.
 =cut
 
 sub connect {
-    my $dsn = "dbi:mysql:database=" . DBName() . ";host=" . ( DBHost() || 'localhost' );
-    return DBI->connect_cached( $dsn, DBUser(), DBPass(), $db_options );
+    my $db_platform = Smolder::DBPlatform->load(DBPlatform);
+    return $db_platform->dbh(
+        user    => DBUser,
+        passwd  => DBPass,
+        host    => DBHost,
+        db_name => DBName,
+    );
 }
 
 =head2 vars
@@ -109,6 +112,7 @@ table to use. Else, if called on the L<Smolder::DB> base class, it will accept
 
 sub enum_values {
     my $self = shift;
+    my $db_platform = Smolder::DBPlatform->load(DBPlatform);
     my ($table, $column);;
 
     if( ref $self || $self ne __PACKAGE__ ) {
@@ -118,17 +122,7 @@ sub enum_values {
     }
     $column = shift;
 
-    my $sth   = Smolder::DB->db_Main()->prepare_cached(
-        qq(
-        SHOW COLUMNS FROM $table LIKE '$column';
-    )
-    );
-    $sth->execute();
-    my $row = $sth->fetchrow_arrayref();
-    $sth->finish();
-    my $text = $row->[1];
-    $text =~ s/^enum//;
-    return eval "[$text]";
+    return $db_platform->get_enum_values($table, $column);
 }
 
 =head2 column_values

@@ -7,7 +7,7 @@ our $COPY_BIN;
 our $CHOWN_BIN;
 our $ECHO_BIN;
 our $PERL_BIN = $^X;
-our $MYSQL_BIN;
+our $DB_PLATFORM;
 
 =head1 NAME
 
@@ -80,20 +80,20 @@ Output results of upgrade to console.
 
 =head1 OPTIONS
 
- --InstallRoot       - Directory where Smolder is installed, defaults to 
-                       /usr/local/smolder.
+ --InstallRoot   - Directory where Smolder is installed, defaults to 
+                   /usr/local/smolder.
 
- --AdminDBPassword   - Password for the Database Admin user.  Defaults to
-                       "".
+ --AdminDBPass   - Password for the Database Admin user.  Defaults to
+                   "".
 
- --DBHost            - Host that DB server is running on. Defaults to
-                       "" - which connects to the local host.
+ --DBHost        - Host that DB server is running on. Defaults to
+                   "" - which connects to the local host.
 
- --no-backup         - Skip making a backup before running the upgrade.
+ --no-backup     - Skip making a backup before running the upgrade.
 
- --help              - Show usage
+ --help          - Show usage
 
- --man               - Show full man page
+ --man           - Show full man page
 
 =head1 SEE ALSO
 
@@ -130,20 +130,20 @@ BEGIN {
 }
 
 use Smolder;
+use Smolder::DBPlatform;
 use Getopt::Long;
 use Pod::Usage;
 use Config::ApacheFormat;
 
 my @original_args = ();
 my $uniqueness    = time();
-my $mysql_datadir;
 my $OLD_CONF;
 my $BACKUP_FILENAME = "";
 my $OLD_VERSION;
 
 my ( $help, $man );
 
-my @opt_params = qw( InstallRoot AdminDBPassword DBHost );
+my @opt_params = qw( InstallRoot AdminDBPass DBHost );
 
 my %options = ( map { $_ => "" } @opt_params );
 
@@ -227,6 +227,11 @@ sub check_prereqs {
     exit_error("Unable to read config file '$conf'.")
       unless $OLD_CONF;
 
+    # set the DB_PLATFORM
+    $DB_PLATFORM = Smolder::DBPlatform->load(
+        ($OLD_CONF->get('DBPlatform') || 'MySQL')
+    );
+
     # get Smolder version
     $OLD_VERSION = get_version($root);
 
@@ -249,58 +254,30 @@ sub check_prereqs {
         . " stop\n" 
     ) if ($running);
 
-    # AdminDBPassword must be valid, and the DB should be running
-    my $mysql_bin       = $MYSQL_BIN;
-    my $AdminDBPassword = $options{'AdminDBPassword'};
-    my $DBHost          = $options{'DBHost'};
-    my $test_mysql      = "$ECHO_BIN 'select \"world\" as hello' | $mysql_bin -uroot";
-    $test_mysql .= " -p$AdminDBPassword" if ( length($AdminDBPassword) );
-    $test_mysql .= " -h$DBHost"          if ( length($DBHost) );
-    $test_mysql .= " 2>&1";
-    my $mysql_test_output = `$test_mysql`;
-
-    unless ( ( $mysql_test_output =~ /hello/ ) and ( $mysql_test_output =~ /world/ ) ) {
-        print STDERR "$mysql_test_output";
-        if ( $mysql_test_output =~ /ERROR 1045: Access denied/ ) {
-            exit_error("AdminDBPassword '$AdminDBPassword' is not valid");
-        } elsif ( $mysql_test_output =~ /ERROR 2002: Can\'t connect/ ) {
-            exit_error(
-                "Can't connect to MySQL. Do you need to use the DBHost option? "
-                . "Start MySQL and try again."
-            );
-        } else {
-            exit_error("Unable to verify connection to MySQL.");
-        }
+    # AdminDBPass must be valid, and we should be able to connect to the DB
+    my $admin_verified = $DB_PLATFORM->verify_admin(
+        passwd => $options{AdminDBPass},
+        host   => $options{DBHost},
+    );
+    unless( $admin_verified ) {
+        exit_error("AdminDBPass '$options{AdminDBPass}' is not valid or could not connect to the DB");
     }
-
-    ## End of prereq check
 }
 
 # load the platform module for this dist
 sub load_platform {
-    our $PLATFORM;
 
     exit_error("Can't find data/build.db.  Do you need to run 'make build'?")
       unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
     require Smolder::Platform;
-    my %build_params = Smolder::Platform->build_params;
+    our $PLATFORM = Smolder::Platform->load();
 
-    # add in $SMOLDER_ROOT/platform for platform build modules
-    my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
-    $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
-    unshift @INC, $plib;
-
-    print "Loading platform module for '$build_params{Platform}...\n";
-    $PLATFORM = "$build_params{Platform}::Platform";
-    eval "use $PLATFORM;";
-    die "Unable to load $PLATFORM: $@"
-      if $@;
+    print "Loaded platform module '$PLATFORM'...\n";
 
     # find binaries
     $COPY_BIN  = $PLATFORM->find_bin( bin => 'cp' );
     $CHOWN_BIN = $PLATFORM->find_bin( bin => 'chown' );
     $ECHO_BIN  = $PLATFORM->find_bin( bin => 'echo' );
-    $MYSQL_BIN = $PLATFORM->find_bin( bin => 'mysql' );
 }
 
 sub make_backups {
@@ -489,9 +466,9 @@ sub setup_getopts {
 
 sub set_param_defaults {
     my %defaults = (
-        InstallRoot     => '/usr/local/smolder',
-        AdminDBPassword => '',
-        DBHost          => '',
+        InstallRoot => '/usr/local/smolder',
+        AdminDBPass => '',
+        DBHost      => '',
     );
 
     # Set up defaults if value is not otherwise set

@@ -8,7 +8,7 @@ use warnings;
 
 smolder_sql_diagram 
 
-Create a Smolder.png ERD of specified Smolder database tables.
+Create a smolder.png ERD of specified Smolder database tables.
 
 =head1 SYNOPSIS
 
@@ -17,9 +17,8 @@ Create a Smolder.png ERD of specified Smolder database tables.
 =head1 DESCRIPTION
 
 This script will create an ERD of the Smolder db, with specifed tables.
-It does this by using mysqldump, and the SQL::Translator sqlt-diagram to
-produce a PNG file.  See sqlt-diagram and mysqldump for
-more details about these utilities.
+It does this by dumping the database, and the SQL::Translator sqlt-diagram to
+produce a PNG file.  See sqlt-diagram more details about it's use.
 
 =head1 OPTIONS
 
@@ -33,29 +32,34 @@ Show usage
 
 Show full man page
 
+=item DBPlatform
+
+The database platform for the installation.
+The default values is pulled from the smolder.conf.
+
 =item DBHost
 
-The host name of the database. The default values is pulled from the smolder.conf.
+The host name of the database. 
+The default values is pulled from the smolder.conf.
 
 =item DBUser
 
-The administrator database user. The default value is pulled from the smolder.conf.
+The administrator database user. 
+The default value is pulled from the smolder.conf.
 
 =item DBPass
 
-The administrator database password. The default value is pulled from the smolder.conf.
+The administrator database password. 
+The default value is pulled from the smolder.conf.
 
 =item DBName
 
-The database name. The default value is pulled from the smolder.conf.
+The database name. 
+The default value is pulled from the smolder.conf.
 
-=item tables
+=item filename
 
-List of tables separated by commas; order counts here.
-
-=item filena
-
-Path and filename for the resulting png. By default it is 'Smolder.png'
+Path and filename for the resulting png. By default it is 'smolder.png'
 
 =item title 
 
@@ -96,6 +100,7 @@ END
 }
 
 use Smolder::Conf;
+use Smolder::DBPlatform;
 use Getopt::Long;
 use File::Spec::Functions qw(catfile);
 use Pod::Usage;
@@ -105,61 +110,57 @@ use File::Copy;
 my $config = Smolder::Conf->get_config();
 
 # default options
-my $help     = 0;
-my $man      = 0;
-my $filename = 'Smolder.png';
-my $DBUser   = $config->get('DBUser');
-my $DBPass   = $config->get('DBPass');
-my $DBHost   = $config->get('DBHost');
-my $DBName   = $config->get('DBName');
-my @tables   = ();
-my $title    = 'Smolder Schema';
+my $help       = 0;
+my $man        = 0;
+my $filename   = 'smolder.png';
+my $DBUser     = $config->get('DBUser');
+my $DBPass     = $config->get('DBPass');
+my $DBHost     = $config->get('DBHost');
+my $DBName     = $config->get('DBName');
+my $DBPlatform = $config->get('DBName');
+my $title      = 'Smolder Schema';
 
 GetOptions(
-    'help'       => \$help,
-    'man'        => \$man,
-    'filename=s' => \$filename,
-    'DBPass=s'   => \$DBPass,
-    'DBUser=s'   => \$DBUser,
-    'DBName=s'   => \$DBName,
-    'DBHost=s'   => \$DBHost,
-    'tables=s'   => \@tables,
-    'title=s'    => \$title,
-  )
-  or pod2usage(1);
+    'help'         => \$help,
+    'man'          => \$man,
+    'filename=s'   => \$filename,
+    'DBPass=s'     => \$DBPass,
+    'DBUser=s'     => \$DBUser,
+    'DBName=s'     => \$DBName,
+    'DBHost=s'     => \$DBHost,
+    'DBPlatform=s' => \$DBPlatform,
+    'title=s'      => \$title,
+) or pod2usage(1);
 
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
-
-if (@tables) {
-    @tables = split( /,/, join( ',', @tables ) );
-}
 
 my $tmp = File::Temp->new(
     SUFFIX => '.sql',
     UNLINK => 1,
 );
+close($tmp);
 
-# create the mysqldump command
-my $dump = "mysqldump -u$DBUser -p$DBPass -h$DBHost --no-data $DBName ";
-if (@tables) {
-    $dump .= join( " ", @tables );
-}
+# create the dump
+my $db_platform = Smolder::DBPlatform->load($DBPlatform);
+$db_platform->dump_database($tmp);
 
-# get the output
-my $output = `$dump` or die "Could not execute `$dump` with error: $!";
-
-# get rid of certain CONSTRAINT stuff MySQL does that SQL::Translator doesn't like
+# get rid of certain CONSTRAINT stuff that SQL::Translator doesn't like
+open(FH, $tmp) or die "Could not open $tmp for reading: $!";
+local $/ = undef;
+my $output = <FH>;
 if ($output) {
     $output =~ s/(\s)*CONSTRAINT\s*`\w*`/$1/g;
 }
+close $tmp;
+open(FH, ">$tmp") or die "Could not open $tmp for writing: $!";
 
 # now put the output into the temp file.
 print $tmp $output
   or die "Could not print to $tmp! $!";
 
 my $sqltdia =
-    "sqlt-diagram -o $filename -i png --db=MySQL "
+    "sqlt-diagram -o $filename -i png --db=$DBPlatform "
   . "--gutter=70 -f medium $tmp -t '$title' --color ";
 
 system($sqltdia) == 0 or die "Could not execute sqlt-diagram with error: $?";

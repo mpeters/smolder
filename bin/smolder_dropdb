@@ -14,7 +14,7 @@ smolder_dropdb
 
 =head1 SYNOPSIS
 
-    ./bin/smolder_dropdb --password s3cr3t
+    ./bin/smolder_dropdb --DBAdminPass s3cr3t
 
 =head1 DESCRIPTION
 
@@ -24,9 +24,9 @@ Script used to drop the Smolder database
 
 =over 8
 
-=item * password
+=item * DBAdminPass
 
-The password of the 'root' DB user. Defaults to ''.
+The password of the Admin DB user. Defaults to ''.
 
 =item * help
 
@@ -76,7 +76,8 @@ END
 }
 
 use DBI;
-use Smolder::Conf qw(DBName DBHost);
+use Smolder::Conf qw(DBName DBHost DBPlatform);
+use Smolder::DBPlatform;
 use Pod::Usage qw(pod2usage);
 
 # setup the defaults
@@ -85,11 +86,10 @@ my $help     = 0;
 my $man      = 0;
 
 GetOptions(
-    'password=s' => \$password,
+    'DBAdminPass=s' => \$password,
     'help!'      => \$help,
     'man!'       => \$man,
-  )
-  || pod2usage();
+) || pod2usage();
 
 if ($help) {
     pod2usage(
@@ -103,22 +103,16 @@ if ($help) {
     );
 }
 
-my $db_name = DBName();
-my $db_host = DBHost();
+my $db_name     = DBName();
+my $db_host     = DBHost();
+my $db_platform = Smolder::DBPlatform->load(DBPlatform);
 
 print "Dropping database: $db_name\n";
-
 eval {
-    my $dbh = DBI->connect( "dbi:mysql:mysql_read_default_group=client;database=$db_name",
-        'root', $password, { RaiseError => 1 } );
-
-    $dbh->do(qq/DROP DATABASE $db_name/);
+    $db_platform->drop_database(
+        passwd  => $password,
+        host    => $db_host,
+        db_name => $db_name,
+    );
 };
-
-if ( $@ =~ /Unknown database/ ) {
-
-    # okay
-} elsif ($@) {
-    die $@;
-}
-
+die "Could not drop database '$db_name': $@" if( $@ );

@@ -10,15 +10,7 @@ smolder_createdb
 
 =head1 SYNOPSIS
 
-Provide the MySQL root password, required if MySQL is configured to
-need one:
-
-   smolder_createdb --password foobar
-
-If root access to the database is not directly available, you can instead print
-out the commands needs, and give them to someone with access to run manually.
-
-   smolder_createdb --dry_run
+   smolder_createdb --DBPlatform MySQL --DBHost localhost --AdminDBPass foobar --dry_run
 
 =head1 DESCRIPTION
 
@@ -29,11 +21,6 @@ Creates databases using information in F<smolder.conf>.
 The script takes the following options:
 
 =over
-
-=item --dry_run 
-
-Simply print the commands that would be run, but don't actually run them. 
-Useful when root access is not directly available. 
 
 =item --destroy
 
@@ -50,26 +37,39 @@ Do not create new databases.  Can be useful if used in conjunction with
 
 Do not prompt user for confirmation on any events
 
-=item --password [pass]
+=item --AdminDBPass
 
-If you configured MySQL to require a root password then you'll need to
-provide it here.
+The admin password for the database.
 
-=item --hostname [host]
+=item --DBPlatform
 
-If you are running MySQL on another host then you'll need to
-provide it here.
+The Database platform to use. Please see L<docs/database_support.pod>
+for details about valid databases.
+If not specified, will retrieve from F<smolder.conf>.
 
-=item --ip_address [addr] 
+=item --DBHost
 
-IP address of host connecting to MySQL. (Usually this matchine). By default we
+The host where the database is running. If not specified, will retrieve from F<smolder.conf>.
+
+=item --DBName
+
+The name of the database. If not specified, will retrieve from F<smolder.conf>.
+
+=item --DBPass
+
+The password for the C<DBUser> of the database. 
+If not specified, will retrieve from F<smolder.conf>.
+
+=item --IPAddress
+
+IP address of host connecting to the DB. (Usually this matchine). By default we
 use the value of C<ApacheAddr> from <smolder.conf>, which defaults to
 C<127.0.0.1>. Connections to the smolder database will be allowed only from
-this machine.
+this IP address.
 
 =item --verbose
 
-Once gives you a play-by-play. Twice gets you full SQL.
+Gives you the play-by-play.
 
 =item --help
 
@@ -113,8 +113,8 @@ END
 }
 
 use Term::Prompt qw(prompt);
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost ApacheAddr);
-
+use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost DBPlatform ApacheAddr);
+use Smolder::DBPlatform;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -122,7 +122,8 @@ my $help           = 0;
 my $man            = 0;
 my $admin_password = '';
 my $ip_address     = ApacheAddr;
-my $hostname       = DBHost;
+my $db_platform    = DBPlatform;
+my $db_host        = DBHost;
 my $db_name        = DBName;
 my $db_user        = DBUser;
 my $db_pass        = DBPass;
@@ -130,61 +131,42 @@ my $destroy        = 0;
 my $no_prompt      = 0;
 my $no_create      = 0;
 my $verbose        = 0;
-my $dry_run        = 0;
 
 GetOptions(
-    'help'       => \$help,
-    'man'        => \$man,
-    'verbose+'   => \$verbose,
-    'dry_run'    => \$dry_run, 
-    'destroy'    => \$destroy,
-    'no_prompt'  => \$no_prompt,
-    'no_create'  => \$no_create,
-    'password=s' => \$admin_password,
-    'hostname=s' => \$hostname,
-    'ip_address=s' => \$ip_address,
+    'help'          => \$help,
+    'man'           => \$man,
+    'verbose'       => \$verbose,
+    'destroy'       => \$destroy,
+    'no_prompt'     => \$no_prompt,
+    'no_create'     => \$no_create,
+    'AdminDBPass=s' => \$admin_password,
+    'DBPlatform=s'  => \$db_platform,
+    'DBName=s'      => \$db_name,
+    'DBUser=s'      => \$db_user,
+    'DBPass=s'      => \$db_pass,
+    'DBHost=s'      => \$db_host,
+    'IPAddress=s'   => \$ip_address,
   )
   or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
-if ($dry_run) {
-    print "-- This is a DRY RUN. No SQL is actually being executed. \n".
-    print "-- These commands need to be run by the MySQL root user\n";
-}
+$db_platform       = Smolder::DBPlatform->load($db_platform);
+my $admin_verified = $db_platform->verify_admin(
+    passwd  => $admin_password,
+    host    => $db_host,
+    db_name => $db_name,
+);
 
-if (not $dry_run) {
-    # make sure MySQL has what it needs
-    my $test_mysql = qq{mysql -uroot -e "select 'world' as hello" };
-    $test_mysql .= " -p\"$admin_password\"" if $admin_password;
-    $test_mysql .= " -h$hostname"       if defined $hostname;
-    $test_mysql .= " 2>&1";
-    my $output = `$test_mysql`;
-    unless ( $output =~ /hello.*world/s ) {
-        if ( $output =~ /Access denied/ ) {
-            if ( defined $admin_password ) {
-                my $msg = "MySQL root password '$admin_password' is not valid";
-                $msg .= "for this host '$hostname'.\n" if defined $hostname;
-                die($msg);
-            } else {
-                my $msg =
-                    "Unable to connect to MySQL as root with no password.  "
-                  . "Maybe you need to use --password?";
-                $msg .= " or --hostname?" if not defined $hostname;
-                $msg .= "\n";
-                die($msg);
-            }
-        } else {
-            die("Unable to access MySQL client. The error returned was:\n$output\n");
-        }
-    }
+# make sure the DB has what it needs
+unless( $admin_verified ) {
+    die("Invalid AdminDBPass '$admin_password' or could not connect to the DB!\n");
 }
 
 # leave no database standing
 if ($destroy) {
-
     # make sure they really meant --destroy
-    if ((not $no_prompt) and (not $dry_run)) {
+    if (not $no_prompt) {
         exit 1
           unless prompt(
             "y",
@@ -195,113 +177,71 @@ if ($destroy) {
           );
     }
 
-    print STDERR "Dropping database '$db_name'...\n" if $verbose;
-    my $dropdb_cmd = "mysql -uroot -e 'DROP DATABASE IF EXISTS $db_name'";
-    $dropdb_cmd .= " -p\"$admin_password\"" if $admin_password;
-    $dropdb_cmd .= " -h$hostname"       if defined $hostname;
-    $dropdb_cmd .= " -v"                if $verbose > 1;
-    if ($dry_run) {
-        print "$dropdb_cmd\n"
-    }
-    else {
-        print "Running '$dropdb_cmd'\n" if $verbose > 1;
-        system($dropdb_cmd) && die "Couldn't drop database $db_name: $?";
-    }
+    print STDERR "Dropping database '$db_name'...\n" if( $verbose );
+    eval {
+        $db_platform->drop_database(
+            admin_passwd => $admin_password,
+            host         => $db_host,
+            db_name      => $db_name,
+        );
+    };
+    die "Couldn't drop database $db_name: $@" if( $@ );
 }
 
 exit 0 if $no_create;
 
 # skip if database exists
-my $db_exists_cmd = qq{mysql -u$db_user -e 'select "$db_name exists"' $db_name};
-$db_exists_cmd .= " -p$db_pass"  if defined $db_pass;
-$db_exists_cmd .= " -h$hostname" if defined $hostname;
-$db_exists_cmd .= " -v"          if $verbose > 1;
-$db_exists_cmd .= " 2>&1";
-print "Running '$db_exists_cmd'\n" if $verbose > 1;
+print "Creating Database $db_name\n" if( $verbose );
+eval {
+    $db_platform->create_database(
+        admin_passwd => $admin_password,
+        host         => $db_host,
+        db_name      => $db_name,
+    );
+};
+die "Couldn't create database $db_name: $@" if( $@ );
+print "Granting access to Database $db_name to User $db_user\n" if( $verbose );
+eval{
+    $db_platform->grant_access(
+        admin_passwd => $admin_password,
+        db_name      => $db_name,
+        host         => $db_host,
+        user         => $db_user,
+    );
+};
+die "Couldn't grant access to $db_name: $@" if( $@ );
 
-# if the database already exists
-if ((not $dry_run) and (`$db_exists_cmd` =~ /$db_name exists/)) {
-    print "Database '$db_name' already exists, skipping create.\n";
-
-    # else create the database
-} else {
-    print STDERR "Creating database '$db_name'...\n" if $verbose;
-    my $createdb_cmd = "mysql -uroot -e 'CREATE DATABASE $db_name'";
-    $createdb_cmd .= " -p\"$admin_password\"" if $admin_password;
-    $createdb_cmd .= " -h$hostname"       if defined $hostname;
-    $createdb_cmd .= " -v"                if $verbose > 1;
-    if ($dry_run) {
-        print "$createdb_cmd\n";
-    }
-    else {
-        print "Running '$createdb_cmd'\n" if $verbose > 1;
-        system($createdb_cmd) && die "Couldn't create database: $?";
-    }
-
-    # grant access to the database to DBUser
-    my $grant_cmd = qq{mysql -uroot -e 'grant all on $db_name.* to "$db_user"};
-
-    # If we have a remote connection to MySQL restrict connections by IP. 
-    my $connect_from_host = (defined $hostname) ? $ip_address : "localhost";
-
-    $grant_cmd .= qq{\@'$connect_from_host'};
-    $grant_cmd .= qq{ identified by "$db_pass" } if $db_pass;
-    $grant_cmd .= "'";
-    $grant_cmd .= " -p\"$admin_password\""           if $admin_password;
-    $grant_cmd .= " -h$hostname"                 if defined $hostname;
-    $grant_cmd .= " -v"                          if $verbose > 1;
-    if ($dry_run) {
-        print "$grant_cmd\n";
-    }
-    else {
-        print "Running '$grant_cmd'\n" if $verbose > 1;
-        system($grant_cmd) && die "Couldn't grant all: $?";
-    }
-
-    if ($dry_run) {
-        print "-- these SQL commands can be run by $db_user\n";
-    }
-
-    # load all sql files as the DBUser
-    my $sql_dir = catdir( InstallRoot, 'sql' );
-    my $DIR;
-    opendir( $DIR, $sql_dir ) or die "Could not open $sql_dir for reading! $!";
-    while ( my $file = readdir($DIR) ) {
-        next if $file =~ /^\./;    # parental controls
-        next if $file !~ /\.sql$/; # only SQL files
-        $file = catfile( $sql_dir, $file );
-
-        print STDERR "Loading SQL for '$db_name' from $file...\n" if $verbose;
-        my $sql_file_cmd = "mysql -u$db_user $db_name ";
-        $sql_file_cmd .= " -p$db_pass"  if $db_pass;
-        $sql_file_cmd .= " -h$hostname" if defined $hostname;
-        $sql_file_cmd .= " -v"          if $verbose > 1;
-        $sql_file_cmd .= " < $file ";
-        if ($dry_run) {
-            print "$sql_file_cmd\n";
-        }
-        else {
-            print "Running '$sql_file_cmd'\n" if $verbose > 1;
-            system($sql_file_cmd) && die "Couldn't load SQL: $?: $!";
-        }
-    }
-
-    # Set the db_version
-    my $version = $Smolder::VERSION;
-    my $update_ver_cmd = qq{mysql -u$db_user  -e 'UPDATE db_version set db_version=$version' $db_name};
-    $update_ver_cmd .= " -p$db_pass"  if $db_pass;
-    $update_ver_cmd .= " -h$hostname" if defined $hostname;
-    $update_ver_cmd .= " -v"          if $verbose > 1;
-    if ($dry_run) {
-        print "$update_ver_cmd\n";
-    }
-    else {
-        print "Running '$update_ver_cmd'\n" if $verbose > 1;
-        system($update_ver_cmd) && die "Couldn't update db_version: $?";
-    }
+# load all sql files as the DBUser
+my $create_sql_dir = $db_platform->sql_create_dir();
+my @files = ( 
+    glob("$create_sql_dir/*.sql"), 
+    catfile($ENV{SMOLDER_ROOT}, 'sql', 'insert.sql'), 
+);
+foreach my $file (@files) {
+    print STDERR "Loading SQL for '$db_name' from $file...\n" if( $verbose );
+    eval {
+        $db_platform->run_sql_file(
+            user    => $db_user,
+            passwd  => $db_pass,
+            host    => $db_host,
+            file    => $file,
+            db_name => $db_name,
+        );
+    };
+    die "Couldn't load SQL file $file! $@" if( $@ );
 }
 
-if (not $dry_run) {
-    print "Databases created successfully.\n";
-}
-
+# Set the db_version
+my $version = $Smolder::VERSION;
+print "Setting db_version to $version...\n" if( $verbose );
+my $dbh = $db_platform->dbh(
+    user    => $db_user,
+    passwd  => $db_pass,
+    db_name => $db_name,
+    host    => $db_host,
+);
+eval { 
+  $dbh->do("UPDATE db_version set db_version=$version");
+  $dbh->commit();
+};
+die "Could not update db_version! $@" if( $@ );

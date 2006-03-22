@@ -2,9 +2,6 @@
 use warnings;
 use strict;
 
-# set to location of mysql_dump, or leave with no path to search PATH
-use constant MYSQL_DUMP => 'mysqldump';
-
 =head1 NAME
 
 smolder_backup - make a backup of a Smolder installation
@@ -93,10 +90,12 @@ use Getopt::Long;
 use Pod::Usage;
 use Smolder;
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
+use Smolder::DBPlatform;
 use Sys::Hostname;
 
 my $DATA_DIR   = catdir( InstallRoot, 'data' );
 my $BACKUP_DIR = catdir( $DATA_DIR, 'backup' );
+my $DB_PLAT    = Smolder::DBPlatform->load();
 
 my ( $help, $man, $compress );
 my $verbose = 0;
@@ -136,18 +135,11 @@ mkpath( [$BACKUP_DIR] ) unless -d $BACKUP_DIR;
 
 # dump all database tables into BACKUP_DIR
 my $dump_file = catfile( $BACKUP_DIR, 'dump.sql' );
-my $cmd =
-    MYSQL_DUMP . ' -u' . DBUser
-  . ( DBPass ? ( ' -p' . DBPass ) : '' )
-  . ' -e -l --databases '
-  . DBName
-  . ">>$dump_file";
-
-$cmd = "echo 'SET foreign_key_checks=0;' > $dump_file; $cmd";
-print STDERR "Dumping " . DBName . " database with command:" . "\n\t$cmd\n\n"
-  if $verbose;
-system($cmd)
-  && die "Dump of the MySQL databae failed. Please correct the error and try your backup again.\n";
+eval { $DB_PLAT->dump_database($dump_file) };
+if( $@ ) {
+    "Dump of the database failed with error $@. \n"
+    . "Please correct the error and try your backup again.\n";
+}
 
 # copy our smolder.conf
 my $conf_dir = catdir($BACKUP_DIR, 'conf');
@@ -173,7 +165,7 @@ dircopy($smoke_dir, catdir( $BACKUP_DIR, 'smoke_reports' ))
 
 # create .bak tar file
 my $full_file = rel2abs($file);
-$cmd = "tar cp"
+my $cmd = "tar cp"
   . ( $verbose > 1 ? "v" : "" )
   . "f $full_file --exclude $full_file --exclude $file "
   . ( $compress ? " --gzip " : "" ) . " backup";
