@@ -5,6 +5,16 @@ use warnings;
 use File::Spec::Functions qw(catdir catfile canonpath);
 use Cwd qw(cwd);
 use Config;
+use Smolder::DBPlatform;
+
+# find out which subclasses we support
+my $PLATFORM_DIR = catdir($ENV{SMOLDER_ROOT}, 'platform');
+opendir( DIR, $PLATFORM_DIR ) or die $!;
+our @PLATFORMS = grep {
+    $_ !~ /^\.\.?$/        # not the parent or a hidden file
+      and $_ !~ /\.svn/    # ignore SVN cruft
+} sort readdir DIR;
+
 
 =head1 NAME
 
@@ -30,6 +40,58 @@ reasonable default behavior.
 
 All methods are called as class methods.  Platform modules are free to
 use package variables to hold information between calls.
+
+=head2 load
+
+This method will load the correct subclass. It can be specified, or
+it will be divined.
+
+    # if you know what you need
+    my $platform = Smolder::Platform->load('FedoraCore3');
+
+    # or if don't
+    my $platform = Smolder::Platform->load();
+
+=cut
+
+sub load {
+    my ($class, $subclass) = @_;
+
+    # add in $SMOLDER_ROOT/platform for platform build modules
+    my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
+    $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
+    unshift @INC, $plib;
+
+    # try it if we got it
+    if( $subclass ) {
+        $subclass = $subclass . '::Platform';
+        eval "use $subclass";
+        die "Unable to load platform module '$subclass': $@\n" if $@;
+    # else try and find it
+    } else {
+        my %build_params = $class->build_params();
+        # if we were previously built for a platform
+        if( $build_params{Platform} ) {
+            $subclass = $build_params{Platform} . '::Platform';
+            eval "use $subclass";
+            die "Unable to load platform module '$subclass': $@\n" if $@;
+        # else just see which one wants to take it
+        } else {
+            # look for a platform that wants to handle this
+            foreach my $plat (@PLATFORMS) {
+                my $pkg = $plat . '::Platform';
+                eval "use $pkg";
+                die "Unable to load platform modules '$pkg': $@\n" if $@;
+
+                if ( $pkg->guess_platform ) {
+                    $subclass = $pkg;
+                    last;
+                }
+            }
+        }
+    }
+    return $subclass;
+}
 
 =head2 verify_dependencies
 
@@ -61,25 +123,12 @@ sub verify_dependencies {
         $pkg->check_perl();
     }
 
-    # check mysql
-    $pkg->check_mysql();
-
-    # build lib/includes for following searches.
-    my @libs = split( " ", $Config{libpth} );
-    my @lib_files;
-    foreach my $lib (@libs) {
-        opendir( DIR, $lib ) or die $!;
-        push( @lib_files, grep { not -d $_ } readdir(DIR) );
-        closedir(DIR);
-    }
-    my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
+    # check the database
+    my $db_platform = Smolder::DBPlatform->load();
+    $db_platform->verify_dependencies(mode => $mode);
 
     # look for libgd
-    $pkg->check_libgd(
-        mode      => $mode,
-        lib_files => \@lib_files,
-        includes  => \@incs,
-    );
+    $pkg->check_libgd( mode => $mode );
 }
 
 =head2 check_perl
@@ -122,59 +171,17 @@ END
     }
 }
 
-=head2 check_mysql
-
-The C<mysql> shell is available and MySQL is v4.0.13 or higher.
-
-=cut
-
-sub check_mysql {
-    my ( $pkg, %arg ) = @_;
-    my @PATH = split( ':', ( $ENV{PATH} || "" ) );
-
-    # look for MySQL command shell
-    die <<END unless grep { -e catfile( $_, 'mysql' ) } @PATH;
-
-MySQL not found. Smolder requires MySQL v4.0.13 or later.  If MySQL is 
-installed, ensure that the 'mysql' client is in your PATH and try again.
-
-END
-
-    # check the version of MySQL
-    no warnings qw(exec);
-    my $mysql_version = `mysql -V 2>&1`;
-    die "\n\nUnable to determine MySQL version using 'mysql -V'.\n" . "Error was '$!'.\n\n"
-      unless defined $mysql_version
-      and length $mysql_version;
-    chomp $mysql_version;
-    my ($version) = $mysql_version =~ /\s4\.(\d+\.\d+)/;
-    die "\n\nMySQL version 4 not found.  'mysql -V' returned:" . "\n\n\t$mysql_version\n\n"
-      unless defined $version;
-    die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n"
-      . "'mysql -V' returned:\n\n\t$mysql_version\n\n"
-      unless $version >= 0.13;
-}
-
 =head2 check_libgd
 
 Checks for the existance of the libgd shared object and header files.
 
-Looks for libgd.so in the C<lib_files>. Looks for libgd.h in 
-C<includes>.
-
-    check_libgd(
-        lib_files => \@libs, 
-        includes  => \@incs, 
-        mode      => 'install',
-    );
+    check_libgd( mode  => 'install' );
 
 =cut
 
 sub check_libgd {
-
     my ( $pkg, %args ) = @_;
-
-    $pkg->_check_libs(
+    $pkg->check_libs(
         %args,
         h      => 'gd.h',
         name   => 'libgd',
@@ -183,15 +190,62 @@ sub check_libgd {
     );
 }
 
-#
-# internal method to actually search for libraries.
-# takes 'so' and 'h' args for the files to look for.
-# takes 'includes' and 'lib_files' as the directories to search for
-# as well as the 'module' that needs the lib
-#
+=head2 check_libs
 
-sub _check_libs {
+Method to actually search for libraries. This method is used to check
+for the necessary F<.h> and F<.so> files. It takes the following named args:
 
+=over
+
+=item mode
+
+Either C<build> or C<install>. Required.
+
+=item h
+
+The name of the header (.h) file to look for. These files will not
+be searched for if C<mode> is 'install'. Optional.
+
+=item so
+
+The name of the shared object (.so) file to look for. Optional.
+
+=item name
+
+The name of the library, used for error messages. Required.
+
+=item module
+
+The name of the Perl module that needs the library,
+used for error messages. Optional
+
+=item includes
+
+An array ref of directories to search for the .h files.
+By default it will look in your directories in your Perl's 
+C<$Config{usrinc}>, F</include> and F</usr/local/include>.
+Optional.
+
+=item libs
+
+An array ref of directories to search for the .so files. 
+By default it will look in your directories in your Perl's 
+C<$Config{libpath}>.
+Optional.
+
+=back
+
+    $pkg->check_libs(
+        h      => 'gd.h',
+        so     => 'libgd.so',
+        name   => 'libgd',
+        module => 'GD',
+    );
+
+=cut
+
+
+sub check_libs {
     my ( $pkg, %args ) = @_;
     my $mode = $args{mode};
 
@@ -200,20 +254,40 @@ sub _check_libs {
     my $h    = $args{h};
     my $mod  = $args{module};
 
+    # build lib/includes for following searches.
+    unless( $args{libs} ) {
+        my @libs = split( " ", $Config{libpth} );
+        my @lib_files;
+        foreach my $lib (@libs) {
+            opendir( DIR, $lib ) or die $!;
+            push( @lib_files, grep { not -d $_ } readdir(DIR) );
+            closedir(DIR);
+        }
+        $args{libs} = \@lib_files;
+    }
+    unless( $args{includes} ) {
+        my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
+        $args{includes} = \@incs;
+    }
+
+
     if ($so) {
         my $re = qr/^$so/;
 
         die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
-          unless grep { /^$re/ } @{ $args{lib_files} };
+          unless grep { /^$re/ } @{ $args{libs} };
     }
 
     if ($h) {
-        die <<END unless $mode eq 'install' or grep { -e catfile( $_, $h ) } @{ $args{includes} };
-
-The header file for $name, '$h', is missing from your system.
-This file is needed to compile the $mod module which uses $name.
-
-END
+        unless(
+            $mode eq 'install' 
+            or 
+            grep { -e catfile( $_, $h ) } @{ $args{includes} }
+        ) {
+            my $msg = "The header file for $name, '$h', is missing from your system.";
+            $msg .= "This file is needed to compile the $mod module which uses $name." if( $name );
+            die $msg;
+        } 
     }
 }
 
