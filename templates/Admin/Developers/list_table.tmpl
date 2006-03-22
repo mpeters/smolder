@@ -1,3 +1,4 @@
+[% IF developers %]
 <table class="boxed crud">
 <tr class="header">
   <td>Username</td>
@@ -40,3 +41,6 @@
   </tr>
 [% END %]
 </table>
+[% ELSE %]
+  <p>No Developers currently exist</p>
+[% END %]

@@ -1,3 +1,4 @@
+[% IF projects %]
 <table class="boxed crud" id="project_list">
 <tr class="header">
   <td>Project Name</td>
@@ -26,3 +27,6 @@
   </tr>
 [% END %]
 </table>
+[% ELSE %]
+  <p>No Projects currently exist</p>
+[% END %]

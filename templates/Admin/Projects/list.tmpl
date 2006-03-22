@@ -6,14 +6,10 @@
     <a class="sub_menu" href="/app/admin_projects/developers">Add Developers to Projects</a>
 </div>
 
-[% IF projects %]
-  <div class="crud_header">
-    <img src="/images/indicator.gif" style="display:none" class="indicator" id="crud_indicator" alt="loading" />
-    <a href="/app/admin_projects/add" id="crud_add_trigger">Add New Project</a>
-  </div>
-  <div id="crud_add_container" class="crud_add for_crud_list" style="display:none"></div>
-  <div id="crud_list">
-  [% PROCESS Admin/Projects/list_table.tmpl %]
-[% ELSE %]
-    <p>No Projects currently exist</p>
-[% END %]
+<div class="crud_header">
+<img src="/images/indicator.gif" style="display:none" class="indicator" id="crud_indicator" alt="loading" />
+<a href="/app/admin_projects/add" id="crud_add_trigger">Add New Project</a>
+</div>
+<div id="crud_add_container" class="crud_add for_crud_list" style="display:none"></div>
+<div id="crud_list">
+[% PROCESS Admin/Projects/list_table.tmpl %]
