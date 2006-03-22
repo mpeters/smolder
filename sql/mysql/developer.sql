@@ -19,5 +19,3 @@ CREATE TABLE developer (
     CONSTRAINT `fk_developer_preference` FOREIGN KEY (`preference`) REFERENCES `preference` (`id`)
 ) TYPE=InnoDB;
 
-INSERT INTO developer (id, username, fname, lname, email, password, admin, preference) VALUES (1, 'admin', 'Joe', 'Admin', 'test@test.com', ENCRYPT('qa_rocks'), 1, 1);
-
