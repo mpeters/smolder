@@ -91,15 +91,6 @@ sub _get_db_file {
     return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");
 }
 
-=head2 create_user
-
-=cut
-
-sub create_user {
-    my ($class, %args) = @_;
-    # no op
-}
-
 =head2 dbi_driver
 
 =cut
@@ -164,20 +155,21 @@ sub create_database {
     }
 }
 
+=head2 create_user
+
+=cut
+
+sub create_user {
+    my ($class, %args) = @_;
+    # no op
+}
+
+
 sub _get_sqlite_bin {
     my $class = shift;
     require Smolder::Platform;
     my $platform = Smolder::Platform->load();
     return $platform->find_bin(bin => 'sqlite3');
-}
-
-=head2 grant_access
-
-=cut
-
-sub grant_access {
-    my ($class, %args) = @_;
-    # no-op
 }
 
 =head2 sql_create_dir
