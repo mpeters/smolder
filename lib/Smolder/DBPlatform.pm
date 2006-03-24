@@ -121,15 +121,6 @@ sub dbh {
     die "dbh() must be implemented in the $class";
 }
 
-=head2 create_user
-
-=cut
-
-sub create_user { 
-    my $class = shift;
-    die "create_user() must be implemented in the $class";
-}
-
 =head2 dbi_driver
 
 =cut
@@ -175,13 +166,13 @@ sub create_database {
     die "create_database() must be implemented in the $class";
 }
 
-=head2 grant_access
+=head2 create_user
 
 =cut
 
-sub grant_access {
+sub create_user { 
     my $class = shift;
-    die "grant_access() must be implemented in the $class";
+    die "create_user() must be implemented in the $class";
 }
 
 =head2 sql_create_dir
