@@ -200,13 +200,14 @@ eval {
     );
 };
 die "Couldn't create database $db_name: $@" if( $@ );
-print "Granting access to Database $db_name to User $db_user\n" if( $verbose );
+print "Creating DB User $db_name to have access to Database $db_name\n" if( $verbose );
 eval{
-    $db_platform->grant_access(
+    $db_platform->create_user(
         admin_passwd => $admin_password,
         db_name      => $db_name,
         host         => $db_host,
         user         => $db_user,
+        passwd       => $db_pass,
     );
 };
 die "Couldn't grant access to $db_name: $@" if( $@ );
