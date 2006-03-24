@@ -5,7 +5,7 @@ use warnings;
 use File::Spec::Functions qw(catdir catfile canonpath);
 use Cwd qw(cwd);
 use Config;
-use Smolder::DBPlatform;
+use File::Basename;
 
 # find out which subclasses we support
 my $PLATFORM_DIR = catdir($ENV{SMOLDER_ROOT}, 'platform');
@@ -124,11 +124,38 @@ sub verify_dependencies {
     }
 
     # check the database
-    my $db_platform = Smolder::DBPlatform->load();
-    $db_platform->verify_dependencies(mode => $mode);
+    $pkg->check_databases( mode => $mode );
 
     # look for libgd
     $pkg->check_libgd( mode => $mode );
+}
+
+=head2 check_databases 
+
+This class method will cycle through all available database platform modules
+(subclasses of L<Smolder::DBPlatform>), load them and run their C<verify_dependencies()>
+method.
+
+=cut
+
+sub check_databases {
+    my ($self, %args) = @_;
+    my $mode = $args{mode};
+
+    my $db_platform_dir = catdir($ENV{SMOLDER_ROOT}, 'lib', 'Smolder', 'DBPlatform');
+    opendir( my $DIR, $db_platform_dir ) or die $!;
+    my @dbs = grep {
+        $_ !~ /^\.\.?$/        # not the parent or a hidden file
+          and $_ !~ /\.svn/    # ignore SVN cruft
+    } sort readdir my $dir;
+
+    # now load each db platform and verify it
+    require Smolder::DBPlatform;
+    foreach my $db (@dbs) {
+        my $basename = basenae($db, '.pm');
+        my $db_platform = Smolder::DBPlatform->load($basename);
+        $db_platform->verify_dependencies(mode => $mode);
+    }
 }
 
 =head2 check_perl
