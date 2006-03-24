@@ -45,12 +45,13 @@ END
       unless defined $mysql_version
       and length $mysql_version;
     chomp $mysql_version;
-    my ($version) = $mysql_version =~ /\s4\.(\d+\.\d+)/;
-    die "\n\nMySQL version 4 not found.  'mysql -V' returned:" . "\n\n\t$mysql_version\n\n"
-      unless defined $version;
-    die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n"
-      . "'$mysql_bin -V' returned:\n\n\t$mysql_version\n\n"
-      unless $version >= 0.13;
+    my ($major_version, $minor_version) = $mysql_version =~ /\s(4|5)\.(\d+\.\d+)/;
+    die "\n\nMySQL version 4 or 5 not found.  'mysql -V' returned:" . "\n\n\t$mysql_version\n\n"
+      unless defined $major_version;
+    if( $major_version == 4 && $minor_version < 0.13 ) {
+        die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n"
+          . "'$mysql_bin -V' returned:\n\n\t$mysql_version\n\n"
+    }
 }
 
 sub _get_mysql_bin {
@@ -112,27 +113,6 @@ sub dbh {
     );
 }
 
-=head2 create_user
-
-=cut
-
-sub create_user {
-    my ($class, %args) = @_;
-    my ($admin_pw, $user, $pw, $db_name, $host) = @args{qw(admin_passwd user pw db_name host)};
-    my $dbh = $class->dbh(
-        user    => 'root',
-        passwd  => $admin_pw,
-        host    => $host,
-        db_name => $db_name,
-    );
-
-    my $sql = "GRANT ALL ON $db_name\.* to $user";
-    $sql .= '@localhost' if ( !defined $host );
-    $sql .= " identified by '$pw'";
-    $dbh->do($sql);
-    $dbh->commit();
-}
-
 =head2 dbi_driver
 
 =cut
@@ -186,7 +166,7 @@ sub drop_database {
         user    => 'root',
         passwd  => $admin_pw,
         host    => $host,
-        db_name => $db_name,
+        db_name => 'mysql',
     );
 
     $dbh->do("DROP DATABASE IF EXISTS $db_name");
@@ -211,13 +191,13 @@ sub create_database {
     $dbh->commit();
 }
 
-=head2 grant_access
+=head2 create_user
 
 =cut
 
-sub grant_access {
+sub create_user {
     my ($class, %args) = @_;
-    my ($admin_pw, $user, $db_name, $host) = @args{qw(admin_passwd user db_name host)};
+    my ($admin_pw, $user, $pw, $db_name, $host) = @args{qw(admin_passwd user passwd db_name host)};
     my $dbh = $class->dbh(
         user    => 'root',
         passwd  => $admin_pw,
@@ -226,7 +206,12 @@ sub grant_access {
     );
 
     my $sql = "GRANT ALL ON $db_name\.* to $user";
-    $sql .= '@localhost' if ( !defined $host );
+    if( !defined $host or $host eq 'localhost' ) {
+        $sql .= '@localhost';
+    } elsif( $host eq 'localhost.localdomain' ) {
+        $sql .= '@localhost.localdomain';
+    }
+    $sql .= " identified by '$pw'";
     $dbh->do($sql);
     $dbh->commit();
 }
