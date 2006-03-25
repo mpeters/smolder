@@ -4,7 +4,6 @@ use warnings;
 use base 'Smolder::DBPlatform';
 use File::Spec::Functions qw(catdir);
 use Carp qw(croak);
-use DBI;
 
 =head1 NAME
 
@@ -68,6 +67,7 @@ sub verify_admin {
     my ($class, %args) = @_;
     my ($pw, $host) = @args{qw(passwd host)};
     my $dsn = "dbi:mysql:database=mysql;host=" . ( $host || 'localhost' );
+    require DBI;
     my $dbh = DBI->connect_cached( 
         $dsn, 
         'root',

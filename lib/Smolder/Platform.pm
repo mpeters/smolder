@@ -147,12 +147,12 @@ sub check_databases {
     my @dbs = grep {
         $_ !~ /^\.\.?$/        # not the parent or a hidden file
           and $_ !~ /\.svn/    # ignore SVN cruft
-    } sort readdir my $dir;
+    } sort readdir $DIR;
 
     # now load each db platform and verify it
     require Smolder::DBPlatform;
     foreach my $db (@dbs) {
-        my $basename = basenae($db, '.pm');
+        my $basename = basename($db, '.pm');
         my $db_platform = Smolder::DBPlatform->load($basename);
         $db_platform->verify_dependencies(mode => $mode);
     }

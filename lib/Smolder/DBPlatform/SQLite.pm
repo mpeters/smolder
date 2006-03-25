@@ -4,7 +4,6 @@ use warnings;
 use base 'Smolder::DBPlatform';
 use File::Spec::Functions qw(catdir catfile);
 use Carp qw(croak);
-use DBI;
 use File::Temp;
 
 =head1 NAME
@@ -78,6 +77,7 @@ sub dbh {
     my ($class, %args) = @_;
     my $db_name = $args{db_name};
     my $dsn = "dbi:SQLite:dbname=" . $class->_get_db_file($db_name);
+    require DBI;
     return DBI->connect_cached( 
         $dsn, 
         '',
