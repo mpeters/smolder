@@ -25,7 +25,14 @@ var myrules = {
         // this prevents multiple calendars from being created for the same
         // trigger if Behaviour.apply() is called
         $(calId).innerHTML = '';
-        new DatePicker(calId, inputId, element.id);
+        new DatePicker(
+            calId, 
+            inputId, 
+            element.id, 
+            { 
+                format: DateFormat.simpleFormat('MM/dd/yyyy') 
+            }
+        );
     },
 
     'form.change_smoke_graph'  : function(element) {
