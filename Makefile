@@ -48,6 +48,9 @@ test:
 db:
 	bin/smolder_createdb --destroy
 
+db_noq:
+	bin/smolder_createdb --destroy --no_prompt
+
 start:
 	bin/smolder_ctl start
 
