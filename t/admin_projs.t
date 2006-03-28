@@ -1,10 +1,8 @@
 use strict;
 use Test::More;
-use Test::WWW::Mechanize;
 use Smolder::TestData qw(
   base_url
   is_apache_running
-  login
   create_developer
   delete_developers
   create_project
@@ -12,6 +10,7 @@ use Smolder::TestData qw(
   db_field_value
 );
 use Smolder::DB::ProjectDeveloper;
+use Smolder::TestMech;
 
 if (is_apache_running) {
     plan( tests => 85 );
@@ -19,7 +18,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Test::WWW::Mechanize->new();
+my $mech  = Smolder::TestMech->new();
 my $url   = base_url() . '/admin_projects';
 my $pw    = 's3cr3t';
 my $admin = create_developer( admin => 1, password => $pw );
@@ -35,7 +34,7 @@ my $proj;
 use_ok('Smolder::Control::Admin::Projects');
 
 # 2..4
-login( mech => $mech, username => $admin->username, password => $pw );
+$mech->login(username => $admin->username, password => $pw);
 ok( $mech->success );
 $mech->get_ok($url);
 $mech->content_contains('Admin - Projects');
@@ -43,7 +42,6 @@ $mech->content_contains('Admin - Projects');
 # 5..19
 # add
 {
-
     # empty form
     $mech->follow_link_ok( { text => 'Add New Project' } );
     $mech->form_name('add');

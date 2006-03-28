@@ -43,7 +43,7 @@ sub login {
 
 sub process_login {
     my $self    = shift;
-    my $form    = { required => [qw(username password)], };
+    my $form    = { required => [qw(username password)] };
     my $results = $self->check_rm( 'login', $form )
       || return $self->check_rm_error_page();
 

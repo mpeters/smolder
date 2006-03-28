@@ -192,6 +192,16 @@ sub get_enum_values {
     return $enums->{$table}->{$column} || [];
 }
 
+=head2 unique_failure_msg
+
+=cut
+
+sub unique_failure_msg {
+    my ($class, $msg) = @_;
+    return $msg =~ /not unique\(1\)/i;
+}
+
+
 sub _get_db_file {
     my ($class, $db_name) = @_;
     return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");

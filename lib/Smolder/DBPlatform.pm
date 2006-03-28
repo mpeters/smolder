@@ -202,6 +202,14 @@ sub get_enum_values {
     die "get_enum_values() must be implemented in the $class";
 }
 
+=head2 unique_failure_msg 
+
+=cut
+
+sub unique_failure_msg { 
+    my $class = shift;
+    die "unique_failure_msg() must be implemented in the $class";
+}
 
 
 1;

@@ -11,10 +11,11 @@ open(COUNT, ">", catfile(SmolderRoot, "tmp", "dbcount.txt"))
   or die $!;
 my $dbh = Smolder::DB->db_Main();
 
-my $tables = $dbh->selectcol_arrayref('show tables');
-ok(@$tables);
+my @tables = $dbh->tables('', '', '%');
+ok(@tables);
 
-foreach my $table (sort @$tables) {
+foreach my $table (sort @tables) {
+    next if( $table =~ /^.?sqlite_/ ); 
     my ($count) = $dbh->selectrow_array("select count(*) from $table");
     ok(defined $count);
     print COUNT "$table $count\n";

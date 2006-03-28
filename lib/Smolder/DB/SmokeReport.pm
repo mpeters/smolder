@@ -236,10 +236,9 @@ sub send_emails {
 
     my $sql = qq(
         SELECT d.email, pref.email_type 
-        FROM developer d 
-        JOIN (project_developer pd, project p, preference pref ) 
-        ON (pd.developer = d.id AND pd.project = p.id AND pd.preference = pref.id) 
-        WHERE p.id = ? AND $freq_clause
+        FROM developer d, project_developer pd, project p, preference pref
+        WHERE pd.developer = d.id AND pd.project = p.id AND pd.preference = pref.id
+        AND p.id = ? AND $freq_clause
     );
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute( $self->project->id );

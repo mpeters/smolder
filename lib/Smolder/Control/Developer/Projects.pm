@@ -14,11 +14,13 @@ use Smolder::Constraints qw(
   file_mtype
 );
 use Smolder::Conf qw(InstallRoot);
+use Smolder::DBPlatform;
 use Test::TAP::Model;
 use Test::TAP::XML;
 use File::Temp;
 use File::Spec::Functions qw(catdir catfile);
 use File::Copy qw(move);
+my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 sub setup {
     my $self = shift;
@@ -387,7 +389,7 @@ sub add_category {
     # try to insert
     eval { $project->add_category( $valid->{category} ) };
     if ($@) {
-        if ( $@ =~ /Duplicate entry/i ) {
+        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
             return $self->categories( { err_duplicate_category => 1 } );
         } else {
             die $@;

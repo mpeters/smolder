@@ -1,13 +1,9 @@
---
--- Which developers are assigned to which projects
--- and what are their project specific preferences
---
 CREATE TABLE project_developer (
-    project     INTEGER UNSIGNED NOT NULL, 
-    developer   INTEGER UNSIGNED NOT NULL,
-    preference  INTEGER UNSIGNED NOT NULL,
-    admin       INTEGER NOT NULL DEFAULT 0,
-    added       INTEGER NOT NULL DEFAULT 0,
+    project     INTEGER NOT NULL, 
+    developer   INTEGER NOT NULL,
+    preference  INTEGER,
+    admin       INTEGER DEFAULT 0,
+    added       INTEGER DEFAULT 0,
     PRIMARY KEY (project, developer),
     CONSTRAINT 'fk_project_developer_project' FOREIGN KEY ('project') REFERENCES 'project' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_project_developer_developer' FOREIGN KEY ('developer') REFERENCES 'developer' ('id') ON DELETE CASCADE,

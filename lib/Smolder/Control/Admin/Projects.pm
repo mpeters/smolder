@@ -13,6 +13,8 @@ use Smolder::Constraints qw(
 use Smolder::DB::Project;
 use Smolder::DB::Developer;
 use Smolder::DB::ProjectDeveloper;
+use Smolder::DBPlatform;
+my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 sub setup {
     my $self = shift;
@@ -77,13 +79,13 @@ sub add_developer {
             );
         };
         if ($@) {
-            die $@ unless $@ =~ /Duplicate entry/i;
+            die $@ unless $DB_PLATFORM->unique_failure_msg($@);
         } else {
             Smolder::DB->dbi_commit();
         }
     }
 
-    return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project, } );
+    return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
 }
 
 sub remove_developer {
@@ -198,7 +200,7 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate project name, then we can handle that
-        if ( $@ =~ /Duplicate entry/ ) {
+        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
             return $self->add( { err_unique_project_name => 1 } );
 
             # else it's something else, so just throw it again

@@ -253,5 +253,15 @@ sub get_enum_values {
     return eval "[$text]";
 }
 
+=head2 unique_failure_msg
+
+=cut
+
+sub unique_failure_msg {
+    my ($class, $msg) = @_;
+    return $msg =~ /Duplicate entry/i;
+}
+
+
 
 1;

@@ -1,10 +1,8 @@
 use strict;
 use Test::More;
-use Test::WWW::Mechanize;
 use Smolder::TestData qw(
   base_url
   is_apache_running
-  login
   logout
   create_developer
   delete_developers
@@ -13,6 +11,7 @@ use Smolder::TestData qw(
   db_field_value
 );
 use Smolder::DB::ProjectDeveloper;
+use Smolder::TestMech;
 
 if (is_apache_running) {
     plan( tests => 43 );
@@ -20,7 +19,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Test::WWW::Mechanize->new();
+my $mech  = Smolder::TestMech->new();
 my $url   = base_url() . '/developer_prefs';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );
@@ -48,7 +47,7 @@ use_ok('Smolder::Control::Developer::Prefs');
 # login as a developer
 $mech->get_ok($url);
 $mech->content_lacks('Welcome');
-login( mech => $mech, username => $dev->username, password => $pw );
+$mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);
 $mech->content_contains('Preferences');
@@ -171,8 +170,8 @@ $mech->content_contains('Preferences');
     $mech->content_contains('Password successfully changed!');
 
     # now logout and log back in with the new pw
-    logout( mech => $mech );
-    login( mech => $mech, username => $dev->username, password => $new_pw );
+    $mech->logout();
+    $mech->login( username => $dev->username, password => $new_pw );
     ok( $mech->success );
     $mech->content_contains( 'Welcome ' . $dev->username );
 }

@@ -1,11 +1,8 @@
 use strict;
 use Test::More;
-use Test::WWW::Mechanize;
 use Smolder::TestData qw(
   base_url
   is_apache_running
-  login
-  logout
   create_developer
   delete_developers
   create_project
@@ -13,6 +10,7 @@ use Smolder::TestData qw(
   create_smoke_report
   delete_smoke_reports
 );
+use Smolder::TestMech;
 use Smolder::DB::ProjectDeveloper;
 use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
@@ -23,16 +21,16 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Test::WWW::Mechanize->new();
+my $mech  = Smolder::TestMech->new();
 my $url   = base_url() . '/developer_projects';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );
-my $proj1 = create_project();
-my $proj2 = create_project( public => 0 );
+my $proj1_id = create_project()->id();
+my $proj2_id = create_project( public => 0 )->id();
 
 # add this $dev to $proj1 and $proj2
-my $proj1_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1 } );
-my $proj2_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2 } );
+my $proj1_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1_id } );
+my $proj2_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2_id } );
 Smolder::DB->dbi_commit();
 
 END {
@@ -47,7 +45,7 @@ use_ok('Smolder::Control::Developer::Projects');
 # login as a developer
 $mech->get_ok($url);
 $mech->content_lacks('Welcome');
-login( mech => $mech, username => $dev->username, password => $pw );
+$mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);
 $mech->content_contains('My Projects');
@@ -56,6 +54,7 @@ $mech->content_contains('My Projects');
 # show_all
 {
     $mech->get_ok( $url . '/show_all' );
+    my ($proj1, $proj2) = _get_proj($proj1_id, $proj2_id);
     $mech->content_contains( $proj1->name );
     $mech->content_contains( $proj2->name );
 }
@@ -63,6 +62,7 @@ $mech->content_contains('My Projects');
 # 10..43
 # add_report and process_add_report
 {
+    my $proj1 = _get_proj($proj1_id);
     $mech->follow_link_ok( { text => 'Upload Smoke Test', n => 1 } );
     $mech->content_contains('New Smoke Report');
     $mech->content_contains( $proj1->name );
@@ -107,11 +107,11 @@ $mech->content_contains('My Projects');
         report_file  => catfile( InstallRoot, 't', 'data', 'report_bad.xml' ),
     );
     $mech->submit();
-
     ok( $mech->success );
     $mech->content_contains( $proj1->name . ' - Recent Smoke Reports' );
 
     # make sure it's in the db
+    $proj1 = _get_proj($proj1_id);
     is( $proj1->report_count, 1 );
     my ($report) = $proj1->all_reports();
     isa_ok( $report,            'Smolder::DB::SmokeReport' );
@@ -129,6 +129,7 @@ $mech->content_contains('My Projects');
 # 44..57
 # smoke_reports
 {
+    my $proj1 = _get_proj($proj1_id);
     for ( 1 .. 13 ) {
         create_smoke_report(
             project   => $proj1,
@@ -180,7 +181,7 @@ $mech->content_contains('My Projects');
 # 58..66
 # report_details
 {
-
+    my $proj1 = _get_proj($proj1_id);
     # first HTML
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
     $mech->follow_link_ok( { n => 1, text => 'HTML' } );
@@ -200,6 +201,7 @@ $mech->content_contains('My Projects');
 # 67..79
 # smoke_report_validity
 {
+    my $proj1 = _get_proj($proj1_id);
     my $url = "/app/developer_projects/smoke_test_validity";
 
     # without a report
@@ -244,6 +246,7 @@ $mech->content_contains('My Projects');
 # 87..90
 # single smoke_report
 {
+    my $proj1 = _get_proj($proj1_id);
     # not an admin of the project
     my $report = create_smoke_report(
         project   => $proj1,
@@ -260,6 +263,7 @@ $mech->content_contains('My Projects');
 # 90..98
 # admin_settings, process_admin_settings
 {
+    my $proj1 = _get_proj($proj1_id);
     my $url      = "/app/developer_projects/admin_settings";
     my %settings = (
         default_arch     => 'AMD64',
@@ -308,6 +312,7 @@ $mech->content_contains('My Projects');
 # 99..117
 # add_category, delete_category
 {
+    my $proj1 = _get_proj($proj1_id);
     my $url = "/app/developer_projects/admin_settings";
     my @categories = ( "Stuff", "More Stuff", );
     $mech->get_ok("$url/$proj1");
@@ -361,12 +366,12 @@ $mech->content_contains('My Projects');
 # 118..132
 # authorization for non-public project
 {
-
+    my $proj2 = _get_proj($proj2_id);
     # login as another developer not associated with the projects
-    logout( mech => $mech );
+    $mech->logout();
     my $dev2 = create_developer( password => $pw );
     $mech->get_ok($url);
-    login( mech => $mech, username => $dev2->username, password => $pw );
+    $mech->login( username => $dev2->username, password => $pw );
 
     # make sure I can't see these pages
     $mech->get_ok("/app/developer_projects/add_report/$proj2");
@@ -387,5 +392,18 @@ $mech->content_contains('My Projects');
     $mech->content_contains('You are not an admin');
     $mech->get_ok("/app/developer_projects/process_admin_settings/$proj2");
     $mech->content_contains('You are not an admin');
+}
+
+sub _get_proj {
+    my (@ids) = @_;
+    my @projs;
+    foreach my $id (@ids) {
+        push(@projs, Smolder::DB::Project->retrieve($id));
+    }
+    if( wantarray ) {
+        return @projs;
+    } else {
+        return $projs[0];
+    }
 }
 

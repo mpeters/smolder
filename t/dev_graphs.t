@@ -1,16 +1,15 @@
 use strict;
 use Test::More;
-use Test::WWW::Mechanize;
 use Smolder::TestData qw(
   base_url
   is_apache_running
-  login
   create_developer
   delete_developers
   create_project
   delete_projects
   db_field_value
 );
+use Smolder::TestMech;
 use Smolder::DB::ProjectDeveloper;
 
 if (is_apache_running) {
@@ -19,7 +18,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Test::WWW::Mechanize->new();
+my $mech  = Smolder::TestMech->new();
 my $url   = base_url() . '/developer_graphs';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );
@@ -43,7 +42,7 @@ use_ok('Smolder::Control::Developer::Graphs');
 # login as a developer
 $mech->get_ok($url);
 $mech->content_lacks('Welcome');
-login( mech => $mech, username => $dev->username, password => $pw );
+$mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok("$url/start/$proj1");
 $mech->content_contains('Progress Graphs');

@@ -1,5 +1,4 @@
 use strict;
-use Test::WWW::Mechanize;
 use Test::More;
 use Smolder::TestData qw(
   create_developer
@@ -9,6 +8,7 @@ use Smolder::TestData qw(
   db_field_value
 );
 use Smolder::Conf qw(HostName);
+use Smolder::TestMech;
 
 if (is_apache_running) {
     plan('no_plan');
@@ -18,8 +18,7 @@ if (is_apache_running) {
 
 # 1
 use_ok('Smolder::Control::Public::Auth');
-
-my $mech = Test::WWW::Mechanize->new();
+my $mech = Smolder::TestMech->new();
 my $url  = base_url() . '/public_auth';
 END { delete_developers() }
 my $pw  = 'stuff123';
@@ -28,7 +27,6 @@ my $dev = create_developer( password => $pw );
 # 2..15
 # login
 {
-
     # incomplete
     $mech->get_ok( $url . '/login' );
     $mech->form_name('login');

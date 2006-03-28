@@ -18,7 +18,6 @@ our @EXPORT_OK = qw(
   delete_preferences
   create_smoke_report
   delete_smoke_reports
-  login
   logout
   is_apache_running
   base_url
@@ -243,64 +242,6 @@ Will delete all test reports create by L<create_smoke_report>.
         }
         Smolder::DB->dbi_commit();
     }
-}
-
-=head2 login
-
-This routine will go to the login form, provide credentials
-and login. It receives the following named args, all required:
-
-=over
-
-=item mech
-
-The L<Test::WWW::Mechanize> object to use.
-
-=item username 
-
-The text to use for the username field
-
-=item password
-
-The text to use for the password field. If none is given, it will use
-'testing'.
-
-=back
-
-    login(
-        mech        => $mech,
-        username    => $username,
-        password    => 's3cr3t',
-    );
-
-=cut
-
-sub login {
-    my %args = @_;
-    my $mech = $args{mech};
-    my $url  = base_url() . '/public_auth/login';
-    $mech->get($url);
-    $mech->form_name('login');
-    $mech->set_fields(
-        username => $args{username},
-        password => $args{password},
-    );
-    $mech->submit();
-}
-
-=head2 logout
-
-Logout the current user given a L<Test::WWW::Mechanize> object
-
-    logout( mech => $mech );
-
-=cut
-
-sub logout {
-    my %args = @_;
-    my $mech = $args{mech};
-    my $url  = base_url() . '/public_auth/logout';
-    $mech->get($url);
 }
 
 =head2 is_apache_running

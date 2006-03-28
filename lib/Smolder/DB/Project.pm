@@ -38,11 +38,18 @@ __PACKAGE__->has_a(
 );
 
 # make sure we delete any test_report directories associated with us
+# also delete any categories too
 __PACKAGE__->add_trigger(
     before_delete => sub {
         my $self = shift;
         my $dir = catdir( InstallRoot, 'data', 'smoke_reports', $self->id );
         rmtree($dir) if ( -d $dir );
+        foreach my $cat ($self->categories) {
+            my $sth = $self->db_Main->prepare_cached(qq(
+                DELETE FROM project_category WHERE project = ? AND category = ?
+            ));
+            $sth->execute($self->id, $cat);
+        }
     }
 );
 

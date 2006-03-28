@@ -1,10 +1,10 @@
 use strict;
 use Test::More;
-use Test::WWW::Mechanize;
 use Smolder::TestData qw(
   base_url
   is_apache_running
 );
+use Smolder::TestMech;
 
 if (is_apache_running) {
     plan( tests => 2 );
@@ -12,7 +12,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech = Test::WWW::Mechanize->new();
+my $mech = Smolder::TestMech->new();
 my $url  = base_url() . '/public';
 
 # 1
