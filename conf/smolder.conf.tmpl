@@ -13,14 +13,13 @@ User  "<tmpl_var User>"
 Group "<tmpl_var Group>"
 
 #
-# MySQL user and password for Smolder
+# Database information for Smolder
 #
-DBUser "<tmpl_var DBUser>"
-DBPass "<tmpl_var DBPass>"
-DBName "<tmpl_var DBName>"
-<tmpl_if DBHost>
-DBHost "<tmpl_var DBHost>"
-</tmpl_if>
+DBPlatform "<tmpl_var DBPlatform>"
+DBUser     "<tmpl_var DBUser>"
+DBPass     "<tmpl_var DBPass>"
+DBName     "<tmpl_var DBName>"
+<tmpl_if DBHost>DBHost     "<tmpl_var DBHost>"</tmpl_if>
 
 # 
 # ApacheAddr and ApachePort: the IP and port for the Apache server
