@@ -44,6 +44,11 @@ option skips those steps.
 By default the script will build swish-e for you.  This
 option skips that step.
 
+=item --no-sqlite
+
+By default the script will build SQLite for you.  This
+option skips that step.
+
 =item --module
 
 Specify a specific CPAN module to build.  The string you provide will
@@ -60,7 +65,7 @@ everything else.
 The C<--module>, C<--skip-module> and C<--no-module>
 options are not intended to be used together.
 
-=item --no-module
+=item --no-modules
 
 This option is similar to C<--skip-module> except that it skips every
 perl module.
@@ -119,22 +124,24 @@ my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
 my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
+my $SQLITE       = 'sqlite//sqlite-3.3.4.tar.gz';
 
 # options
-my $skip_apache = 0;
-my $skip_swishe = 0;
-my $no_module   = 0;
+my $skip_apache  = 0;
+my $skip_swishe  = 1;
+my $skip_sqlite  = 0;
+my $skip_modules = 0;
 my ( @modules, @skip_modules, $help, $man );
 GetOptions(
     'no-apache'     => \$skip_apache,
     'no-swishe'     => \$skip_swishe,
-    'no-module'     => \$no_module,
+    'no-sqlite'     => \$skip_sqlite,
+    'no-modules'    => \$skip_modules,
     'module=s'      => \@modules,
     'skip-module=s' => \@skip_modules,
     'help'          => \$help,
     'man'           => \$man,
-  )
-  or pod2usage(2);
+) or pod2usage(2);
 
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
@@ -142,6 +149,7 @@ pod2usage( -verbose => 2 ) if $man;
 if (@modules) {
     $skip_apache = 1;
     $skip_swishe = 1;
+    $skip_sqlite = 1;
 }
 
 # get platform arg
@@ -174,7 +182,7 @@ if (@ARGV) {
 # verify the platform
 $pkg->verify_dependencies( mode => 'build' );
 
-# now build swish-e first since SWISH-API requires it's libs
+# now build swish-e first since SWISH::API requires it
 unless ($skip_swishe) {
 
     #now let's extract swish-e
@@ -189,11 +197,25 @@ unless ($skip_swishe) {
     $pkg->build_swishe( swishe_dir => catdir($ROOT), );
 }
 
+# now build SQLite since DBD::SQLite requires it
+unless ($skip_sqlite) {
+
+    #now let's extract sqlite
+    goto_build_dir();
+    my $sqlite_gz = catfile( $SRC_DIR, $SQLITE );
+    system("tar zxf $sqlite_gz") == 0
+      or die "Couldn't unpack file $sqlite_gz: $?";
+    my ($sqlite_dir) = $sqlite_gz =~ m{/([^/]+)\.tar\.gz$};
+    die "Can't find SQLite dir '$sqlite_dir'." unless -d $sqlite_dir;
+
+    chdir($sqlite_dir) or die "Unable to chdir($sqlite_dir): $!";
+    $pkg->build_sqlite( sqlite_dir => catdir($ROOT), );
+}
 # get list of files to build, considering --module and --skip-module opts
 opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";
 my @files = sort readdir(SRC);
 
-unless ($no_module) {
+unless ($skip_modules) {
 
     if (@modules) {
         @files = grep { contains( \@modules, $_ ) } @files;
@@ -203,7 +225,7 @@ unless ($no_module) {
 
     # TODO - do we want to put this list somewhere else so it's subclassable?
     # shuffle these modules to the back to get proper build order
-    foreach my $distribution qw(DBD-mysql) {
+    foreach my $distribution qw(DBD-mysql DBD-SQLite) {
         my ($file) = grep( /$distribution/, @files );
         @files = grep( !/$distribution/, @files );
         push @files, $file if $file;
@@ -212,8 +234,8 @@ unless ($no_module) {
     # TODO - do we want to put this list somewhere else so it's subclassable?
     # shuffle these modules to the front since they're needed by later build steps
     foreach my $distribution qw(Module-Build Expect IO-Tty) {
-        my ($file) = grep( /$distribution/, @files );
-        @files = grep( !/$distribution/, @files );
+        my ($file) = grep( /\Q$distribution\E/, @files );
+        @files = grep( !/\Q$distribution\E/, @files );
         unshift @files, $file if $file;
     }
 
@@ -305,6 +327,7 @@ sub build_module {
 
     # if it's SWISH-API then add the swishe bin to our path
     if ( $file =~ /SWISH-API/ ) {
+        return; # XXX - Skipping SWISH::API at this point until searchable docs are added
         $ENV{SWISHBINDIR} = catdir( $ENV{SMOLDER_ROOT}, 'swish-e', 'bin' );
     }
     eval { $pkg->build_perl_module( name => $dist_dir ); };

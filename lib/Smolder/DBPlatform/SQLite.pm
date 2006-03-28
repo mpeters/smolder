@@ -28,20 +28,8 @@ This module implements the L<Smolder::DBPlatform> interface for SQLite.
 
 sub verify_dependencies { 
     my ($class, %args) = @_;
-
-    # verify that we have SQLite3 installed
-    my $platform = Smolder::Platform->load();
-    my $found = $platform->check_libs(
-        %args,
-        so   => 'libsqlite3.so',
-        name => 'libsqlite3',
-    );
-
-    # look for sqlite3 CLI
-    if( $found ) {
-        $found = $platform->find_bin( bin => 'sqlite3' ) ? 1 : 0;
-    }
-    return $found;
+    # no deps since we build SQLite ourselves
+    return 1;
 }
 
 =head2 verify_admin
@@ -50,6 +38,7 @@ sub verify_dependencies {
 
 sub verify_admin {
     my ($class, %args) = @_;
+    # nothing special here
     return 1;
 }
 
@@ -60,13 +49,14 @@ sub verify_admin {
 sub run_sql_file { 
     my ($class, %args) = @_;
     my ($db_name, $file) = @args{qw(db_name file)};
+    my $sqlite_bin  = $class->_get_sqlite_bin();
+    my $sqlite_file = $class->_get_db_file($db_name);
 
-    # slurp up the file
-    my $sql = do { local( @ARGV, $/ ) = $file ; <> };
-    my $dbh = $class->dbh(db_name => $db_name);
-    $dbh->do($sql)
-        or croak "Could not run SQL file '$file': $!";
-    $dbh->commit();
+    my $cmd .= "$sqlite_bin $sqlite_file < $file";
+    # run it
+    system($cmd) == 0
+        or croak "Could not run SQL file '$file' for DB '$db_name': $!";
+
 }
 
 =head2 dbh
@@ -84,11 +74,6 @@ sub dbh {
         '', 
         \%Smolder::DBPlatform::CONNECT_OPTIONS,
     );
-}
-
-sub _get_db_file {
-    my ($class, $db_name) = @_;
-    return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");
 }
 
 =head2 dbi_driver
@@ -135,8 +120,9 @@ sub drop_database {
     my ($class, %args) = @_;
     my $db_name = $args{db_name};
     my $file = $class->_get_db_file($db_name);
+    # just delete the file
     if( -e $file ) {
-        unlink($class->_get_db_file($db_name))
+        unlink($file)
             or croak "Could not unlike DB file '$file': $!";
     }
 }
@@ -149,6 +135,7 @@ sub create_database {
     my ($class, %args) = @_;
     my $db_name = $args{db_name};
     my $file = $class->_get_db_file($db_name);
+    # just create the empty file if it's not already there
     unless( -e $file ) {
         open(FH, ">$file") or die "Could not open file '$file' for writing: $!";
         close(FH) or die "Could not close file '$file': $!";
@@ -164,13 +151,6 @@ sub create_user {
     # no op
 }
 
-
-sub _get_sqlite_bin {
-    my $class = shift;
-    require Smolder::Platform;
-    my $platform = Smolder::Platform->load();
-    return $platform->find_bin(bin => 'sqlite3');
-}
 
 =head2 sql_create_dir
 
@@ -212,5 +192,14 @@ sub get_enum_values {
     return $enums->{$table}->{$column} || [];
 }
 
+sub _get_db_file {
+    my ($class, $db_name) = @_;
+    return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");
+}
+
+sub _get_sqlite_bin {
+    my $class = shift;
+    return catfile($ENV{SMOLDER_ROOT}, 'sqlite', 'bin', 'sqlite3');
+}
 
 1;
