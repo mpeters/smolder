@@ -11,7 +11,7 @@ use Smolder::TestData qw(
   db_field_value
 );
 use Smolder::DB::ProjectDeveloper;
-use Smolder::TestMech;
+use Smolder::Mech;
 
 if (is_apache_running) {
     plan( tests => 43 );
@@ -19,7 +19,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::TestMech->new();
+my $mech  = Smolder::Mech->new();
 my $url   = base_url() . '/developer_prefs';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );

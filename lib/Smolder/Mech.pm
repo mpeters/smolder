@@ -1,4 +1,4 @@
-package Smolder::TestMech;
+package Smolder::Mech;
 use strict;
 use warnings;
 use base 'Test::WWW::Mechanize';
@@ -7,14 +7,14 @@ use Smolder::TestData qw(base_url);
 
 =head1 NAME 
 
-Smolder::TestMech
+Smolder::Mech
 
 =head1 DESCRIPTION
 
 L<Test::WWW::Mechanize> subclass with some Smolder specific
 helper methods
 
-    my $mech = Smolder::TestMech->new();
+    my $mech = Smolder::Mech->new();
     $mech->login($user);
 
 =head1 METHODS
@@ -23,7 +23,7 @@ helper methods
 
 Constructor
 
-    my $mech = Smolder::TestMech->new();
+    my $mech = Smolder::Mech->new();
 
 =cut
 
@@ -97,7 +97,7 @@ SQLite to avoid locking the database
 
 sub get {
     my $self = shift;
-    if( lc DBPlatform eq 'sqlite' ) {
+    if( DBPlatform eq 'SQLite' ) {
         Smolder::DB->db_Main->disconnect();
     }
     return $self->SUPER::get(@_);
@@ -113,7 +113,7 @@ SQLite to avoid locking the database
 
 sub submit {
     my $self = shift;
-    if( lc DBPlatform eq 'sqlite' ) {
+    if( DBPlatform eq 'SQLite' ) {
         Smolder::DB->db_Main->disconnect();
     }
     return $self->SUPER::submit(@_);
@@ -129,7 +129,7 @@ SQLite to avoid locking the database
 
 sub request {
     my $self = shift;
-    if( lc DBPlatform eq 'sqlite' ) {
+    if( DBPlatform eq 'SQLite' ) {
         Smolder::DB->db_Main->disconnect();
     }
     return $self->SUPER::request(@_);

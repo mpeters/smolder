@@ -10,7 +10,7 @@ use Smolder::TestData qw(
   create_smoke_report
   delete_smoke_reports
 );
-use Smolder::TestMech;
+use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
 use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
@@ -21,7 +21,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::TestMech->new();
+my $mech  = Smolder::Mech->new();
 my $url   = base_url() . '/developer_projects';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );

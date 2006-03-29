@@ -9,7 +9,7 @@ use Smolder::TestData qw(
   delete_projects
   db_field_value
 );
-use Smolder::TestMech;
+use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
 
 if (is_apache_running) {
@@ -18,7 +18,7 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::TestMech->new();
+my $mech  = Smolder::Mech->new();
 my $url   = base_url() . '/developer_graphs';
 my $pw    = 's3cr3t';
 my $dev   = create_developer( password => $pw );

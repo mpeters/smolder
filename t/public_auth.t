@@ -8,7 +8,7 @@ use Smolder::TestData qw(
   db_field_value
 );
 use Smolder::Conf qw(HostName);
-use Smolder::TestMech;
+use Smolder::Mech;
 
 if (is_apache_running) {
     plan('no_plan');
@@ -18,7 +18,7 @@ if (is_apache_running) {
 
 # 1
 use_ok('Smolder::Control::Public::Auth');
-my $mech = Smolder::TestMech->new();
+my $mech = Smolder::Mech->new();
 my $url  = base_url() . '/public_auth';
 END { delete_developers() }
 my $pw  = 'stuff123';

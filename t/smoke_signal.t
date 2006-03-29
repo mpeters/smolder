@@ -80,6 +80,7 @@ SKIP: {
         }
     );
     Smolder::DB->dbi_commit();
+    Smolder::DB->db_Main->disconnect();
 
     # successfull upload
     $out =
@@ -90,6 +91,7 @@ SKIP: {
     $out =~ /as #(\d+)/;
     my $report_id = $1;
     my $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    Smolder::DB->db_Main->disconnect();
     isa_ok( $report, 'Smolder::DB::SmokeReport' );
 
     # test optional options
@@ -101,6 +103,7 @@ SKIP: {
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    Smolder::DB->db_Main->disconnect();
     is( $report->comments, $comments );
 
     # platform
@@ -111,6 +114,7 @@ SKIP: {
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    Smolder::DB->db_Main->disconnect();
     is( $report->comments, $comments );
     is( $report->platform, $platform );
 
@@ -122,6 +126,7 @@ SKIP: {
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    Smolder::DB->db_Main->disconnect();
     is( $report->comments,     $comments );
     is( $report->platform,     $platform );
     is( $report->architecture, $arch );
