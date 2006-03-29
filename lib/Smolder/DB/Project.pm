@@ -105,7 +105,9 @@ sub has_developer {
     )
     );
     $sth->execute( $self->id, $developer->id );
-    return $sth->select_val || 0;
+    my $row = $sth->fetchrow_arrayref();
+    $sth->finish();
+    return $row->[0];
 }
 
 =head3 admins 
@@ -266,7 +268,9 @@ sub report_count {
     );
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute( $self->id );
-    return $sth->select_val() || 0;
+    my $row = $sth->fetchrow_arrayref();
+    $sth->finish();
+    return $row->[0];
 }
 
 =head3 report_graph_data
