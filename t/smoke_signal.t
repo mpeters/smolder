@@ -100,6 +100,7 @@ SKIP: {
     $out =
 `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" 2>&1`;
     like( $out, qr/successfully uploaded/i );
+    Smolder::DB->db_Main->disconnect();
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
@@ -108,9 +109,11 @@ SKIP: {
 
     # platform
     my $platform = "my platform";
+    Smolder::DB->db_Main->disconnect();
     $out =
 `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" 2>&1`;
     like( $out, qr/successfully uploaded/i );
+    Smolder::DB->db_Main->disconnect();
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
@@ -120,6 +123,7 @@ SKIP: {
 
     # architecture
     my $arch = "128 bit something";
+    Smolder::DB->db_Main->disconnect();
     $out =
 `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
     like( $out, qr/successfully uploaded/i );
