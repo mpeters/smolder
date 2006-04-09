@@ -40,7 +40,7 @@ clean:
 	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | xargs rm -rf
 	- find apache/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- find swish-e/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
-	- rm data/build.db
+	- rm -f data/build.db
 
 test:
 	bin/smolder_test
