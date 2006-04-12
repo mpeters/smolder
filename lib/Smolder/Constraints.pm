@@ -292,21 +292,4 @@ sub file_mtype {
       }
 }
 
-# query for the enum def of a $table and $column then
-# turn the enum definition into an array ref
-sub _enum_values {
-    my ( $table, $column ) = @_;
-    my $sth = Smolder::DB->db_Main()->prepare_cached(
-        qq(
-        SHOW COLUMNS FROM $table LIKE '$column';
-    )
-    );
-    $sth->execute();
-    my $row = $sth->fetchrow_arrayref();
-    $sth->finish();
-    my $text = $row->[1];
-    $text =~ s/^enum//;
-    return eval "[$text]";
-}
-
 1;
