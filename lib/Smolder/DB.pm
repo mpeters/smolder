@@ -106,7 +106,7 @@ table to use. Else, if called on the L<Smolder::DB> base class, it will accept
 
     my $values = Smolder::DB::Foo->enum_values('some_column');
 
-    my $value  = Smolder::DB->enum_values('table', 'some_column');
+    my $values  = Smolder::DB->enum_values('table', 'some_column');
 
 =cut
 
@@ -122,7 +122,10 @@ sub enum_values {
     }
     $column = shift;
 
-    return $db_platform->get_enum_values($table, $column);
+    return $db_platform->get_enum_values(
+        table  => $table, 
+        column => $column,
+    );
 }
 
 =head2 column_values
