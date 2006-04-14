@@ -175,7 +175,8 @@ sub sql_upgrade_dir {
 =cut
 
 sub get_enum_values { 
-    my ($class, $table, $column) = @_;
+    my ($class, %args) = @_;
+    my ($table, $column) = @args{qw(table column)};
     # SQLite doesn't support enums, so we just have to maintain this table
     my $enums = {
         preference   => {
