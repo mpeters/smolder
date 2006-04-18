@@ -1041,7 +1041,7 @@ sub build_params {
     # caller isn't running the right architecture then it will fail to
     # load.  So, fall back to parsing by hand...
     open( DB, $db_file ) or die "Unable to open '$db_file': $!\n";
-    my ( $platform, $perl, $arch );
+    my ( $platform, $perl, $arch, @db_plats );
     while (<DB>) {
         chomp;
         next if /^\s*#/;
@@ -1051,14 +1051,17 @@ sub build_params {
             $perl = $1;
         } elsif (/^\s*arch\s+["']?([^'"]+)/i) {
             $arch = $1;
+        } elsif( /^\s*dbplatforms\s+["']?([^'"]+)/i) {
+            @db_plats = split(/,\s*/, $1);
         }
     }
     close DB;
 
     return (
-        Platform => $platform,
-        Perl     => $perl,
-        Arch     => $arch
+        Platform    => $platform,
+        Perl        => $perl,
+        Arch        => $arch,
+        DBPlatforms => \@db_plats,
     );
 }
 
