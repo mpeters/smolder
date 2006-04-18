@@ -10,10 +10,10 @@ KeepAlive            Off
 MaxKeepAliveRequests 100
 KeepAliveTimeout     15
 MinSpareServers      5
-MaxSpareServers      10
+MaxSpareServers      5
 StartServers         5
-MaxClients           150
-MaxRequestsPerChild  100
+MaxClients           10
+MaxRequestsPerChild  6000
 ErrorLog             <tmpl_var InstallRoot>/logs/apache_error_log
 LogFormat            "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 CustomLog            <tmpl_var InstallRoot>/logs/apache_access_log combined
@@ -129,6 +129,9 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
         TKTAuthTimeout          4h
         TKTAuthTimeoutRefresh   0
+
+        # don't let our children get too big
+        PerlCleanupHandler Apache::SizeLimit
     </Location>
 
     <LocationMatch /app/admin*>

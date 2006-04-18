@@ -30,6 +30,12 @@ use Smolder::Control::Developer::Prefs;
 use Smolder::Control::Developer::Projects;
 use Smolder::Control::Developer::Graphs;
 
+# don't let things get out of control
+# 10 clients == 355MB total worse-case scenario
+use Apache::SizeLimit;
+$Apache::SizeLimit::MAX_PROCESS_SIZE  = 37000;  # 37MB 
+$Apache::SizeLimit::MIN_SHARE_SIZE    = 1500;   # 1.5MB
+$Apache::SizeLimit::CHECK_EVERY_N_REQUESTS = 3;
 
 # Disconnect before fork and then switch to using Apache::DBI
 Smolder::DB->db_Main()->disconnect();
