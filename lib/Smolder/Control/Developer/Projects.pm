@@ -3,6 +3,16 @@ use base 'Smolder::Control';
 use strict;
 use warnings;
 
+=head1 NAME
+
+Smolder::Control::Developer::Projects
+
+=head1 DESCRIPTION
+
+Controller module that deals with developer actions associated with projects.
+
+=cut
+
 use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
 use Smolder::Constraints qw(
@@ -46,6 +56,15 @@ sub setup {
     );
 }
 
+=head1 RUN MODES
+
+=head2 smoke_test_validity
+
+Set or unset the C<invalid> flag on a given smoke report. Uses the
+F<Developer/Projects/smoke_report_details.tmpl> template.
+
+=cut
+
 sub smoke_test_validity {
     my $self   = shift;
     my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
@@ -84,14 +103,27 @@ sub smoke_test_validity {
     );
 }
 
-# auto-complete options for the platform field
+=head2 platform_options
+
+Returns an HTML list sutiable for a Prototype based "Autocomplete" form
+of exising platform otpions
+
+=cut
+
 sub platform_options {
     my $self = shift;
     return $self->prototype->auto_complete_result(
         Smolder::DB::SmokeReport->column_values( 'platform', $self->query->param('platform'), ) );
 }
 
-# auto-complete options for the architecture field
+
+=head2 architecture_options
+
+Returns an HTML list sutiable for a Prototype based "Autocomplete" form
+of exising architecture otpions
+
+=cut
+
 sub architecture_options {
     my $self = shift;
     return $self->prototype->auto_complete_result(
@@ -100,6 +132,13 @@ sub architecture_options {
         )
     );
 }
+
+=head2 add_report
+
+Shows the form to allow the developer to add a new smoke report to a project.
+Uses the C<Developer/Projects/add_report.tmpl> template.
+
+=cut
 
 sub add_report {
     my ( $self, $tt_params ) = @_;
@@ -117,6 +156,16 @@ sub add_report {
     $tt_params->{project} = $project;
     return $self->tt_process($tt_params);
 }
+
+=head2 process_add_report
+
+Process the incoming information from the C<add_report> mode. If validation passes
+we upload the file and update the database. The report is stored for permanent storage
+as an XML file and summary information is extracted and inserted into the database.
+If successful, redirects the user to the "Recent Smoke Tests" screen for the same
+project.
+
+=cut
 
 sub process_add_report {
     my $self    = shift;
@@ -206,12 +255,19 @@ sub process_add_report {
     return "Redirecting to $url";
 }
 
+=head2 smoke_report
+
+Shows the summary info for a given smoke_report. Uses the F<Developer/Projects/smoke_report.tmpl>
+template.
+
+=cut
+
 sub smoke_report {
     my $self = shift;
     my $query = $self->query();
 
     my $smoke = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
-    return $self->error_message('Project does not exist')
+    return $self->error_message('Smoke report does not exist')
       unless $smoke;
     my $project = $smoke->project;
 
@@ -222,6 +278,14 @@ sub smoke_report {
 
     return $self->tt_process({ report => $smoke, project => $project });
 }
+
+=head2 smoke_reports
+
+Shows a list of smoke reports for a given project based on the limit, offset
+and category parameters. Uses the F<Developer/Projects/smoke_reports.tmpl>
+template.
+
+=cut
 
 sub smoke_reports {
     my ( $self, $tt_params ) = @_;
@@ -257,6 +321,14 @@ sub smoke_reports {
     return $self->tt_process($tt_params);
 }
 
+=head2 report_details
+
+Show the full report in a given format (HTML, XML, YAML) in the browser or
+for download. Does not use a template but outputs the details directly
+in the format requested.
+
+=cut
+
 sub report_details {
     my $self   = shift;
     my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
@@ -286,10 +358,25 @@ sub report_details {
     return $content;
 }
 
+=head2 show_all
+
+Show all of the projects this developer is associated with and a menu for
+each one.
+
+=cut
+
 sub show_all {
     my $self = shift;
     return $self->tt_process( {} );
 }
+
+=head2 admin_settings
+
+If this developer is the admin of a project then show them a form to update some
+project specific settings. Uses the F<Developer/Projects/admin_settings_form.tmpl>
+and the F<Developer/Projects/admin_settings.tmpl> templates.
+
+=cut
 
 sub admin_settings {
     my ( $self, $tt_params ) = @_;
@@ -331,6 +418,14 @@ sub admin_settings {
     return $out;
 }
 
+=head2 process_admin_settings 
+
+Process the incoming information from the C<admin_settings> mode. If
+it passes validation then update the database. If successful, returns
+to the C<admin_settings> mode.
+
+=cut
+
 sub process_admin_settings {
     my $self    = shift;
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
@@ -367,6 +462,32 @@ sub process_admin_settings {
     return $self->admin_settings( { success => 1 } );
 }
 
+=head2 categories
+
+Display the list of categories that are associated with this project.
+Uses the F<Developer/Projects/categories.tmpl> template.
+
+=cut
+
+sub categories {
+    my ( $self, $tt_params, $project ) = @_;
+
+    $project ||= Smolder::DB::Project->retrieve( $self->param('id') );
+    return $self->error_message('Project does not exist')
+      unless $project;
+
+    $tt_params->{project} = $project;
+    return $self->tt_process($tt_params);
+}
+
+=head2 add_category
+
+Add a category to a project for organizing Smoke Reports. If validation
+passes the infomation is added to the database and we return to the 
+C<categories> mode.
+
+=cut
+
 sub add_category {
     my $self    = shift;
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
@@ -401,16 +522,15 @@ sub add_category {
     return $self->categories( { add_success => 1 }, $project );
 }
 
-sub categories {
-    my ( $self, $tt_params, $project ) = @_;
+=head2 delete_category
 
-    $project ||= Smolder::DB::Project->retrieve( $self->param('id') );
-    return $self->error_message('Project does not exist')
-      unless $project;
+Deletes a category that is associated with a given Project. If validation
+passes the database is updated and all smoke reports that were associated
+with this category are either re-assigned or simply not associated with a
+category (depending on what the project admin chooses). Returns to the
+C<categories> mode if successful.
 
-    $tt_params->{project} = $project;
-    return $self->tt_process($tt_params);
-}
+=cut
 
 sub delete_category {
     my $self    = shift;

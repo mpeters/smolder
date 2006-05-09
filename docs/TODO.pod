@@ -4,15 +4,11 @@
 
 =over
 
-=item * document all classes
-
-Controller classes
-
-Document all run modes (templates used, etc)
-
-=item * Precompile all templates at startup
-
 =item * Review upgrade procedure to make sure it's working completely
+
+=item * built-in SQLite support
+
+=item * Add support for plain TAP
 
 =back
 
@@ -20,13 +16,11 @@ Document all run modes (templates used, etc)
 
 =over
 
+=item * Precompile all templates at startup (speeds it up and increases shared memory)
+
 =item * Rendering in other browsers besides FF and KHTML
 
-=item * Add support for plain TAP
-
 =item * searchable HTML docs
-
-=item * built-in SQLite support
 
 =item * import/export projects (similar to backup and install from backup but by project)
 

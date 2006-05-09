@@ -16,6 +16,16 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::DBPlatform;
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
+=head1 NAME
+
+Smolder::Control::Admin::Projects
+
+=head1 DESCRIPTION
+
+Controller module for all admin actions concerning projects.
+
+=cut
+
 sub setup {
     my $self = shift;
     $self->start_mode('list');
@@ -37,6 +47,16 @@ sub setup {
     );
 }
 
+=head1 RUN MODES
+
+=head2 change_admins 
+
+Change who is considered an C<admin> for a project. Clears out all
+of the old admins for a project and sets up new ones. Uses the
+F<Admin/Projects/project_container.tmpl> template.
+
+=cut
+
 sub change_admins {
     my $self    = shift;
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
@@ -52,6 +72,14 @@ sub change_admins {
     return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project }, );
 }
 
+=head2 developers
+
+Shows a list of developers and projects. Using drag-and-drop containers
+a developer is added to or removed from a project.
+Uses the F<Admin/Projects/developers.tmpl> template.
+
+=cut
+
 sub developers {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
@@ -62,6 +90,14 @@ sub developers {
     $tt_params->{projects}   = \@projects   if (@projects);
     return $self->tt_process($tt_params);
 }
+
+=head2 add_developer
+
+Add a developer to a project (triggerred by dropping a developer into 
+a project container). Uses the F<Admin/Projects/project_container.tmpl>
+template.
+
+=cut
 
 sub add_developer {
     my $self      = shift;
@@ -88,6 +124,14 @@ sub add_developer {
     return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
 }
 
+=head2 remove_developer
+
+Remove a developer from a project (triggerred by dragging a developer from
+a project container to the trash can). Uses the F<Admin/Projects/project_container.tmpl>
+template.
+
+=cut
+
 sub remove_developer {
     my $self      = shift;
     my $query     = $self->query;
@@ -104,6 +148,13 @@ sub remove_developer {
 
     return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
 }
+
+=head2 edit
+
+Edit the information about a project. Uses the F<Admin/Projects/edit.tmpl>
+template.
+
+=cut
 
 sub edit {
     my ( $self, $err_msgs ) = @_;
@@ -137,6 +188,13 @@ sub edit {
     return $output;
 }
 
+=head2 list
+
+Show a list of the current projects. Uses the F<Admin/Projects/list.tmpl>
+template.
+
+=cut
+
 sub list {
     my $self = shift;
     my @projects = Smolder::DB::Project->retrieve_all();
@@ -153,11 +211,27 @@ sub list {
     }
 }
 
+=head2 add
+
+Show the form to add a new project. Uses the C<Admin/Projects/add.tmpl>
+template.
+
+=cut
+
 sub add {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
+
+=head2 process_add
+
+Process the incoming data from both the C<add> and C<edit> modes. Updates
+the database if validation passes and then uses either the 
+F<Admin/Projects/add_success.tmpl> or F<Admin/Projects/edit_success.tmpl>
+templates.
+
+=cut
 
 sub process_add {
     my $self = shift;
@@ -218,6 +292,13 @@ sub process_add {
     );
 }
 
+=head2 details
+
+Show the details about a project. Uses the F<Admin/Projects/details.tmpl>
+template.
+
+=cut
+
 sub details {
     my ( $self, $project, $action ) = @_;
     my $new;
@@ -236,6 +317,13 @@ sub details {
     $tt_params{$action} = 1 if ($action);
     return $self->tt_process( \%tt_params );
 }
+
+=head2 delete
+
+Delete a project and all information associated with it. If successful
+returns to the C<list> run mode.
+
+=cut
 
 sub delete {
     my $self    = shift;

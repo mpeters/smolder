@@ -10,6 +10,16 @@ use Smolder::DBPlatform;
 use Email::Valid;
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
+=head1 NAME
+
+Smolder::Control::Admin::Developers
+
+=head1 DESCRIPTION
+
+Controller module for Admin activities concerning Developers
+
+=cut
+
 sub setup {
     my $self = shift;
     $self->start_mode('list');
@@ -28,6 +38,17 @@ sub setup {
         ]
     );
 }
+
+=head1 RUN MODES
+
+=head2 reset_pw
+
+Allow an admin to reset the password of a developer to a new random string
+and then email the new password to the developer. Uses the F<Email/reset_pw.tmpl>
+template for the email and the F<Admin/Developers/resetpw_success.tmpl> for
+displaying the result.
+
+=cut
 
 sub reset_pw {
     my $self      = shift;
@@ -60,6 +81,13 @@ sub reset_pw {
     }
 }
 
+=head2 edit 
+
+Show the edit form to allow an admin to edit the data about a developer.
+Uses the F<Admin/Developers/edit.tmpl> template.
+
+=cut
+
 sub edit {
     my ( $self, $err_msgs ) = @_;
     my $developer = Smolder::DB::Developer->retrieve( $self->param('id') );
@@ -84,6 +112,14 @@ sub edit {
     }
     return $output;
 }
+
+=head2 process_edit
+
+Processes the incoming data from the C<edit> mode and update the
+developers info in the database if validation passes. Uses the
+F<Admin/Developers/edit_success.tmpl> template.
+
+=cut
 
 sub process_edit {
     my $self = shift;
@@ -116,7 +152,7 @@ sub process_edit {
 
         # if it was a duplicate developer, then we can handle that
         if ( $DB_PLATFORM->unique_failure_msg($@) ) {
-            return $self->add( { err_unique_username => 1 } );
+            return $self->edit( { err_unique_username => 1 } );
 
             # else it's something else, so just throw it again
         } else {
@@ -131,6 +167,13 @@ sub process_edit {
         { developer => $developer },
     );
 }
+
+=head2 list
+
+Show a list of all developers. Uses the F<Admin/Developers/list_table.tmpl>
+template.
+
+=cut
 
 sub list {
     my $self       = shift;
@@ -150,11 +193,25 @@ sub list {
     }
 }
 
+=head2 add
+
+Show the add form for adding a new developer. Uses the 
+F<Admin/Developers/add.tmpl> template.
+
+=cut
+
 sub add {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
+
+=head2 process_add
+
+Process the incoming data from the C<add> mode and add it to the
+database if validation passes. Uses the F<Admin/Developers/add_success.tmpl>.
+
+=cut
 
 sub process_add {
     my $self = shift;
@@ -203,6 +260,13 @@ sub process_add {
     );
 }
 
+=head2 delete 
+
+Delete a Developer and all data associated with him. If
+successful returns the C<list> mode.
+
+=cut
+
 sub delete {
     my $self      = shift;
     my $id        = $self->param('id');
@@ -219,6 +283,13 @@ sub delete {
 
     return $self->list();
 }
+
+=head2 details
+
+Show the details of a developer. Uses the F<Admin/Developers/details.tmpl>
+template.
+
+=cut
 
 sub details {
     my ( $self, $developer, $action ) = @_;

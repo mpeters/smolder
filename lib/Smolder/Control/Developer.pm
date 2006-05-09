@@ -3,6 +3,16 @@ use base 'Smolder::Control';
 use strict;
 use warnings;
 
+=head1 NAME
+
+Smolder::Control::Developer
+
+=head1 DESCRIPTION
+
+Controller module for generic Developer screens
+
+=cut
+
 sub setup {
     my $self = shift;
     $self->start_mode('welcome');
@@ -14,6 +24,14 @@ sub setup {
         ]
     );
 }
+
+=head1 RUN MODES
+
+=head2 welcome
+
+Shows a welcome page using the F<Developer/welcome.tmpl> template.
+
+=cut
 
 sub welcome {
     my $self = shift;

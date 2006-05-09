@@ -10,6 +10,16 @@ use Apache::Cookie;
 
 our $HOME_PAGE_URL = "/app/developer";
 
+=head1 NAME 
+
+Smolder::Control::Public::Auth
+
+=head1 DESCRIPTION
+
+Controller module for all auth related activities.
+
+=cut
+
 sub setup {
     my $self = shift;
     $self->start_mode('login');
@@ -29,6 +39,14 @@ sub setup {
     );
 }
 
+=head1 RUN MODES
+
+=head2 login
+
+Show the login form. Uses the F<Public/Auth/login.tmpl> template.
+
+=cut
+
 sub login {
     my ( $self, $tt_params ) = @_;
     if ($tt_params) {
@@ -40,6 +58,15 @@ sub login {
         );
     }
 }
+
+=head2 process_login
+
+Process the incoming data from the C<login> mode. If validation passes
+the appropriate C<mod_auth_tkt> token is set and the user is either redirected
+back to where they were trying to when they were redirected to the C<login> mode,
+or taken to the developer home page.
+
+=cut
 
 sub process_login {
     my $self    = shift;
@@ -82,11 +109,26 @@ sub process_login {
     return $self->login( { validation_failed => 1 } );
 }
 
+=head2 forgot_pw
+
+Show the Forgot-my-password form. Uses the F<Public/Auth/forgot_pw.tmpl> template.
+
+=cut
+
 sub forgot_pw {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
+
+=head2 process_forgot_pw
+
+Process the incoming data from the C<forgot_pw> mode. If it passes validation
+then reset the developer's password to a new random string and then send an
+email with the new password (using the F<Email/forgot_pw.tmpl> template) to
+that developer. If successful, then return to the C<forgot_pw> mode.
+
+=cut
 
 sub process_forgot_pw {
     my $self = shift;
@@ -120,6 +162,13 @@ sub process_forgot_pw {
     return $self->forgot_pw($tt_params);
 }
 
+=head2 logout
+
+Logout the user by unsetting the C<mod_auth_tkt> cookie and then redirecting
+them (so that the cookie is sent to the browser) to the C<show_logout> mode.
+
+=cut
+
 sub logout {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
@@ -140,11 +189,26 @@ sub logout {
     return "Redirecting to '/app/public_auth/show_logout'.";
 }
 
+=head2 show_logout
+
+Show the logout screen after a successful logout. Uses the 
+F<Public/Auth/show_logout.tmpl> template.
+
+=cut
+
 sub show_logout {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
+
+=head2 timeout
+
+Show the timeout screen if C<mod_auth_tkt> determines
+that their ticket is valid but expired.
+Uses the F<Public/Auth/timeout.tmpl> template.
+
+=cut
 
 sub timeout {
     my ( $self, $tt_params ) = @_;
@@ -157,6 +221,14 @@ sub timeout {
         );
     }
 }
+
+=head2 forbidden
+
+Show the forbidden screen if C<mod_auth_tkt> determines
+that their ticket is either missing or invalid.
+Uses the F<Public/Auth/forbidden.tmpl> template.
+
+=cut
 
 sub forbidden {
     my ( $self, $tt_params ) = @_;

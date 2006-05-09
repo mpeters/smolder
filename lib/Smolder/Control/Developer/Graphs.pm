@@ -17,6 +17,16 @@ use GD::Graph::linespoints;
 use GD::Text;
 use HTML::FillInForm;
 
+=head1 NAME
+
+Smolder::Control::Developer::Graphs
+
+=head1 DESCRIPTION
+
+Controller module for generating graph images.
+
+=cut
+
 # allowable graph types
 our %TYPE_MAP = (
     bar    => 'bars3d',
@@ -48,6 +58,16 @@ sub setup {
     );
 }
 
+=head1 RUN MODES
+
+=head2 start
+
+Display the initial start form for a project's graph with some
+reasonable defaults. Uses the F<Developer/Graphs/start.tmpl>
+template.
+
+=cut
+
 sub start {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
@@ -73,6 +93,13 @@ sub start {
     );
 
 }
+
+=head2 image
+
+Creates and returns a graph image to the browser based on the parameters
+chosen by the user.
+
+=cut
 
 sub image {
     my $self  = shift;
