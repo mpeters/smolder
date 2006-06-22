@@ -12,6 +12,8 @@
 
 =item * Add support for plain TAP
 
+=item * Add smolder_prove so that tests can be run for any CPAN style layout
+
 =back
 
 =head2 FOR 2.0
