@@ -20,6 +20,8 @@ sub setup {
         [
             qw(
               welcome
+              developer_tutorial
+              admin_tutorial
               )
         ]
     );
@@ -35,6 +37,30 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 
 
 sub welcome {
+    my $self = shift;
+    return $self->tt_process( {} );
+}
+
+=head2 developer_tutorial
+
+Shows a tutorial for a developer  using the F<Public/developer_tutorial.tmpl> template.
+
+=cut
+
+
+sub developer_tutorial {
+    my $self = shift;
+    return $self->tt_process( {} );
+}
+
+=head2 admin_tutorial
+
+Shows a tutorial for an admin  using the F<Public/admin_tutorial.tmpl> template.
+
+=cut
+
+
+sub admin_tutorial {
     my $self = shift;
     return $self->tt_process( {} );
 }
