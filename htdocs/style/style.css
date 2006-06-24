@@ -274,10 +274,11 @@ a.button:hover {
   width: 175px;
   height: 140px;
   background-color: #FFFFFF;
+  color: #000000;
 }
 
 /* header */
-.datepicker .header {
+.datepicker_header {
   padding-top: 3px;
   width: 100%;
   height: 20px;
@@ -287,93 +288,88 @@ a.button:hover {
   font-weight: bold;
 }
 
-.header .pre_years {
+.datepicker_preYears {
   position: relative;
   left: 5px;
   float: left;
 }
 
-.header .pre_years div.mark {
+.datepicker_mark {
   float: left;
   margin-right: 5px;
   cursor: pointer;
 }
 
-.header .pre_years div.markHover {
+.datepicker_markHover {
   float: left;
   margin-right: 5px;
   cursor: pointer;
   color: #FF8080;
+  background-color: #E6E6FA;
 }
 
-.header .next_years {
+.datepicker_nextYears {
   position: relative;
   left: 25px;
   float: left;
 }
 
-.header .next_years div.mark {
-  float: left;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.header .next_years div.markHover {
-  float: left;
-  margin-right: 5px;
-  cursor: pointer;
-  color: #FF8080;
-}
-
-.header .years {
+.datepicker_years {
   position: relative;
   left: 5px;
   width: 80px;
   float: left;
 }
 
-.header .years span {
+.datepicker_ym {
   margin-left: 10px;
 }
 
 
 /* calendar */
-.datepicker .calendar {
+.datepicker_calendar {
   padding-top: 5px;
+  color: #000000;
   background-color: #FFFFFF;
 }
 
-.datepicker .calendar table {
+.datepicker_table {
   font-size: 11px;
   text-align: center;
 }
 
-.datepicker .calendar table th {
+.datepicker_tableTh {
   color: #778899;
-}
-
-.datepicker .calendar table td.date {
-  cursor: pointer;
   background-color: #FFFFFF;
 }
 
-.datepicker .calendar table td.holiday {
+.datepicker_date {
+  cursor: pointer;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.datepicker_holiday {
   cursor: pointer;
   background-color: #FFFFFF;
   font-weight: bold;
   color: #FF8080;
 }
 
-.datepicker .calendar table td.dateHover {
+.datepicker_dateHover {
   cursor: pointer;
   background-color: #E6E6FA;
   font-weight: bold;
   color: #FF8080;
 }
 
-#calendar { 
-    position: absolute;
+.datepicker_holidayHover {
+  cursor: pointer;
+  background-color: #E6E6FA;
+  font-weight: bold;
+  color: #FF8080;
 }
+
 
 /* accordion styles */
 div.accordion, div.fake_accordion {

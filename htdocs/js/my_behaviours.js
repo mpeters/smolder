@@ -30,7 +30,7 @@ var myrules = {
             inputId, 
             element.id, 
             { 
-                format: DateFormat.simpleFormat('MM/dd/yyyy') 
+                format: DateUtil.simpleFormat('MM/dd/yyyy') 
             }
         );
     },
