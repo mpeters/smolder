@@ -134,6 +134,13 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         PerlCleanupHandler Apache::SizeLimit
     </Location>
 
+    # guest user on everything so that apache's auth
+    # is triggered so that our ENV is setup for non-protected stuff
+    <LocationMatch /app>
+        TKTAuthGuestLogin on
+        Require valid-user
+    </LocationMatch>
+
     <LocationMatch /app/admin*>
         TKTAuthTimeoutRefresh   0
         TKTAuthToken admin
