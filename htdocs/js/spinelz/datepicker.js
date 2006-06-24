@@ -22,16 +22,17 @@
 var DatePicker = Class.create();
 DatePicker.className = {
   container: 'datepicker',
-  header: 'header',
-  preYears: 'pre_years',
-  nextYears: 'next_years',
-  years: 'years',
-  mark: 'mark',
-  markHover: 'markHover',
-  calendar: 'calendar',
-  date: 'date',
-  dateHover: 'dateHover',
-  holiday: 'holiday'
+  header: 'datepicker_header',
+  preYears: 'datepicker_preYears',
+  nextYears: 'datepicker_nextYears',
+  years: 'datepicker_years',
+  mark: 'datepicker_mark',
+  calendar: 'datepicker_calendar',
+  date: 'datepicker_date',
+  holiday: 'datepicker_holiday',
+  ym: 'datepicker_ym',
+  table: 'datepicker_table',
+  tableTh: 'datepicker_tableTh'
 }
 DatePicker.mark = {
   preYear: '<<',
@@ -39,13 +40,11 @@ DatePicker.mark = {
   nextYear: '>>',
   nextMonth: '>'
 }
-DatePicker.week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-DatePicker.month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-DatePicker.daysOfMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 DatePicker.prototype = {
   
   initialize: function(element, target, trigger) {
     this.element = $(element);
+    Element.setStyle(this.element, {visibility: 'hidden'});
     this.target = $(target);
     this.date = new Date();
 
@@ -53,10 +52,16 @@ DatePicker.prototype = {
       month: this.date.getMonth() + 1,
       date: this.date.getDate(),
       year: this.date.getFullYear(),
-      format: DateFormat.toLocaleDateString
+      format: DateUtil.toLocaleDateString,
+      cssPrefix: 'custom_',
+      callBack: Prototype.emptyFunction
     }, arguments[3] || {});
     
+    var customCss = CssUtil.appendPrefix(options.cssPrefix, DatePicker.className);
+    this.classNames = new CssUtil([DatePicker.className, customCss]);
+    
     this.format = options.format;
+    this.callBack = options.callBack;
     
     this.date.setMonth(options.month - 1);
     this.date.setDate(options.date);
@@ -68,13 +73,14 @@ DatePicker.prototype = {
     this.doclistener = this.hide.bindAsEventListener(this);
     Event.observe($(trigger), "click", this.show.bindAsEventListener(this));
     this.hide();
+    Element.setStyle(this.element, {visibility: 'visible'});
   },
   
   build: function() {
     var node = 
       Builder.node(
         'DIV', 
-        {className: DatePicker.className.container},
+        {className: this.classNames.joinClassNames('container')},
         [
           this.buildHeader(),
           this.buildCalendar()
@@ -89,38 +95,41 @@ DatePicker.prototype = {
     var nodes = this.multiBuild(
                   'DIV', 
                   [DatePicker.mark.preYear, DatePicker.mark.preMonth], 
-                  DatePicker.className.mark, 
-                  DatePicker.className.markHover,
+                  'mark',
+                  true,
                   this.changeCalendar());
-    headerNodes.push(Builder.node('DIV', {className: DatePicker.className.preYears}, nodes));
+    var className = this.classNames.joinClassNames('preYears');
+    headerNodes.push(Builder.node('DIV', {className: className}, nodes));
     
-    nodes = this.multiBuild('SPAN', [this.getMonth(), this.date.getFullYear()]);
-    headerNodes.push(Builder.node('DIV', {className: DatePicker.className.years}, nodes));  
+    nodes = this.multiBuild('SPAN', [this.getMonth(), this.date.getFullYear()], 'ym');
+    className = this.classNames.joinClassNames('years');
+    headerNodes.push(Builder.node('DIV', {className: className}, nodes));  
     
     nodes = this.multiBuild(
               'DIV', 
               [DatePicker.mark.nextMonth, DatePicker.mark.nextYear], 
-              DatePicker.className.mark, 
-              DatePicker.className.markHover,
+              'mark',
+              true,
               this.changeCalendar());
-    headerNodes.push(Builder.node('DIV', {className: DatePicker.className.nextYears}, nodes));
+    className = this.classNames.joinClassNames('nextYears');
+    headerNodes.push(Builder.node('DIV', {className: className}, nodes));
     
-    return Builder.node('DIV', {className: DatePicker.className.header}, headerNodes);
+    className = this.classNames.joinClassNames('header');
+    return Builder.node('DIV', {className: className}, headerNodes);
   },
   
-  multiBuild: function(tagType, params, className, hoverClass, clickEvent) {
-    var children = new Array();
+  multiBuild: function(tagType, params, className, hover, clickEvent) {
+    var children = [];
     for (var i = 0; i < params.length; i++) {
       var node;
       
+      node = Builder.node(tagType, [params[i]]);
       if (className)
-        node = Builder.node(tagType, {className: className}, [params[i]]);
-      else
-        node = Builder.node(tagType, [params[i]]);
-      
-      if (hoverClass)
-        this.setHoverEvent(node, className, hoverClass);
-      
+        this.classNames.addClassNames(node, className);
+        
+      if (hover)
+        new Hover(node);
+        
       if (clickEvent)
         Event.observe(node, "click", clickEvent.bindAsEventListener(this));
         
@@ -131,31 +140,31 @@ DatePicker.prototype = {
   },
   
   buildCalendar: function() {
-    var table = Builder.node('TABLE', [
-                  Builder.node(
-                    'TBODY',
-                    [
-                      this.buildTableHeader(),
-                      this.buildTableData()
-                    ])
-                ]);
+    var className = this.classNames.joinClassNames('table');
+    var node = Builder.node('TBODY', [this.buildTableHeader(), this.buildTableData()]);
+    var table = Builder.node('TABLE', {className: className}, [node]);
                   
-    return Builder.node('DIV', {className: DatePicker.className.calendar}, [table]);
+    className = this.classNames.joinClassNames('calendar');
+    return Builder.node('DIV', {className: className}, [table]);
   },
   
   buildTableHeader: function() {
     var weekArray = new Array();
-    for (var i = 0; i < DatePicker.week.length; i++) {
-      weekArray.push(Builder.node('TH', DatePicker.week[i]));
+    var className = this.classNames.joinClassNames('tableTh');
+    for (var i = 0; i < DateUtil.dayOfWeek.length; i++) {
+      weekArray.push(
+        Builder.node('TH', {className: className}, [DateUtil.dayOfWeek[i]]));
     }
     
     return Builder.node('TR', weekArray);
   },
   
   buildTableData: function() {
-    var length = DatePicker.week.length * 5;
-    var firstDay = this.getFirstDay();
-    var lastDate = this.getLastDate();
+    var length = DateUtil.dayOfWeek.length * 5;
+    var year = this.date.getFullYear();
+    var month = this.date.getMonth();
+    var firstDay = DateUtil.getFirstDate(year, month).getDay();
+    var lastDate = DateUtil.getLastDate(year, month).getDate();
     var trs = new Array();
     var tds = new Array();
     
@@ -166,12 +175,13 @@ DatePicker.prototype = {
       } else {
         var className;
         if ((i % 7 == 0) || ((i+1) % 7 == 0))
-          className = DatePicker.className.holiday;
+          className = 'holiday';
         else
-          className = DatePicker.className.date;
+          className = 'date';
           
-        node = Builder.node('TD', {className: className}, [day]);
-        this.setHoverEvent(node, className, DatePicker.className.dateHover);
+        var defaultClass = this.classNames.joinClassNames(className);
+        node = Builder.node('TD', {className: defaultClass}, [day]);
+        new Hover(node);
         Event.observe(node, "click", this.selectDate.bindAsEventListener(this));
         tds.push(node);
         day++;
@@ -192,44 +202,13 @@ DatePicker.prototype = {
     this.element.appendChild(this.calendar);
   },
   
-  getLastDate: function() {
-    var days = DatePicker.daysOfMonth[this.date.getMonth()];
-    if ((this.date.getMonth() != 2) || !this.isLeapYear())
-      return days;
-    return days + 1;
-  },
-  
-  isLeapYear: function() {
-    var year = this.date.getFullYear();
-    if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
-      return true;
-    return false;
-  }, 
-  
-  getFirstDay: function() {
-    var date = new Date(this.getMonth() + ' 1, ' + this.date.getFullYear());
-    return date.getDay();
-  },
-  
   getMonth: function() {
-    return  DatePicker.month[this.date.getMonth()];
-  },
-  
-  setHoverEvent: function(element, normal, hover) {
-    Event.observe(element, "mouseout", this.toggleHover(normal).bindAsEventListener(this));
-    Event.observe(element, "mouseover", this.toggleHover(hover).bindAsEventListener(this));
-  },
-  
-  toggleHover: function(className) {
-    return function(event) {
-      var src = Event.element(event);
-      src.className = className;
-    }
+    return  DateUtil.months[this.date.getMonth()];
   },
   
   changeCalendar: function() {
     return function(event) {
-      var value = this.getTextValue(Event.element(event)).nodeValue;
+      var value = Element.getTextNodes(Event.element(event))[0].nodeValue;
       
       switch (value) {
         case DatePicker.mark.preYear: 
@@ -265,55 +244,43 @@ DatePicker.prototype = {
   
   selectDate: function(event) {
     var src = Event.element(event);
-    var text = this.getTextValue(src);
-    
+    var text = Element.getTextNodes(src)[0];
+
     this.date.setDate(text.nodeValue);
     
     var value = this.format(this.date);
       
-    this.target.value = value;
+    
+    if (this.target.value || this.target.value == '') {
+      this.target.value = value;
+    } else {
+      this.target.innerHTML = value;
+    }
+    
     this.hide();
-    src.className = DatePicker.className.date;
-  },
-  
-  getTextValue: function(element) {
-    return $A(element.childNodes).detect(function(child) {
-      return (child.nodeType == 3);
-    });
+    this.classNames.refreshClassNames(src, 'date');
+    
+    this.callBack(this);
   },
   
   show: function(event) {
     Element.show(this.calendar);
     Event.observe(document, "click", this.doclistener);
-    Event.stop(event);
+    if (event) {
+        Event.stop(event);
+    }
   },
   
   hide: function() {
     Event.stopObserving(document, "click", this.doclistener);
     Element.hide(this.calendar);
-  }
-}
-
-
-var DateFormat = {
-  
-  toDateString: function(date) {
-    return date.toDateString();
   },
   
-  toLocaleDateString: function(date) {
-    return date.toLocaleDateString();
+  addTrigger: function(trigger) {
+    Event.observe($(trigger), 'click', this.show.bindAsEventListener(this));
   },
   
-  simpleFormat: function(formatStr) {
-    return function(date) {
-      var formated = formatStr.replace(/M+/g, date.getMonth() + 1);
-      formated = formated.replace(/d+/g, date.getDate());
-      formated = formated.replace(/y{4}/g, date.getFullYear());
-      formated = formated.replace(/y{1,3}/g, new String(date.getFullYear()).substr(2));
-      formated = formated.replace(/E+/g, DatePicker.week[date.getDay()]);
-      
-      return formated;
-    }
+  changeTarget: function(target) {
+    this.target = $(target);
   }
 }
