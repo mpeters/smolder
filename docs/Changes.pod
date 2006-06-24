@@ -2,6 +2,8 @@
 
 =head2 0.2
 
+=item * Added smolder_prove, to run any normal Perl tests for smolder - M. Peters
+
 =item * Send the port number in URLs in emails - Sam Tregar
 
 =item * Skip the authinfo test if Apache is not running - Sam Tregar

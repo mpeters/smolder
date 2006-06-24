@@ -1,0 +1,147 @@
+#!/usr/local/bin/perl -w
+
+eval 'exec /usr/local/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+
+use strict;
+
+use Test::Harness;
+use Test::Harness::Util qw( all_in blibdirs shuffle );
+
+use Getopt::Long;
+use Pod::Usage 1.12;
+use File::Spec;
+
+use vars qw( $VERSION );
+$VERSION = "1.04";
+
+my $shuffle = 0;
+my $dry = 0;
+my $blib = 0;
+my $lib = 0;
+my $recurse = 0;
+my @includes = ();
+my @switches = ();
+my $xml = 1;
+
+# Allow cuddling the paths with the -I
+@ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
+
+# Stick any default switches at the beginning, so they can be overridden
+# by the command line switches.
+unshift @ARGV, split( " ", $ENV{PROVE_SWITCHES} ) if defined $ENV{PROVE_SWITCHES};
+
+Getopt::Long::Configure( "no_ignore_case" );
+Getopt::Long::Configure( "bundling" );
+GetOptions(
+    'b|blib'        => \$blib,
+    'd|debug'       => \$Test::Harness::debug,
+    'D|dry'         => \$dry,
+    'h|help|?'      => sub {pod2usage({-verbose => 1}); exit},
+    'H|man'         => sub {pod2usage({-verbose => 2}); exit},
+    'I=s@'          => \@includes,
+    'l|lib'         => \$lib,
+    'perl'          => \$ENV{HARNESS_PERL},
+    'r|recurse'     => \$recurse,
+    's|shuffle'     => \$shuffle,
+    't'             => sub { unshift @switches, "-t" }, # Always want -t up front
+    'T'             => sub { unshift @switches, "-T" }, # Always want -T up front
+    'w'             => sub { push @switches, '-w' },
+    'W'             => sub { push @switches, '-W' },
+    'v|verbose'     => \$Test::Harness::verbose,
+    'V|version'     => sub { print_version(); exit; },
+    'x|xml'         => \$xml,
+) or exit 1;
+
+$ENV{TEST_VERBOSE} = 1 if $Test::Harness::verbose;
+
+# Handle blib includes
+if ( $blib ) {
+    my @blibdirs = blibdirs();
+    if ( @blibdirs ) {
+        unshift @includes, @blibdirs;
+    }
+    else {
+        warn "No blib directories found.\n";
+    }
+}
+
+# Handle lib includes
+if ( $lib ) {
+    unshift @includes, "lib";
+}
+
+# Build up TH switches
+push( @switches, map { /\s/ && !/^".*"$/ ? qq["-I$_"] : "-I$_" } @includes );
+$Test::Harness::Switches = join( " ", @switches );
+print "# \$Test::Harness::Switches: $Test::Harness::Switches\n" if $Test::Harness::debug;
+
+@ARGV = File::Spec->curdir unless @ARGV;
+my @argv_globbed;
+my @tests;
+if ( $] >= 5.006001 ) {
+    require File::Glob;
+    @argv_globbed = map { File::Glob::bsd_glob($_) } @ARGV;
+}
+else {
+    @argv_globbed = map { glob } @ARGV;
+}
+
+for ( @argv_globbed ) {
+    push( @tests, -d $_ ? all_in( { recurse => $recurse, start => $_ } ) : $_ )
+}
+
+if ( @tests ) {
+    shuffle(@tests) if $shuffle;
+    if ( $dry ) {
+        print join( "\n", @tests, "" );
+    }
+    else {
+        print "# ", scalar @tests, " tests to run\n" if $Test::Harness::debug;
+        if( $xml ) {
+            require Test::TAP::XML;
+            my $harness = Test::TAP::XML->new();
+            $harness->run_tests(@tests);
+            print $harness->xml();
+        } else {
+            runtests(@tests);
+        }
+    }
+}
+
+sub print_version {
+    printf( "prove v%s, using Test::Harness v%s and Perl v%vd\n",
+        $VERSION, $Test::Harness::VERSION, $^V );
+}
+
+__END__
+
+=head1 NAME
+
+smolder_prove -- A command-line tool for running tests against Test::Harness
+
+=head1 SYNOPSIS
+
+smolder_prove [options] [files/directories]
+
+=head1 OVERVIEW
+
+smolder_prove works exactly the same as the C<prove> utility that comes
+with L<Test::Harness> except that by default it outputs it's results
+as XML, suitable for uploading to a smolder server.
+
+=head1 OPTIONS
+
+smolder_prove accepts the same arguments as C<prove>, except for the following
+additions and removals
+
+=head2 Additional Options
+
+    -x, --xml       Test results are output as XML. This is true by default
+                    Setting this option to false, makes this operate just
+                    like prove
+
+=head2 Removed Options
+
+    --time          This option just doesn't make sense when the whole out
+                    comes as one big XML document
