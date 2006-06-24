@@ -2,6 +2,12 @@
 
 =head2 0.2
 
+=item * Send the port number in URLs in emails - Sam Tregar
+
+=item * Skip the authinfo test if Apache is not running - Sam Tregar
+
+=item * Added missing modules to src (XML::Parser, XML::SAX::Expat, Exception::Class and Exception::Class::TryCatch) - Sam Tregar
+
 =item * Using a smaller number of Apache children and Apache::SizeLimit to limit any memory hogging - M. Peters
 
 =item * Added built-in SQLite support - M. Peters
