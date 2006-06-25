@@ -13,6 +13,7 @@ use Test::TAP::HTMLMatrix;
 use Test::TAP::Model::Visual;
 use YAML;
 use Carp qw(croak);
+use IO::Zlib;
 
 __PACKAGE__->set_up_table('smoke_report');
 
@@ -85,7 +86,7 @@ sub file {
     # create it if it doesn't exist
     mkpath($dir) if ( !-d $dir );
 
-    return catfile( $dir, $self->id . '.xml' );
+    return catfile( $dir, $self->id . '.xml.gz' );
 }
 
 =head3 html
@@ -207,7 +208,28 @@ The L<Test::TAP::XML> object for this smoke test run.
 sub model_obj {
     my $self = shift;
     if ( !$self->{__TAP_MODEL_XML} ) {
-        $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $self->file );
+        my $file = $self->file;
+
+        # are we dealing with a compressed file
+        if( $file =~ /\.gz/ ) {
+            # uncompress the XML file into a temp file
+            my $tmp = new File::Temp(
+                UNLINK => 1,
+                SUFFIX => '.xml',
+            );
+            my $in_fh = IO::Zlib->new();
+            $in_fh->open($self->file, 'rb')
+                or die "Could not open file $tmp for reading compressed!";
+
+            my $buffer;
+            while(read($in_fh, $buffer, 10240)) {
+                print $tmp $buffer;
+            }
+        } else {
+            $file = $self->file;
+        }
+        
+        $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $file );
     }
     return $self->{__TAP_MODEL_XML};
 }

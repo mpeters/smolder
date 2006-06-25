@@ -30,6 +30,8 @@ use Test::TAP::XML;
 use File::Temp;
 use File::Spec::Functions qw(catdir catfile);
 use File::Copy qw(move);
+use IO::Zlib;
+
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 sub setup {
@@ -241,9 +243,19 @@ sub process_add_report {
     );
     Smolder::DB->dbi_commit();
 
-    # now move the tmp file to it's real destination
-    move( $valid->{report_file}, $report->file )
-      or die "Could not move file from '$valid->{report_file}' to '" . $report->file . "': $!";
+    # now move the tmp file to it's real destination and compress it
+    my $dest = $report->file;
+    my $out_fh = IO::Zlib->new();
+    $out_fh->open($dest, 'wb9') 
+        or die "Could not open file $dest for writing compressed!";
+    my $in_fh;
+    open($in_fh, $valid->{report_file})
+        or die "Could not open file $valid->{report_file} for reading! $!" ;
+
+    my $buffer;
+    while(read($in_fh, $buffer, 10240)) {
+        print $out_fh $buffer;
+    }
 
     # now send an email to all the user's who want this report
     $report->send_emails();
