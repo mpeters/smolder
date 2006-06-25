@@ -4,11 +4,7 @@
 
 =over
 
-=item * anonymous users in mod_auth_tkt
-
 =item * Review upgrade procedure to make sure it's working completely
-
-=item * built-in SQLite support
 
 =item * Add support for plain TAP
 
