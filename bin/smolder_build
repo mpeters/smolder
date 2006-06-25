@@ -133,7 +133,7 @@ my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
 my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
-my $SQLITE       = 'sqlite//sqlite-3.3.4.tar.gz';
+my $SQLITE       = 'sqlite//sqlite-3.3.6.tar.gz';
 
 # options
 my $skip_apache  = 0;
