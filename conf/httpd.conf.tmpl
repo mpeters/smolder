@@ -129,6 +129,7 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
         TKTAuthTimeout          4h
         TKTAuthTimeoutRefresh   0
+        #TKTAuthDebug            1
 
         # don't let our children get too big
         PerlCleanupHandler Apache::SizeLimit
