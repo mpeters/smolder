@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 132 );
+    plan( tests => 83 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -243,7 +243,7 @@ $mech->content_contains('My Projects');
     ok( !$report->invalid );
 }
 
-# 87..90
+# 79..83
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);
@@ -258,140 +258,6 @@ $mech->content_contains('My Projects');
     $mech->title_like(qr/\Q$title\E/);
     $mech->content_contains('(' . $proj1->name . ')');
     $mech->content_contains($dev->username);
-}
-
-# 90..98
-# admin_settings, process_admin_settings
-{
-    my $proj1 = _get_proj($proj1_id);
-    my $url      = "/app/developer_projects/admin_settings";
-    my %settings = (
-        default_arch     => 'AMD64',
-        default_platform => 'Linux FC4',
-        allow_anon       => 0,
-    );
-    $proj1->default_platform('Foo');
-    $proj1->default_arch('Bar');
-    $proj1->allow_anon(1);
-    $proj1->update();
-    Smolder::DB->dbi_commit();
-
-    # is form pre-filled
-    $mech->get_ok("$url/$proj1");
-    $mech->content_contains('Project Settings');
-    $mech->content_contains('checked="checked" value="1"');
-    $mech->content_contains('value="Foo"');
-    $mech->content_contains('value="Bar"');
-
-    # invalid form
-    ok( $mech->form_name('admin_settings_form') );
-    $mech->set_fields(
-        default_arch     => ( 'x' x 300 ),
-        default_platform => ( 'x' x 300 ),
-    );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
-    $mech->content_contains('Too long. Must be under 255 characters.');
-
-    # valid form
-    ok( $mech->form_name('admin_settings_form') );
-    $mech->set_fields(%settings);
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('successfully updated');
-
-    my $proj_id = $proj1->id;
-    $proj1 = undef;
-    $proj1 = Smolder::DB::Project->retrieve($proj_id);
-    foreach ( keys %settings ) {
-        is( $proj1->$_, $settings{$_} );
-    }
-}
-
-# 99..117
-# add_category, delete_category
-{
-    my $proj1 = _get_proj($proj1_id);
-    my $url = "/app/developer_projects/admin_settings";
-    my @categories = ( "Stuff", "More Stuff", );
-    $mech->get_ok("$url/$proj1");
-    $mech->content_contains('Project Settings');
-    $mech->content_contains('none');
-
-    # empty form
-    $mech->form_name('project_categories_form');
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
-
-    # invalid form
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => ( 'x' x 300 ) );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
-    $mech->content_contains('Too long');
-
-    # successful
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[0] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('succesfully added');
-    $mech->content_contains( $categories[0] );
-
-    # try to add it again
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[0] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('already exists');
-
-    # add the next one
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[1] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('succesfully added');
-    $mech->content_contains( $categories[0] );
-    $mech->content_contains( $categories[1] );
-
-    # make sure they're all there
-    foreach my $cat ( $proj1->categories ) {
-        ok( grep { $_ eq $cat } @categories );
-    }
-}
-
-# 118..132
-# authorization for non-public project
-{
-    my $proj2 = _get_proj($proj2_id);
-    # login as another developer not associated with the projects
-    $mech->logout();
-    my $dev2 = create_developer( password => $pw );
-    $mech->get_ok($url);
-    $mech->login( username => $dev2->username, password => $pw );
-
-    # make sure I can't see these pages
-    $mech->get_ok("/app/developer_projects/add_report/$proj2");
-    $mech->content_contains('Unauthorized');
-    $mech->get_ok("/app/developer_projects/process_add_report/$proj2");
-    $mech->content_contains('Unauthorized');
-    $mech->get_ok("/app/developer_projects/smoke_reports/$proj2");
-    $mech->content_contains('Unauthorized');
-
-    # check the add_category, delete_category
-    $mech->get_ok("/app/developer_projects/add_category/$proj2");
-    $mech->content_contains('You are not an admin');
-    $mech->get_ok("/app/developer_projects/delete_category/$proj2");
-    $mech->content_contains('You are not an admin');
-
-    # check project_settings and project_project_settings
-    $mech->get_ok("/app/developer_projects/admin_settings/$proj2");
-    $mech->content_contains('You are not an admin');
-    $mech->get_ok("/app/developer_projects/process_admin_settings/$proj2");
-    $mech->content_contains('You are not an admin');
 }
 
 sub _get_proj {
