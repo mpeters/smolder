@@ -472,3 +472,31 @@ div.crud_header a {
     font-weight: bold;
 }
 
+/* Notify styles */
+#NotifyAlertWrap{
+    margin: 10%;
+    background-color:#eee;
+    padding: 10px;
+    border-bottom: 2px solid #666;
+    border-right: 2px solid #666;
+    width: 70%;
+    height: 165px;
+    margin-top: -4000px;
+}
+#NotifyAlertOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/error_overlay.png');
+    z-index:1000;
+}
+* html #NotifyAlertOverlay{
+    background-color: #333;
+    back\ground-color: transparent;
+    background-image: url('/images/blank.gif');
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale");
+}
+
+

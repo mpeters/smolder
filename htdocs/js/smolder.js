@@ -83,8 +83,6 @@ function ajax_submit (args) {
                     {
                         messagecolor : '#FFFFFF',
                         autoHide     : 'false',
-                        inEffect     : function(e) { Effect.BlindDown(e) },
-                        outEffect    : function(e) { Effect.BlindUp(e) },
                     }
                 );
             }
