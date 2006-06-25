@@ -2,6 +2,8 @@
 
 =head2 0.2
 
+=item * Turn on mod_auth_tkt for all dynamic requests so that Apache auth stages are run and valid credentials produced - M. Peters
+
 =item * Added smolder_prove, to run any normal Perl tests for smolder - M. Peters
 
 =item * Send the port number in URLs in emails - Sam Tregar
