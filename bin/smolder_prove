@@ -23,6 +23,7 @@ my $recurse = 0;
 my @includes = ();
 my @switches = ();
 my $xml = 1;
+my $yaml = 0;
 
 # Allow cuddling the paths with the -I
 @ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
@@ -51,9 +52,15 @@ GetOptions(
     'v|verbose'     => \$Test::Harness::verbose,
     'V|version'     => sub { print_version(); exit; },
     'x|xml'         => \$xml,
+    'y|yaml'        => \$yaml,
 ) or exit 1;
 
 $ENV{TEST_VERBOSE} = 1 if $Test::Harness::verbose;
+
+# xml is default, so yaml overrides it
+if( $yaml ) {
+    $xml = 0;
+}
 
 # Handle blib includes
 if ( $blib ) {
@@ -103,6 +110,12 @@ if ( @tests ) {
             my $harness = Test::TAP::XML->new();
             $harness->run_tests(@tests);
             print $harness->xml();
+        } elsif( $yaml ) {
+            require Test::TAP::Model;
+            require YAML;
+            my $harness = Test::TAP::Model->new();
+            $harness->run_tests(@tests);
+            print YAML::Dump( $harness->structure );
         } else {
             runtests(@tests);
         }
@@ -140,6 +153,9 @@ additions and removals
     -x, --xml       Test results are output as XML. This is true by default
                     Setting this option to false, makes this operate just
                     like prove
+
+    -y, --yaml      Test results are output as YAML. This is false by default
+                    and will override the C<--xml> option if used.
 
 =head2 Removed Options
 
