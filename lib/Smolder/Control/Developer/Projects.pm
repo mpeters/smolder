@@ -188,7 +188,7 @@ sub process_add_report {
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
-            report_file  => file_mtype(qw(text/plain text/xml text/yaml)),
+            report_file  => file_mtype(qw(text/plain text/xml text/yaml application/x-gzip multipart/x-gzip)),
             category     => existing_project_category($project),
         },
     };
@@ -197,22 +197,40 @@ sub process_add_report {
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
+    # if the file is compressed, let's uncompress it
+    my $report_file = $valid->{report_file};
+    if( $report_file =~ /\.gz$/ ) {
+        my $tmp = new File::Temp(
+            UNLINK => 0,
+        );
+        my $in_fh = IO::Zlib->new();
+        $in_fh->open($report_file, 'rb')
+            or die "Could not open file $tmp for reading compressed!";
+
+        my $buffer;
+        while(read($in_fh, $buffer, 10240)) {
+            print $tmp $buffer;
+        }
+        $report_file = $tmp->filename();
+    }
+
     # take the uploaded file and create a Test::TAP::Model object from it
     my $report_model;
     if ( $valid->{format} eq 'XML' ) {
-        eval { $report_model = Test::TAP::XML->from_xml_file( $valid->{report_file} ); };
+        eval { $report_model = Test::TAP::XML->from_xml_file( $report_file ); };
     } elsif ( $valid->{format} eq 'YAML' ) {
         require YAML;
         eval {
             $report_model =
-              Test::TAP::XML->new_with_struct( YAML::LoadFile( $valid->{report_file} ) );
+              Test::TAP::XML->new_with_struct( YAML::LoadFile( $report_file ) );
         };
     }
 
     # if we couldn't create a model of the test
-    if ( !$report_model ) {
-        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $@");
-        unlink( $valid->{report_file} );
+    if ( !$report_model || $@) {
+        my $err = $@;
+        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $err");
+        unlink( $report_file );
         return $self->add_report(
             {
                 'err_valid_file'                       => 1,
@@ -249,8 +267,8 @@ sub process_add_report {
     $out_fh->open($dest, 'wb9') 
         or die "Could not open file $dest for writing compressed!";
     my $in_fh;
-    open($in_fh, $valid->{report_file})
-        or die "Could not open file $valid->{report_file} for reading! $!" ;
+    open($in_fh, $report_file)
+        or die "Could not open file $report_file for reading! $!" ;
 
     my $buffer;
     while(read($in_fh, $buffer, 10240)) {

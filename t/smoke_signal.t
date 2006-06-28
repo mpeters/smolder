@@ -24,6 +24,7 @@ my $pw           = 's3cr3t';
 my $dev          = create_developer( password => $pw );
 my $username     = $dev->username;
 my $test_file    = catfile( InstallRoot(), 't', 'data', 'report_good.xml' );
+my $test_file_gz = catfile( InstallRoot(), 't', 'data', 'report_good.xml.gz' );
 
 END {
     delete_projects();
@@ -93,6 +94,19 @@ SKIP: {
     my $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     Smolder::DB->db_Main->disconnect();
     isa_ok( $report, 'Smolder::DB::SmokeReport' );
+
+    # successfull gzip upload
+    $out =
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file_gz 2>&1`;
+    like( $out, qr/successfully uploaded/i );
+
+    # make sure it's uploaded to the server
+    $out =~ /as #(\d+)/;
+    $report_id = $1;
+    $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    Smolder::DB->db_Main->disconnect();
+    isa_ok( $report, 'Smolder::DB::SmokeReport' );
+    ok( $report->html, 'html can be created');
 
     # test optional options
     # comments

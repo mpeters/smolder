@@ -126,11 +126,14 @@ _missing_required('file')     unless $file;
 
 # make sure our file is there and is of the right type
 if ( -r $file ) {
-    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.xml$/, qr/\.yml$/, qr/\.yaml$/ );
+    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.xml(?:\.gz)?$/, qr/\.yml(?:\.gz)?$/, qr/\.yaml(?:\.gz)?$/ );
     my %formats = (
-        '.xml'  => 'XML',
-        '.yml'  => 'YAML',
-        '.yaml' => 'YAML',
+        '.xml'      => 'XML',
+        '.xml.gz'   => 'XML',
+        '.yml'      => 'YAML',
+        '.yml.gz'   => 'YAML',
+        '.yaml'     => 'YAML',
+        '.yaml.gz'  => 'YAML',
     );
     $format = $formats{$suffix};
     unless ($format) {

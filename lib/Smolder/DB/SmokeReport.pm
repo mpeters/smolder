@@ -15,6 +15,8 @@ use YAML;
 use Carp qw(croak);
 use IO::Zlib;
 
+$SIG{__DIE__} = \*Carp::confess;
+
 __PACKAGE__->set_up_table('smoke_report');
 
 =head1 NAME
@@ -223,13 +225,16 @@ sub model_obj {
 
             my $buffer;
             while(read($in_fh, $buffer, 10240)) {
-                print $tmp $buffer;
+                print $tmp $buffer or die "Could not print buffer to $tmp: $!";
             }
+            close($tmp);
+            $in_fh->close();
+            $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $tmp->filename );
         } else {
             $file = $self->file;
+            $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $self->file );
         }
         
-        $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $file );
     }
     return $self->{__TAP_MODEL_XML};
 }
