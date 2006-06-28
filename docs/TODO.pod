@@ -8,6 +8,8 @@
 
 =item * Add support for plain TAP
 
+=item * Add support for compressed uploads
+
 =back
 
 =head2 FOR 2.0
