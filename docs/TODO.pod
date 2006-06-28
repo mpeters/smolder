@@ -28,8 +28,6 @@
 
 =item * Add 'public' projects
 
-=over
-
 =item * allow anonymous test reports from public (add extra 'anonymous' user?)
 
 =item * show listing on front page
