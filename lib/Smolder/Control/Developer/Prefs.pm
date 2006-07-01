@@ -107,8 +107,9 @@ Uses the F<Developer/Prefs/show_all.tmpl> template.
 =cut
 
 sub show_all {
-    my $self = shift;
-    return $self->tt_process( {} );
+    my ($self, $tt_params) = @_;
+    $tt_params ||= {};
+    return $self->tt_process($tt_params);
 }
 
 =head2 show_pref
@@ -121,6 +122,7 @@ Uses the F<Developer/Prefs/pref_form.tmpl> template.
 sub show_pref {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
+
     return $self->tt_process( 'Developer/Prefs/pref_form.tmpl', $tt_params );
 }
 
@@ -137,12 +139,13 @@ sub update_pref {
 
     # validate the data
     my $form = {
-        required           => [qw(email_type email_freq)],
+        required           => [qw(email_type email_freq email_limit)],
         optional           => [qw(project)],
         constraint_methods => {
-            email_type => enum_value('preference', 'email_type'),
-            email_freq => enum_value('preference', 'email_freq'),
-            project    => qr/^\d+$/,
+            email_type  => enum_value('preference', 'email_type'),
+            email_freq  => enum_value('preference', 'email_freq'),
+            project     => qr/^\d+$/,
+            email_limit => qr/^\d+$/,
         }
     };
 
@@ -150,7 +153,7 @@ sub update_pref {
       || return $self->check_rm_error_page();
     my $valid = $results->valid();
 
-    my ( $pref, $project );
+    my ( $pref, $project, $sync, $default );
 
     # if we have a project, then we want that specific pref
     if ( $valid->{project} ) {
@@ -161,7 +164,10 @@ sub update_pref {
 
         # else we want the default pref
     } else {
+        $default = 1;
         $pref = $self->developer->preference;
+        # do they also want to sync their projects?
+        $sync = 1 if( $self->query->param('sync') );
     }
 
     # now update
@@ -169,13 +175,25 @@ sub update_pref {
     $pref->update();
     Smolder::DB->dbi_commit();
 
-    return $self->show_pref(
-        {
-            project => $project,
-            pref    => $pref,
-            success => 1,
+    # if we need to sync the other prefs
+    if( $sync ) {
+        my @projs = $self->developer->project_developers;
+        foreach my $proj (@projs) {
+            $proj->preference->set(%$valid);
+            $proj->preference->update();
         }
-    );
+        Smolder::DB->dbi_commit();
+        return $self->show_all( { sync_success => 1 })
+    } else {
+        return $self->show_pref(
+            {
+                project => $project,
+                pref    => $pref,
+                success => 1,
+                default => $default,
+            }
+        );
+    }
 }
 
 1;

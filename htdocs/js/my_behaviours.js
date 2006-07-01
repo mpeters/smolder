@@ -259,6 +259,14 @@ var myrules = {
             return false;
         };
     },
+    // submit the form to sync the other preferences
+    '#dev_prefs_sync_button': function(element) {
+        element.onclick = function() {
+            var form = $('update_pref_default');
+            form.elements['sync'].value = 1;
+            form.submit();
+        };
+    },
     // hightlight selected text, textarea and select inputs
     'input.hl': function(element) {
         element.onfocus = function() { highlight(element);   };

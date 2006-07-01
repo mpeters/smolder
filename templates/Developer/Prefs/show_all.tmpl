@@ -4,7 +4,7 @@
     <a class="sub_menu" href="/app/developer_prefs/change_pw">Change Password</a>
 </div>
 
-<div class="accordion at_220" id="accordion_prefs">
+<div class="accordion at_255" id="accordion_prefs">
   <div class="panel" id="panel_default">
     <div class="header" id="panel_default_header">
         Default Preferences
@@ -16,9 +16,11 @@
           will start off like your Defaults.
         </p>
         [% SET preference = c.developer.preference %]
+        [% SET default = 1 %]
         [% PROCESS Developer/Prefs/pref_form.tmpl pref = c.developer.preference %]
     </div>
   </div>
+  [% SET default = 0 %]
   [% FOREACH project IN c.developer.projects %]
   <div class="panel" id="panel_[% project.id %]">
     <div class="header" id="panel_[% project.id %]_header">

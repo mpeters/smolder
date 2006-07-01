@@ -7,6 +7,7 @@ use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(mkpath);
 use File::Temp;
+use DateTime;
 use DateTime::Format::MySQL;
 use Test::TAP::XML;
 use Test::TAP::HTMLMatrix;
@@ -14,8 +15,6 @@ use Test::TAP::Model::Visual;
 use YAML;
 use Carp qw(croak);
 use IO::Zlib;
-
-$SIG{__DIE__} = \*Carp::confess;
 
 __PACKAGE__->set_up_table('smoke_report');
 
@@ -268,45 +267,55 @@ depending on this report's status.
 
 sub send_emails {
     my $self  = shift;
-    my %types = (
-        full    => [],
-        summary => [],
-        link    => [],
-    );
 
-    # get the addresses from the DB
-    my $freq_clause =
-      $self->fail
-      ? "(pref.email_freq IN ('on_fail', 'on_new'))"
-      : " pref.email_freq = 'on_new' ";
+    # setup some stuff for the emails that we only need to do once
+    my $subject = "Smolder - new " . ( $self->fail ? "failed " : '' ) . "smoke report";
+    my $tt_params = { report => $self };
 
-    my $sql = qq(
-        SELECT d.email, pref.email_type 
-        FROM developer d, project_developer pd, project p, preference pref
-        WHERE pd.developer = d.id AND pd.project = p.id AND pd.preference = pref.id
-        AND p.id = ? AND $freq_clause
-    );
-    my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute( $self->project->id );
-    while ( my $row = $sth->fetchrow_arrayref ) {
-        push( @{ $types{ $row->[1] } }, $row->[0] );
-    }
+    # get all the developers of this project
+    my @devs = $self->project->developers();
+    foreach my $dev (@devs) {
+        # get their preference for this project
+        my $pref = $dev->project_pref($self->project);
+        # skip it, if they don't want to receive it
+        next if( 
+            $pref->email_freq eq 'never' 
+            or 
+            ( !$self->fail and $pref->email_freq eq 'on_fail') 
+        );
 
-    # now send each type their mail
-    foreach my $type ( keys %types ) {
-        my $subject = "Smolder - new " . ( $self->fail ? "failed " : '' ) . "smoke report";
-        my $tt_params = { report => $self, };
-
-        foreach my $email ( @{ $types{$type} } ) {
-            my $error = Smolder::Email->send_mime_mail(
-                to        => $email,
-                name      => "smoke_report_$type",
-                subject   => $subject,
-                tt_params => $tt_params,
-            );
-            croak "Could not send smoke_report_$type email to $email! $error"
-              if ($error);
+        # see if we need to reset their email_sent_timestamp
+        # if we've started a new day
+        my $last_sent = $pref->email_sent_timestamp;
+        my $now       = DateTime->now( time_zone => 'local' );
+        my $interval  = $last_sent ? ($now - $last_sent) : undef;
+        
+        if( !$interval or ($interval->delta_days >= 1 ) ) {
+            $pref->email_sent_timestamp($now);
+            $pref->email_sent(0);
+            $pref->update;
+            Smolder::DB->dbi_commit();
         }
+
+        # now check to see if we've passed their limit
+        next if( $pref->email_limit && $pref->email_sent >= $pref->email_limit );
+
+        # now send the type of email they want to receive
+        my $type = $pref->email_type;
+        my $email = $dev->email;
+        my $error = Smolder::Email->send_mime_mail(
+            to        => $email,
+            name      => "smoke_report_$type",
+            subject   => $subject,
+            tt_params => $tt_params,
+        );
+        croak "Could not send smoke_report_$type email to $email! $error"
+          if ($error);
+
+        # now increment their sent count
+        $pref->email_sent($pref->email_sent + 1);
+        $pref->update();
+        Smolder::DB->dbi_commit();
     }
 }
 

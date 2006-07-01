@@ -14,7 +14,7 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 43 );
+    plan( tests => 56 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -26,8 +26,9 @@ my $dev   = create_developer( password => $pw );
 my $proj1 = create_project();
 my $proj2 = create_project();
 my %data  = (
-    email_type => 'link',
-    email_freq => 'on_fail',
+    email_type  => 'link',
+    email_freq  => 'on_fail',
+    email_limit => 10,
 );
 
 # add this $dev to $proj1 and $proj2
@@ -61,10 +62,9 @@ $mech->content_contains('Preferences');
     $mech->content_contains( $proj2->name );
 }
 
-# 11..27
+# 11..32
 # update_pref
 {
-
     # change my default pref
     # invalid form
     my $request = HTTP::Request::Common::POST(
@@ -78,9 +78,11 @@ $mech->content_contains('Preferences');
     ok( $mech->success );
     $mech->content_contains('class="required warn">Email Type');
     $mech->content_contains('class="required warn">Email Frequency');
+    $mech->content_contains('class="required warn">Per-day Email Limit');
 
     # valid form
-    $mech->form_name('update_pref_');
+    $mech->get_ok( $url . '/show_all' );
+    $mech->form_name('update_pref_default');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
@@ -98,12 +100,20 @@ $mech->content_contains('Preferences');
         db_field_value( 'preference', 'email_freq', $proj_dev1->preference->id ),
     );
     isnt(
+        db_field_value( 'preference', 'email_limit', $dev->preference->id ),
+        db_field_value( 'preference', 'email_limit', $proj_dev1->preference->id ),
+    );
+    isnt(
         db_field_value( 'preference', 'email_type', $dev->preference->id ),
         db_field_value( 'preference', 'email_type', $proj_dev2->preference->id ),
     );
     isnt(
         db_field_value( 'preference', 'email_freq', $dev->preference->id ),
         db_field_value( 'preference', 'email_freq', $proj_dev2->preference->id ),
+    );
+    isnt(
+        db_field_value( 'preference', 'email_limit', $dev->preference->id ),
+        db_field_value( 'preference', 'email_limit', $proj_dev2->preference->id ),
     );
 
     # now update our settings for proj1
@@ -126,9 +136,56 @@ $mech->content_contains('Preferences');
         db_field_value( 'preference', 'email_freq', $proj_dev1->preference->id ),
         db_field_value( 'preference', 'email_freq', $proj_dev2->preference->id ),
     );
+    isnt(
+        db_field_value( 'preference', 'email_limit', $proj_dev1->preference->id ),
+        db_field_value( 'preference', 'email_limit', $proj_dev2->preference->id ),
+    );
 }
 
-# 28..43
+# 33..40
+# sync all preferences
+{
+    $mech->get_ok( $url . '/show_all' );
+    my $form = $mech->form_name('update_pref_default');
+    $form->find_input('sync')->readonly(0);
+    my %new_data  = (
+        email_type  => 'summary',
+        email_freq  => 'on_new',
+        email_limit => 10,
+        sync        => 1,
+    );
+    $mech->set_fields(%new_data);
+    $mech->submit();
+    ok( $mech->success );
+
+    # now check the db to make sure they are all in sync
+    is(
+        db_field_value( 'preference', 'email_type', $dev->preference->id ),
+        db_field_value( 'preference', 'email_type', $proj_dev1->preference->id ),
+    );
+    is(
+        db_field_value( 'preference', 'email_freq', $dev->preference->id ),
+        db_field_value( 'preference', 'email_freq', $proj_dev1->preference->id ),
+    );
+    is(
+        db_field_value( 'preference', 'email_limit', $dev->preference->id ),
+        db_field_value( 'preference', 'email_limit', $proj_dev1->preference->id ),
+    );
+    is(
+        db_field_value( 'preference', 'email_type', $dev->preference->id ),
+        db_field_value( 'preference', 'email_type', $proj_dev2->preference->id ),
+    );
+    is(
+        db_field_value( 'preference', 'email_freq', $dev->preference->id ),
+        db_field_value( 'preference', 'email_freq', $proj_dev2->preference->id ),
+    );
+    is(
+        db_field_value( 'preference', 'email_limit', $dev->preference->id ),
+        db_field_value( 'preference', 'email_limit', $proj_dev2->preference->id ),
+    );
+}
+
+# 41..56
 # change_pw
 {
     $mech->get_ok( $url . '/change_pw' );

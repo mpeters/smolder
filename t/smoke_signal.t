@@ -111,6 +111,7 @@ SKIP: {
     # test optional options
     # comments
     my $comments = "Some tests";
+    Smolder::DB->db_Main->disconnect();
     $out =
 `$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" 2>&1`;
     like( $out, qr/successfully uploaded/i );
