@@ -15,7 +15,7 @@ smolder_test
 
     ./bin/smolder_test --verbose
 
-    ./bin/smolder_test --test_files t/
+    ./bin/smolder_test --files t/
 
     ./bin/smolder_test --xml > report.xml
 
