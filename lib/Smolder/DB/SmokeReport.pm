@@ -185,7 +185,26 @@ A reference to the XML text of this Test Report.
 
 sub xml {
     my $self = shift;
-    return $self->_slurp_file( $self->file );
+    my $file = $self->file;
+
+    # return as-is unless compressed
+    return $self->_slurp_file( $file )
+      unless $file =~ /\.gz$/;
+
+    # uncompress the XML file and return
+    my $in_fh = IO::Zlib->new();
+    $in_fh->open($file, 'rb')
+      or die "Could not open file $file for reading compressed!";
+
+    # IO::Zlib ignores $/ and doesn't support an offset for read(), so
+    # the usual faster slurp won't work
+    my ($buffer, $xml);
+    while(read($in_fh, $buffer, 10240)) {
+        $xml .= $buffer;
+    }
+    $in_fh->close();
+
+    return \$xml;
 }
 
 =head3 yaml
