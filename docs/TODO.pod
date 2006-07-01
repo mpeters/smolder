@@ -10,6 +10,8 @@
 
 =item * Add support for compressed uploads
 
+=item * allow users to have a messages-per-day limit to control out of control failures
+
 =back
 
 =head2 FOR 2.0
