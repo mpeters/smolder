@@ -7,8 +7,9 @@ use Smolder::Conf qw(SmolderRoot);
 use Smolder::DB;
 use File::Spec::Functions qw(catfile);
 
-open(COUNT, ">", catfile(SmolderRoot, "tmp", "dbcount.txt")) 
-  or die $!;
+my $file = catfile(SmolderRoot, "tmp", "dbcount.txt");
+open(COUNT, ">$file") 
+  or die "failed to open file: $file. Error was: $!";
 my $dbh = Smolder::DB->db_Main();
 
 my @tables = $dbh->tables('', '', '%');
