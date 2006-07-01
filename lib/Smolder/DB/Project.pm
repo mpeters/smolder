@@ -298,10 +298,8 @@ sub report_graph_data {
     my @bind_cols = ( $self->id );
 
     # we need the date before anything else
-    my $added = "DATE_FORMAT(added, '%m/%d/%Y')";
-
     my $sql = "SELECT "
-      . join( ', ', $added, @$fields )
+      . join( ', ', "added", @$fields )
       . " FROM smoke_report "
       . " WHERE project = ? AND invalid = 0 ";
 
@@ -326,6 +324,11 @@ sub report_graph_data {
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_cols);
     while ( my $row = $sth->fetchrow_arrayref() ) {
+        # reformat added - used to do this in SQL with DATE_FORMAT(),
+        # but SQLite don't play that game
+        my ($year, $month, $day) = $row->[0] =~ /(\d{4})-(\d{2})-(\d{2})/;
+        $row->[0] = "$month/$day/$year";
+
         for my $i ( 0 .. scalar(@$row) - 1 ) {
             push( @{ $data[$i] }, $row->[$i] );
         }
