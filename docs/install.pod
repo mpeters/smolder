@@ -35,7 +35,7 @@ located at:
 
 =item 3
 
-Upgrade/Install MySQL 4
+Optionally, Upgrade/Install MySQL 4
 
 You can find binaries for MySQL 4 here:
 
@@ -43,6 +43,8 @@ You can find binaries for MySQL 4 here:
 
 Make sure you install the server, client, devel and shared packages,
 if you're using RPMs.
+
+This step is optional, because SQLite support is built-in. 
 
 =item 4
 
