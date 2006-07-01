@@ -14,7 +14,7 @@
 
 =item * Using a smaller number of Apache children and Apache::SizeLimit to limit any memory hogging - M. Peters
 
-=item * Added built-in SQLite support - M. Peters
+=item * Added built-in SQLite support - (M. Peters, Mark Stosberg) 
 
 =item * Added multi-db support via Smolder::DBPlatform - M. Peters
 
