@@ -274,6 +274,8 @@ sub process_add_report {
     while(read($in_fh, $buffer, 10240)) {
         print $out_fh $buffer;
     }
+    $out_fh->close();
+    close($in_fh);
 
     # now send an email to all the user's who want this report
     $report->send_emails();
