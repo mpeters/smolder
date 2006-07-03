@@ -114,7 +114,7 @@ of exising platform otpions
 
 sub platform_options {
     my $self = shift;
-    return $self->prototype->auto_complete_result(
+    return $self->auto_complete_result(
         Smolder::DB::SmokeReport->column_values( 'platform', $self->query->param('platform'), ) );
 }
 
@@ -128,7 +128,7 @@ of exising architecture otpions
 
 sub architecture_options {
     my $self = shift;
-    return $self->prototype->auto_complete_result(
+    return $self->auto_complete_result(
         Smolder::DB::SmokeReport->column_values(
             'architecture', $self->query->param('architecture'),
         )

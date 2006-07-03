@@ -6,14 +6,14 @@ use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
-
 #use CGI::Application::Plugin::DebugScreen;
-use CGI::Application::Plugin::HTMLPrototype;
-use Smolder::Util;
-use File::Spec::Functions qw(catdir catfile);
 
+use Smolder::Util;
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
+
+use File::Spec::Functions qw(catdir catfile);
+use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
 # turn off caching and setup our logging
 __PACKAGE__->add_callback(
@@ -114,6 +114,22 @@ sub dfv_msgs {
     } else {
         return {};
     }
+}
+
+=head2 auto_complete_results
+
+This method takes an array ref of values to be returned to an AJAX Autocomplete
+field.
+
+=cut
+
+sub auto_complete_results {
+    my ($self, $values) = @_;
+    my $html = '<ul>';
+    foreach (@$values) {
+        $html .= '<li>' . escape_html($_, EH_INPLACE) . '</li>'
+    }
+    return $html . '<ul>';
 }
 
 =head1 TEMPLATE CONFIGURATION
