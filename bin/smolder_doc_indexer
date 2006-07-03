@@ -1,0 +1,126 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+=head1 NAME
+
+smolder_doc_indexer - Rebuild search engine index of Smolder docs
+
+=head1 SYNOPSIS
+
+  $ smolder_doc_indexer --verbose
+
+=head1 DESCRIPTION
+
+This script runs the Swish-e indexer on the HTML versions of smolder
+docs (created by F<smolder_doc_format>).
+The output goes of this script goes into the following files in the directory
+F<data/doc_search>:
+
+=over
+
+=item swishe.index
+
+The reverse index file for the search engine
+
+=item swishe.props
+
+The properties file for the words in the index
+
+=item swishe.words
+
+A list of all the words in the index in alphabetical order, one word per
+line.
+
+=back
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : "${lib}";
+    unshift @INC, $lib, "$lib/".$Config{archname};
+
+    eval { require Smolder };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::Conf qw(InstallRoot HostName);
+use HTML::Template;
+use Pod::Usage;
+use Getopt::Long;
+
+
+my ( $verbose, $help, $man ) = ( 0 ) x 3;
+GetOptions(
+    'help'          => \$help,
+    'man'           => \$man,
+    'verbose'       => \$verbose,
+  )
+  or pod2usage(2);
+pod2usage(1) if $help;
+pod2usage( -verbose => 2 ) if $man;
+
+# open the swish-e.conf template
+my $tmpl = HTML::Template->new(
+    filename    => catfile(InstallRoot, 'conf', 'doc_search.conf.tmpl'),
+    global_vars => 1,
+);
+
+my $tmp_conf   = catfile(InstallRoot, 'tmp', 'doc_search.conf');
+my $swishe_bin = catfile(InstallRoot, 'swish-e', 'bin', 'swish-e');
+my $doc_root   = catfile(InstallRoot, 'docs', 'html');
+my $index      = catfile(InstallRoot, 'data', 'doc_search', 'swishe.index');
+my $words      = catfile(InstallRoot, 'data', 'doc_search', 'swishe.words');
+
+my %args = (
+    DocumentRoot => $doc_root,
+    HostName     => HostName,
+    InstallRoot  => InstallRoot,
+);
+$tmpl->param(
+    DocumentRoot => $doc_root,
+    HostName     => HostName,
+    InstallRoot  => InstallRoot,
+);
+
+# write out temporary conf file
+open(my $fh, '>', $tmp_conf)
+  or die "Unable to open $tmp_conf: $!";
+print $fh $tmpl->output;
+close $fh;
+
+
+print STDERR "INDEXING " . HostName . " WITH DOCUMENT ROOT $doc_root\n"
+    if $verbose;
+
+# run the indexing job
+system(qq($swishe_bin -v $verbose -c $tmp_conf -f $index)) == 0
+  or die "Failed to index $doc_root into $index.";
+
+# create the list of words for autosuggest
+system(qq($swishe_bin -T INDEX_WORDS_META -f $index | grep -o -P "^\\S+" | grep -P "[a-z]{2}" > $words))
+    == 0 or die "Failed to create words filed $words from index $index!";
+
+# clean up last conf
+unlink($tmp_conf);
+

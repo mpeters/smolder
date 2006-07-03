@@ -137,7 +137,7 @@ my $SQLITE       = 'sqlite//sqlite-3.3.6.tar.gz';
 
 # options
 my $skip_apache  = 0;
-my $skip_swishe  = 1;
+my $skip_swishe  = 0;
 my $skip_sqlite  = 0;
 my $skip_mysql   = 0;
 my $skip_modules = 0;

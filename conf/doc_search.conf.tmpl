@@ -1,0 +1,39 @@
+IndexName <tmpl_var HostName>
+IndexDescription "Index of <tmpl_var DocumentRoot>"
+IndexPointer http://<tmpl_var HostName>
+
+# directory where to start indexing
+IndexDir <tmpl_var DocumentRoot>
+
+# do we want to look at HTML comments in our indexing
+IndexComments no
+
+# a list of the suffixes of files we want to index
+IndexOnly .html .htm
+
+# index the stuff with the correct parser
+IndexContents HTML2 .htm .html
+
+# store the first charaters or the body tag as the description
+# NOTE: if you try and store the entire <body> of the html file it will
+#   too large for displaying context. It will be WAY TOO SLOW. If you
+#   don't plan on using the context then store away, but it
+#   still doesn't make much sense.
+StoreDescription HTML2 <body> 1500
+StoreDescription TXT 1500
+
+#ConvertHTMLEntities yes
+
+#let's change the file system path to a web path
+ReplaceRules remove <tmpl_var DocumentRoot>
+
+#pick a fuzzy mode
+FuzzyIndexingMode Stemming_en2
+
+#list of words to ignore
+IgnoreWords File: <tmpl_var InstallRoot>/conf/doc_search.stopwords
+
+#ignore stuff we're supposed to
+obeyRobotsNoIndex yes
+FollowSymLinks no
+
