@@ -191,6 +191,7 @@ div.popup_form {
     padding-right: 5px;
     background-color: #EEEEEE;
     border: 1px solid #555555;
+    border-top: 0px;
     z-index: 100;
     max-width: 300px;
 }
