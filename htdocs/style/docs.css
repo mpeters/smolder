@@ -43,3 +43,41 @@ pre {
     color: #913816;
 }
 
+label {
+    font-weight: bold;
+}
+div.pagination {
+    background: #eff7e9;
+    border: 1px solid #888888;
+}
+div.auto_complete {
+    width: 350px;
+    background: #fff;
+}
+div.auto_complete ul {
+    border:1px solid #888;
+    margin:0;
+    padding:0;
+    width:100%;
+    list-style-type:none;
+}
+div.auto_complete ul li {
+    margin:0;
+    padding:3px;
+}
+div.auto_complete ul li.selected {
+    background-color: #B82619;
+    color: #ffffff;
+}
+div.auto_complete ul strong.highlight {
+    color: #800;
+    margin:0;
+    padding:0;
+}
+
+strong.hilite {
+    color: #ffffff;
+    background-color: #B82619;
+}
+
+

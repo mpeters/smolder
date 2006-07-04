@@ -1,0 +1,144 @@
+[% UNLESS ajax %]
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Smolder [% IF page_title %]([% page_title %])[% END %]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" type="text/css" href="/style/docs.css" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <script type="text/javascript" src="/js/prototype.js"></script>
+  <script type="text/javascript" src="/js/scriptaculous.js"></script>
+</head>
+
+<body>
+
+<h2>Search[% IF searched %] Results[% END %]</h2>
+
+<form id="search" name="search" onsubmit="return ajax_form_search(this);" >
+<input name="rm" value="perform_search" type="hidden" />
+
+<table summary="layout">
+<tr>
+  <td><label for="keywords">Keyword(s)</label></td>
+  <td colspan="2">
+    <input id="keywords" name="keywords" value="" size="50" autocomplete="off" />
+    <div class="auto_complete" id="keywords_auto_complete"></div>
+  </td>
+</tr>
+<tr>
+  <td colspan="2" align="right"><input value="Search" type="submit" /></td>
+</tr>
+</table>
+
+</form>
+
+<script type="text/javascript">
+<!--
+// THIS IS THE URL of the search app. The Ajax JS libraries need it
+var url = '[% url %]';
+new Ajax.Autocompleter( 'keywords', 'keywords_auto_complete', url, { parameters: "rm=suggestions"  })
+//-->
+</script>
+
+<div id="search_listing">
+  <!-- 
+    If we don't have the ajax flag (eg, when we first come to this page)
+    then we need to include the listing in this template. Afterwards, submitting
+    the above form will just replace this div with the contents of the AJAX_TEMPLATE
+  -->
+[% END %]
+
+[% IF searched %]
+  [% IF hits %]
+    <em>(Elapsed Time: [% elapsed_time %]s)</em>
+
+    <div class="pagination">
+
+    [% IF pages %]
+    <div>
+    Pages:
+    [% IF first_page %]
+        &laquo;Prev
+    [% ELSE %]
+        <a href="javascript:ajax_search('rm=perform_search&amp;keywords=[% keywords | uri %]&amp;page=[% prev_page %]', 'Loading Page #[% prev_page %]')">&laquo;Prev</a>
+    [% END %]
+
+    [% FOREACH page IN pages %]
+        [% IF page.current %]
+          [% page.page_num %]
+        [% ELSE %]
+          <a href="javascript:ajax_search('rm=perform_search&amp;keywords=[% keywords | uri %]&amp;page=[% page.page_num %]', 'Loading Page #[% page.page_num %]')">[% page.page_num %]</a>
+        [% END %]
+        &nbsp;
+    [% END %]
+
+    [% IF last_page %]
+        Next&raquo;
+    [% ELSE %]
+        <a href="javascript:ajax_search('rm=perform_search&amp;keywords=[% keywords | uri %]>&amp;page=[% next_page %]', 'Loading Page #[% next_page %]')">Next&raquo;</a>
+    [% END %]
+    </div>
+    [% END %]
+
+    Results: [% start_num %] to [% stop_num %] of [% total_entries %]
+
+    </div>
+
+
+    <dl>
+    [% FOREACH hit IN hits %]
+      <dt>
+      <a href="?rm=highlight_local_page&amp;path=/docs[% hit.path | uri %]&amp;keywords=[% keywords | uri %]">
+      [% IF hit.title %]
+        [% hit.title %]
+      [% ELSE %]
+        /docs/[% hit.path | html %]
+      [% END %]
+      </a>
+      <em>[% hit.last_modified %] - [% hit.size %]</em>
+      </dt>
+      <dd><p>[% hit.description %]</p></dd>
+    [% END %]
+    </dl>
+  [% ELSE %]
+  <p><strong>No results found</strong></p>
+  [% END %]
+[% END %]
+
+[% UNLESS ajax %]
+
+</div>
+
+<script type="text/javascript">
+<!--
+// search with a query string and a message to display
+function ajax_search(query, msg) {
+    query = query + '&ajax=1';
+
+     new Ajax.Updater( 
+        'search_listing',  
+        url,
+        { 
+            parameters: query,
+            asynchronous: 1,
+            onLoading: function(request) {
+                $('search_listing').innerHTML = "<strong>" + msg + " ...</strong>";
+            } 
+        } 
+    )
+}
+
+// serialize the form into a query string and display it
+function ajax_form_search(form) {
+    ajax_search(Form.serialize(form), 'Searching');
+    return false;
+}
+//-->
+</script>
+
+
+</html>
+</body>
+
+[% END %]

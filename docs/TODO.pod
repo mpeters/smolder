@@ -20,8 +20,6 @@
 
 =item * Rendering in other browsers besides FF and KHTML
 
-=item * searchable HTML docs
-
 =item * import/export projects (similar to backup and install from backup but by project)
 
 =item * Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)

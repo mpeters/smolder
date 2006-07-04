@@ -79,6 +79,15 @@ my $parser = Pod::Xhtml->new(
     LinkParser  => $link,
 );
 $parser->addHeadText(q(<link rel="stylesheet" type="text/css" href="/style/docs.css" />));
+$parser->addBodyOpenText(q(
+    <div style="float:right">
+    <form action="/docs/search">
+        <input type="input" name="keywords" />
+        <input type="submit" value="search"/>
+    </form>
+    </div>
+));
+
 
 # if we don't have any files, then get them
 unless( @files ) {
