@@ -59,7 +59,7 @@ AddModule mod_expires.c
 # AddModule mod_status.c
 # AddModule mod_include.c
 # AddModule mod_autoindex.c
-# AddModule mod_dir.c
+AddModule mod_dir.c
 # AddModule mod_cgi.c
 # AddModule mod_asis.c
 # AddModule mod_imap.c
@@ -68,7 +68,7 @@ AddModule mod_expires.c
 # AddModule mod_alias.c
 # AddModule mod_rewrite.c
 # AddModule mod_access.c
- AddModule mod_auth.c
+AddModule mod_auth.c
 # AddModule mod_proxy.c
 AddModule mod_so.c
 # AddModule mod_setenvif.c
@@ -96,6 +96,7 @@ PerlPassEnv HARNESS_ACTIVE
 PerlSendHeader Off
 PerlWarn On
 PerlRequire "<tmpl_var InstallRoot>/conf/smolder_startup.pl"
+DirectoryIndex index.html
 
 ServerName <tmpl_var HostName>
 Listen <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
@@ -165,6 +166,13 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
     <Location /style>
         ExpiresActive on
         ExpiresDefault "access plus 1 hour"
+    </Location>
+
+    # add the docs search
+    <Location /docs/search>
+        PerlModule          Smolder::Control::DocSearch
+        SetHandler          perl-script
+        PerlHandler         Smolder::Control::DocSearch
     </Location>
 
 </VirtualHost>

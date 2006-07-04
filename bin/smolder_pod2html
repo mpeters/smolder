@@ -1,0 +1,142 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+=head1 NAME
+
+smolder_pod2html - Convert smolder POD to HTML
+
+=head1 SYNOPSIS
+
+  $ smolder_pod2html 
+  $ smolder_pod2html --file lib/Smolder/Control.pm
+
+=head1 DESCRIPTION
+
+This script will convert the POD found in Smolder modules, scripts
+and docs into HTML suitable for serving in a browser or indexing
+for search.
+
+It does more than than just the normal pod2html util that comes with
+Perl since it will make sure that all links can work between modules,
+scripts and docs. It will also make sure that the appropriate meta
+tags are created for Swish-e indexing.
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : "${lib}";
+    unshift @INC, $lib, "$lib/".$Config{archname};
+
+    eval { require Smolder };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Pod::Usage;
+use Getopt::Long;
+use File::Find;
+use Pod::Xhtml;
+use Smolder::Conf qw(InstallRoot);
+use Smolder::Pod::Hyperlink;
+
+my ( $verbose, $help, $man ) = ( 0 ) x 3;
+my @files;
+GetOptions(
+    help        => \$help,
+    man         => \$man,
+    verbose     => \$verbose,
+    'file=s'    => \@files,
+) or pod2usage(2);
+pod2usage(1) if $help;
+pod2usage( -verbose => 2 ) if $man;
+
+my $link = Smolder::Pod::Hyperlink->new();
+my $parser = Pod::Xhtml->new(
+    StringMode  => 1,
+    MakeMeta    => 1,
+    MakeIndex   => 0,
+    TopLinks    => ' ',
+    LinkParser  => $link,
+);
+$parser->addHeadText(q(<link rel="stylesheet" type="text/css" href="/style/docs.css" />));
+
+# if we don't have any files, then get them
+unless( @files ) {
+    my @dirs = (
+        catdir(InstallRoot, 'bin'),
+        catdir(InstallRoot, 'docs'),
+        catdir(InstallRoot, 'lib', 'Smolder'),
+    );
+    find(
+        sub {
+            my $file = $_;
+            my $full = $File::Find::name;
+            # skip junk files
+            return if( $full =~ /\.svn/ or $file =~ /^\./ );
+
+            # if it's a module
+            if( $full =~ /lib\/Smolder/ && $file =~ /\.pm$/ ) {
+                push(@files, $full);
+            # if it's a script
+            } elsif( $full =~ /\/bin/ ) {
+                push(@files, $full);
+            # else it's a POD doc
+            } elsif( $full =~ /\/docs\// && $file =~ /\.pod$/ ) {
+                push(@files, $full);
+            }
+            
+        },
+        @dirs,
+    );
+}
+
+# now create the HTML files we need
+create_html($_) foreach (@files);
+
+sub create_html {
+    my $file = shift;
+
+    # create the name of the new file
+    my $output = $file;
+    # strip off the InstallRoot
+    my $root = InstallRoot;
+    $output =~ s/^\Q$root\E\///;
+    $output =~ s/\//_/g;
+    $output =~ s/\.p(m|od)$//;
+    $output = lc($output);
+
+    # if it's the index then remove the 'doc_' prefix
+    $output = 'index' if( $output eq 'docs_index');
+
+    $output = catfile(InstallRoot, 'htdocs', 'docs', "$output.html");
+
+    # parse it and create the new HTML file
+    $parser->parse_from_file($file);
+    open(my $OUT, '>' , $output)
+        or die "Could not open file '$output' for writing: $!";
+    print $OUT $parser->asString; 
+    close($OUT);
+}
+
+
+

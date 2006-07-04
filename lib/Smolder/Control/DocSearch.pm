@@ -5,7 +5,7 @@ use File::Spec::Functions qw(catfile catdir);
 
 sub cgiapp_init {
     my $self = shift;
-    my $self->param(
+    $self->param(
         SWISHE_INDEX        => catfile(InstallRoot, 'data', 'doc_search', 'swishe.index'),
         TEMPLATE            => 'DocSearch/search.tmpl',
         AJAX                => 1,

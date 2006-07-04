@@ -88,7 +88,7 @@ my $tmpl = HTML::Template->new(
 
 my $tmp_conf   = catfile(InstallRoot, 'tmp', 'doc_search.conf');
 my $swishe_bin = catfile(InstallRoot, 'swish-e', 'bin', 'swish-e');
-my $doc_root   = catfile(InstallRoot, 'docs', 'html');
+my $doc_root   = catfile(InstallRoot, 'htdocs', 'docs');
 my $index      = catfile(InstallRoot, 'data', 'doc_search', 'swishe.index');
 my $words      = catfile(InstallRoot, 'data', 'doc_search', 'swishe.words');
 

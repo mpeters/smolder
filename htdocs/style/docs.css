@@ -1,0 +1,45 @@
+html {
+    font-size: 11pt;
+}
+
+p, ol, ul {
+    margin-top: 0px;
+}
+
+.small {
+    font-size: 10pt;
+}
+
+h1 {
+    font-size: 16pt;
+    color: #FFFFFF;
+    background-color: #555555;
+    padding-left: 5px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+h2 { 
+    color: #C47147;
+    padding-left: 5px;
+    border: 1px solid #333333;
+}
+
+h3 {
+    color: #555555;
+    padding: 0px;
+    margin: 0px;
+}
+
+a {
+    color: #C47147;
+}
+
+a:visited {
+    color: #C47147;
+}
+
+pre {
+    color: #913816;
+}
+

@@ -28,7 +28,7 @@ StoreDescription TXT 1500
 ReplaceRules remove <tmpl_var DocumentRoot>
 
 #pick a fuzzy mode
-FuzzyIndexingMode Stemming_en2
+#FuzzyIndexingMode Stemming_en2
 
 #list of words to ignore
 IgnoreWords File: <tmpl_var InstallRoot>/conf/doc_search.stopwords
@@ -36,4 +36,8 @@ IgnoreWords File: <tmpl_var InstallRoot>/conf/doc_search.stopwords
 #ignore stuff we're supposed to
 obeyRobotsNoIndex yes
 FollowSymLinks no
+
+# code docs have strange 'words'
+WordCharacters abcdefghijklmnopqrstuvwxyz1234567890_-:'\"/
+IgnoreMetaTags pre
 
