@@ -358,7 +358,6 @@ sub build_module {
 
     # if it's SWISH-API then add the swishe bin to our path
     if ( $file =~ /SWISH-API/ ) {
-        return; # XXX - Skipping SWISH::API at this point until searchable docs are added
         $ENV{SWISHBINDIR} = catdir( $ENV{SMOLDER_ROOT}, 'swish-e', 'bin' );
     }
     eval { $pkg->build_perl_module( name => $dist_dir ); };

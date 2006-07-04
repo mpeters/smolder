@@ -77,7 +77,7 @@ sub error_message {
 
 =head2 tt_process
 
-This method is provided by the L<CGI::Application::Plugin::TT> plugin. It is used
+This method is provided by the L<TT Plugin|CGI::Application::Plugin::TT> plugin. It is used
 to choose and process the Template Toolkit templates. If no name is provided for the
 template (as the first argument) then the package name and the run mode will be used
 to determine which template to use. For instance:

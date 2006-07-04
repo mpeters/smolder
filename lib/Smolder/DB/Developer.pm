@@ -56,7 +56,7 @@ __PACKAGE__->has_many( 'project_developers' => 'Smolder::DB::ProjectDeveloper' )
 
 =item smoke_reports
 
-A list of L<Smolder::DB::SmokeReports> that were added by this Developer.
+A list of L<Smolder::DB::SmokeReport> that were added by this Developer.
 
 =cut
 

@@ -1,7 +1,7 @@
 =head1 Smolder Upgrade System
 
 This document describes the Smolder upgrade system for developers.  If
-you just want to upgrade Smolder, see HREF[Upgrade|ops_upgrade.html].
+you just want to upgrade Smolder, see L<Upgrade|docs/ops_upgrade>.
 
 =head2 Introduction
 

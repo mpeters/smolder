@@ -2,6 +2,8 @@
 
 =head2 0.2
 
+=over 
+
 =item * Turn on mod_auth_tkt for all dynamic requests so that Apache auth stages are run and valid credentials produced - M. Peters
 
 =item * Added smolder_prove, to run any normal Perl tests for smolder - M. Peters
@@ -22,6 +24,7 @@
 
 =item * Added notification to the user of failed AJAX requests - M. Peters
 
+=back
 
 =head2 0.1
 

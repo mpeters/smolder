@@ -30,7 +30,7 @@ Full documentation for C<smolder_backup> is available by typing:
 
   $ bin/smolder_backup --help
 
-Or you can read it here: HREF[Smolder Backup|script_smolder_backup.html]
+Or you can read it here: L<Smolder Backup|bin/smolder_backup>
 
 
 =head2 Restoring from Backup
@@ -70,4 +70,4 @@ Full documentation for C<smolder_install> is available by typing:
 
   $ bin/smolder_install --help
 
-Or you can read it here: HREF[Smolder Install|script_smolder_install.html]
+Or you can read it L<here|bin/smolder_install>

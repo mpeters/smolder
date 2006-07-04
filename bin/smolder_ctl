@@ -28,11 +28,8 @@ start, stop and restart all the services offered by Smolder.  This
 script may have to be run as root, if your settings require binding to 
 a privileged port.
 
-This script calls HREF[smolder_apachectl|script_smolder_apachectl.html], 
-and HREF[smolder_schedulectl|script_smolder_schedulectl.html].
-to do its work.  See their respective manpages for 
-details concerning environment variables that may be used to control 
-their functioning.
+This script currently calls L<smolder_apachectl|bin/smolder_apachectl>, 
+to do its work. It is however setup to run multiple scripts if we need it to.
 
 =cut
 
