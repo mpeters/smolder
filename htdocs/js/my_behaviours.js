@@ -179,7 +179,7 @@ var myrules = {
         var container = 'crud_add_container';
         element.onclick = function() {
             if( CRUD_ADD_SHOWN ) {
-                Effect.SlideUp(container);
+                new Effect.SlideUp(container);
                 CRUD_ADD_SHOWN  = false;
                 CRUD_EDIT_SHOWN = false;
             } else {
@@ -189,7 +189,7 @@ var myrules = {
                     indicator  : 'crud_indicator',
                     onComplete : function(args) {
                         if( ! CRUD_ADD_SHOWN && ! CRUD_EDIT_SHOWN ) {
-                            Effect.SlideDown(args['div']); 
+                            new Effect.SlideDown(args['div']); 
                         }
                         CRUD_ADD_SHOWN    = true;
                         CRUD_EDIT_SHOWN   = false;

@@ -1,5 +1,6 @@
-[% PROCESS form_header.tmpl %]
+<form class="ajaxable show_indicator for_crud_add_container" name="add" action="/app/admin_developers/process_add" method="post">
 
+[% PROCESS form_header.tmpl %]
 
 [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id || c.dfv_msgs.invalid_email || c.dfv_msgs.invalid_password %]
 <ul>
@@ -15,7 +16,6 @@
 </ul> 
 [% END %]
 
-<form class="ajaxable show_indicator for_crud_add_container" name="add" action="/app/admin_developers/process_add" method="post">
 <table class="boxed crud">
 <tr><td class="header2" colspan="4">Add New Developer</td></tr>
 <tr>

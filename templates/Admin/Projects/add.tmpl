@@ -1,3 +1,5 @@
+<form class="ajaxable for_crud_add_container show_indicator" name="add" action="/app/admin_projects/process_add" method="post">
+
 [% PROCESS form_header.tmpl %]
 
 [% IF c.dfv_msgs.invalid_project_name || c.dfv_msgs.invalid_unique_project_name || err_unique_project_name || c.dfv_msgs.invalid_start_date %]
@@ -13,7 +15,6 @@
 </ul>
 [% END %]
 
-<form class="ajaxable for_crud_add_container show_indicator" name="add" action="/app/admin_projects/process_add" method="post">
 <table class="boxed crud">
 <tr><td colspan="4" class="header2">Add A New Project</td></tr>
 <tr>
