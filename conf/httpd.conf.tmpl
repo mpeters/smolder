@@ -128,8 +128,8 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
         TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
         TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
-        TKTAuthTimeout          4h
-        TKTAuthTimeoutRefresh   0
+        TKTAuthTimeout          5m
+        TKTAuthTimeoutRefresh   .5
         #TKTAuthDebug            1
 
         # don't let our children get too big
@@ -138,18 +138,19 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
 
     # guest user on everything so that apache's auth
     # is triggered so that our ENV is setup for non-protected stuff
-    <LocationMatch /app>
+    <Location /app/public_auth>
         TKTAuthGuestLogin on
         Require valid-user
-    </LocationMatch>
+        TKTAuthTimeout          1y
+        TKTAuthTimeoutRefresh   0
+    </Location>
 
     <LocationMatch /app/admin*>
-        TKTAuthTimeoutRefresh   0
         TKTAuthToken admin
         Require valid-user
     </LocationMatch>
+
     <LocationMatch /app/developer*>
-        TKTAuthTimeoutRefresh   0
         TKTAuthToken developer
         Require valid-user
     </LocationMatch>
@@ -170,6 +171,8 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
 
     # add the docs search
     <Location /docs/search>
+        TKTAuthGuestLogin on
+        Require valid-user
         PerlModule          Smolder::Control::DocSearch
         SetHandler          perl-script
         PerlHandler         Smolder::Control::DocSearch
