@@ -1,5 +1,19 @@
 =head1 SMOLDER CHANGES
 
+=head2 0.3
+
+=over
+
+=item * Searchable HTML versions of docs - M. Peters
+
+=item * Fixing graph generation bug when using SQLite - Sam Tregar
+
+=item * Compressed XML storage and acceptance during upload - M. Peters, Sam Tregar
+
+=item * Runtime errors sometimes being lost - Sam Tregar, M. Peters
+
+=back
+
 =head2 0.2
 
 =over 
