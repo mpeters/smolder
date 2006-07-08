@@ -4,6 +4,8 @@
 
 =over
 
+=item * Fixed building of SQLite on some platforms - Mark Stosberg
+
 =item * Searchable HTML versions of docs - M. Peters
 
 =item * Fixing graph generation bug when using SQLite - Sam Tregar
