@@ -1,6 +1,6 @@
 =head1 NAME
 
-smolder
+Smolder Overview
 
 =head1 DESCRIPTION
 

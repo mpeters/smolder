@@ -4,11 +4,13 @@
 
 =over
 
-=item * Review upgrade procedure to make sure it's working completely
+=item *
 
-=item * Add support for plain TAP
+Review upgrade procedure to make sure it's working completely
 
-=item * Add support for compressed uploads
+=item *
+
+Add support for plain TAP
 
 =back
 
@@ -16,27 +18,47 @@
 
 =over
 
-=item * Precompile all templates at startup (speeds it up and increases shared memory)
+=item *
 
-=item * Rendering in other browsers besides FF and KHTML
+Precompile all templates at startup (speeds it up and increases shared memory)
 
-=item * import/export projects (similar to backup and install from backup but by project)
+=item *
 
-=item * Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)
+Rendering in other browsers besides FF and KHTML
 
-=item * Add 'public' projects
+=item *
 
-=item * allow anonymous test reports from public (add extra 'anonymous' user?)
+Import/export projects (similar to backup and install from backup but by project)
 
-=item * show listing on front page
+=item *
 
-=item * show test reports/graphs to the public
+Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)
 
-=item * capture STDERR and associate with test files 
+=item *
 
-needs changes to Test::Harness::Straps and Test::TAP::Model
+Add 'public' projects
 
-=item * add help tooltips where appropriate
+=item *
+
+Allow anonymous test reports from public (add extra 'anonymous' user?)
+
+=item *
+
+Show listing on front page
+
+=item *
+
+Show test reports/graphs to the public
+
+=item *
+
+Capture STDERR and associate with test files 
+
+needs changes to Test::Builder
+
+=item *
+
+Add help tooltips where appropriate
 
 =back
 
@@ -44,33 +66,59 @@ needs changes to Test::Harness::Straps and Test::TAP::Model
 
 =over
 
-=item * make sure it builds/runs/installs on as many *nix platforms as possible
+=item *
 
-=item * optional logging of critical problems to email?
+Make sure it builds/runs/installs on as many *nix platforms as possible
 
-=item * built-in SSL support?
+=item *
 
-=item * add some benchmarks so we can see how things perform as changes are made
+Optional logging of critical problems to email?
 
-=item * add CSV download option for tests (for projects?)    
+=item *
 
-=item * look at using an XML schema that isn't so tied to the internal representation of Test::TAP::Model and Test::Harness::Straps
+Built-in SSL support?
 
-=item * add coverage reports (related to smoke tests?)
+=item *
 
-=item * add benchmark gathering?
+Add some benchmarks so we can see how things perform as changes are made
 
-=item * add RSS feeds per project
+=item *
 
-=item * look at making skinning easier so that organizations can brand it
+Add CSV download option for tests (for projects?)    
 
-=item * verify and test support for non AJAX browsers
+=item *
 
-=item * support for other databases (need developers to support them)
+Look at using an XML schema that isn't so tied to the internal representation of Test::TAP::Model and Test::Harness::Straps
+
+=item *
+
+Add coverage reports (related to smoke tests?)
+
+=item *
+
+Add benchmark gathering?
+
+=item *
+
+Add RSS feeds per project
+
+=item *
+
+Look at making skinning easier so that organizations can brand it
+
+=item *
+
+Verify and test support for non AJAX browsers
+
+=item *
+
+Support for other databases (need developers to support them)
 
 =over
 
-=item * PostgreSQL
+=item *
+
+PostgreSQL
 
 =back
 

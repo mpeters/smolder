@@ -20,8 +20,16 @@ sub parse {
     } elsif( $page eq 'docs' ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = '/docs/docs_' . $self->{-node} . '.html';
-    # if it's a link to another module
-    } elsif( $page =~ /::/ ) {
+    # if it's just a link
+    } elsif( $page =~ /^https?:/ ) {
+        $self->{-type} = 'hyperlink';
+        $self->{-node} = $page;
+    # if it's a link to an image
+    } elsif( $page =~ /\.(gif|jpg|jpeg|png)$/i ) {
+        $self->{-type} = 'hyperlink';
+        $self->{-node} = $page;
+    # if it's probably link to another module
+    } else {
         $self->{-type} = 'hyperlink';
         $self->{-node} = "http://search.cpan.org/perldoc?$page";
     }

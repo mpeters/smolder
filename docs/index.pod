@@ -25,11 +25,11 @@ L<Configuration|docs/configuration> - how to configure Smolder
 
 =item *
 
-L<Script Documentation|docs/scripts> - documentation for all scripts in the C<bin/> directory.
+L<Script Documentation|docs/bin_inventory> - documentation for all scripts in the C<bin/> directory.
 
 =item *
 
-L<Changelog|docs/changelog> - a list of changes for each version of Smolder
+L<Changelog|docs/changes> - a list of changes for each version of Smolder
 
 =back
 
@@ -47,7 +47,7 @@ L<Coding Standards|docs/coding> - rules for Smolder development
 
 =item *
 
-L<Module Documentation|docs/modules> - complete Smolder module API documentation
+L<Module Documentation|docs/mod_inventory> - complete Smolder module API documentation
 
 =item *
 
