@@ -15,11 +15,11 @@ sub parse {
         $self->{-node} = $self->mod_to_html_file($page);
     } elsif( $page eq 'bin' ) {
         $self->{-type} = 'hyperlink';
-        $self->{-node} = 'bin_' . $self->{-node} . '.html';
+        $self->{-node} = '/docs/bin_' . $self->{-node} . '.html';
     # if it's a doc
     } elsif( $page eq 'docs' ) {
         $self->{-type} = 'hyperlink';
-        $self->{-node} = 'docs_' . $self->{-node} . '.html';
+        $self->{-node} = '/docs/docs_' . $self->{-node} . '.html';
     # if it's a link to another module
     } elsif( $page =~ /::/ ) {
         $self->{-type} = 'hyperlink';
@@ -31,7 +31,7 @@ sub mod_to_html_file {
     my ($self, $mod_name) = @_;
     my $file = lc $mod_name;
     $file =~ s/::/_/g;
-    return "lib_$file.html";
+    return "/docs/lib_$file.html";
 }
 
 =head1 NAME

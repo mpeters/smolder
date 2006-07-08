@@ -39,7 +39,7 @@ and now you have Class::DBI::mysql methods ready for use.
 =head1 DESCRIPTION
 
 This class provides a single place for handling all of the database connections in Smolder.
-It is a subclass of <Class::DBI::mysql> and provides a base class 
+It is a subclass of L<Class::DBI::mysql> and provides a base class 
 for object persistence using Class::DBI.
 
 It also provides a connect() method for getting a DBI connection from non Class::DBI code.

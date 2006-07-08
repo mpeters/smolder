@@ -1,4 +1,8 @@
-=head1 Installing Smolder As a Developer
+=head1 NAME
+
+Installing Smolder As a Developer
+
+=head1 DESCRIPTION
 
 The purpose of this document is to walk a user through the process of
 installing a new Smolder instance.  It is assumed that the user who
@@ -11,7 +15,7 @@ Note: this probably won't work unless you're running on a supported
 platform.  See F<pod/ops_install.pod> for the list of supported
 platforms.
 
-=head1 Smolder Install Check-list
+=head2 Smolder Install Steps
 
 =over
 

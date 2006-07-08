@@ -114,25 +114,32 @@ new Ajax.Autocompleter( 'keywords', 'keywords_auto_complete', url, { parameters:
 <!--
 // search with a query string and a message to display
 function ajax_search(query, msg) {
-    query = query + '&ajax=1';
-
-     new Ajax.Updater( 
-        'search_listing',  
-        url,
-        { 
-            parameters: query,
-            asynchronous: 1,
-            onLoading: function(request) {
-                $('search_listing').innerHTML = "<strong>" + msg + " ...</strong>";
+    if( Ajax.getTransport != false ) {
+        query = query + '&ajax=1';
+         new Ajax.Updater( 
+            'search_listing',  
+            url,
+            { 
+                parameters: query,
+                asynchronous: 1,
+                onLoading: function(request) {
+                    $('search_listing').innerHTML = "<strong>" + msg + " ...</strong>";
+                } 
             } 
-        } 
-    )
+        );
+    } else {
+        location.href = location.protocol + '//' +  location.hostname + url + "?" + query;
+    }
 }
 
 // serialize the form into a query string and display it
 function ajax_form_search(form) {
-    ajax_search(Form.serialize(form), 'Searching');
-    return false;
+    if( Ajax.getTransport != false ) {
+        ajax_search(Form.serialize(form), 'Searching');
+        return false;
+    } else {
+        return true;
+    }
 }
 //-->
 </script>

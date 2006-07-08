@@ -78,13 +78,23 @@ my $parser = Pod::Xhtml->new(
     TopLinks    => ' ',
     LinkParser  => $link,
 );
-$parser->addHeadText(q(<link rel="stylesheet" type="text/css" href="/style/docs.css" />));
+$parser->addHeadText(q(
+    <link rel="stylesheet" type="text/css" href="/style/docs.css" />
+    <script type="text/javascript" src="/js/prototype.js"></script>
+    <script type="text/javascript" src="/js/scriptaculous.js"></script>
+));
 $parser->addBodyOpenText(q(
     <div style="float:right">
-    <form action="/docs/search">
-        <input type="input" name="keywords" />
+    <form action="/app/doc_search">
+        <input type="hidden" name="rm" value="perform_search" />
+        <input type="input" name="keywords" id="keywords" autocomplete="off" />
         <input type="submit" value="search"/>
+        <div class="auto_complete" id="keywords_auto_complete"></div>
     </form>
+    <script type="text/javascript">
+    new Ajax.Autocompleter( 'keywords', 'keywords_auto_complete', '/app/doc_search', { parameters: "rm=suggestions"  })
+    </script>
+
     </div>
 ));
 

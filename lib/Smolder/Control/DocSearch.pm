@@ -4,14 +4,6 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile catdir);
 use Apache::Constants qw(OK);
 
-sub handler : method {
-    my ($class, $r) = @_;
-    $r->no_cache(1);
-    my $controller = $class->new();
-    $controller->run();
-    return OK;
-}
-
 sub cgiapp_init {
     my $self = shift;
     $self->param(

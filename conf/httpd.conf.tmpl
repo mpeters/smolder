@@ -169,13 +169,4 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         ExpiresDefault "access plus 1 hour"
     </Location>
 
-    # add the docs search
-    <Location /docs/search>
-        TKTAuthGuestLogin on
-        Require valid-user
-        PerlModule          Smolder::Control::DocSearch
-        SetHandler          perl-script
-        PerlHandler         Smolder::Control::DocSearch
-    </Location>
-
 </VirtualHost>

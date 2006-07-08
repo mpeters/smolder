@@ -321,6 +321,9 @@ sub report_graph_data {
         }
     }
 
+    # add the ORDER BY
+    $sql .= " ORDER BY smoke_report.added ";
+
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_cols);
     while ( my $row = $sth->fetchrow_arrayref() ) {
