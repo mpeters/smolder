@@ -587,9 +587,6 @@ sub build_perl_module {
     # Net::FTPServer needs this to not try to install /etc/ftp.conf
     local $ENV{NOCONF} = 1 if $name =~ /Net-FTPServer/;
 
-    # DBD::SQLite needs to be built with our local copy
-    $EXTRA_ARGS = "SQLITE_LOCATION=$ENV{SMOLDER_ROOT}/sqlite" if $name =~ /DBD-SQLite/;
-
     # Module::Build or MakeMaker?
     my ( $cmd, $make_cmd );
     if ( -e 'Build.PL' ) {
@@ -893,24 +890,6 @@ sub build_swishe {
       or die "Unable to configure swish-e! $!";
     system("make && make install") == 0
       or die "Unable to make swish-e! $!";
-}
-
-=head2 build_sqlite
-
-Given the directory where SQLite3 will be installed to, and assuming
-we are already in the directory where SQLite3 has been unpacked, run
-the commands to build SQLite3.
-
-=cut
-
-sub build_sqlite {
-    my ( $pkg, %options ) = @_;
-    my $dir = $options{sqlite_dir};
-
-    system( "./configure --prefix=$dir/sqlite " . "--exec_prefix=$dir/sqlite" ) == 0
-      or die "Unable to configure SQLite! $!";
-    system("make && make install") == 0
-      or die "Unable to make SQLite! $!";
 }
 
 =head2 finish_installation

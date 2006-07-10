@@ -44,14 +44,6 @@ option skips those steps.
 By default the script will build swish-e for you.  This
 option skips that step.
 
-=item --no-sqlite
-
-By default the script will build SQLite for you.  This
-option skips that step. It will also skip the building of any
-SQLite related Perl modules that are used.
-This is useful if you know you will never be
-using SQLite, but will use another database platform instead.
-
 =item --no-mysql
 
 This will skip the building of any MySQL related Perl modules
@@ -133,19 +125,16 @@ my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
 my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
-my $SQLITE       = 'sqlite//sqlite-3.3.6.tar.gz';
 
 # options
 my $skip_apache  = 0;
 my $skip_swishe  = 0;
-my $skip_sqlite  = 0;
 my $skip_mysql   = 0;
 my $skip_modules = 0;
 my ( @modules, @skip_modules, $help, $man );
 GetOptions(
     'no-apache'     => \$skip_apache,
     'no-swishe'     => \$skip_swishe,
-    'no-sqlite'     => \$skip_sqlite,
     'no-mysql'      => \$skip_mysql,
     'no-modules'    => \$skip_modules,
     'module=s'      => \@modules,
@@ -161,7 +150,6 @@ pod2usage( -verbose => 2 ) if $man;
 if (@modules) {
     $skip_apache = 1;
     $skip_swishe = 1;
-    $skip_sqlite = 1;
 }
 
 # get platform arg
@@ -210,21 +198,6 @@ unless ($skip_swishe) {
     $pkg->build_swishe( swishe_dir => catdir($ROOT), );
 }
 
-# now build SQLite since DBD::SQLite requires it
-unless ($skip_sqlite) {
-
-    #now let's extract sqlite
-    goto_build_dir();
-    my $sqlite_gz = catfile( $SRC_DIR, $SQLITE );
-    system("tar zxf $sqlite_gz") == 0
-      or die "Couldn't unpack file $sqlite_gz: $?";
-    my ($sqlite_dir) = $sqlite_gz =~ m{/([^/]+)\.tar\.gz$};
-    die "Can't find SQLite dir '$sqlite_dir'." unless -d $sqlite_dir;
-
-    chdir($sqlite_dir) or die "Unable to chdir($sqlite_dir): $!";
-    print_message("Building SQLite");
-    $pkg->build_sqlite( sqlite_dir => catdir($ROOT), );
-}
 # get list of files to build, considering --module and --skip-module opts
 opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";
 my @files = sort readdir(SRC);
@@ -236,7 +209,6 @@ unless ($skip_modules) {
     
         # don't skip the Perl modules related to the external stuff
         # if we specifically specify the module
-        $skip_sqlite = 0 if( grep { $_ =~ /sqlite/i } @modules );
         $skip_mysql  = 0 if( grep { $_ =~ /mysql/i  } @modules );
         $skip_swishe = 0 if( grep { $_ =~ /swish/i  } @modules );
 
@@ -268,7 +240,6 @@ unless ($skip_modules) {
         next if $file =~ /^$LIBAPREQ/o;
 
         # skip modules that we need to skip based on skipping external libs
-        next if $file =~ /sqlite/i and $skip_sqlite;
         next if $file =~ /mysql/i  and $skip_mysql;
         next if $file =~ /swish/i  and $skip_swishe;
 
@@ -318,7 +289,7 @@ unless ($skip_apache) {
 # and smolder_install
 my @db_plats;
 push(@db_plats, 'MySQL')  unless $skip_mysql;
-push(@db_plats, 'SQLite') unless $skip_sqlite;
+push(@db_plats, 'SQLite');
 
 print "Writing data/build.db\n";
 open( DB, '>', catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' ) )
