@@ -137,7 +137,7 @@ mkpath( [$BACKUP_DIR] ) unless -d $BACKUP_DIR;
 my $dump_file = catfile( $BACKUP_DIR, 'dump.sql' );
 eval { $DB_PLAT->dump_database($dump_file) };
 if( $@ ) {
-    "Dump of the database failed with error $@. \n"
+    print STDERR "Dump of the database failed with error $@. \n"
     . "Please correct the error and try your backup again.\n";
 }
 
