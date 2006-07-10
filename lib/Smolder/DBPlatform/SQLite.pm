@@ -49,14 +49,28 @@ sub verify_admin {
 sub run_sql_file { 
     my ($class, %args) = @_;
     my ($db_name, $file) = @args{qw(db_name file)};
-    my $sqlite_bin  = $class->_get_sqlite_bin();
-    my $sqlite_file = $class->_get_db_file($db_name);
+    open( my $IN, $file ) or die "Could not open file '$file' for reading: $!";
 
-    my $cmd .= "$sqlite_bin $sqlite_file < $file";
-    # run it
-    system($cmd) == 0
-        or croak "Could not run SQL file '$file' for DB '$db_name': $!";
+    require Smolder::DB;
+    my $dbh = Smolder::DB->db_Main();
 
+    my $sql = '';
+    # read each line
+    while( my $line = <$IN> ) {
+        # skip comments
+        next if( $line =~ /^--/ );
+        $sql .= $line;
+
+        # if we have a ';' at the end of the line then it should
+        # be the end of the statement
+        if( $line =~ /;\s*$/) {
+            $dbh->do($sql) 
+                or die "Could not execute SQL '$sql': $!";
+            $sql = '';
+        }
+    }
+
+    close($file);
 }
 
 =head2 dbh
@@ -101,15 +115,79 @@ sub cdbi_class {
 sub dump_database { 
     my ($class, $file) = @_;
 
-    require Smolder::Conf;
-    my $db_name = Smolder::Conf->get('DBName');
-    my $sqlite_bin  = $class->_get_sqlite_bin();
-    my $sqlite_file = $class->_get_db_file($db_name);
+    # open the file we want to print to
+    open(my $OUT, '>', $file) 
+        or die "Could not open file '$file' for writing: $!";
 
-    my $dump_bin .= "$sqlite_bin $sqlite_file '.dump' > $file";
-    # run it
-    system($dump_bin) == 0
-        or croak "Could not dump database to file '$file' $!";
+    # get the list of tables
+    require Smolder::DB;
+    my $dbh = Smolder::DB->db_Main();
+    my $sth = $dbh->prepare(q(
+        SELECT name FROM sqlite_master WHERE type = 'table'
+        AND name NOT LIKE 'sqlite_%' AND sql NOT NULL
+    ));
+    $sth->execute();
+    my (@tables, $table);
+    $sth->bind_col(1, \$table);
+    while($sth->fetch) {
+        push(@tables, $table);
+    }
+    $sth->finish();
+
+    # now get the SQL for each table and output it
+    foreach my $t (@tables) {
+        # first the schema
+        $sth = $dbh->prepare(q(
+            SELECT sql FROM sqlite_master 
+            WHERE type = 'table' AND name = ?
+        ));
+        $sth->execute($t);
+        my $sql;
+        $sth->bind_col(1, \$sql);
+        while($sth->fetch) {
+            print $OUT "$sql\n";
+        }
+        $sth->finish();
+
+        # now the indexes
+        $sth = $dbh->prepare(q(
+            SELECT sql FROM sqlite_master
+            WHERE type = 'index' AND tbl_name = ?
+        ));
+        $sth->execute($t);
+        $sth->bind_col(1, \$sql);
+        while($sth->fetch) {
+            print $OUT "$sql\n" if( $sql );
+        }
+        $sth->finish();
+        print $OUT "\n\n";
+
+        # now get all of the data in this table
+        $sth = $dbh->prepare(qq(SELECT * FROM $t));
+        $sth->execute();
+        while(my $row = $sth->fetchrow_arrayref) {
+            # massage each value so we can create the SQL
+            my @values;
+            foreach my $value (@$row) {
+                # NULLs
+                if( !defined $value ) {
+                    $value = 'NULL';
+                # escape and quote it
+                } else {
+                    $value =~ s/"/\\"/g;
+                    $value = qq("$value");
+                }
+                push(@values, $value);
+            }
+
+            # create the SQL
+            my $sql = "INSERT INTO $t VALUES (" . join(', ', @values) . ")\n";
+            print $OUT $sql;
+        }
+
+        print $OUT "\n\n";
+    }
+    close($OUT);
 }
 
 =head2 drop_database
@@ -206,11 +284,6 @@ sub unique_failure_msg {
 sub _get_db_file {
     my ($class, $db_name) = @_;
     return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");
-}
-
-sub _get_sqlite_bin {
-    my $class = shift;
-    return catfile($ENV{SMOLDER_ROOT}, 'sqlite', 'bin', 'sqlite3');
 }
 
 1;
