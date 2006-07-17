@@ -6,17 +6,21 @@
 
 =item *
 
-Review upgrade procedure to make sure it's working completely
+Auto-purging of old data configurable in smolder.conf
 
 =item *
 
-Add support for plain TAP
+Review upgrade procedure to make sure it's working completely
 
 =back
 
 =head2 FOR 2.0
 
 =over
+
+=item *
+
+Add support for plain TAP
 
 =item *
 
