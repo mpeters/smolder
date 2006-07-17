@@ -833,6 +833,7 @@ sub apache_build_parameters {
       . "--enable-module=mime_magic   --enable-shared=mime_magic "
       . "--enable-module=unique_id    --enable-shared=unique_id "
       . "--enable-module=expires "
+      . "--enable-module=headers "
       . "--without-execstrip "
       . "--enable-module=so";
 }

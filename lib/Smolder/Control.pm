@@ -8,6 +8,7 @@ use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 #use CGI::Application::Plugin::DebugScreen;
 
+use Smolder;
 use Smolder::Util;
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
@@ -130,6 +131,29 @@ sub auto_complete_results {
         $html .= '<li>' . escape_html($_, EH_INPLACE) . '</li>'
     }
     return $html . '<ul>';
+}
+
+=head2 static_url
+
+This method will take the URL and add the smolder version number
+to the front so that caching can be more aggressive. This is only
+done if it's not a developer install, so that developers aren't
+frustrated by having to fight with browser caches.
+
+=cut
+
+sub static_url {
+    my ($self, $url) = @_;
+    my $version = $Smolder::VERSION;
+
+    # only do this if we aren't a dev install
+    # if the 'src' dir exists it's a dev install
+    if( -d catdir(InstallRoot, 'src') ) {
+        return $url;
+    } else {
+        $url =~ s/^\///;
+        return catfile('', $version, $url);
+    }
 }
 
 =head1 TEMPLATE CONFIGURATION

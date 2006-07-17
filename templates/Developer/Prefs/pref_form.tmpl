@@ -47,7 +47,7 @@
 </tr>
 <tr>
   <td colspan="2" align="right">
-    <img src="/images/indicator.gif" style="display:none" class="indicator" id="pref_indicator_[% pref.id %]" alt="loading" />
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="pref_indicator_[% pref.id %]" alt="loading" />
     <input type="submit" value="Update" />
     [% IF default %]
     <input type="button" value="Sync All Projects" id="dev_prefs_sync_button" />

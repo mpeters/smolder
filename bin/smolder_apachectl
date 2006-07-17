@@ -50,6 +50,10 @@ Full path to the F<httpd.pid> file.
 A TMPL_LOOP (array of hashes) that contains the C<< <AccessRule> >> directives
 from your F<conf/smolder.conf>.
 
+=item Version
+
+The version number as obtained from L<Smolder>.
+
 =back
 
 =cut
@@ -92,6 +96,8 @@ $@
 ######################################################################
 END
 }
+
+use Smolder;
 
 my $MAX_RESTART_WAIT = 20;                            # wait for stop on restart (in seconds)
 my $CONFIG           = Smolder::Conf->get_config();
@@ -232,6 +238,7 @@ sub write_conf {
         ApacheRoot  => $APACHE_ROOT,
         PidFile     => $HTTPD_PID,
         InstallRoot => rel2abs($ROOT),
+        Version     => $Smolder::VERSION,
     );
 
     # add each directive from the conf file
