@@ -163,9 +163,14 @@ sub add_report {
 
 Process the incoming information from the C<add_report> mode. If validation passes
 we upload the file and update the database. The report is stored for permanent storage
-as an XML file and summary information is extracted and inserted into the database.
+as a compressed XML file and summary information is extracted and inserted into the database.
 If successful, redirects the user to the "Recent Smoke Tests" screen for the same
 project.
+
+If the newly uploaded report causes the C<ProjectFullReportsMax> configuration limit 
+to be reached then any full reports over that limit will be purged. Their summary data 
+will still be retained in the database, but the compressed XML file which contains the 
+details will be removed, and the reports details will no longer be accessible.
 
 =cut
 
@@ -279,6 +284,9 @@ sub process_add_report {
 
     # now send an email to all the user's who want this report
     $report->send_emails();
+
+    # now purge old reports
+    $project->purge_old_reports();
 
     # redirect to our recent reports
     $self->header_type('redirect');

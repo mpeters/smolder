@@ -3,7 +3,6 @@ use base 'CGI::Application::Dispatch';
 use strict;
 use warnings;
 
-$CGI::Application::Dispatch::DEBUG = 1;
 sub dispatch_args {
     return {
         prefix => 'Smolder::Control',

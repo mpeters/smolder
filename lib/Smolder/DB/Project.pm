@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use base 'Smolder::DB';
 use Smolder::DB::Developer;
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf qw(InstallRoot ProjectFullReportsMax);
 use File::Path;
 use File::Spec::Functions qw(catdir);
 use DateTime::Format::MySQL;
@@ -482,6 +482,40 @@ sub graph_start_datetime {
         $dt = DateTime->today();
     }
     return $dt;
+}
+
+=head3 purge_old_reports 
+
+This method will check to see if the C<ProjectFullReportsMax> configuration
+limit has been reached for this project and delete the compressed XML files
+associated with those reports, also marking them as C<purged>.
+
+=cut
+
+sub purge_old_reports {
+    my $self = shift;
+    if( ProjectFullReportsMax ) {
+        # Delete any non-purged reports that pass the above limit
+        my $sth = $self->db_Main->prepare_cached(q(
+            SELECT id FROM smoke_report
+            WHERE project = ? AND purged = 0
+            ORDER BY added DESC
+            LIMIT ? OFFSET ? 
+        ));
+        $sth->execute($self->id, 1000000, ProjectFullReportsMax);
+        my (@ids, $id);
+        $sth->bind_col(1, \$id);
+        push(@ids, $id) while( $sth->fetch );
+        $sth->finish();
+
+        foreach my $id (@ids) {
+            my $report = Smolder::DB::SmokeReport->retrieve($id);
+            $report->delete_files();
+            $report->purged(1);
+            $report->update();
+            Smolder::DB->dbi_commit();
+        }
+    }
 }
   
 

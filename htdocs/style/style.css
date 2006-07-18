@@ -191,16 +191,16 @@ div.popup_form {
     padding-right: 5px;
     background-color: #EEEEEE;
     border: 1px solid #555555;
-    border-top: 0px;
+    border-top: 1px solid #999999;
     z-index: 100;
     max-width: 300px;
 }
 
-div.popup_form input[type="submit"], div.popup_form a.button {
+div.popup_form input[type="submit"], div.popup_form a.button, a.dead_button {
     margin-bottom: 5px;
 }
 
-a.button {
+a.button, a.dead_button {
     color: #ffffff;
     background-color: #C47147;
     border: 1px solid #555555;
@@ -213,11 +213,10 @@ a.button {
     font-weight: bold;
 }
 
-a.button:hover {
+a.button:hover, a.dead_button {
     color: #C47147;
     background-color: #ffffff;
 }
-
 
 /* Tooltip styles */
 .tooltip {

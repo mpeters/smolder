@@ -21,6 +21,7 @@ BEGIN {
       LogLevel
       SMTPHost
       User
+      ProjectFullReportsMax
     );
 
     @REQUIRED_DIRECTIVES = qw(

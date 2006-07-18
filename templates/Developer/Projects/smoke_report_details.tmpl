@@ -37,9 +37,18 @@
             </td>
             [% UNLESS email %]
             <td>
-              <a class="button smoke_report_window" href="/app/developer_projects/report_details/[% report.id %]/html">HTML</a>
-              <a class="button smoke_report_window" href="/app/developer_projects/report_details/[% report.id %]/xml">XML</a>
-              <a class="button smoke_report_window" href="/app/developer_projects/report_details/[% report.id %]/yaml">YAML</a>
+              [% IF report.purged %]
+                <a class="dead_button" title="Details have been purged">HTML</a>
+                <a class="dead_button" title="Details have been purged">XML</a>
+                <a class="dead_button" title="Details have been purged">YAML</a>
+              [% ELSE %]
+                <a class="button smoke_report_window" title="HTML test report"
+                    href="/app/developer_projects/report_details/[% report.id %]/html">HTML</a>
+                <a class="button smoke_report_window" title="XML test report"
+                    href="/app/developer_projects/report_details/[% report.id %]/xml">XML</a>
+                <a class="button smoke_report_window" title="YAML test report"
+                    href="/app/developer_projects/report_details/[% report.id %]/yaml">YAML</a>
+              [% END %]
               <div style="position: absolute; margin-top: 15px;">
               [% IF project.is_admin(c.developer) %]
                 [% IF report.invalid %]
