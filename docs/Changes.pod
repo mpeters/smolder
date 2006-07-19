@@ -4,6 +4,8 @@
 
 =over
 
+=item * Auto-purging of old compressed XML files by ProjectFullReportsMax config directive - M. Peters
+
 =item * Better caching headers for static files - M. Peters
 
 =item * Fixed building of SQLite on some platforms - Mark Stosberg
