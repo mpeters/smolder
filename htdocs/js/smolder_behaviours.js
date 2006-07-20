@@ -259,12 +259,63 @@ var myrules = {
             return false;
         };
     },
-    // submit the form to sync the other preferences
+    // on the preferences form, the project selector should update
+    // the preferences form with the selected projects preferences
+    // from the server
+    '#project_preference_selector': function(element) {
+        var form  = element.form;
+    
+        // if we start off looking at the default options
+        if( element.value == form.elements['default_pref_id'].value ) {
+            Element.show('dev_prefs_sync_button');
+            // if we want to show some info - Element.show('default_pref_info');
+        }
+
+        element.onchange = function() {
+
+            // if we are the default preference, then show the stuff
+            // that needs to be shown
+            if( element.value == form.elements['default_pref_id'].value ) {
+                Element.show('dev_prefs_sync_button');
+                // if we want to show some info - Element.show('default_pref_info');
+            } else {
+                Element.hide('dev_prefs_sync_button');
+                // if we want to show some info - Element.hide('default_pref_info');
+            }
+    
+            // get the preference details from the server
+            showIndicator('pref_indicator');
+            new Ajax.Request(
+                '/app/developer_prefs/get_pref_details',
+                {
+                    parameters: Form.serialize(form),
+                    asynchronous: true,
+                    onComplete: function(response, json) {
+                        // for every value in our JSON response, set that
+                        // same element in the form
+                        $A(['email_type', 'email_freq', 'email_limit']).each(
+                            function(name) {
+                                var elm = form.elements[name];
+                                elm.value = json[name];
+                                flash(elm);
+                            }
+                        );
+                        hideIndicator('pref_indicator');
+                    },
+                    onFailure: function() { show_error() }
+                }
+            );
+        };
+    },
+    // submit the preference form to sync the other preferences
     '#dev_prefs_sync_button': function(element) {
         element.onclick = function() {
-            var form = $('update_pref_default');
+            var form = $('update_pref');
             form.elements['sync'].value = 1;
-            form.submit();
+            ajax_form_submit({ 
+                form : form,
+                div  : 'developer_prefs'
+            });
         };
     },
     // hightlight selected text, textarea and select inputs

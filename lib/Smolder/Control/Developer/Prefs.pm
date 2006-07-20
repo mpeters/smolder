@@ -2,7 +2,7 @@ package Smolder::Control::Developer::Prefs;
 use base 'Smolder::Control';
 use strict;
 use warnings;
-use Smolder::Constraints qw(enum_value length_between);
+use Smolder::Constraints qw(enum_value length_between unsigned_int existing_field_value);
 
 =head1 NAME
 
@@ -16,14 +16,15 @@ Controller module for dealing with developer preferences
 
 sub setup {
     my $self = shift;
-    $self->start_mode('show_all');
+    $self->start_mode('show');
     $self->run_modes(
         [
             qw(
-              show_all
+              show
               update_pref
               change_pw
               process_change_pw
+              get_pref_details
               )
         ]
     );
@@ -99,37 +100,58 @@ sub process_change_pw {
     return $self->change_pw( { success => 1 } );
 }
 
-=head2 show_all
+=head2 show
 
 Show all of the preferences for each project that this developer is assigned to.
-Uses the F<Developer/Prefs/show_all.tmpl> template.
+Uses the F<Developer/Prefs/show.tmpl> template.
 
 =cut
 
-sub show_all {
-    my ($self, $tt_params) = @_;
+sub show {
+    my ($self, $tt_params, $pref) = @_;
     $tt_params ||= {};
-    return $self->tt_process($tt_params);
+    my $html = $self->tt_process($tt_params);
+
+    # if this wasn't an update form submission
+    # and we don't have a preference, then make it the default
+    if( !$self->query->param('update_pref') && !$pref ) {
+        $pref = $self->developer->preference;
+    }
+
+     # if we have a preference use it to fill in the form
+    if( $pref ) {
+        my %fill_data = map { $_ => $pref->$_ } qw(id email_type email_freq email_limit);
+        return HTML::FillInForm->new()->fill(
+            scalarref => $html,
+            fdat      => \%fill_data,
+        );
+    } else {
+        return $html;
+    }
 }
 
-=head2 show_pref
+=head2 get_pref_details
 
-Show an the preferences form for an individual project for this developer.
-Uses the F<Developer/Prefs/pref_form.tmpl> template.
+This run mode will return a JSON header which contains the name-value
+pairs for this preferences data.
 
 =cut
 
-sub show_pref {
-    my ( $self, $tt_params ) = @_;
-    $tt_params ||= {};
+sub get_pref_details {
+    my $self = shift;
+    my $pref = Smolder::DB::Preference->retrieve($self->query->param('id'));
+    my %data;
+    if( $pref ) {
+        %data = map { $_ => $pref->$_ } qw(email_type email_freq email_limit);
+    }
 
-    return $self->tt_process( 'Developer/Prefs/pref_form.tmpl', $tt_params );
+    return $self->json_header(\%data);
 }
 
 =head2 update_pref
 
-Update the information coming from either the C<show_all> or C<show_pref>
-modes. If validation passes, the database is updated and the C<show_pref>
+Update the information coming from the C<show> run mode.
+If validation passes, the database is updated and the C<show>
 run mode is returned.
 
 =cut
@@ -139,60 +161,38 @@ sub update_pref {
 
     # validate the data
     my $form = {
-        required           => [qw(email_type email_freq email_limit)],
-        optional           => [qw(project)],
+        required           => [qw(id email_type email_freq email_limit)],
         constraint_methods => {
+            id          => existing_field_value('preference', 'id'),
             email_type  => enum_value('preference', 'email_type'),
             email_freq  => enum_value('preference', 'email_freq'),
-            project     => qr/^\d+$/,
-            email_limit => qr/^\d+$/,
+            email_limit => unsigned_int(),
         }
     };
 
-    my $results = $self->check_rm( 'show_pref', $form )
+    my $results = $self->check_rm( 'show', $form )
       || return $self->check_rm_error_page();
     my $valid = $results->valid();
 
-    my ( $pref, $project, $sync, $default );
-
-    # if we have a project, then we want that specific pref
-    if ( $valid->{project} ) {
-        $project = Smolder::DB::Project->retrieve( delete $valid->{project} );
-        return $self->error_msg('Project no longer exists!') unless $project;
-
-        $pref = $self->developer->project_pref($project);
-
-        # else we want the default pref
-    } else {
-        $default = 1;
-        $pref = $self->developer->preference;
-        # do they also want to sync their projects?
-        $sync = 1 if( $self->query->param('sync') );
+    my $pref = Smolder::DB::Preference->retrieve($valid->{id});
+    if( $pref ) {
+        delete $valid->{id};
+        $pref->set(%$valid);
+        $pref->update();
+        Smolder::DB->dbi_commit();
     }
 
-    # now update
-    $pref->set(%$valid);
-    $pref->update();
-    Smolder::DB->dbi_commit();
-
-    # if we need to sync the other prefs
-    if( $sync ) {
+    # if we are updating the default pref and they want to sync them
+    if( $self->query->param('sync') && ( $pref->id eq $self->developer->preference) ) {
         my @projs = $self->developer->project_developers;
         foreach my $proj (@projs) {
             $proj->preference->set(%$valid);
             $proj->preference->update();
         }
         Smolder::DB->dbi_commit();
-        return $self->show_all( { sync_success => 1 })
+        return $self->show( { sync_success => 1 }, $pref)
     } else {
-        return $self->show_pref(
-            {
-                project => $project,
-                pref    => $pref,
-                success => 1,
-                default => $default,
-            }
-        );
+        return $self->show( { success => 1 }, $pref );
     }
 }
 

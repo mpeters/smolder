@@ -54,10 +54,10 @@ $mech->get_ok($url);
 $mech->content_contains('Preferences');
 
 # 7..10
-# show_all
+# show
 {
-    $mech->get_ok( $url . '/show_all' );
-    $mech->content_contains('Default Preferences');
+    $mech->get_ok( $url . '/show' );
+    $mech->content_contains('My Defaults');
     $mech->content_contains( $proj1->name );
     $mech->content_contains( $proj2->name );
 }
@@ -70,6 +70,7 @@ $mech->content_contains('Preferences');
     my $request = HTTP::Request::Common::POST(
         $url . '/update_pref/',
         {
+            id         => $dev->preference->id,
             email_type => 'stuff',
             email_freq => 'more stuff',
         }
@@ -81,8 +82,8 @@ $mech->content_contains('Preferences');
     $mech->content_contains('class="required warn">Per-day Email Limit');
 
     # valid form
-    $mech->get_ok( $url . '/show_all' );
-    $mech->form_name('update_pref_default');
+    $mech->get_ok( $url . '/show' );
+    $mech->form_name('update_pref');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
@@ -117,9 +118,12 @@ $mech->content_contains('Preferences');
     );
 
     # now update our settings for proj1
-    $mech->get_ok( $url . '/show_all' );
-    $mech->form_name( 'update_pref_' . $proj_dev1->preference->id );
-    $mech->set_fields(%data);
+    $mech->get_ok( $url . '/show' );
+    $mech->form_name( 'update_pref');
+    $mech->set_fields(
+        %data,
+        id => $proj_dev1->preference->id,
+    );
     $mech->submit();
     ok( $mech->success );
     is( db_field_value( 'preference', 'email_type', $proj_dev1->preference->id ),
@@ -145,10 +149,11 @@ $mech->content_contains('Preferences');
 # 33..40
 # sync all preferences
 {
-    $mech->get_ok( $url . '/show_all' );
-    my $form = $mech->form_name('update_pref_default');
+    $mech->get_ok( $url . '/show' );
+    my $form = $mech->form_name('update_pref');
     $form->find_input('sync')->readonly(0);
     my %new_data  = (
+        id          => $dev->preference->id,
         email_type  => 'summary',
         email_freq  => 'on_new',
         email_limit => 10,

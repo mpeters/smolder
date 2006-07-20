@@ -1,11 +1,14 @@
+[% UNLESS ajax %]
 [% SET page_title = 'Preferences' %]
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/developer_prefs/change_pw">Change Password</a>
 </div>
 
-<div id="developer_prefs">
+<div id="developer_prefs" class="boxed">
+[% END %]
 <form class="ajaxable for_developer_prefs show_pref_indicator" id="update_pref" name="update_pref" action="/app/developer_prefs/update_pref" method="post">
+<input type="hidden" name="update_pref" value="1" />
 <input type="hidden" name="sync" value="0" />
 <input type="hidden" name="default_pref_id" value="[% c.developer.preference.id %]" />
 
@@ -14,7 +17,7 @@
     Preferences successfully updated.
   </p>
 [% END %]
-[% IF default && sync_success %]
+[% IF sync_success %]
   <p class="warn">
     All project preferences have been synced.
   </p>
@@ -25,16 +28,16 @@
 <tr>
   <td><label>Project</label>
   <td>
-    <select name="preference" class="hl" id="project_preference_selector">
+    <select name="id" id="project_preference_selector">
      <option value="[% c.developer.preference.id %]">My Defaults</option>
      [% FOREACH project IN c.developer.projects %]
-     <option value="[% c.developer.project.pref(project).id %]">[% project.name | html %]</option>
+     <option value="[% c.developer.project_pref(project).id %]">[% project.name | html %]</option>
      [% END %]
     </select>
   </td>
 </tr>
 <tr>
-  <td><label class="required">Email Type *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type *</td>
   <td>
     <select name="email_type" class="hl">
       <option value="full">Full HTML Report</option>
@@ -44,7 +47,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required">Email Frequency *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency *</td>
   <td>
     <select name="email_freq" class="hl">
       <option value="on_new">Everytime a new Test Report is Added </option>
@@ -54,7 +57,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required">Per-day Email Limit *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_limit %] warn[% END %]">Per-day Email Limit *</td>
   <td>
     <input name="email_limit" class="hl" value="[% pref.email_limit %]" size="5"/>
     <em>0</em> means there is no limit
@@ -62,14 +65,14 @@
 </tr>
 <tr>
   <td colspan="2" align="right">
-    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="pref_indicator_[% pref.id %]" alt="loading" />
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="pref_indicator" alt="loading" />
     <input type="submit" value="Update" />
-    [% IF default %]
-    <input type="button" value="Sync All Projects" id="dev_prefs_sync_button" />
-    [% END %]
+    <input type="button" value="Reset Projects to Default" id="dev_prefs_sync_button" style="display:none" />
   </td>
 </tr>
 </table>
 </form>
+[% UNLESS ajax %]
 </div>
+[% END %]
 

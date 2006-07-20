@@ -6,6 +6,7 @@ use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
+use JSON qw(objToJson);
 #use CGI::Application::Plugin::DebugScreen;
 
 use Smolder;
@@ -154,6 +155,21 @@ sub static_url {
         $url =~ s/^\///;
         return catfile('', $version, $url);
     }
+}
+
+=head2 json_header
+
+Given a Perl data structure, this will serialize it into JSON
+and put that data into the outgoing X-JSON header for the browser
+to consume.
+
+=cut
+
+sub json_header {
+    my ($self, $struct) = @_;
+    my $json = objToJson($struct);
+    $self->header_add('-x-json' => $json);
+    return '';
 }
 
 =head1 TEMPLATE CONFIGURATION

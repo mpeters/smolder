@@ -697,7 +697,7 @@ Ajax.Request.prototype = Object.extend(new Ajax.Base(), {
 
   evalJSON: function() {
     try {
-      return eval(this.header('X-JSON'));
+      return eval('(' + this.header('X-JSON') + ')');
     } catch (e) {}
   },
 
