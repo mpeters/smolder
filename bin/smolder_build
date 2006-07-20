@@ -119,7 +119,7 @@ my $BUILD_DIR       = tempdir( DIR => catdir( $ROOT, 'tmp' ) );
 my $PLATFORM_DIR    = catdir( $ROOT, 'platform' );
 
 # a few useful constants
-my $APACHE       = 'Apache-MOD_PERL/apache_1.3.34.tar.gz';
+my $APACHE       = 'Apache-MOD_PERL/apache_1.3.36.tar.gz';
 my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
