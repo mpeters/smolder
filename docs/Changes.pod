@@ -18,6 +18,8 @@
 
 =item * Runtime errors sometimes being lost - Sam Tregar, M. Peters
 
+=item * Removed un-used mod_ssl sources and build - M. Peters
+
 =back
 
 =head2 0.2

@@ -724,44 +724,31 @@ Apache installation in C<apache/>.
         apache_dir       => $dir, 
         modperl_dir      => $dir, 
         mod_auth_tkt_dir => $dir, 
-        mod_ssl_dir      => $dir
     )
 
 =cut
 
 sub build_apache_modperl {
     my ( $pkg, %arg ) = @_;
-    my ( $apache_dir, $mod_perl_dir, $mod_auth_tkt_dir, $mod_ssl_dir ) =
-      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir mod_ssl_dir)};
+    my ( $apache_dir, $mod_perl_dir, $mod_auth_tkt_dir ) =
+      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir)};
     _load_expect();
 
     print "\n\n************************************************\n\n",
-      "  Building Apache/mod_ssl/mod_perl/mod_auth_tkt",
+      "  Building Apache/mod_perl/mod_auth_tkt",
       "\n\n************************************************\n\n";
 
     # gather params
     my $apache_params   = $pkg->apache_build_parameters(%arg);
     my $mod_perl_params = $pkg->mod_perl_build_parameters(%arg);
-    my $mod_ssl_params  = $pkg->mod_ssl_build_parameters(%arg);
     my $old_dir         = cwd;
-
-    print "\n\n************************************************\n\n", "  Building mod_ssl",
-      "\n\n************************************************\n\n";
-
-    # build mod_ssl
-    chdir($mod_ssl_dir) or die "Unable to chdir($mod_ssl_dir): $!";
-    my $cmd = "./configure --with-apache=../$apache_dir $mod_ssl_params";
-    print "Calling '$cmd'\n";
-    system($cmd ) == 0
-      or die "Unable to configure mod_ssl: $!";
-    chdir($old_dir);
 
     print "\n\n************************************************\n\n", "  Building mod_perl",
       "\n\n************************************************\n\n";
 
     # build mod_perl
     chdir($mod_perl_dir) or die "Unable to chdir($mod_perl_dir): $!";
-    $cmd = "$^X Makefile.PL $mod_perl_params";
+    my $cmd = "$^X Makefile.PL $mod_perl_params";
     print "Calling '$cmd'...\n";
 
     my $command = $pkg->expect_questions(
@@ -787,8 +774,6 @@ sub build_apache_modperl {
       or die "Apache make failed: $?";
     system("make install") == 0
       or die "Apache make install failed: $?";
-    system("make certificate TYPE=DUMMY") == 0
-      or die "Apache make failed: $?";
 
     # clean up unneeded apache directories
     my $root = $ENV{SMOLDER_ROOT};
@@ -827,7 +812,6 @@ sub apache_build_parameters {
     return "--prefix=${root}/apache "
       . "--activate-module=src/modules/perl/libperl.a "
       . "--disable-shared=perl "
-      . "--enable-module=ssl          --enable-shared=ssl "
       . "--enable-module=rewrite      --enable-shared=rewrite "
       . "--enable-module=proxy        --enable-shared=proxy "
       . "--enable-module=mime_magic   --enable-shared=mime_magic "
@@ -860,19 +844,6 @@ sub mod_perl_build_parameters {
       . "APACHE_SRC=$arg{apache_dir}/src "
       . "USE_APACI=1 "
       . "PERL_DEBUG=1 APACI_ARGS='--without-execstrip' EVERYTHING=1";
-}
-
-=head2 mod_ssl_build_parameters
-
-Returns a string containing the parameters passed to configure.
-
-    mod_ssl_build_parameters(apache_dir => $dir)
-
-=cut
-
-sub mod_ssl_build_parameters {
-    my ( $pkg, %arg ) = @_;
-    return "--enable-shared=ssl --apache=../$arg{apache_dir}";
 }
 
 =head2 build_swishe
