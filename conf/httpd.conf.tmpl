@@ -139,8 +139,8 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
         TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
         TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
-        TKTAuthTimeout          30m
-        TKTAuthTimeoutRefresh   .5
+        TKTAuthTimeout          60m
+        TKTAuthTimeoutRefresh   .8
         #TKTAuthDebug            1
 
         # don't let our children get too big
