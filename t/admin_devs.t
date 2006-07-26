@@ -44,6 +44,7 @@ $mech->content_contains('Developers');
 # 6..27
 # add
 {
+
     # empty form
     $mech->follow_link_ok( { text => 'Add New Developer' } );
     $mech->form_name('add');
@@ -101,8 +102,8 @@ $mech->content_contains('Developers');
 # 32..52
 # edit
 {
-    $mech->get_ok("$url/list"); 
-    $mech->follow_link_ok({ url => "/app/admin_developers/edit/$dev" });
+    $mech->get_ok("$url/list");
+    $mech->follow_link_ok( { url => "/app/admin_developers/edit/$dev" } );
 
     # make sure it's prefilled
     $mech->content_contains( 'value="' . $dev->username . '"' );
@@ -139,7 +140,7 @@ $mech->content_contains('Developers');
     ok( $mech->success );
     $mech->content_contains("Developer '$data{username}' successfully updated");
     $mech->get_ok("$url/list");
-    $mech->follow_link_ok({ url => "/app/admin_developers/edit/$dev" });
+    $mech->follow_link_ok( { url => "/app/admin_developers/edit/$dev" } );
     $mech->content_contains( $new_data{fname} );
     $mech->content_lacks( $data{fname} );
 }

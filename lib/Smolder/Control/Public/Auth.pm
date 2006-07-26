@@ -149,10 +149,9 @@ sub process_forgot_pw {
             },
         );
 
-        if( $self->log->would_log('debug') ) {
+        if ( $self->log->would_log('debug') ) {
             $self->log->debug(
-                "New password for developer " . $developer->username . " is '$new_pw'"
-            );
+                "New password for developer " . $developer->username . " is '$new_pw'" );
         }
         $tt_params->{success} = 1;
         $tt_params->{email}   = $developer->email;

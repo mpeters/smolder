@@ -172,7 +172,7 @@ sub edit {
             qobject   => $query,
         );
 
-    # else fill in the data with the project's innards
+        # else fill in the data with the project's innards
     } else {
         my %project_data = (
             id           => $project->id,
@@ -196,16 +196,13 @@ template.
 =cut
 
 sub list {
-    my $self = shift;
+    my $self     = shift;
     my @projects = Smolder::DB::Project->retrieve_all();
     my %tt_params;
     $tt_params{projects} = \@projects if (@projects);
 
-    if( $self->query->param('table_only') ) {
-        return $self->tt_process(
-            'Admin/Projects/list_table.tmpl',
-            \%tt_params,
-        );
+    if ( $self->query->param('table_only') ) {
+        return $self->tt_process( 'Admin/Projects/list_table.tmpl', \%tt_params, );
     } else {
         return $self->tt_process( \%tt_params );
     }
@@ -286,10 +283,7 @@ sub process_add {
 
     # now show the project's success message
     my $tmpl = $id ? "edit_success.tmpl" : "add_success.tmpl";
-    return $self->tt_process(
-        "Admin/Projects/$tmpl",
-        { project => $project },
-    );
+    return $self->tt_process( "Admin/Projects/$tmpl", { project => $project }, );
 }
 
 =head2 details

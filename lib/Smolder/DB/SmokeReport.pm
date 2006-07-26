@@ -187,18 +187,18 @@ sub xml {
     my $file = $self->file;
 
     # return as-is unless compressed
-    return $self->_slurp_file( $file )
+    return $self->_slurp_file($file)
       unless $file =~ /\.gz$/;
 
     # uncompress the XML file and return
     my $in_fh = IO::Zlib->new();
-    $in_fh->open($file, 'rb')
+    $in_fh->open( $file, 'rb' )
       or die "Could not open file $file for reading compressed!";
 
     # IO::Zlib ignores $/ and doesn't support an offset for read(), so
     # the usual faster slurp won't work
-    my ($buffer, $xml);
-    while(read($in_fh, $buffer, 10240)) {
+    my ( $buffer, $xml );
+    while ( read( $in_fh, $buffer, 10240 ) ) {
         $xml .= $buffer;
     }
     $in_fh->close();
@@ -231,18 +231,19 @@ sub model_obj {
         my $file = $self->file;
 
         # are we dealing with a compressed file
-        if( $file =~ /\.gz/ ) {
+        if ( $file =~ /\.gz/ ) {
+
             # uncompress the XML file into a temp file
             my $tmp = new File::Temp(
                 UNLINK => 1,
                 SUFFIX => '.xml',
             );
             my $in_fh = IO::Zlib->new();
-            $in_fh->open($self->file, 'rb')
-                or die "Could not open file $tmp for reading compressed!";
+            $in_fh->open( $self->file, 'rb' )
+              or die "Could not open file $tmp for reading compressed!";
 
             my $buffer;
-            while(read($in_fh, $buffer, 10240)) {
+            while ( read( $in_fh, $buffer, 10240 ) ) {
                 print $tmp $buffer or die "Could not print buffer to $tmp: $!";
             }
             close($tmp);
@@ -252,7 +253,7 @@ sub model_obj {
             $file = $self->file;
             $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $self->file );
         }
-        
+
     }
     return $self->{__TAP_MODEL_XML};
 }
@@ -266,7 +267,7 @@ depending on this report's status.
 =cut
 
 sub send_emails {
-    my $self  = shift;
+    my $self = shift;
 
     # setup some stuff for the emails that we only need to do once
     my $subject = "Smolder - new " . ( $self->fail ? "failed " : '' ) . "smoke report";
@@ -275,22 +276,22 @@ sub send_emails {
     # get all the developers of this project
     my @devs = $self->project->developers();
     foreach my $dev (@devs) {
+
         # get their preference for this project
-        my $pref = $dev->project_pref($self->project);
+        my $pref = $dev->project_pref( $self->project );
+
         # skip it, if they don't want to receive it
-        next if( 
-            $pref->email_freq eq 'never' 
-            or 
-            ( !$self->fail and $pref->email_freq eq 'on_fail') 
-        );
+        next
+          if ( $pref->email_freq eq 'never'
+            or ( !$self->fail and $pref->email_freq eq 'on_fail' ) );
 
         # see if we need to reset their email_sent_timestamp
         # if we've started a new day
         my $last_sent = $pref->email_sent_timestamp;
         my $now       = DateTime->now( time_zone => 'local' );
-        my $interval  = $last_sent ? ($now - $last_sent) : undef;
-        
-        if( !$interval or ($interval->delta_days >= 1 ) ) {
+        my $interval  = $last_sent ? ( $now - $last_sent ) : undef;
+
+        if ( !$interval or ( $interval->delta_days >= 1 ) ) {
             $pref->email_sent_timestamp($now);
             $pref->email_sent(0);
             $pref->update;
@@ -298,10 +299,10 @@ sub send_emails {
         }
 
         # now check to see if we've passed their limit
-        next if( $pref->email_limit && $pref->email_sent >= $pref->email_limit );
+        next if ( $pref->email_limit && $pref->email_sent >= $pref->email_limit );
 
         # now send the type of email they want to receive
-        my $type = $pref->email_type;
+        my $type  = $pref->email_type;
         my $email = $dev->email;
         my $error = Smolder::Email->send_mime_mail(
             to        => $email,
@@ -313,7 +314,7 @@ sub send_emails {
           if ($error);
 
         # now increment their sent count
-        $pref->email_sent($pref->email_sent + 1);
+        $pref->email_sent( $pref->email_sent + 1 );
         $pref->update();
         Smolder::DB->dbi_commit();
     }

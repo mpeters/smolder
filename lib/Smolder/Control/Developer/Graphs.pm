@@ -76,7 +76,7 @@ sub start {
     return $self->error_message('Project does not exist')
       unless $project;
 
-    $tt_params->{project}       = $project;
+    $tt_params->{project} = $project;
 
     # the defaults
     my %fill_data = (
@@ -131,22 +131,23 @@ sub image {
         foreach my $field (@FIELDS) {
             push( @fields, $field ) if ( $query->param($field) );
         }
-    # by default, show pass vs fail
+
+        # by default, show pass vs fail
     } else {
         @fields = qw(pass fail);
     }
 
     my %search_params = (
-        start   => $start,
-        stop    => $stop,
+        start => $start,
+        stop  => $stop,
     );
     foreach my $extra_param qw(category architecture platform) {
         $search_params{$extra_param} = $query->param($extra_param)
-            if( $query->param($extra_param) ); 
+          if ( $query->param($extra_param) );
     }
 
     my $data = $project->report_graph_data(
-        fields   => \@fields,
+        fields => \@fields,
         %search_params,
     );
 
@@ -159,13 +160,14 @@ sub image {
     # if we don't have any data, then just send the no_graph_data.png file
     if ( scalar @$data == 0 ) {
         my $NO_DATA_FH;
-        my $file = catfile(InstallRoot, 'htdocs', 'images', 'no_graph_data.png');
-        open($NO_DATA_FH, $file)
-            or die "Could not open '$file' for reading: $!";
+        my $file = catfile( InstallRoot, 'htdocs', 'images', 'no_graph_data.png' );
+        open( $NO_DATA_FH, $file )
+          or die "Could not open '$file' for reading: $!";
         local $/ = undef;
         print $r->print(<$NO_DATA_FH>);
         close($NO_DATA_FH) or die "Could not close file '$file': $!";
-    # else create the graph and send it
+
+        # else create the graph and send it
     } else {
 
         my @colors = map { $FIELDS{$_}->[0] } @fields;
@@ -182,7 +184,7 @@ sub image {
             legend => \@legend,
             title  => $title,
         );
-        $r->print($gd->png);
+        $r->print( $gd->png );
     }
 }
 
@@ -202,12 +204,13 @@ sub _create_progress_gd {
 
     # find the maximun value for the Y axis
     my $y_max = 0;
-    foreach my $point (@{$data->[1]}) {
-        $y_max = $point if( $point > $y_max );
+    foreach my $point ( @{ $data->[1] } ) {
+        $y_max = $point if ( $point > $y_max );
     }
+
     # now round up to the nearest 100
-    $y_max = ($y_max + 100) - ( $y_max % 100);
-    
+    $y_max = ( $y_max + 100 ) - ( $y_max % 100 );
+
     my $class = 'GD::Graph::' . $type;
     my $graph = $class->new( 600, 300 );
     $graph->set(

@@ -106,7 +106,7 @@ SKIP: {
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     Smolder::DB->db_Main->disconnect();
     isa_ok( $report, 'Smolder::DB::SmokeReport' );
-    ok( $report->html, 'html can be created');
+    ok( $report->html, 'html can be created' );
 
     # test optional options
     # comments

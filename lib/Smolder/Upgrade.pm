@@ -58,19 +58,20 @@ will run the F<upgrade/V1_23.sql> file if it exists.
 =cut
 
 sub upgrade {
-    my $self = shift;
+    my $self     = shift;
     my $platform = _load_platform();
 
     $self->pre_db_upgrade($platform);
+
     # find and run the SQL file
-    my $file = catfile($ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql');
-    if( -e $file ) {
+    my $file = catfile( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql' );
+    if ( -e $file ) {
         print "    Upgrading DB with file '$file'.\n";
         my $mysql_bin = $platform->find_bin( bin => 'mysql' );
         my $cmd = "$mysql_bin " . DBName . " -u" . DBUser . " -p" . DBPass;
-        $cmd .= " -h" . DBHost if( DBHost );
+        $cmd .= " -h" . DBHost if (DBHost);
         system("$cmd < $file") == 0
-            or die "Could not run SQL in '$file': $!";    
+          or die "Could not run SQL in '$file': $!";
     } else {
         print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
     }
@@ -89,7 +90,6 @@ sub pre_db_upgrade {
     my $self = shift;
     die "pre_db_upgrade() must be implemented in " . ref($self);
 }
-
 
 =head3 post_db_upgrade
 
@@ -122,6 +122,5 @@ sub _load_platform {
       if $@;
     return $platform;
 }
-
 
 1;

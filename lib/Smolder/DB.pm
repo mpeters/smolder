@@ -5,9 +5,10 @@ use Smolder::DBPlatform;
 use Smolder::Conf qw(DBName DBUser DBPass DBHost DBPlatform);
 
 our $DB_PLATFORM;
+
 BEGIN {
     $DB_PLATFORM = Smolder::DBPlatform->load();
-};
+}
 use base $DB_PLATFORM->cdbi_class;
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
@@ -111,11 +112,11 @@ table to use. Else, if called on the L<Smolder::DB> base class, it will accept
 =cut
 
 sub enum_values {
-    my $self = shift;
+    my $self        = shift;
     my $db_platform = Smolder::DBPlatform->load(DBPlatform);
-    my ($table, $column);;
+    my ( $table, $column );
 
-    if( ref $self || $self ne __PACKAGE__ ) {
+    if ( ref $self || $self ne __PACKAGE__ ) {
         $table = $self->table();
     } else {
         $table = shift;
@@ -123,7 +124,7 @@ sub enum_values {
     $column = shift;
 
     return $db_platform->get_enum_values(
-        table  => $table, 
+        table  => $table,
         column => $column,
     );
 }

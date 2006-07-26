@@ -7,8 +7,8 @@ __PACKAGE__->set_up_table('preference');
 
 __PACKAGE__->has_a(
     email_sent_timestamp => 'DateTime',
-    inflate    => sub { DateTime::Format::MySQL->parse_datetime(shift) },
-    deflate    => sub { DateTime::Format::MySQL->format_datetime(shift) },
+    inflate              => sub { DateTime::Format::MySQL->parse_datetime(shift) },
+    deflate              => sub { DateTime::Format::MySQL->format_datetime(shift) },
 );
 
 =head1 NAME

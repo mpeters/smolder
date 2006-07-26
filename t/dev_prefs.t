@@ -65,6 +65,7 @@ $mech->content_contains('Preferences');
 # 11..32
 # update_pref
 {
+
     # change my default pref
     # invalid form
     my $request = HTTP::Request::Common::POST(
@@ -119,11 +120,8 @@ $mech->content_contains('Preferences');
 
     # now update our settings for proj1
     $mech->get_ok( $url . '/show' );
-    $mech->form_name( 'update_pref');
-    $mech->set_fields(
-        %data,
-        id => $proj_dev1->preference->id,
-    );
+    $mech->form_name('update_pref');
+    $mech->set_fields( %data, id => $proj_dev1->preference->id, );
     $mech->submit();
     ok( $mech->success );
     is( db_field_value( 'preference', 'email_type', $proj_dev1->preference->id ),
@@ -152,7 +150,7 @@ $mech->content_contains('Preferences');
     $mech->get_ok( $url . '/show' );
     my $form = $mech->form_name('update_pref');
     $form->find_input('sync')->readonly(0);
-    my %new_data  = (
+    my %new_data = (
         id          => $dev->preference->id,
         email_type  => 'summary',
         email_freq  => 'on_new',

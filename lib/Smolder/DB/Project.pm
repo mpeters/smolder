@@ -44,11 +44,13 @@ __PACKAGE__->add_trigger(
         my $self = shift;
         my $dir = catdir( InstallRoot, 'data', 'smoke_reports', $self->id );
         rmtree($dir) if ( -d $dir );
-        foreach my $cat ($self->categories) {
-            my $sth = $self->db_Main->prepare_cached(qq(
+        foreach my $cat ( $self->categories ) {
+            my $sth = $self->db_Main->prepare_cached(
+                qq(
                 DELETE FROM project_category WHERE project = ? AND category = ?
-            ));
-            $sth->execute($self->id, $cat);
+            )
+            );
+            $sth->execute( $self->id, $cat );
         }
     }
 );
@@ -315,7 +317,7 @@ sub report_graph_data {
 
     # add optional args
     foreach my $extra_param qw(category architecture platform) {
-        if ($args{$extra_param}) {
+        if ( $args{$extra_param} ) {
             $sql .= " AND $extra_param = ? ";
             push( @bind_cols, $args{$extra_param} );
         }
@@ -327,9 +329,10 @@ sub report_graph_data {
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_cols);
     while ( my $row = $sth->fetchrow_arrayref() ) {
+
         # reformat added - used to do this in SQL with DATE_FORMAT(),
         # but SQLite don't play that game
-        my ($year, $month, $day) = $row->[0] =~ /(\d{4})-(\d{2})-(\d{2})/;
+        my ( $year, $month, $day ) = $row->[0] =~ /(\d{4})-(\d{2})-(\d{2})/;
         $row->[0] = "$month/$day/$year";
 
         for my $i ( 0 .. scalar(@$row) - 1 ) {
@@ -348,14 +351,16 @@ smoke tests uploaded for this project.
 
 sub platforms {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(q(
+    my $sth  = $self->db_Main->prepare_cached(
+        q(
         SELECT DISTINCT platform FROM smoke_report
         WHERE platform != '' AND project = ? ORDER BY platform
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
     my @plats;
-    while(my $row = $sth->fetchrow_arrayref) {
-        push(@plats, $row->[0]);
+    while ( my $row = $sth->fetchrow_arrayref ) {
+        push( @plats, $row->[0] );
     }
     return \@plats;
 }
@@ -369,14 +374,16 @@ smoke tests uploaded for this project.
 
 sub architectures {
     my $self = shift;
-    my $sth = $self->db_Main->prepare_cached(q(
+    my $sth  = $self->db_Main->prepare_cached(
+        q(
         SELECT DISTINCT architecture FROM smoke_report
         WHERE architecture != '' AND project = ? ORDER BY architecture
-    ));
-    $sth->execute($self->id);
+    )
+    );
+    $sth->execute( $self->id );
     my @archs;
-    while(my $row = $sth->fetchrow_arrayref) {
-        push(@archs, $row->[0]);
+    while ( my $row = $sth->fetchrow_arrayref ) {
+        push( @archs, $row->[0] );
     }
     return \@archs;
 }
@@ -460,25 +467,30 @@ then the following values would become the following dates:
 sub graph_start_datetime {
     my $self = shift;
     my $dt;
+
     # the project's start date
-    if( $self->graph_start eq 'project' ) {
+    if ( $self->graph_start eq 'project' ) {
         $dt = $self->start_date;
-    # the first day of this year
-    } elsif( $self->graph_start eq 'year' ) {
+
+        # the first day of this year
+    } elsif ( $self->graph_start eq 'year' ) {
         $dt = DateTime->today()->set(
             month => 1,
             day   => 1,
         );
-    # the first day of this month
-    } elsif( $self->graph_start eq 'month' ) {
-        $dt = DateTime->today()->set(day => 1);
-    # the first day of this week 
-    } elsif( $self->graph_start eq 'week' ) {
+
+        # the first day of this month
+    } elsif ( $self->graph_start eq 'month' ) {
+        $dt = DateTime->today()->set( day => 1 );
+
+        # the first day of this week
+    } elsif ( $self->graph_start eq 'week' ) {
         $dt = DateTime->today;
         my $day_diff = $dt->day_of_week - 1;
-        $dt->subtract(days => $day_diff) if( $day_diff );
-    # today
-    } elsif( $self->graph_start eq 'day' ) {
+        $dt->subtract( days => $day_diff ) if ($day_diff);
+
+        # today
+    } elsif ( $self->graph_start eq 'day' ) {
         $dt = DateTime->today();
     }
     return $dt;
@@ -494,18 +506,21 @@ associated with those reports, also marking them as C<purged>.
 
 sub purge_old_reports {
     my $self = shift;
-    if( ProjectFullReportsMax ) {
+    if (ProjectFullReportsMax) {
+
         # Delete any non-purged reports that pass the above limit
-        my $sth = $self->db_Main->prepare_cached(q(
+        my $sth = $self->db_Main->prepare_cached(
+            q(
             SELECT id FROM smoke_report
             WHERE project = ? AND purged = 0
             ORDER BY added DESC
             LIMIT ? OFFSET ? 
-        ));
-        $sth->execute($self->id, 1000000, ProjectFullReportsMax);
-        my (@ids, $id);
-        $sth->bind_col(1, \$id);
-        push(@ids, $id) while( $sth->fetch );
+        )
+        );
+        $sth->execute( $self->id, 1000000, ProjectFullReportsMax );
+        my ( @ids, $id );
+        $sth->bind_col( 1, \$id );
+        push( @ids, $id ) while ( $sth->fetch );
         $sth->finish();
 
         foreach my $id (@ids) {
@@ -517,7 +532,6 @@ sub purge_old_reports {
         }
     }
 }
-  
 
 =head2 CLASS METHODS
 

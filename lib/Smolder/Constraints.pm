@@ -136,8 +136,8 @@ enum value for the given table and column.
 =cut
 
 sub enum_value {
-    my ($table, $column) = @_;
-    my $enums = Smolder::DB->enum_values($table, $column);
+    my ( $table, $column ) = @_;
+    my $enums = Smolder::DB->enum_values( $table, $column );
     return sub {
         my ( $dfv, $value ) = @_;
         foreach my $enum (@$enums) {

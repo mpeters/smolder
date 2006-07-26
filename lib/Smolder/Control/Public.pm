@@ -35,7 +35,6 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 
 =cut
 
-
 sub welcome {
     my $self = shift;
     return $self->tt_process( {} );
@@ -47,7 +46,6 @@ Shows a tutorial for a developer  using the F<Public/developer_tutorial.tmpl> te
 
 =cut
 
-
 sub developer_tutorial {
     my $self = shift;
     return $self->tt_process( {} );
@@ -58,7 +56,6 @@ sub developer_tutorial {
 Shows a tutorial for an admin  using the F<Public/admin_tutorial.tmpl> template.
 
 =cut
-
 
 sub admin_tutorial {
     my $self = shift;

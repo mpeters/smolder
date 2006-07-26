@@ -8,13 +8,12 @@ use Config;
 use File::Basename;
 
 # find out which subclasses we support
-my $PLATFORM_DIR = catdir($ENV{SMOLDER_ROOT}, 'platform');
+my $PLATFORM_DIR = catdir( $ENV{SMOLDER_ROOT}, 'platform' );
 opendir( DIR, $PLATFORM_DIR ) or die $!;
 our @PLATFORMS = grep {
     $_ !~ /^\.\.?$/        # not the parent or a hidden file
       and $_ !~ /\.svn/    # ignore SVN cruft
 } sort readdir DIR;
-
 
 =head1 NAME
 
@@ -55,7 +54,7 @@ it will be divined.
 =cut
 
 sub load {
-    my ($class, $subclass) = @_;
+    my ( $class, $subclass ) = @_;
 
     # add in $SMOLDER_ROOT/platform for platform build modules
     my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
@@ -63,20 +62,24 @@ sub load {
     unshift @INC, $plib;
 
     # try it if we got it
-    if( $subclass ) {
+    if ($subclass) {
         $subclass = $subclass . '::Platform';
         eval "use $subclass";
         die "Unable to load platform module '$subclass': $@\n" if $@;
-    # else try and find it
+
+        # else try and find it
     } else {
         my %build_params = $class->build_params();
+
         # if we were previously built for a platform
-        if( $build_params{Platform} ) {
+        if ( $build_params{Platform} ) {
             $subclass = $build_params{Platform} . '::Platform';
             eval "use $subclass";
             die "Unable to load platform module '$subclass': $@\n" if $@;
-        # else just see which one wants to take it
+
+            # else just see which one wants to take it
         } else {
+
             # look for a platform that wants to handle this
             foreach my $plat (@PLATFORMS) {
                 my $pkg = $plat . '::Platform';
@@ -139,24 +142,24 @@ method.
 =cut
 
 sub check_databases {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
     my $mode = $args{mode};
 
-    my $db_platform_dir = catdir($ENV{SMOLDER_ROOT}, 'lib', 'Smolder', 'DBPlatform');
+    my $db_platform_dir = catdir( $ENV{SMOLDER_ROOT}, 'lib', 'Smolder', 'DBPlatform' );
     opendir( my $DIR, $db_platform_dir ) or die $!;
     my @dbs = grep {
-        $_ !~ /^\.\.?$/     # not the parent or a hidden file
-        and $_ !~ /\.svn/   # ignore SVN cruft
-        and $_ !~ /~$/      # ignore editor droppings   
-        and $_ !~ /\.swp$/
+        $_ !~ /^\.\.?$/        # not the parent or a hidden file
+          and $_ !~ /\.svn/    # ignore SVN cruft
+          and $_ !~ /~$/       # ignore editor droppings
+          and $_ !~ /\.swp$/
     } sort readdir $DIR;
 
     # now load each db platform and verify it
     require Smolder::DBPlatform;
     foreach my $db (@dbs) {
-        my $basename = basename($db, '.pm');
+        my $basename = basename( $db, '.pm' );
         my $db_platform = Smolder::DBPlatform->load($basename);
-        $db_platform->verify_dependencies(mode => $mode);
+        $db_platform->verify_dependencies( mode => $mode );
     }
 }
 
@@ -273,7 +276,6 @@ Optional.
 
 =cut
 
-
 sub check_libs {
     my ( $pkg, %args ) = @_;
     my $mode = $args{mode};
@@ -284,7 +286,7 @@ sub check_libs {
     my $mod  = $args{module};
 
     # build lib/includes for following searches.
-    unless( $args{libs} ) {
+    unless ( $args{libs} ) {
         my @libs = split( " ", $Config{libpth} );
         my @lib_files;
         foreach my $lib (@libs) {
@@ -294,11 +296,10 @@ sub check_libs {
         }
         $args{libs} = \@lib_files;
     }
-    unless( $args{includes} ) {
+    unless ( $args{includes} ) {
         my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
         $args{includes} = \@incs;
     }
-
 
     if ($so) {
         my $re = qr/^$so/;
@@ -308,15 +309,13 @@ sub check_libs {
     }
 
     if ($h) {
-        unless(
-            $mode eq 'install' 
-            or 
-            grep { -e catfile( $_, $h ) } @{ $args{includes} }
-        ) {
+        unless ( $mode eq 'install'
+            or grep { -e catfile( $_, $h ) } @{ $args{includes} } )
+        {
             my $msg = "The header file for $name, '$h', is missing from your system.";
-            $msg .= "This file is needed to compile the $mod module which uses $name." if( $name );
+            $msg .= "This file is needed to compile the $mod module which uses $name." if ($name);
             die $msg;
-        } 
+        }
     }
 }
 
@@ -1002,8 +1001,8 @@ sub build_params {
             $perl = $1;
         } elsif (/^\s*arch\s+["']?([^'"]+)/i) {
             $arch = $1;
-        } elsif( /^\s*dbplatforms\s+["']?([^'"]+)/i) {
-            @db_plats = split(/,\s*/, $1);
+        } elsif (/^\s*dbplatforms\s+["']?([^'"]+)/i) {
+            @db_plats = split( /,\s*/, $1 );
         }
     }
     close DB;

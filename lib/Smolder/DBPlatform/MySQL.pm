@@ -25,8 +25,8 @@ This module implements the L<Smolder::DBPlatform> interface for MySQL.
 
 =cut
 
-sub verify_dependencies { 
-    my $class = shift;
+sub verify_dependencies {
+    my $class     = shift;
     my $mysql_bin = $class->_get_mysql_bin();
 
     # look for MySQL command shell
@@ -44,36 +44,31 @@ END
       unless defined $mysql_version
       and length $mysql_version;
     chomp $mysql_version;
-    my ($major_version, $minor_version) = $mysql_version =~ /\s(4|5)\.(\d+\.\d+)/;
+    my ( $major_version, $minor_version ) = $mysql_version =~ /\s(4|5)\.(\d+\.\d+)/;
     die "\n\nMySQL version 4 or 5 not found.  'mysql -V' returned:" . "\n\n\t$mysql_version\n\n"
       unless defined $major_version;
-    if( $major_version == 4 && $minor_version < 0.13 ) {
+    if ( $major_version == 4 && $minor_version < 0.13 ) {
         die "\n\nMySQL version too old. Smolder requires v4.0.13 or higher.\n"
-          . "'$mysql_bin -V' returned:\n\n\t$mysql_version\n\n"
+          . "'$mysql_bin -V' returned:\n\n\t$mysql_version\n\n";
     }
 }
 
 sub _get_mysql_bin {
     require Smolder::Platform;
     my $platform = Smolder::Platform->load();
-    return $platform->find_bin(bin => 'mysql');
+    return $platform->find_bin( bin => 'mysql' );
 }
 
 =head2 verify_admin
 
 =cut
 
-sub verify_admin { 
-    my ($class, %args) = @_;
-    my ($pw, $host) = @args{qw(passwd host)};
+sub verify_admin {
+    my ( $class, %args ) = @_;
+    my ( $pw,    $host ) = @args{qw(passwd host)};
     my $dsn = "dbi:mysql:database=mysql;host=" . ( $host || 'localhost' );
     require DBI;
-    my $dbh = DBI->connect_cached( 
-        $dsn, 
-        'root',
-        $pw, 
-        \%Smolder::DBPlatform::CONNECTION_OPTIONS,
-    );
+    my $dbh = DBI->connect_cached( $dsn, 'root', $pw, \%Smolder::DBPlatform::CONNECTION_OPTIONS, );
     return $dbh ? 1 : 0;
 }
 
@@ -81,20 +76,21 @@ sub verify_admin {
 
 =cut
 
-sub run_sql_file { 
-    my ($class, %options) = @_;
-    my ($admin_pw, $file, $user, $pw, $host, $db_name) = @options{qw(admin_pw file user passwd host db_name)};
+sub run_sql_file {
+    my ( $class, %options ) = @_;
+    my ( $admin_pw, $file, $user, $pw, $host, $db_name ) =
+      @options{qw(admin_pw file user passwd host db_name)};
 
-    if( $admin_pw ) {
+    if ($admin_pw) {
         $pw   = $admin_pw;
         $user = 'root';
-    };
+    }
 
     my $cmd = _get_mysql_bin . " -u$user ";
-    $cmd   .= " -h$host" if( $host );
-    $cmd   .= " -p$pw"   if( $pw );
+    $cmd .= " -h$host" if ($host);
+    $cmd .= " -p$pw"   if ($pw);
     system("$cmd $db_name < $file") == 0
-        or die $!;
+      or die $!;
 }
 
 =head2 dbh
@@ -102,22 +98,17 @@ sub run_sql_file {
 =cut
 
 sub dbh {
-    my ($class, %args) = @_;
-    my ($user, $pw, $host, $db_name) = @args{qw(user passwd host db_name)};
+    my ( $class, %args ) = @_;
+    my ( $user, $pw, $host, $db_name ) = @args{qw(user passwd host db_name)};
     my $dsn = "dbi:mysql:database=$db_name;host=" . ( $host || 'localhost' );
-    return DBI->connect_cached( 
-        $dsn, 
-        $user,
-        $pw, 
-        \%Smolder::DBPlatform::CONNECT_OPTIONS,
-    );
+    return DBI->connect_cached( $dsn, $user, $pw, \%Smolder::DBPlatform::CONNECT_OPTIONS, );
 }
 
 =head2 dbi_driver
 
 =cut
 
-sub dbi_driver { 
+sub dbi_driver {
     my $class = shift;
     return 'DBD::mysql';
 }
@@ -126,7 +117,7 @@ sub dbi_driver {
 
 =cut
 
-sub cdbi_class { 
+sub cdbi_class {
     my $class = shift;
     return 'Class::DBI::mysql';
 }
@@ -135,24 +126,25 @@ sub cdbi_class {
 
 =cut
 
-sub dump_database { 
-    my ($class, $file) = @_;
+sub dump_database {
+    my ( $class, $file ) = @_;
     require Smolder::Platform;
     my $platform = Smolder::Platform->load();
-    my $dump_bin = $platform->find_bin(bin => 'mysqldump');
+    my $dump_bin = $platform->find_bin( bin => 'mysqldump' );
 
     # add the specific flags
     require Smolder::Conf;
     $dump_bin .= " -u" . Smolder::Conf->get('DBUser');
     $dump_bin .= " -p" . Smolder::Conf->get('DBPass');
-    $dump_bin .= " -h" . Smolder::Conf->get('DBHost') if( Smolder::Conf->get('DBHost') );
-    $dump_bin .= " "   . Smolder::Conf->get('DBName');
+    $dump_bin .= " -h" . Smolder::Conf->get('DBHost') if ( Smolder::Conf->get('DBHost') );
+    $dump_bin .= " " . Smolder::Conf->get('DBName');
+
     # make sure we can load foreign keys after the dump
-    $dump_bin  = "echo 'SET foreign_key_checks=0;' > $file; $dump_bin >> $file";
+    $dump_bin = "echo 'SET foreign_key_checks=0;' > $file; $dump_bin >> $file";
 
     # run it
     system($dump_bin) == 0
-        or croak "Could not dump database to file '$file' $!";
+      or croak "Could not dump database to file '$file' $!";
 }
 
 =head2 drop_database
@@ -160,8 +152,8 @@ sub dump_database {
 =cut
 
 sub drop_database {
-    my ($class, %args) = @_;
-    my ($admin_pw, $db_name, $host) = @args{qw(admin_passwd db_name host)};
+    my ( $class, %args ) = @_;
+    my ( $admin_pw, $db_name, $host ) = @args{qw(admin_passwd db_name host)};
     my $dbh = $class->dbh(
         user    => 'root',
         passwd  => $admin_pw,
@@ -178,8 +170,8 @@ sub drop_database {
 =cut
 
 sub create_database {
-    my ($class, %args) = @_;
-    my ($admin_pw, $db_name, $host) = @args{qw(admin_passwd db_name host)};
+    my ( $class, %args ) = @_;
+    my ( $admin_pw, $db_name, $host ) = @args{qw(admin_passwd db_name host)};
     my $dbh = $class->dbh(
         user    => 'root',
         passwd  => $admin_pw,
@@ -196,8 +188,9 @@ sub create_database {
 =cut
 
 sub create_user {
-    my ($class, %args) = @_;
-    my ($admin_pw, $user, $pw, $db_name, $host) = @args{qw(admin_passwd user passwd db_name host)};
+    my ( $class, %args ) = @_;
+    my ( $admin_pw, $user, $pw, $db_name, $host ) =
+      @args{qw(admin_passwd user passwd db_name host)};
     my $dbh = $class->dbh(
         user    => 'root',
         passwd  => $admin_pw,
@@ -206,9 +199,9 @@ sub create_user {
     );
 
     my $sql = "GRANT ALL ON $db_name\.* to $user";
-    if( !defined $host or $host eq 'localhost' ) {
+    if ( !defined $host or $host eq 'localhost' ) {
         $sql .= '@localhost';
-    } elsif( $host eq 'localhost.localdomain' ) {
+    } elsif ( $host eq 'localhost.localdomain' ) {
         $sql .= '@localhost.localdomain';
     }
     $sql .= " identified by '$pw'";
@@ -222,7 +215,7 @@ sub create_user {
 
 sub sql_create_dir {
     my $class = shift;
-    return catdir($ENV{SMOLDER_ROOT}, 'sql', 'mysql');
+    return catdir( $ENV{SMOLDER_ROOT}, 'sql', 'mysql' );
 }
 
 =head2 sql_upgrade_dir
@@ -230,18 +223,18 @@ sub sql_create_dir {
 =cut
 
 sub sql_upgrade_dir {
-    my ($class, $version) = @_;
-    return catdir($ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', $version);
+    my ( $class, $version ) = @_;
+    return catdir( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', $version );
 }
 
 =head2 get_enum_values
 
 =cut
 
-sub get_enum_values { 
-    my ($class, %args) = @_;
-    my ($table, $column) = @args{qw(table column)};
-    my $sth   = Smolder::DB->db_Main()->prepare_cached(
+sub get_enum_values {
+    my ( $class, %args )   = @_;
+    my ( $table, $column ) = @args{qw(table column)};
+    my $sth = Smolder::DB->db_Main()->prepare_cached(
         qq(
         SHOW COLUMNS FROM $table LIKE '$column';
     )
@@ -259,10 +252,8 @@ sub get_enum_values {
 =cut
 
 sub unique_failure_msg {
-    my ($class, $msg) = @_;
+    my ( $class, $msg ) = @_;
     return $msg =~ /Duplicate entry/i;
 }
-
-
 
 1;

@@ -21,10 +21,10 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::Mech->new();
-my $url   = base_url() . '/developer_projects';
-my $pw    = 's3cr3t';
-my $dev   = create_developer( password => $pw );
+my $mech    = Smolder::Mech->new();
+my $url     = base_url() . '/developer_projects';
+my $pw      = 's3cr3t';
+my $dev     = create_developer( password => $pw );
 my $proj_id = create_project( public => 0 )->id();
 Smolder::DB->dbi_commit();
 
@@ -48,6 +48,7 @@ $mech->content_contains('My Projects');
 # 7..20
 # authorization for non-public project
 {
+
     # make sure I can't see these pages
     $mech->get_ok("/app/developer_projects/add_report/$proj_id");
     $mech->content_contains('Unauthorized');

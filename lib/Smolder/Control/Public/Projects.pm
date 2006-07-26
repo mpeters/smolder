@@ -23,12 +23,12 @@ sub setup {
     $self->run_modes(
         [
             qw(
-                show_all
-                details
-                smoke_reports
-                smoke_report
-                report_details
-                forbidden
+              show_all
+              details
+              smoke_reports
+              smoke_report
+              report_details
+              forbidden
               )
         ]
     );
@@ -41,35 +41,35 @@ sub setup {
 sub cgiapp_prerun {
     my $self = shift;
     my $id   = $self->param('id');
-    if( $id ) {
+    if ($id) {
         my $proj = Smolder::DB::Project->retrieve($id);
-        if( $proj && ! $proj->public ) {
+        if ( $proj && !$proj->public ) {
             $self->prerun_mode('forbidden');
         } else {
-            $self->param(project => $proj);
+            $self->param( project => $proj );
         }
     }
 }
 
 sub show_all {
-    my $self = shift;
-    my @projs = Smolder::DB::Project->search(public => 1);
+    my $self  = shift;
+    my @projs = Smolder::DB::Project->search( public => 1 );
 
-    return $self->tt_process({ projects => \@projs});
+    return $self->tt_process( { projects => \@projs } );
 }
 
 sub details {
     my $self = shift;
     my $proj = $self->param('project');
-    if( $proj ) {
-        return $self->tt_process({project => $proj });
+    if ($proj) {
+        return $self->tt_process( { project => $proj } );
     } else {
         return $self->error_message('That project does not exist!');
     }
 }
 
 # used by the templates to see if the controller is public
-sub public { 1 };
+sub public { 1 }
 
 sub forbidden {
     my $self = shift;

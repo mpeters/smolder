@@ -21,18 +21,20 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::Mech->new();
-my $url   = base_url() . '/developer_projects';
-my $pw    = 's3cr3t';
-my $dev   = create_developer( password => $pw );
+my $mech     = Smolder::Mech->new();
+my $url      = base_url() . '/developer_projects';
+my $pw       = 's3cr3t';
+my $dev      = create_developer( password => $pw );
 my $proj1_id = create_project()->id();
 
 # add this $dev to $proj1
-my $proj1_dev = Smolder::DB::ProjectDeveloper->create({ 
-    developer => $dev, 
-    project   => $proj1_id ,
-    admin     => 1,
-});
+my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
+    {
+        developer => $dev,
+        project   => $proj1_id,
+        admin     => 1,
+    }
+);
 Smolder::DB->dbi_commit();
 
 END {
@@ -55,7 +57,7 @@ $mech->content_contains('My Projects');
 # 7..21
 # admin_settings, process_admin_settings
 {
-    my $proj1 = _get_proj($proj1_id);
+    my $proj1    = _get_proj($proj1_id);
     my $url      = "/app/developer_projects/admin_settings";
     my %settings = (
         default_arch     => 'AMD64',
@@ -106,8 +108,8 @@ $mech->content_contains('My Projects');
 # 22..40
 # add_category, delete_category
 {
-    my $proj1 = _get_proj($proj1_id);
-    my $url = "/app/developer_projects/admin_settings";
+    my $proj1      = _get_proj($proj1_id);
+    my $url        = "/app/developer_projects/admin_settings";
     my @categories = ( "Stuff", "More Stuff", );
     $mech->get_ok("$url/$proj1");
     $mech->content_contains('Project Settings');
@@ -163,9 +165,9 @@ sub _get_proj {
     my (@ids) = @_;
     my @projs;
     foreach my $id (@ids) {
-        push(@projs, Smolder::DB::Project->retrieve($id));
+        push( @projs, Smolder::DB::Project->retrieve($id) );
     }
-    if( wantarray ) {
+    if (wantarray) {
         return @projs;
     } else {
         return $projs[0];

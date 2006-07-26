@@ -57,17 +57,18 @@ in.
 =cut
 
 sub load {
-    my ($class, $type) = @_;
+    my ( $class, $type ) = @_;
+
     # get the type from the config if we don't already have it
-    unless( $type ) {
+    unless ($type) {
         require Smolder::Conf;
         $type = Smolder::Conf->get('DBPlatform');
-    };
+    }
 
     # load the class if we can
     my $subclass = 'Smolder::DBPlatform::' . $type;
     eval "require $subclass";
-    if( $@ ) {
+    if ($@) {
         croak "Failed to load $subclass. $@\n\nMaybe '$type' isn't a supported database?";
     }
     return $subclass;
@@ -89,7 +90,7 @@ using L<Smolder::Platform>'s <check_libs()> method.
 
 =cut
 
-sub verify_dependencies { 
+sub verify_dependencies {
     my $class = shift;
     die "verify_dependencies() must be implemented in $class";
 }
@@ -107,7 +108,7 @@ can be used for administrative access to the database.
 
 =cut
 
-sub verify_admin { 
+sub verify_admin {
     my $class = shift;
     die "verify_admin() must be implemented in $class";
 }
@@ -127,7 +128,7 @@ contained in the file.
 
 =cut
 
-sub run_sql_file { 
+sub run_sql_file {
     my $class = shift;
     die "run_sql_file() must be implemented in $class";
 }
@@ -146,7 +147,7 @@ database handle.
 
 =cut
 
-sub dbh { 
+sub dbh {
     my $class = shift;
     die "dbh() must be implemented in $class";
 }
@@ -157,7 +158,7 @@ Returns the class name of the C<DBI> driver that this DBPlatform module uses.
 
 =cut
 
-sub dbi_driver { 
+sub dbi_driver {
     my $class = shift;
     die "dbi_driver() must be implemented in $class";
 }
@@ -168,7 +169,7 @@ Returns the class name of the C<Class::DBI> driver that this DBPlatform module u
 
 =cut
 
-sub cdbi_class { 
+sub cdbi_class {
     my $class = shift;
     die "cdbi_class() must be implemented in $class";
 }
@@ -182,7 +183,7 @@ to restore the database to it's present state including all schema creationg sta
 
 =cut
 
-sub dump_database { 
+sub dump_database {
     my $class = shift;
     die "dump_database() must be implemented in $class";
 }
@@ -238,7 +239,7 @@ username and password, will create a new database user with access to the databa
 
 =cut
 
-sub create_user { 
+sub create_user {
     my $class = shift;
     die "create_user() must be implemented in $class";
 }
@@ -250,7 +251,7 @@ of the database for the particular DB driver being used.
 
 =cut
 
-sub sql_create_dir { 
+sub sql_create_dir {
     my $class = shift;
     die "sql_create_dir() must be implemented in $class";
 }
@@ -262,7 +263,7 @@ of the database for the particular DB driver being used.
 
 =cut
 
-sub sql_upgrade_dir { 
+sub sql_upgrade_dir {
     my $class = shift;
     die "sql_upgrade_dir() must be implemented in $class";
 }
@@ -279,7 +280,7 @@ is an ENUM type as an arrayref.
 
 =cut
 
-sub get_enum_values { 
+sub get_enum_values {
     my $class = shift;
     die "get_enum_values() must be implemented in $class";
 }
@@ -296,10 +297,9 @@ failed UNIQUE contstraint, else will return false.
 
 =cut
 
-sub unique_failure_msg { 
+sub unique_failure_msg {
     my $class = shift;
     die "unique_failure_msg() must be implemented in $class";
 }
-
 
 1;

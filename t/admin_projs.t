@@ -34,7 +34,7 @@ my $proj;
 use_ok('Smolder::Control::Admin::Projects');
 
 # 2..5
-$mech->login(username => $admin->username, password => $pw);
+$mech->login( username => $admin->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);
 $mech->content_contains('Admin');
@@ -43,6 +43,7 @@ $mech->content_contains('Projects');
 # 6..20
 # add
 {
+
     # empty form
     $mech->follow_link_ok( { text => 'Add New Project' } );
     $mech->form_name('add');
@@ -91,7 +92,7 @@ $mech->content_contains('Projects');
 # 21..24
 # details
 {
-    $mech->get_ok( "$url/details/$proj" );
+    $mech->get_ok("$url/details/$proj");
     $mech->content_contains( $proj->name );
     $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
     $mech->content_contains( $proj->public ? 'Yes' : 'No' );
@@ -136,7 +137,7 @@ $mech->content_contains('Projects');
     $mech->submit();
     ok( $mech->success );
     $mech->content_contains("Project '$new_data{project_name}' successfully updated");
-    $mech->get_ok( "$url/details/$proj" );
+    $mech->get_ok("$url/details/$proj");
     $mech->content_contains('Yes');
     $mech->content_lacks('No');
 }
@@ -154,8 +155,9 @@ $mech->content_contains('Projects');
 # 46..81
 # add_developer, change_admins and remove_developer
 {
+
     # first 'add_developer'
-    $mech->get_ok( "$url/list" );
+    $mech->get_ok("$url/list");
     $mech->follow_link_ok( { text => 'Add Developers to Projects' } );
     my $dev1 = create_developer();
     my $dev2 = create_developer();

@@ -26,8 +26,9 @@ This module implements the L<Smolder::DBPlatform> interface for SQLite.
 
 =cut
 
-sub verify_dependencies { 
-    my ($class, %args) = @_;
+sub verify_dependencies {
+    my ( $class, %args ) = @_;
+
     # no deps since we build SQLite ourselves
     return 1;
 }
@@ -37,7 +38,8 @@ sub verify_dependencies {
 =cut
 
 sub verify_admin {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
+
     # nothing special here
     return 1;
 }
@@ -46,26 +48,28 @@ sub verify_admin {
 
 =cut
 
-sub run_sql_file { 
-    my ($class, %args) = @_;
-    my ($db_name, $file) = @args{qw(db_name file)};
+sub run_sql_file {
+    my ( $class,   %args ) = @_;
+    my ( $db_name, $file ) = @args{qw(db_name file)};
     open( my $IN, $file ) or die "Could not open file '$file' for reading: $!";
 
     require Smolder::DB;
     my $dbh = Smolder::DB->db_Main();
 
     my $sql = '';
+
     # read each line
-    while( my $line = <$IN> ) {
+    while ( my $line = <$IN> ) {
+
         # skip comments
-        next if( $line =~ /^--/ );
+        next if ( $line =~ /^--/ );
         $sql .= $line;
 
         # if we have a ';' at the end of the line then it should
         # be the end of the statement
-        if( $line =~ /;\s*$/) {
-            $dbh->do($sql) 
-                or die "Could not execute SQL '$sql': $!";
+        if ( $line =~ /;\s*$/ ) {
+            $dbh->do($sql)
+              or die "Could not execute SQL '$sql': $!";
             $sql = '';
         }
     }
@@ -78,23 +82,18 @@ sub run_sql_file {
 =cut
 
 sub dbh {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $db_name = $args{db_name};
-    my $dsn = "dbi:SQLite:dbname=" . $class->_get_db_file($db_name);
+    my $dsn     = "dbi:SQLite:dbname=" . $class->_get_db_file($db_name);
     require DBI;
-    return DBI->connect_cached( 
-        $dsn, 
-        '',
-        '', 
-        \%Smolder::DBPlatform::CONNECT_OPTIONS,
-    );
+    return DBI->connect_cached( $dsn, '', '', \%Smolder::DBPlatform::CONNECT_OPTIONS, );
 }
 
 =head2 dbi_driver
 
 =cut
 
-sub dbi_driver { 
+sub dbi_driver {
     my $class = shift;
     return 'DBD::SQLite';
 }
@@ -103,7 +102,7 @@ sub dbi_driver {
 
 =cut
 
-sub cdbi_class { 
+sub cdbi_class {
     my $class = shift;
     return 'Class::DBI::SQLite';
 }
@@ -112,52 +111,59 @@ sub cdbi_class {
 
 =cut
 
-sub dump_database { 
-    my ($class, $file) = @_;
+sub dump_database {
+    my ( $class, $file ) = @_;
 
     # open the file we want to print to
-    open(my $OUT, '>', $file) 
-        or die "Could not open file '$file' for writing: $!";
+    open( my $OUT, '>', $file )
+      or die "Could not open file '$file' for writing: $!";
 
     # get the list of tables
     require Smolder::DB;
     my $dbh = Smolder::DB->db_Main();
-    my $sth = $dbh->prepare(q(
+    my $sth = $dbh->prepare(
+        q(
         SELECT name FROM sqlite_master WHERE type = 'table'
         AND name NOT LIKE 'sqlite_%' AND sql NOT NULL
-    ));
+    )
+    );
     $sth->execute();
-    my (@tables, $table);
-    $sth->bind_col(1, \$table);
-    while($sth->fetch) {
-        push(@tables, $table);
+    my ( @tables, $table );
+    $sth->bind_col( 1, \$table );
+    while ( $sth->fetch ) {
+        push( @tables, $table );
     }
     $sth->finish();
 
     # now get the SQL for each table and output it
     foreach my $t (@tables) {
+
         # first the schema
-        $sth = $dbh->prepare(q(
+        $sth = $dbh->prepare(
+            q(
             SELECT sql FROM sqlite_master 
             WHERE type = 'table' AND name = ?
-        ));
+        )
+        );
         $sth->execute($t);
         my $sql;
-        $sth->bind_col(1, \$sql);
-        while($sth->fetch) {
+        $sth->bind_col( 1, \$sql );
+        while ( $sth->fetch ) {
             print $OUT "$sql\n";
         }
         $sth->finish();
 
         # now the indexes
-        $sth = $dbh->prepare(q(
+        $sth = $dbh->prepare(
+            q(
             SELECT sql FROM sqlite_master
             WHERE type = 'index' AND tbl_name = ?
-        ));
+        )
+        );
         $sth->execute($t);
-        $sth->bind_col(1, \$sql);
-        while($sth->fetch) {
-            print $OUT "$sql\n" if( $sql );
+        $sth->bind_col( 1, \$sql );
+        while ( $sth->fetch ) {
+            print $OUT "$sql\n" if ($sql);
         }
         $sth->finish();
         print $OUT "\n\n";
@@ -165,23 +171,26 @@ sub dump_database {
         # now get all of the data in this table
         $sth = $dbh->prepare(qq(SELECT * FROM $t));
         $sth->execute();
-        while(my $row = $sth->fetchrow_arrayref) {
+        while ( my $row = $sth->fetchrow_arrayref ) {
+
             # massage each value so we can create the SQL
             my @values;
             foreach my $value (@$row) {
+
                 # NULLs
-                if( !defined $value ) {
+                if ( !defined $value ) {
                     $value = 'NULL';
-                # escape and quote it
+
+                    # escape and quote it
                 } else {
                     $value =~ s/"/\\"/g;
                     $value = qq("$value");
                 }
-                push(@values, $value);
+                push( @values, $value );
             }
 
             # create the SQL
-            my $sql = "INSERT INTO $t VALUES (" . join(', ', @values) . ")\n";
+            my $sql = "INSERT INTO $t VALUES (" . join( ', ', @values ) . ")\n";
             print $OUT $sql;
         }
 
@@ -195,13 +204,14 @@ sub dump_database {
 =cut
 
 sub drop_database {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $db_name = $args{db_name};
-    my $file = $class->_get_db_file($db_name);
+    my $file    = $class->_get_db_file($db_name);
+
     # just delete the file
-    if( -e $file ) {
+    if ( -e $file ) {
         unlink($file)
-            or croak "Could not unlike DB file '$file': $!";
+          or croak "Could not unlike DB file '$file': $!";
     }
 }
 
@@ -210,12 +220,13 @@ sub drop_database {
 =cut
 
 sub create_database {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $db_name = $args{db_name};
-    my $file = $class->_get_db_file($db_name);
+    my $file    = $class->_get_db_file($db_name);
+
     # just create the empty file if it's not already there
-    unless( -e $file ) {
-        open(FH, ">$file") or die "Could not open file '$file' for writing: $!";
+    unless ( -e $file ) {
+        open( FH, ">$file" ) or die "Could not open file '$file' for writing: $!";
         close(FH) or die "Could not close file '$file': $!";
     }
 }
@@ -225,10 +236,10 @@ sub create_database {
 =cut
 
 sub create_user {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
+
     # no op
 }
-
 
 =head2 sql_create_dir
 
@@ -236,7 +247,7 @@ sub create_user {
 
 sub sql_create_dir {
     my $class = shift;
-    return catdir($ENV{SMOLDER_ROOT}, 'sql', 'sqlite');
+    return catdir( $ENV{SMOLDER_ROOT}, 'sql', 'sqlite' );
 }
 
 =head2 sql_upgrade_dir
@@ -244,29 +255,26 @@ sub sql_create_dir {
 =cut
 
 sub sql_upgrade_dir {
-    my ($class, $version) = @_;
-    return catdir($ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'sqlite', $version);
+    my ( $class, $version ) = @_;
+    return catdir( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'sqlite', $version );
 }
 
 =head2 get_enum_values
 
 =cut
 
-sub get_enum_values { 
-    my ($class, %args) = @_;
-    my ($table, $column) = @args{qw(table column)};
+sub get_enum_values {
+    my ( $class, %args )   = @_;
+    my ( $table, $column ) = @args{qw(table column)};
+
     # SQLite doesn't support enums, so we just have to maintain this table
     my $enums = {
-        preference   => {
-            email_type  => [qw(full summary link)],
-            email_freq  => [qw(on_new on_fail never)],
+        preference => {
+            email_type => [qw(full summary link)],
+            email_freq => [qw(on_new on_fail never)],
         },
-        project      => {
-            graph_start => [qw(project year month week day)],
-        },
-        smoke_report => {
-            format      => [qw(XML YAML)],
-        },
+        project      => { graph_start => [qw(project year month week day)], },
+        smoke_report => { format      => [qw(XML YAML)], },
     };
     return $enums->{$table}->{$column} || [];
 }
@@ -276,14 +284,13 @@ sub get_enum_values {
 =cut
 
 sub unique_failure_msg {
-    my ($class, $msg) = @_;
+    my ( $class, $msg ) = @_;
     return $msg =~ /not unique\(1\)/i;
 }
 
-
 sub _get_db_file {
-    my ($class, $db_name) = @_;
-    return catfile($ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite");
+    my ( $class, $db_name ) = @_;
+    return catfile( $ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite" );
 }
 
 1;

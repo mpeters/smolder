@@ -118,7 +118,6 @@ sub platform_options {
         Smolder::DB::SmokeReport->column_values( 'platform', $self->query->param('platform'), ) );
 }
 
-
 =head2 architecture_options
 
 Returns an HTML list sutiable for a Prototype based "Autocomplete" form
@@ -189,12 +188,13 @@ sub process_add_report {
         required           => [qw(report_file format)],
         optional           => [qw(architecture platform comments category)],
         constraint_methods => {
-            format       => enum_value('smoke_report', 'format'),
+            format       => enum_value( 'smoke_report', 'format' ),
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
-            report_file  => file_mtype(qw(text/plain text/xml text/yaml application/x-gzip multipart/x-gzip)),
-            category     => existing_project_category($project),
+            report_file  =>
+              file_mtype(qw(text/plain text/xml text/yaml application/x-gzip multipart/x-gzip)),
+            category => existing_project_category($project),
         },
     };
 
@@ -204,16 +204,14 @@ sub process_add_report {
 
     # if the file is compressed, let's uncompress it
     my $report_file = $valid->{report_file};
-    if( $report_file =~ /\.gz$/ ) {
-        my $tmp = new File::Temp(
-            UNLINK => 0,
-        );
+    if ( $report_file =~ /\.gz$/ ) {
+        my $tmp = new File::Temp( UNLINK => 0, );
         my $in_fh = IO::Zlib->new();
-        $in_fh->open($report_file, 'rb')
-            or die "Could not open file $tmp for reading compressed!";
+        $in_fh->open( $report_file, 'rb' )
+          or die "Could not open file $tmp for reading compressed!";
 
         my $buffer;
-        while(read($in_fh, $buffer, 10240)) {
+        while ( read( $in_fh, $buffer, 10240 ) ) {
             print $tmp $buffer;
         }
         $report_file = $tmp->filename();
@@ -222,20 +220,17 @@ sub process_add_report {
     # take the uploaded file and create a Test::TAP::Model object from it
     my $report_model;
     if ( $valid->{format} eq 'XML' ) {
-        eval { $report_model = Test::TAP::XML->from_xml_file( $report_file ); };
+        eval { $report_model = Test::TAP::XML->from_xml_file($report_file); };
     } elsif ( $valid->{format} eq 'YAML' ) {
         require YAML;
-        eval {
-            $report_model =
-              Test::TAP::XML->new_with_struct( YAML::LoadFile( $report_file ) );
-        };
+        eval { $report_model = Test::TAP::XML->new_with_struct( YAML::LoadFile($report_file) ); };
     }
 
     # if we couldn't create a model of the test
-    if ( !$report_model || $@) {
+    if ( !$report_model || $@ ) {
         my $err = $@;
         $self->log->warning("Could not create Test::TAP::XML from uploaded file! $err");
-        unlink( $report_file );
+        unlink($report_file);
         return $self->add_report(
             {
                 'err_valid_file'                       => 1,
@@ -267,16 +262,16 @@ sub process_add_report {
     Smolder::DB->dbi_commit();
 
     # now move the tmp file to it's real destination and compress it
-    my $dest = $report->file;
+    my $dest   = $report->file;
     my $out_fh = IO::Zlib->new();
-    $out_fh->open($dest, 'wb9') 
-        or die "Could not open file $dest for writing compressed!";
+    $out_fh->open( $dest, 'wb9' )
+      or die "Could not open file $dest for writing compressed!";
     my $in_fh;
-    open($in_fh, $report_file)
-        or die "Could not open file $report_file for reading! $!" ;
+    open( $in_fh, $report_file )
+      or die "Could not open file $report_file for reading! $!";
 
     my $buffer;
-    while(read($in_fh, $buffer, 10240)) {
+    while ( read( $in_fh, $buffer, 10240 ) ) {
         print $out_fh $buffer;
     }
     $out_fh->close();
@@ -303,7 +298,7 @@ template.
 =cut
 
 sub smoke_report {
-    my $self = shift;
+    my $self  = shift;
     my $query = $self->query();
 
     my $smoke = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
@@ -316,7 +311,7 @@ sub smoke_report {
         return $self->error_message('Unauthorized for this project');
     }
 
-    return $self->tt_process({ report => $smoke, project => $project });
+    return $self->tt_process( { report => $smoke, project => $project } );
 }
 
 =head2 smoke_reports
@@ -485,7 +480,7 @@ sub process_admin_settings {
             allow_anon       => bool(),
             default_arch     => length_max(255),
             default_platform => length_max(255),
-            graph_start      => enum_value('project', 'graph_start'),
+            graph_start      => enum_value( 'project', 'graph_start' ),
         },
     };
     my $results = $self->check_rm( 'admin_settings', $form )

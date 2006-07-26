@@ -63,7 +63,7 @@ _check_with_dfv( 'length_between', \@bad,  0, 7, 5 );
 @good = ( 'full', 'summary', 'link' );
 @bad = ( 'stuff', 'more stuff' );
 _check_with_dfv( 'enum_value', \@good, 1, 'preference', 'email_type' );
-_check_with_dfv( 'enum_value', \@bad,  0 , 'preference', 'email_type');
+_check_with_dfv( 'enum_value', \@bad,  0, 'preference', 'email_type' );
 
 # 37..41
 # enum_value (preference, email_freq)

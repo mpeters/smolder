@@ -5,30 +5,35 @@ use strict;
 use warnings;
 
 sub parse {
-    my ($self, $string) = @_;
+    my ( $self, $string ) = @_;
     $self->SUPER::parse($string);
 
     my $page = $self->page;
+
     # if it's a smolder mod
-    if( $page =~ /^Smolder::/ ) {
+    if ( $page =~ /^Smolder::/ ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = $self->mod_to_html_file($page);
-    } elsif( $page eq 'bin' ) {
+    } elsif ( $page eq 'bin' ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = '/docs/bin_' . $self->{-node} . '.html';
-    # if it's a doc
-    } elsif( $page eq 'docs' ) {
+
+        # if it's a doc
+    } elsif ( $page eq 'docs' ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = '/docs/docs_' . $self->{-node} . '.html';
-    # if it's just a link
-    } elsif( $page =~ /^https?:/ ) {
+
+        # if it's just a link
+    } elsif ( $page =~ /^https?:/ ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = $page;
-    # if it's a link to an image
-    } elsif( $page =~ /\.(gif|jpg|jpeg|png)$/i ) {
+
+        # if it's a link to an image
+    } elsif ( $page =~ /\.(gif|jpg|jpeg|png)$/i ) {
         $self->{-type} = 'hyperlink';
         $self->{-node} = $page;
-    # if it's probably link to another module
+
+        # if it's probably link to another module
     } else {
         $self->{-type} = 'hyperlink';
         $self->{-node} = "http://search.cpan.org/perldoc?$page";
@@ -36,7 +41,7 @@ sub parse {
 }
 
 sub mod_to_html_file {
-    my ($self, $mod_name) = @_;
+    my ( $self, $mod_name ) = @_;
     my $file = lc $mod_name;
     $file =~ s/::/_/g;
     return "/docs/lib_$file.html";

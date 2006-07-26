@@ -101,25 +101,34 @@ is( $cats[0], $categories[2] );
 
 # platforms and architectures
 my $platforms = $project->platforms();
-is(scalar @$platforms, 0, 'no platforms by default');
+is( scalar @$platforms, 0, 'no platforms by default' );
 my $architectures = $project->architectures();
-is(scalar @$architectures, 0, 'no architectures by default');
+is( scalar @$architectures, 0, 'no architectures by default' );
 
-END { delete_smoke_reports };
-create_smoke_report( 
-    project  => $project, developer => $dev1, platform => 'FC3', architecture => 'x86'
+END { delete_smoke_reports }
+create_smoke_report(
+    project      => $project,
+    developer    => $dev1,
+    platform     => 'FC3',
+    architecture => 'x86'
 );
-create_smoke_report( 
-    project  => $project, developer => $dev1, platform => 'FC3', architecture => 'amd64'
+create_smoke_report(
+    project      => $project,
+    developer    => $dev1,
+    platform     => 'FC3',
+    architecture => 'amd64'
 );
-create_smoke_report( 
-    project  => $project, developer => $dev1, platform => 'FC4', architecture => 'x86'
+create_smoke_report(
+    project      => $project,
+    developer    => $dev1,
+    platform     => 'FC4',
+    architecture => 'x86'
 );
 $platforms = $project->platforms();
-is(scalar @$platforms, 2, 'platforms returns 2');
-is($platforms->[0], 'FC3', '1st platform is FC3');
-is($platforms->[1], 'FC4', '2nd platform is FC4');
+is( scalar @$platforms, 2,     'platforms returns 2' );
+is( $platforms->[0],    'FC3', '1st platform is FC3' );
+is( $platforms->[1],    'FC4', '2nd platform is FC4' );
 $architectures = $project->architectures();
-is(scalar @$architectures, 2, 'architectures returns 2');
-is($architectures->[0], 'amd64', '1st architecture is x86');
-is($architectures->[1], 'x86', '2nd architecture is amd64');
+is( scalar @$architectures, 2,       'architectures returns 2' );
+is( $architectures->[0],    'amd64', '1st architecture is x86' );
+is( $architectures->[1],    'x86',   '2nd architecture is amd64' );

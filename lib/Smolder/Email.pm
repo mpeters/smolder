@@ -76,9 +76,9 @@ sub send_mime_mail {
     my ( $class, %args ) = @_;
     my ( $to, $subject, $tt_params, $name ) = @args{qw(to subject tt_params name)};
     $tt_params->{host_name} = HostName();
-    $tt_params->{host_name} .= ":" . ApachePort() 
+    $tt_params->{host_name} .= ":" . ApachePort()
       unless ApachePort == 80;
-    $tt_params->{subject}   = $subject;
+    $tt_params->{subject} = $subject;
 
     # get the HTML and plain text content
     my $html;

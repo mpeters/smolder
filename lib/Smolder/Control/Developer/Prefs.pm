@@ -108,18 +108,18 @@ Uses the F<Developer/Prefs/show.tmpl> template.
 =cut
 
 sub show {
-    my ($self, $tt_params, $pref) = @_;
+    my ( $self, $tt_params, $pref ) = @_;
     $tt_params ||= {};
     my $html = $self->tt_process($tt_params);
 
     # if this wasn't an update form submission
     # and we don't have a preference, then make it the default
-    if( !$self->query->param('update_pref') && !$pref ) {
+    if ( !$self->query->param('update_pref') && !$pref ) {
         $pref = $self->developer->preference;
     }
 
-     # if we have a preference use it to fill in the form
-    if( $pref ) {
+    # if we have a preference use it to fill in the form
+    if ($pref) {
         my %fill_data = map { $_ => $pref->$_ } qw(id email_type email_freq email_limit);
         return HTML::FillInForm->new()->fill(
             scalarref => $html,
@@ -139,13 +139,13 @@ pairs for this preferences data.
 
 sub get_pref_details {
     my $self = shift;
-    my $pref = Smolder::DB::Preference->retrieve($self->query->param('id'));
+    my $pref = Smolder::DB::Preference->retrieve( $self->query->param('id') );
     my %data;
-    if( $pref ) {
+    if ($pref) {
         %data = map { $_ => $pref->$_ } qw(email_type email_freq email_limit);
     }
 
-    return $self->json_header(\%data);
+    return $self->json_header( \%data );
 }
 
 =head2 update_pref
@@ -163,9 +163,9 @@ sub update_pref {
     my $form = {
         required           => [qw(id email_type email_freq email_limit)],
         constraint_methods => {
-            id          => existing_field_value('preference', 'id'),
-            email_type  => enum_value('preference', 'email_type'),
-            email_freq  => enum_value('preference', 'email_freq'),
+            id          => existing_field_value( 'preference', 'id' ),
+            email_type  => enum_value( 'preference',           'email_type' ),
+            email_freq  => enum_value( 'preference',           'email_freq' ),
             email_limit => unsigned_int(),
         }
     };
@@ -174,8 +174,8 @@ sub update_pref {
       || return $self->check_rm_error_page();
     my $valid = $results->valid();
 
-    my $pref = Smolder::DB::Preference->retrieve($valid->{id});
-    if( $pref ) {
+    my $pref = Smolder::DB::Preference->retrieve( $valid->{id} );
+    if ($pref) {
         delete $valid->{id};
         $pref->set(%$valid);
         $pref->update();
@@ -183,14 +183,14 @@ sub update_pref {
     }
 
     # if we are updating the default pref and they want to sync them
-    if( $self->query->param('sync') && ( $pref->id eq $self->developer->preference) ) {
+    if ( $self->query->param('sync') && ( $pref->id eq $self->developer->preference ) ) {
         my @projs = $self->developer->project_developers;
         foreach my $proj (@projs) {
             $proj->preference->set(%$valid);
             $proj->preference->update();
         }
         Smolder::DB->dbi_commit();
-        return $self->show( { sync_success => 1 }, $pref)
+        return $self->show( { sync_success => 1 }, $pref );
     } else {
         return $self->show( { success => 1 }, $pref );
     }

@@ -74,10 +74,8 @@ sub reset_pw {
         $self->log->warning("[WARN] - $msg - $error");
         return $self->error_message($msg);
     } else {
-        return $self->tt_process( 
-            'Admin/Developers/resetpw_success.tmpl',
-            { developer => $developer } 
-        );
+        return $self->tt_process( 'Admin/Developers/resetpw_success.tmpl',
+            { developer => $developer } );
     }
 }
 
@@ -162,10 +160,7 @@ sub process_edit {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
-    return $self->tt_process(
-        'Admin/Developers/edit_success.tmpl',
-        { developer => $developer },
-    );
+    return $self->tt_process( 'Admin/Developers/edit_success.tmpl', { developer => $developer }, );
 }
 
 =head2 list
@@ -183,11 +178,8 @@ sub list {
     my %tt_params;
     $tt_params{developers} = \@developers if (@developers);
 
-    if( $cgi->param('table_only') ) {
-        return $self->tt_process(
-           'Admin/Developers/list_table.tmpl',
-            \%tt_params,
-        );
+    if ( $cgi->param('table_only') ) {
+        return $self->tt_process( 'Admin/Developers/list_table.tmpl', \%tt_params, );
     } else {
         return $self->tt_process( \%tt_params );
     }
@@ -232,7 +224,7 @@ sub process_add {
     my $valid = $results->valid();
 
     # create a new preference for this developer;
-    my $pref = Smolder::DB::Preference->create( { email_type => 'full', email_freq => 'on_new'} );
+    my $pref = Smolder::DB::Preference->create( { email_type => 'full', email_freq => 'on_new' } );
     $valid->{preference} = $pref;
     my $developer;
 
@@ -254,10 +246,7 @@ sub process_add {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
-    return $self->tt_process(
-        'Admin/Developers/add_success.tmpl',
-        { developer => $developer },
-    );
+    return $self->tt_process( 'Admin/Developers/add_success.tmpl', { developer => $developer }, );
 }
 
 =head2 delete 

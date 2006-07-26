@@ -21,16 +21,18 @@ if (is_apache_running) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::Mech->new();
-my $url   = base_url() . '/developer_projects';
-my $pw    = 's3cr3t';
-my $dev   = create_developer( password => $pw );
+my $mech     = Smolder::Mech->new();
+my $url      = base_url() . '/developer_projects';
+my $pw       = 's3cr3t';
+my $dev      = create_developer( password => $pw );
 my $proj1_id = create_project()->id();
 my $proj2_id = create_project( public => 0 )->id();
 
 # add this $dev to $proj1 and $proj2
-my $proj1_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1_id } );
-my $proj2_dev = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2_id } );
+my $proj1_dev =
+  Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1_id } );
+my $proj2_dev =
+  Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2_id } );
 Smolder::DB->dbi_commit();
 
 END {
@@ -54,7 +56,7 @@ $mech->content_contains('My Projects');
 # show_all
 {
     $mech->get_ok( $url . '/show_all' );
-    my ($proj1, $proj2) = _get_proj($proj1_id, $proj2_id);
+    my ( $proj1, $proj2 ) = _get_proj( $proj1_id, $proj2_id );
     $mech->content_contains( $proj1->name );
     $mech->content_contains( $proj2->name );
 }
@@ -108,7 +110,7 @@ $mech->content_contains('My Projects');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains($proj1->name);
+    $mech->content_contains( $proj1->name );
     $mech->content_contains('Recent Smoke Reports');
 
     # make sure it's in the db
@@ -140,7 +142,7 @@ $mech->content_contains('My Projects');
     END { delete_smoke_reports() }
 
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
-    $mech->content_contains($proj1->name);
+    $mech->content_contains( $proj1->name );
     $mech->content_contains('Recent Smoke Reports');
 
     # only 5 per page by default
@@ -184,6 +186,7 @@ $mech->content_contains('My Projects');
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
+
     # first HTML
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
     $mech->follow_link_ok( { n => 1, text => 'HTML' } );
@@ -204,7 +207,7 @@ $mech->content_contains('My Projects');
 # smoke_report_validity
 {
     my $proj1 = _get_proj($proj1_id);
-    my $url = "/app/developer_projects/smoke_test_validity";
+    my $url   = "/app/developer_projects/smoke_test_validity";
 
     # without a report
     $mech->get_ok($url);
@@ -249,6 +252,7 @@ $mech->content_contains('My Projects');
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);
+
     # not an admin of the project
     my $report = create_smoke_report(
         project   => $proj1,
@@ -258,17 +262,17 @@ $mech->content_contains('My Projects');
     my $title = "Smoke Report #$report";
     $mech->get_ok($url);
     $mech->title_like(qr/\Q$title\E/);
-    $mech->content_contains('(' . $proj1->name . ')');
-    $mech->content_contains($dev->username);
+    $mech->content_contains( '(' . $proj1->name . ')' );
+    $mech->content_contains( $dev->username );
 }
 
 sub _get_proj {
     my (@ids) = @_;
     my @projs;
     foreach my $id (@ids) {
-        push(@projs, Smolder::DB::Project->retrieve($id));
+        push( @projs, Smolder::DB::Project->retrieve($id) );
     }
-    if( wantarray ) {
+    if (wantarray) {
         return @projs;
     } else {
         return $projs[0];

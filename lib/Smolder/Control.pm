@@ -7,6 +7,7 @@ use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 use JSON qw(objToJson);
+
 #use CGI::Application::Plugin::DebugScreen;
 
 use Smolder;
@@ -20,6 +21,7 @@ use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 # turn off caching and setup our logging
 __PACKAGE__->add_callback(
     init => sub {
+
         # it's all dynamic, so don't let the browser cache anything
         my $self = shift;
         $self->param('r')->no_cache(1);
@@ -27,12 +29,14 @@ __PACKAGE__->add_callback(
         # setup log dispatch to use Apache::Log
         $self->log_config(
             APPEND_NEWLINE       => 1,
-            LOG_DISPATCH_MODULES => [{
-                module          => 'Log::Dispatch::ApacheLog',
-                name            => 'apache_log',
-                min_level       => 'debug',
-                apache          => $self->param('r'),
-            }],
+            LOG_DISPATCH_MODULES => [
+                {
+                    module    => 'Log::Dispatch::ApacheLog',
+                    name      => 'apache_log',
+                    min_level => 'debug',
+                    apache    => $self->param('r'),
+                }
+            ],
         );
     }
 );
@@ -126,10 +130,10 @@ field.
 =cut
 
 sub auto_complete_results {
-    my ($self, $values) = @_;
+    my ( $self, $values ) = @_;
     my $html = '<ul>';
     foreach (@$values) {
-        $html .= '<li>' . escape_html($_, EH_INPLACE) . '</li>'
+        $html .= '<li>' . escape_html( $_, EH_INPLACE ) . '</li>';
     }
     return $html . '</ul>';
 }
@@ -144,16 +148,16 @@ frustrated by having to fight with browser caches.
 =cut
 
 sub static_url {
-    my ($self, $url) = @_;
+    my ( $self, $url ) = @_;
     my $version = $Smolder::VERSION;
 
     # only do this if we aren't a dev install
     # if the 'src' dir exists it's a dev install
-    if( -d catdir(InstallRoot, 'src') ) {
+    if ( -d catdir( InstallRoot, 'src' ) ) {
         return $url;
     } else {
         $url =~ s/^\///;
-        return catfile('', $version, $url);
+        return catfile( '', $version, $url );
     }
 }
 
@@ -166,9 +170,9 @@ to consume.
 =cut
 
 sub json_header {
-    my ($self, $struct) = @_;
+    my ( $self, $struct ) = @_;
     my $json = objToJson($struct);
-    $self->header_add('-x-json' => $json);
+    $self->header_add( '-x-json' => $json );
     return '';
 }
 
