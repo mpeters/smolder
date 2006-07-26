@@ -131,7 +131,7 @@ sub auto_complete_results {
     foreach (@$values) {
         $html .= '<li>' . escape_html($_, EH_INPLACE) . '</li>'
     }
-    return $html . '<ul>';
+    return $html . '</ul>';
 }
 
 =head2 static_url
