@@ -384,7 +384,7 @@ div.accordion div.panel, div.fake_accordion div.panel {
 
 div.accordion div.panel div.header, div.fake_accordion div.panel div.header {
     font-size: 11pt;
-    padding: 4px 6px 4px 6px;
+    padding: 2px 6px 2px 6px;
     border-style: solid none solid none;
     border-top-color: #CCCCCC;
     border-bottom-color: #333333;
