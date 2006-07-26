@@ -19,7 +19,7 @@ helper methods
 
 =head1 METHODS
 
-=head1 new
+=head2 new
 
 Constructor
 
