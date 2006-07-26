@@ -142,6 +142,8 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
         TKTAuthTimeout          60m
         TKTAuthTimeoutRefresh   .8
         #TKTAuthDebug            1
+        TKTAuthGuestLogin on
+        Require valid-user
 
         # don't let our children get too big
         PerlCleanupHandler Apache::SizeLimit
@@ -150,8 +152,6 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
     # guest user on everything so that apache's auth
     # is triggered so that our ENV is setup for non-protected stuff
     <Location /app/public_auth>
-        TKTAuthGuestLogin on
-        Require valid-user
         TKTAuthTimeout          1y
         TKTAuthTimeoutRefresh   0
     </Location>
