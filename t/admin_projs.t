@@ -13,7 +13,7 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 85 );
+    plan( tests => 86 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -33,13 +33,14 @@ my $proj;
 # 1
 use_ok('Smolder::Control::Admin::Projects');
 
-# 2..4
+# 2..5
 $mech->login(username => $admin->username, password => $pw);
 ok( $mech->success );
 $mech->get_ok($url);
-$mech->content_contains('Admin - Projects');
+$mech->content_contains('Admin');
+$mech->content_contains('Projects');
 
-# 5..19
+# 6..20
 # add
 {
     # empty form
@@ -87,7 +88,7 @@ $mech->content_contains('Admin - Projects');
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
 }
 
-# 20..23
+# 21..24
 # details
 {
     $mech->get_ok( "$url/details/$proj" );
@@ -96,7 +97,7 @@ $mech->content_contains('Admin - Projects');
     $mech->content_contains( $proj->public ? 'Yes' : 'No' );
 }
 
-# 24..39
+# 25..40
 # edit
 {
     $mech->follow_link_ok( { text => 'Edit' } );
@@ -140,7 +141,7 @@ $mech->content_contains('Admin - Projects');
     $mech->content_lacks('No');
 }
 
-# 40..44
+# 41..45
 # list
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
@@ -150,7 +151,7 @@ $mech->content_contains('Admin - Projects');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 45..80
+# 46..81
 # add_developer, change_admins and remove_developer
 {
     # first 'add_developer'
@@ -249,14 +250,14 @@ $mech->content_contains('Admin - Projects');
     $mech->content_contains( $dev3->username );
 }
 
-# 81..85
+# 82..86
 # delete
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
     ok( $mech->form_name("delete_$proj") );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Project List');
+    $mech->content_contains('Projects');
     $mech->content_lacks( $proj->name );
 }
 

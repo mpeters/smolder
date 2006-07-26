@@ -10,7 +10,7 @@ use Smolder::TestData qw(
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 64 );
+    plan( tests => 65 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -34,13 +34,14 @@ END { delete_developers() }
 # 1
 use_ok('Smolder::Control::Admin::Developers');
 
-# 2..4
+# 2..5
 $mech->login( username => $admin->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);
-$mech->content_contains('Admin - Developers');
+$mech->content_contains('Admin');
+$mech->content_contains('Developers');
 
-# 5..26
+# 6..27
 # add
 {
     # empty form
@@ -88,7 +89,7 @@ $mech->content_contains('Admin - Developers');
     END { $dev->delete() if ($dev) }
 }
 
-# 27..30
+# 28..31
 # details
 {
     $mech->get_ok( $url . "/details/$dev" );
@@ -97,7 +98,7 @@ $mech->content_contains('Admin - Developers');
     $mech->content_contains( $dev->email );
 }
 
-# 31..51
+# 32..52
 # edit
 {
     $mech->get_ok("$url/list"); 
@@ -143,7 +144,7 @@ $mech->content_contains('Admin - Developers');
     $mech->content_lacks( $data{fname} );
 }
 
-# 52..54
+# 53..55
 # reset_pw
 {
     $mech->get_ok("$url/list");
@@ -153,7 +154,7 @@ $mech->content_contains('Admin - Developers');
     isnt( $dev->password, db_field_value( 'developer', 'password', $dev->id ) );
 }
 
-# 55..59
+# 56..60
 # list
 {
     $mech->get_ok("$url/list");
@@ -163,7 +164,7 @@ $mech->content_contains('Admin - Developers');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 60..64
+# 61..65
 # delete
 {
     $mech->get_ok("$url/list");

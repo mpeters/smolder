@@ -43,14 +43,14 @@
                 <a class="dead_button" title="Details have been purged">YAML</a>
               [% ELSE %]
                 <a class="button smoke_report_window" title="HTML test report"
-                    href="/app/developer_projects/report_details/[% report.id %]/html">HTML</a>
+                    href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]/html">HTML</a>
                 <a class="button smoke_report_window" title="XML test report"
-                    href="/app/developer_projects/report_details/[% report.id %]/xml">XML</a>
+                    href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]/xml">XML</a>
                 <a class="button smoke_report_window" title="YAML test report"
-                    href="/app/developer_projects/report_details/[% report.id %]/yaml">YAML</a>
+                    href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]/yaml">YAML</a>
               [% END %]
               <div style="position: absolute; margin-top: 15px;">
-              [% IF project.is_admin(c.developer) %]
+              [% IF ! public && project.is_admin(c.developer) %]
                 [% IF report.invalid %]
                   <a class="button popup_form" href="#" id="valid_form_[% report.id %]_trigger">Mark As Valid</a>
                   <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" 

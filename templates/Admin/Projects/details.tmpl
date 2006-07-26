@@ -1,4 +1,4 @@
-[% SET page_title = "Admin - Projects" %]
+[% SET page_title = "Admin" %]
 
 <h2>[% project.name %]</h2>
 
@@ -33,8 +33,13 @@
 <tr>
   <td valign="top"><label>Project Admin(s)</label></td>
   <td>
-    [% FOREACH admin IN project.admins %]
-      <a href="/app/admin_developers/details/[% admin.id %]">[% admin.username | html %]</a>[% UNLESS loop.last %],[% END %]
+    [% SET admins = project.admins %]
+    [% IF admins %]
+      [% FOREACH admin IN admins %]
+        <a href="/app/admin_developers/details/[% admin.id %]">[% admin.username | html %]</a>[% UNLESS loop.last %],[% END %]
+      [% END %]
+    [% ELSE %]
+        <em>none</em>
     [% END %]
   </td>
 </tr>
@@ -42,7 +47,8 @@
 <tr class="even">
   <td valign="top"><label>Developers</label></td>
   <td valign="top">
-    [% IF project.developers %]
+    [% SET devs = project.developers %]
+    [% IF devs %]
         [% FOREACH developer IN project.developers %]
             <a href="/app/admin_developers/details/[% developer.id %]">[% developer.username | html %]</a>[% UNLESS loop.last() %],[% END %]
         [% END %]

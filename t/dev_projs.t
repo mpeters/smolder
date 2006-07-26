@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 83 );
+    plan( tests => 85 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -59,7 +59,7 @@ $mech->content_contains('My Projects');
     $mech->content_contains( $proj2->name );
 }
 
-# 10..43
+# 10..44
 # add_report and process_add_report
 {
     my $proj1 = _get_proj($proj1_id);
@@ -108,7 +108,8 @@ $mech->content_contains('My Projects');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains( $proj1->name . ' - Recent Smoke Reports' );
+    $mech->content_contains($proj1->name);
+    $mech->content_contains('Recent Smoke Reports');
 
     # make sure it's in the db
     $proj1 = _get_proj($proj1_id);
@@ -126,7 +127,7 @@ $mech->content_contains('My Projects');
     is( $report->total,      67 );
 }
 
-# 44..57
+# 45..59
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
@@ -139,7 +140,8 @@ $mech->content_contains('My Projects');
     END { delete_smoke_reports() }
 
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
-    $mech->content_contains( $proj1->name . ' - Recent Smoke Reports' );
+    $mech->content_contains($proj1->name);
+    $mech->content_contains('Recent Smoke Reports');
 
     # only 5 per page by default
     $mech->content_like(qr/(Added .*){5}/s);
@@ -178,7 +180,7 @@ $mech->content_contains('My Projects');
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
 
-# 58..66
+# 60..68
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
@@ -198,7 +200,7 @@ $mech->content_contains('My Projects');
     ok( $mech->ct, 'text/plain' );
 }
 
-# 67..79
+# 69..81
 # smoke_report_validity
 {
     my $proj1 = _get_proj($proj1_id);
@@ -243,7 +245,7 @@ $mech->content_contains('My Projects');
     ok( !$report->invalid );
 }
 
-# 79..83
+# 82..85
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);

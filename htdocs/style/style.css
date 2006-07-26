@@ -18,13 +18,18 @@ h1 {
     color: #555555;
     padding: 0px;
     margin: 0px;
+    font-size: 18pt;
 }
 
 h2 { 
     color: #FFFFFF;
     background-color: #555555;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 6px;
     padding-left: 5px;
     border: 1px solid #333333;
+    font-size: 15pt;
 }
 
 h3 {

@@ -1,0 +1,60 @@
+[% SET page_title = "Project Details" %]
+
+<h2>[% project.name %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/public_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/public_graphs/start/[% project.id %]">Progress Graphs</a>
+    <!--
+    [% IF project.allow_anon %]
+    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% END %]
+    -->
+</div>
+
+<table class="boxed">
+<tr>
+  <td><label>Start Date</label></td>
+  <td>
+    [% project.start_date.strftime('%m/%d/%Y') %]
+  </td>
+</tr>
+<tr class="even">
+  <td valign="top"><label>Project Admin(s)</label></td>
+  <td>
+    [% SET admins = project.admins %]
+    [% IF admins %]
+      [% FOREACH admin IN project.admins %]
+        [% admin.username | html %][% UNLESS loop.last %],[% END %]
+      [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+<tr>
+  <td valign="top"><label>Developers</label></td>
+  <td valign="top">
+    [% SET devs = project.developers %]
+    [% IF devs %]
+        [% FOREACH developer IN devs %]
+            [% developer.username | html %][% UNLESS loop.last() %],[% END %]
+        [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+<tr class="even">
+  <td><label># Smoke Tests</label></td>
+  <td>[% project.report_count %]</td>
+</tr>
+<tr>
+  <td><label>Last Smoke Test Added</label></td>
+  <td>
+    [% SET latest_smoke_test = project.latest_smoke_test %]
+    [% latest_smoke_test ? latest_smoke_test.added.strftime('%D %l:%H %p') : 'never' %]
+  </td>
+</tr>
+</table>
+
