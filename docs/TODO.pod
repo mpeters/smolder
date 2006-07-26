@@ -6,11 +6,19 @@
 
 =item *
 
-Auto-purging of old data configurable in smolder.conf
+Review upgrade procedure to make sure it's working completely
 
 =item *
 
-Review upgrade procedure to make sure it's working completely
+Add 'public' projects
+
+=item *
+
+Allow anonymous test reports from public (add extra 'anonymous' user?)
+
+=item *
+
+Show listing on front page
 
 =back
 
@@ -37,18 +45,6 @@ Import/export projects (similar to backup and install from backup but by project
 =item *
 
 Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)
-
-=item *
-
-Add 'public' projects
-
-=item *
-
-Allow anonymous test reports from public (add extra 'anonymous' user?)
-
-=item *
-
-Show listing on front page
 
 =item *
 
