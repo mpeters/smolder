@@ -10,15 +10,7 @@ Review upgrade procedure to make sure it's working completely
 
 =item *
 
-Add 'public' projects
-
-=item *
-
-Allow anonymous test reports from public (add extra 'anonymous' user?)
-
-=item *
-
-Show listing on front page
+Allow anonymous test reports for public project (add extra 'anonymous' user?)
 
 =back
 

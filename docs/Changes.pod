@@ -4,7 +4,10 @@
 
 =over
 
-=item * Upgrading to Apache 1.3.36
+=item * Added public projects - M. Peters
+
+=item * Upgrading to Apache 1.3.36 - M. Peters
+
 =item * Auto-purging of old compressed XML files by ProjectFullReportsMax config directive - M. Peters
 
 =item * Better caching headers for static files - M. Peters
