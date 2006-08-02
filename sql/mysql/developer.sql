@@ -14,6 +14,7 @@ CREATE TABLE developer (
     password    VARCHAR(255) NOT NULL DEFAULT '',
     admin       BOOL NOT NULL DEFAULT 0,
     preference  INT UNSIGNED NOT NULL, 
+    guest       BOOL NOT NULL DEFAULT 0,
     INDEX i_preference (preference), 
     UNIQUE KEY `unique_username` (username),
     CONSTRAINT `fk_developer_preference` FOREIGN KEY (`preference`) REFERENCES `preference` (`id`)
