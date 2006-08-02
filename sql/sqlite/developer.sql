@@ -7,6 +7,7 @@ CREATE TABLE developer (
     password    TEXT DEFAULT '',
     admin       INTEGER DEFAULT 0,
     preference  INTEGER NOT NULL, 
+    guest       INTEGER DEFAULT 0,
     CONSTRAINT 'fk_developer_preference' FOREIGN KEY ('preference') REFERENCES 'preference' ('id')
 );
 
