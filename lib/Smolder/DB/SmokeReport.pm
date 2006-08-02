@@ -371,4 +371,145 @@ sub change_category {
     $sth->execute( $args{replacement}, $args{project}->id, $args{category} );
 }
 
+=head3 upload_report
+
+This method will take the name of the uploaded file and the project it's being
+added, and various other details and process them. If everything is successful
+then the resulting Smolder::DB::SmokeReport object will be returned.
+
+If the given file is compressed, it will be uncompressed before being processed.
+After all processing is done, the details file will also be compressed.
+
+It takes the following named arguments
+
+=over
+
+=item file
+
+The full path to the uploaded file.
+This is required.
+
+=item format
+
+The format of the file (XML, YAML).
+This is required.
+
+=item project
+
+The L<Smolder::DB::Project> object that this report is being associated with.
+This is required.
+
+=item developer
+
+The L<Smolder::DB::Developer> who is uploading this file. If none is given,
+then the anonymous guest account will be used.
+This is optional.
+
+=item architecture
+
+The architecture this test was run on.
+This is optional.
+
+=item platform
+
+The platform this test was run on.
+This is optional.
+
+=item comments
+
+Any comments associated with this report.
+This is optional.
+
+=back
+
+=cut
+
+sub upload_report {
+    # TODO - validate params
+    my ($self, %args) = @_;
+
+    my $file    = $args{file};
+    # TODO - get the 'guest' developer if we weren't given one
+    my $dev     = $args{developer};
+    my $project = $args{project};
+
+    # if the file is compressed, let's uncompress it
+    if ( $file =~ /\.gz$/ ) {
+        my $tmp = new File::Temp( UNLINK => 0, );
+        my $in_fh = IO::Zlib->new();
+        $in_fh->open( $file, 'rb' )
+          or die "Could not open file $tmp for reading compressed!";
+
+        my $buffer;
+        while ( read( $in_fh, $buffer, 10240 ) ) {
+            print $tmp $buffer;
+        }
+        $file = $tmp->filename();
+    }
+
+    # take the uploaded file and create a Test::TAP::Model object from it
+    my $report_model;
+    if ( $args{format} eq 'XML' ) {
+        eval { $report_model = Test::TAP::XML->from_xml_file($file); };
+    } elsif ( $args{format} eq 'YAML' ) {
+        require YAML;
+        eval { $report_model = Test::TAP::XML->new_with_struct( YAML::LoadFile($file) ); };
+    }
+
+    # if we couldn't create a model of the test
+    if ( !$report_model || $@ ) {
+        my $err = $@;
+        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $err");
+        unlink($file);
+        # TODO - throw an exception
+    };
+
+    my $struct = $report_model->structure();
+
+    # now add it to the database
+    my $report = Smolder::DB::SmokeReport->create(
+        {
+            developer    => $dev,
+            project      => $args{project},
+            architecture => ( $args{architecture} || '' ),
+            platform     => ( $args{platform} || '' ),
+            comments     => ( $args{comments} || '' ),
+            category     => ( $args{category} || undef ),
+            pass         => $report_model->total_passed,
+            fail         => $report_model->total_failed,
+            skip         => $report_model->total_skipped,
+            todo         => $report_model->total_todo,
+            total        => $report_model->total_seen,
+            format       => $args{format},
+            test_files   => scalar( $report_model->test_files ),
+            duration     => ( $struct->{end_time} - $struct->{start_time} ),
+        }
+    );
+    Smolder::DB->dbi_commit();
+
+    # now move the tmp file to it's real destination and compress it
+    my $dest   = $report->file;
+    my $out_fh = IO::Zlib->new();
+    $out_fh->open( $dest, 'wb9' )
+      or die "Could not open file $dest for writing compressed!";
+    my $in_fh;
+    open( $in_fh, $file )
+      or die "Could not open file $file for reading! $!";
+
+    my $buffer;
+    while ( read( $in_fh, $buffer, 10240 ) ) {
+        print $out_fh $buffer;
+    }
+    $out_fh->close();
+    close($in_fh);
+
+    # now send an email to all the user's who want this report
+    $report->send_emails();
+
+    # now purge old reports
+    $project->purge_old_reports();
+
+    return $report;
+}
+
 1;

@@ -202,86 +202,16 @@ sub process_add_report {
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
-    # if the file is compressed, let's uncompress it
-    my $report_file = $valid->{report_file};
-    if ( $report_file =~ /\.gz$/ ) {
-        my $tmp = new File::Temp( UNLINK => 0, );
-        my $in_fh = IO::Zlib->new();
-        $in_fh->open( $report_file, 'rb' )
-          or die "Could not open file $tmp for reading compressed!";
-
-        my $buffer;
-        while ( read( $in_fh, $buffer, 10240 ) ) {
-            print $tmp $buffer;
-        }
-        $report_file = $tmp->filename();
-    }
-
-    # take the uploaded file and create a Test::TAP::Model object from it
-    my $report_model;
-    if ( $valid->{format} eq 'XML' ) {
-        eval { $report_model = Test::TAP::XML->from_xml_file($report_file); };
-    } elsif ( $valid->{format} eq 'YAML' ) {
-        require YAML;
-        eval { $report_model = Test::TAP::XML->new_with_struct( YAML::LoadFile($report_file) ); };
-    }
-
-    # if we couldn't create a model of the test
-    if ( !$report_model || $@ ) {
-        my $err = $@;
-        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $err");
-        unlink($report_file);
-        return $self->add_report(
-            {
-                'err_valid_file'                       => 1,
-                ( 'err_valid_' . lc $valid->{format} ) => 1
-            }
-        );
-    }
-    my $struct = $report_model->structure();
-
-    # now add it to the database
-    my $report = Smolder::DB::SmokeReport->create(
-        {
-            developer    => $self->developer,
-            project      => $project,
-            architecture => ( $valid->{architecture} || '' ),
-            platform     => ( $valid->{platform} || '' ),
-            comments     => ( $valid->{comments} || '' ),
-            pass         => $report_model->total_passed,
-            fail         => $report_model->total_failed,
-            skip         => $report_model->total_skipped,
-            todo         => $report_model->total_todo,
-            total        => $report_model->total_seen,
-            format       => $valid->{format},
-            test_files   => scalar( $report_model->test_files ),
-            duration     => ( $struct->{end_time} - $struct->{start_time} ),
-            category     => ( $valid->{category} || undef ),
-        }
+    my $report = Smolder::DB::SmokeReport->upload_report(
+        file         => $valid->{report_file},
+        format       => $valid->{format},
+        developer    => $self->developer,
+        project      => $project,
+        architecture => $valid->{architecture},
+        platform     => $valid->{platform},
+        cateogry     => $valid->{category},
+        comments     => $valid->{comments},
     );
-    Smolder::DB->dbi_commit();
-
-    # now move the tmp file to it's real destination and compress it
-    my $dest   = $report->file;
-    my $out_fh = IO::Zlib->new();
-    $out_fh->open( $dest, 'wb9' )
-      or die "Could not open file $dest for writing compressed!";
-    my $in_fh;
-    open( $in_fh, $report_file )
-      or die "Could not open file $report_file for reading! $!";
-
-    my $buffer;
-    while ( read( $in_fh, $buffer, 10240 ) ) {
-        print $out_fh $buffer;
-    }
-    $out_fh->close();
-    close($in_fh);
-
-    # now send an email to all the user's who want this report
-    $report->send_emails();
-
-    # now purge old reports
-    $project->purge_old_reports();
 
     # redirect to our recent reports
     $self->header_type('redirect');
