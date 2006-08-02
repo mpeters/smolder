@@ -173,7 +173,7 @@ template.
 sub list {
     my $self       = shift;
     my $cgi        = $self->query();
-    my @developers = Smolder::DB::Developer->retrieve_all();
+    my @developers = Smolder::DB::Developer->search(guest => 0);
 
     my %tt_params;
     $tt_params{developers} = \@developers if (@developers);

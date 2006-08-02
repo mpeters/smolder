@@ -83,7 +83,7 @@ Uses the F<Admin/Projects/developers.tmpl> template.
 sub developers {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
-    my @developers = Smolder::DB::Developer->retrieve_all();
+    my @developers = Smolder::DB::Developer->search(guest => 0);
     my @projects   = Smolder::DB::Project->retrieve_all();
 
     $tt_params->{developers} = \@developers if (@developers);
