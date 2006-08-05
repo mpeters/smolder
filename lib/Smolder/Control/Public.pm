@@ -22,6 +22,7 @@ sub setup {
               welcome
               developer_tutorial
               admin_tutorial
+              not_found
               )
         ]
     );
@@ -61,5 +62,17 @@ sub admin_tutorial {
     my $self = shift;
     return $self->tt_process( {} );
 }
+
+=head2 not found
+
+Show the PAGE NOT FOUND error.
+
+=cut
+
+sub not_found {
+    my $self = shift;
+    return $self->tt_process( {} );
+}
+
 
 1;

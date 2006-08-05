@@ -114,6 +114,9 @@ NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
     RewriteRule ^/index/?$      /app [R,L]
     RewriteRule ^/index.html?$  /app [R,L]
 
+    # Error pages
+    ErrorDocument 404 /app/public/not_found
+
     # handle the static stuff with Smolder::StaticContent
     # so that caching can be improved
     # so '/0.3/style/layout.css' will become '/style/layout.css'
