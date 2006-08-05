@@ -169,9 +169,6 @@ user does not exist, one will be created.
 
 =cut
 
-use Carp;
-$SIG{__DIE__} = \*Carp::confess;
-
 sub get_guest {
     my $pkg = shift;
     my ($guest) = $pkg->search(

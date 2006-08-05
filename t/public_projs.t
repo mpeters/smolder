@@ -16,8 +16,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-#    plan( tests => 85 );
-    plan('no_plan');
+    plan( tests => 73 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }

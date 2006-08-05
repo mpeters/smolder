@@ -28,7 +28,7 @@ Controller module for generating graph images.
 =cut
 
 # allowable graph types
-our %TYPE_MAP = (
+my %TYPE_MAP = (
     bar    => 'bars3d',
     line   => 'lines3d',
     area   => 'area',
@@ -36,8 +36,8 @@ our %TYPE_MAP = (
 );
 
 # corresponding color and legend for each data type
-our @FIELDS = qw(total pass fail todo skip);
-our %FIELDS = (
+my @FIELD_NAMES = qw(total pass fail todo skip);
+my %FIELDS = (
     total => [qw(lblue Total)],
     pass  => [qw(green Pass)],
     fail  => [qw(red Fail)],
@@ -57,6 +57,9 @@ sub setup {
         ]
     );
 }
+
+# to be overridden by subclasses to allow public access
+sub public { 0 };
 
 =head1 RUN MODES
 
@@ -128,7 +131,7 @@ sub image {
     # which fields do we need to show?
     my @fields;
     if ( $query->param('change') ) {
-        foreach my $field (@FIELDS) {
+        foreach my $field (@FIELD_NAMES) {
             push( @fields, $field ) if ( $query->param($field) );
         }
 

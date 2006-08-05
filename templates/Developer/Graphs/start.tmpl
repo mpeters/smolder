@@ -5,8 +5,8 @@
 <h2>[% project.name %]</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
     [% IF project.is_admin(c.developer) %]
     <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
@@ -15,7 +15,7 @@
 [% SET no_required_fields = 1 %]
 [% INCLUDE form_header.tmpl %]
 
-<form class="change_smoke_graph" id="change_smoke_graph_[% project.id %]" name="change_smoke_graph" method="get">  
+<form class="change_smoke_graph" id="change_smoke_graph_[% project.id %]" name="change_smoke_graph" method="get" action="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/image/[% project.id %]">  
 <table>
 <tr>
   <td><label [% IF c.dfv_msgs.err_start %]class="warn"[% END %]>Start Date</label></td>
@@ -93,7 +93,7 @@
 </form>
 
 <div id="graph_container" style="width: 650px; padding-left: 30px; margin-left: 25px; padding-top:15px">
-  <img id="graph_image" src="/app/developer_graphs/image/[% project.id %]" width="600px" height="300px" />
+  <img id="graph_image" src="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/image/[% project.id %]" width="600px" height="300px" />
 </div>
 
 </div>

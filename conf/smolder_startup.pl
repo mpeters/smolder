@@ -21,6 +21,8 @@ BEGIN{ $DBI::connect_via = 'connect_cached'; };
 use Smolder::DB;
 use Smolder::Control;
 use Smolder::Control::Public;
+use Smolder::Control::Public::Projects;
+use Smolder::Control::Public::Graphs;
 use Smolder::Control::Public::Auth;
 use Smolder::Control::Admin;
 use Smolder::Control::Admin::Projects;

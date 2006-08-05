@@ -136,9 +136,8 @@ function togglePopupForm(formId) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function changeSmokeGraph(form) {
-    var projectId = form.id.replace(/^change_smoke_graph_/, '');
     var type      = form.elements['type'].value;
-    var url       = "/app/developer_graphs/image/" + projectId + "/" + escape(type) + "?change=1&";
+    var url       = form.action + "/" + escape(type) + "?change=1&";
 
     // add each field that we want to see to the URL
     var fields = new Array('total', 'pass', 'fail', 'skip', 'todo');
