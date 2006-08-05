@@ -162,7 +162,46 @@ sub projects {
 
 =head2 CLASS METHODS
 
+=head2 get_guest
+
+This method will return a user 'anonymous' who is marked as a 'guest'. If this
+user does not exist, one will be created.
+
 =cut
+
+use Carp;
+$SIG{__DIE__} = \*Carp::confess;
+
+sub get_guest {
+    my $pkg = shift;
+    my ($guest) = $pkg->search(
+        guest    => 1,
+        username => 'anonymous',
+    );
+
+    unless ($guest) {
+        my $fake_pw = join(
+            '',
+            rand_chars(
+                set     => 'alphanumeric',
+                min     => 6,
+                max     => 8,
+                shuffle => 1
+            )
+        );
+        $guest = $pkg->create(
+            {
+                guest      => 1,
+                username   => 'anonymous',
+                password   => $fake_pw,
+                preference => Smolder::DB::Preference->create( { email_freq => 'never' } ),
+            }
+        );
+    }
+
+    return $guest;
+}
+
 
 sub _crypt_password {
     my $self = shift;

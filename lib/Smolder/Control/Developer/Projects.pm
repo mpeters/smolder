@@ -29,6 +29,10 @@ use Exception::Class;
 
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
+# used to control public or registered developer functionality
+# to be overriden by subclasses if necessary
+sub public { return 0 };
+
 sub setup {
     my $self = shift;
     $self->start_mode('show_all');
@@ -225,7 +229,8 @@ sub process_add_report {
 
     # redirect to our recent reports
     $self->header_type('redirect');
-    my $url = "/app/developer_projects/smoke_reports/$project";
+    my $url = '/app/' . ($self->public ? 'public' : 'developer' ) 
+        . "_projects/smoke_reports/$project";
     $self->header_add( -uri => $url );
     return "Redirecting to $url";
 }

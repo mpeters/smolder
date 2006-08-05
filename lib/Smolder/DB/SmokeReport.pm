@@ -445,10 +445,7 @@ sub upload_report {
     my $project = $args{project};
 
     # get the 'guest' developer if we weren't given one
-    $dev ||= Smolder::DB::Developer->find_or_create(
-        guest    => 1,
-        username => 'anonymous',
-    );
+    $dev ||= Smolder::DB::Developer->get_guest();
 
     # if the file is compressed, let's uncompress it
     if ( $file =~ /\.gz$/ ) {

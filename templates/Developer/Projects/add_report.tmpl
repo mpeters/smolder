@@ -3,18 +3,18 @@
 <h2>[% project.name | html %]</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/developer_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
-    <a class="sub_menu" href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
     [% IF project.is_admin(c.developer) %]
     <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
 </div>
 
-<div "add_report_[% project.id %]" class="boxed">
+<div id="add_report_[% project.id %]" class="boxed">
 
 [% INCLUDE form_header.tmpl %]
 
-<form action="/app/developer_projects/process_add_report/[% project.id %]" method="post" enctype="multipart/form-data" name="add_report"> 
+<form action="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/process_add_report/[% project.id %]" method="post" enctype="multipart/form-data" name="add_report"> 
 <table>
 <tr>
   <td><label [% IF c.dfv_msgs.err_architecture %]class="warn"[% END %]>Architecture</label></td>
