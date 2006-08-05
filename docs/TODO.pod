@@ -8,10 +8,6 @@
 
 Review upgrade procedure to make sure it's working completely
 
-=item *
-
-Allow anonymous test reports for public project (add extra 'anonymous' user?)
-
 =back
 
 =head2 FOR 2.0

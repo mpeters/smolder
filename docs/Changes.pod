@@ -4,6 +4,8 @@
 
 =over
 
+=item * Allow anonymous smoke tests added to public projects - M. Peters
+
 =item * Added public projects - M. Peters
 
 =item * Upgrading to Apache 1.3.36 - M. Peters
