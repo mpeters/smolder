@@ -6,9 +6,11 @@ use Smolder::Conf qw(InstallRoot);
 use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(mkpath);
+use File::Copy qw(move);
 use File::Temp;
 use DateTime;
 use DateTime::Format::MySQL;
+use Test::TAP::Model;
 use Test::TAP::XML;
 use Test::TAP::HTMLMatrix;
 use Test::TAP::Model::Visual;
@@ -17,6 +19,16 @@ use Carp qw(croak);
 use IO::Zlib;
 
 __PACKAGE__->set_up_table('smoke_report');
+
+# exceptions
+use Exception::Class (
+    'Smolder::DB::SmokeReport::Exception',
+    'Smolder::DB::SmokeReport::Exception::TAPCreation' => {
+        isa         => 'Smolder::DB::SmokeReport::Exception',
+        description => 'Could not create Test::TAP::XML from uploaded file!',
+        
+    },
+);
 
 =head1 NAME
 
@@ -429,9 +441,14 @@ sub upload_report {
     my ($self, %args) = @_;
 
     my $file    = $args{file};
-    # TODO - get the 'guest' developer if we weren't given one
     my $dev     = $args{developer};
     my $project = $args{project};
+
+    # get the 'guest' developer if we weren't given one
+    $dev ||= Smolder::DB::Developer->find_or_create(
+        guest    => 1,
+        username => 'anonymous',
+    );
 
     # if the file is compressed, let's uncompress it
     if ( $file =~ /\.gz$/ ) {
@@ -459,9 +476,8 @@ sub upload_report {
     # if we couldn't create a model of the test
     if ( !$report_model || $@ ) {
         my $err = $@;
-        $self->log->warning("Could not create Test::TAP::XML from uploaded file! $err");
         unlink($file);
-        # TODO - throw an exception
+        Smolder::DB::SmokeReport::Exception::TAPCreation->throw(error => $err);
     };
 
     my $struct = $report_model->structure();

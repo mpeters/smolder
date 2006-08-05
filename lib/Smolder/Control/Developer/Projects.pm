@@ -25,12 +25,7 @@ use Smolder::Constraints qw(
 );
 use Smolder::Conf qw(InstallRoot);
 use Smolder::DBPlatform;
-use Test::TAP::Model;
-use Test::TAP::XML;
-use File::Temp;
-use File::Spec::Functions qw(catdir catfile);
-use File::Copy qw(move);
-use IO::Zlib;
+use Exception::Class;
 
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
@@ -202,16 +197,31 @@ sub process_add_report {
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
-    my $report = Smolder::DB::SmokeReport->upload_report(
-        file         => $valid->{report_file},
-        format       => $valid->{format},
-        developer    => $self->developer,
-        project      => $project,
-        architecture => $valid->{architecture},
-        platform     => $valid->{platform},
-        cateogry     => $valid->{category},
-        comments     => $valid->{comments},
-    );
+    my $report;
+    eval {
+        $report = Smolder::DB::SmokeReport->upload_report(
+            file         => $valid->{report_file},
+            format       => $valid->{format},
+            developer    => $self->developer,
+            project      => $project,
+            architecture => $valid->{architecture},
+            platform     => $valid->{platform},
+            cateogry     => $valid->{category},
+            comments     => $valid->{comments},
+        );
+    };
+
+    # is this an exception we can deal with?
+    my $e;
+    if ( $e = Exception::Class->caught('Smolder::DB::SmokeReport::Exception::TAPCreation') ) {
+        $self->log->warn( $e->error . "\n" . $e->trace->as_string );
+        return $self->add_report( { invalid_report_file => 1 } );
+    } else {
+        $e = Exception::Class->caught();
+        if( $e ) {
+            ref $e ? $e->rethrow : die $e;
+        }
+    }
 
     # redirect to our recent reports
     $self->header_type('redirect');
