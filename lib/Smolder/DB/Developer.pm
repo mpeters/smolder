@@ -199,7 +199,6 @@ sub get_guest {
     return $guest;
 }
 
-
 sub _crypt_password {
     my $self = shift;
     my $salt = join( '', rand_chars( set => 'alphanumeric', size => 2, shuffle => 1 ) );

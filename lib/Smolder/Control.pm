@@ -14,6 +14,7 @@ use Smolder;
 use Smolder::Util;
 use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
+use Smolder::DB::Project;
 
 use File::Spec::Functions qw(catdir catfile);
 use HTML::GenerateUtil qw(escape_html EH_INPLACE);
@@ -66,6 +67,20 @@ sub developer {
 
     # REMOTE_USER is set bv mod_auth_tkt
     return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
+}
+
+=head2 public_projects
+
+This method will return the L<Smolder::DB::Projects> that are marked as 'public'.
+
+=cut
+
+sub public_projects {
+    my $self = shift;
+    my @projs = Smolder::DB::Project->search( public => 1 );
+use Data::Dumper;
+warn Dumper \@projs;
+    return \@projs;
 }
 
 =head2 error_message
