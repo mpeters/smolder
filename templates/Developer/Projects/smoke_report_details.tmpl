@@ -10,7 +10,7 @@
     </div>
   [% END %]
   #[% report.id %] Added [% report.added.strftime('%D %l:%H %p') %] by [% report.developer.username | html %]
-  <em>([% (report.category OR "none") | html %])</em>
+  [% IF report.category %]<em>([% report.category | html %])</em>[% END %]
   - [% report.duration %] secs
 
 </div>
