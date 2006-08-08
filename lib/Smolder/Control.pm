@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 
-use File::Spec::Functions qw(catdir catfile);
+use File::Spec::Functions qw(catdir catfile tmpdir);
 use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
 # turn off caching and setup our logging
@@ -78,8 +78,6 @@ This method will return the L<Smolder::DB::Projects> that are marked as 'public'
 sub public_projects {
     my $self = shift;
     my @projs = Smolder::DB::Project->search( public => 1 );
-use Data::Dumper;
-warn Dumper \@projs;
     return \@projs;
 }
 
@@ -224,7 +222,7 @@ of performance.
 # configuration options for CAP::TT (Template Toolkit)
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
-        COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
+        COMPILE_DIR  => tmpdir(),
         INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',

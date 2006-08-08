@@ -458,6 +458,7 @@ sub upload_report {
         while ( read( $in_fh, $buffer, 10240 ) ) {
             print $tmp $buffer;
         }
+        unlink($file);
         $file = $tmp->filename();
     }
 
@@ -515,9 +516,10 @@ sub upload_report {
     }
     $out_fh->close();
     close($in_fh);
+    unlink($file);
 
     # now send an email to all the user's who want this report
-    $report->send_emails();
+    #$report->send_emails();
 
     # now purge old reports
     $project->purge_old_reports();
