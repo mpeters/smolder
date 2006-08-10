@@ -186,7 +186,7 @@ $mech->content_contains('Projects');
     }
 
     # make sure that all are listed under this proj's details
-    $mech->follow_link_ok( { text => $proj->name } );
+    $mech->follow_link_ok( { text => $proj->name, url_regex => qr/admin_projects\/details/ } );
     $mech->content_contains( $proj->name );
     $mech->content_contains( $dev1->username );
     $mech->content_contains( $dev2->username );
@@ -245,7 +245,7 @@ $mech->content_contains('Projects');
     ok( !defined $proj_dev );
 
     # make sure that dev2 is not listed under this proj's details
-    $mech->follow_link_ok( { text => $proj->name } );
+    $mech->follow_link_ok( { text => $proj->name, url_regex => qr/admin_projects\/details/ } );
     $mech->content_contains( $proj->name );
     $mech->content_contains( $dev1->username );
     $mech->content_lacks( $dev2->username );
