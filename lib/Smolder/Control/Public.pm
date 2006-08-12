@@ -63,13 +63,24 @@ sub admin_tutorial {
     return $self->tt_process( {} );
 }
 
-=head2 not found
+=head2 not_found
 
 Show the PAGE NOT FOUND error.
 
 =cut
 
 sub not_found {
+    my $self = shift;
+    return $self->tt_process( {} );
+}
+
+=head2 error
+
+Show the INTERNAL SERVER ERROR page.
+
+=cut
+
+sub error {
     my $self = shift;
     return $self->tt_process( {} );
 }

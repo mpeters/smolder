@@ -17,7 +17,7 @@ MaxRequestsPerChild  6000
 ErrorLog             <tmpl_var InstallRoot>/logs/apache_error_log
 LogFormat            "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 CustomLog            <tmpl_var InstallRoot>/logs/apache_access_log combined
-LogLevel             info
+LogLevel             debug 
 TypesConfig          <tmpl_var InstallRoot>/apache/conf/mime.types
 UseCanonicalName     On
 HostNameLookups      Off
@@ -99,74 +99,70 @@ DirectoryIndex index.html
 
 ServerName <tmpl_var HostName>
 Listen <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
-NameVirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>
 
-<VirtualHost <tmpl_var ApacheAddr>:<tmpl_var ApachePort>>
-   ServerName <tmpl_var HostName>
+# Error pages
+ErrorDocument  404     /app/public/not_found
+ErrorDocument  500     /app/public/error
 
-    TKTAuthSecret "333!~!@~JSMakakake::::aOENENMAF==@#912~!ASASxxc#3$4%55)(0000+=+!"
+TKTAuthSecret "333!~!@~JSMakakake::::aOENENMAF==@#912~!ASASxxc#3$4%55)(0000+=+!"
 
-    # make requests for the start/index go to /app
+# make requests for the start/index go to /app
+RewriteEngine On
+RewriteLog <tmpl_var InstallRoot>/logs/rewrite_log
+RewriteLogLevel 0
+RewriteRule ^/$             /app [R,L]
+RewriteRule ^/index/?$      /app [R,L]
+RewriteRule ^/index.html?$  /app [R,L]
+
+
+# handle the static stuff with Smolder::StaticContent
+# so that caching can be improved
+# so '/0.3/style/layout.css' will become '/style/layout.css'
+# with the appropriate cache headers 
+<Location /<tmpl_var Version>>
+    ExpiresActive on
+    ErrorHeader add "Expires" "Mon, 28 Jul 2014 23:30:00 GMT"
+    ErrorHeader add "Cache-Control" "max-age=315360000"
     RewriteEngine On
-    RewriteLog <tmpl_var InstallRoot>/logs/rewrite_log
-    RewriteLogLevel 0
-    RewriteRule ^/$             /app [R,L]
-    RewriteRule ^/index/?$      /app [R,L]
-    RewriteRule ^/index.html?$  /app [R,L]
+    RewriteRule ^<tmpl_var InstallRoot>/htdocs/<tmpl_var Version>/(.*) /$1 [L]
+    SetHandler default
+</Location>
 
-    # Error pages
-    ErrorDocument 404 /app/public/not_found
+<Location /app>
+    PerlModule          Smolder::Dispatch
+    SetHandler          perl-script
+    PerlHandler         Smolder::Dispatch
+    PerlCleanupHandler  Smolder::Cleanup
+    AuthType            Basic
+    AuthName            "Smolder Auth"
 
-    # handle the static stuff with Smolder::StaticContent
-    # so that caching can be improved
-    # so '/0.3/style/layout.css' will become '/style/layout.css'
-    # with the appropriate cache headers 
-    <Location /<tmpl_var Version>>
-        ExpiresActive on
-        ErrorHeader add "Expires" "Mon, 28 Jul 2014 23:30:00 GMT"
-        ErrorHeader add "Cache-Control" "max-age=315360000"
-        RewriteEngine On
-        RewriteRule ^<tmpl_var InstallRoot>/htdocs/<tmpl_var Version>/(.*) /$1 [L]
-        SetHandler default
-    </Location>
+    # mod_auth_tkt configuration
+    TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
+    TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
+    TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
+    TKTAuthTimeout          60m
+    TKTAuthTimeoutRefresh   .8
+    #TKTAuthDebug            1
+    TKTAuthGuestLogin on
+    Require valid-user
 
-    <Location /app>
-        PerlModule          Smolder::Dispatch
-        SetHandler          perl-script
-        PerlHandler         Smolder::Dispatch
-        PerlCleanupHandler  Smolder::Cleanup
-        AuthType            Basic
-        AuthName            "Smolder Auth"
+    # don't let our children get too big
+    PerlCleanupHandler Apache::SizeLimit
+</Location>
 
-        # mod_auth_tkt configuration
-        TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
-        TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
-        TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
-        TKTAuthTimeout          60m
-        TKTAuthTimeoutRefresh   .8
-        #TKTAuthDebug            1
-        TKTAuthGuestLogin on
-        Require valid-user
+# guest user on everything so that apache's auth
+# is triggered so that our ENV is setup for non-protected stuff
+<Location /app/public_auth>
+    TKTAuthTimeout          1y
+    TKTAuthTimeoutRefresh   0
+</Location>
 
-        # don't let our children get too big
-        PerlCleanupHandler Apache::SizeLimit
-    </Location>
+<LocationMatch /app/admin*>
+    TKTAuthToken admin
+    Require valid-user
+</LocationMatch>
 
-    # guest user on everything so that apache's auth
-    # is triggered so that our ENV is setup for non-protected stuff
-    <Location /app/public_auth>
-        TKTAuthTimeout          1y
-        TKTAuthTimeoutRefresh   0
-    </Location>
-
-    <LocationMatch /app/admin*>
-        TKTAuthToken admin
-        Require valid-user
-    </LocationMatch>
-
-    <LocationMatch /app/developer*>
-        TKTAuthToken developer
-        Require valid-user
-    </LocationMatch>
-
-</VirtualHost>
+<LocationMatch /app/developer*>
+    TKTAuthToken developer
+    Require valid-user
+</LocationMatch>
