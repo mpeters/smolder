@@ -9,7 +9,7 @@
       <div class="content">[% report.invalid_reason | html %]</div>
     </div>
   [% END %]
-  #[% report.id %] Added [% report.added.strftime('%D %l:%H %p') %] by [% report.developer.username | html %]
+  #[% report.id %] Added [% report.added.strftime('%D %l:%M %p') %] by [% report.developer.username | html %]
   [% IF report.category %]<em>([% report.category | html %])</em>[% END %]
   - [% report.duration %] secs
 
