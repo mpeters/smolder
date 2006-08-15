@@ -53,8 +53,9 @@
         <a href="/app/admin" id="admin_menu_trigger" class="dropdownmenu">admin</a> |
     [% END %]
 
-        <a href="/app/public_projects"[% IF public_projects %] id="public_projects_menu_trigger" class="dropdownmenu"[% END %]>public projects</a> |
-        <a href="/docs">docs</a> |
+    [% IF public_projects %]
+        <a href="/app/public_projects" id="public_projects_menu_trigger" class="dropdownmenu">public projects</a> |
+    [% END %]
 
     [% IF username %]
         <a href="/app/public_auth/logout">logout</a>
