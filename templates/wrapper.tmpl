@@ -53,7 +53,7 @@
         <a href="/app/admin" id="admin_menu_trigger" class="dropdownmenu">admin</a> |
     [% END %]
 
-    [% IF public_projects %]
+    [% IF public_projects.size %]
         <a href="/app/public_projects" id="public_projects_menu_trigger" class="dropdownmenu">public projects</a> |
     [% END %]
 
@@ -77,7 +77,7 @@
 [% END %]
 </div>
 [% END %]
-[% IF public_projects %]
+[% IF public_projects.size %]
 <div id="public_projects_menu" class="nav_menu_link">
 [% FOREACH proj = c.public_projects %]
   <a href="/app/public_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a>
