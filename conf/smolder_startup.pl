@@ -31,6 +31,7 @@ use Smolder::Control::Developer;
 use Smolder::Control::Developer::Prefs;
 use Smolder::Control::Developer::Projects;
 use Smolder::Control::Developer::Graphs;
+use Smolder::Control::DocSearch;
 
 # don't let things get out of control
 # 10 clients == 355MB total worse-case scenario
