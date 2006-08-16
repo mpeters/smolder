@@ -4,6 +4,8 @@
 
 =over
 
+=item * Mark tests that have files that exit with a non-zero status that use 'no_plan' to be marked as failing - M. Peters
+
 =item * Allow anonymous smoke tests added to public projects - M. Peters
 
 =item * Added public projects - M. Peters
