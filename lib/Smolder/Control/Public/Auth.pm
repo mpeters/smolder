@@ -77,7 +77,7 @@ sub process_login {
     my ( $user, $pw ) = ( $results->valid('username'), $results->valid('password') );
 
     # see if we have a user with this password
-    my ($dev) = Smolder::DB::Developer->search( username => $user );
+    my ($dev) = Smolder::DB::Developer->search( username => $user, guest => 0 );
     if ($dev) {
 
         # check to see if the password matches the encrypted one
