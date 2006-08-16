@@ -140,8 +140,8 @@ RewriteRule ^/index.html?$  /app [R,L]
     TKTAuthLoginURL         http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/login
     TKTAuthTimeoutURL       http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/timeout
     TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
-    TKTAuthTimeout          60m
-    TKTAuthTimeoutRefresh   .8
+    TKTAuthTimeout          24h
+    TKTAuthTimeoutRefresh   .1
     #TKTAuthDebug            1
     TKTAuthGuestLogin on
     Require valid-user
