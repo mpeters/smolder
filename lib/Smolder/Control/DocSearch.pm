@@ -20,4 +20,7 @@ sub cgiapp_init {
     );
 }
 
+# use the faster version from Smolder::Control
+*Smolder::Control::DocSearch::_auto_complete_result = *Smolder::Control::auto_complete_results;
+
 1;
