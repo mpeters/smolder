@@ -193,7 +193,7 @@ sub process_add_report {
             comments     => length_max(1000),
             report_file  =>
               file_mtype(qw(text/plain text/xml text/yaml application/x-gzip multipart/x-gzip)),
-            category => existing_project_category($project),
+            category     => existing_project_category($project),
         },
     };
 
@@ -210,7 +210,7 @@ sub process_add_report {
             project      => $project,
             architecture => $valid->{architecture},
             platform     => $valid->{platform},
-            cateogry     => $valid->{category},
+            category     => $valid->{category},
             comments     => $valid->{comments},
         );
     };
