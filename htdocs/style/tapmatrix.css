@@ -28,36 +28,11 @@ tfoot td, th {
 	padding: 0.1em;
 }
 
-h1 {
-    font-size: 14pt;
-    background-image: url('/images/smolder_text.png');
-    background-repeat: no-repeat;
-    background-position: top-left;
-    padding-top: 47px;
-    padding-left: 20px;
-}
-
 #matrix {
 	border-collapse: collapse;
 	border: 1px solid #444444;
 	background-color: #fbfbfb;
     width: 700px;
-}
-
-td.filename {
-    overflow: hidden;
-}
-
-#header {
-    border-right: 1px solid #555555;
-    border-bottom: 1px solid #555555;
-    border-left: 1px solid #cccccc;
-    border-top: 1px solid #cccccc;
-    width: 550px;
-    margin-bottom: 10px;
-	background-color: #eeeeee;
-    padding-left: 5px;
-    padding-top: 5px;
 }
 
 .sum {
@@ -97,4 +72,58 @@ td.filename {
 .u { background-color: #ffdd20; color: white; }
 .t { background-color: #007f00; color: white; }
 .nottest { background-color: #7f7f7f; color: white ; }
+
+/* layout styles */
+#container {
+    text-align: left;
+    width: 600px;
+    height: 100px;
+    background-color: #EEEEEE;
+    margin-bottom: 20px;
+    border-width: 1px;
+    border-color: #666666;
+    border-style: solid;
+    padding: 3px;
+    -moz-border-radius: 10px;
+}
+
+#header {
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    border-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-color: #CCCCCC;
+    border-style: solid;
+    -moz-border-radius: 10px;
+    position: relative;
+    background-image: url(/images/gride.png);
+}
+
+#logo {
+    background-image: url(/images/smolder_small_no_text.png);
+    background-repeat: no-repeat;
+    width: 100px;
+    height: 100px;
+}
+
+#title {
+    background-image: url(/images/smolder_text.png);
+    background-repeat: no-repeat;
+    width: 291px;
+    height: 57px;
+    position: absolute;
+    right: 0px;
+    top: 84px;
+}
+
+#content {
+    padding-top: 0px;
+}
+
+h1 {
+    margin-top: 0px;
+}
+
 
