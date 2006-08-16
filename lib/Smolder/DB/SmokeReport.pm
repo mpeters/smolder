@@ -12,7 +12,7 @@ use DateTime;
 use DateTime::Format::MySQL;
 use Test::TAP::Model;
 use Test::TAP::XML;
-use Test::TAP::HTMLMatrix;
+use Smolder::TAPHTMLMatrix;
 use Test::TAP::Model::Visual;
 use YAML;
 use Carp qw(croak);
@@ -126,19 +126,26 @@ Project:      %s
 Uploaded:     %s by %s
 Platform:     %s
 Architecture: %s
+Category:     %s
 Duration      %i secs
 Comments:     %s
-
 END_EXTRA
-    $extra = sprintf( $extra,
-        $self->project->name,       $self->added->strftime('%A, %B %e %Y, %l:%M:%S %p'),
-        $self->developer->username, $self->platform || 'Unknown',
-        $self->architecture || 'Unknown', $self->duration,
-        $self->comments     || 'none', );
+    $extra = sprintf( 
+        $extra,
+        $self->project->name,       
+        $self->added->strftime('%A, %B %e %Y, %l:%M:%S %p'),
+        $self->developer->username, 
+        $self->platform     || 'Unknown',
+        $self->architecture || 'Unknown', 
+        $self->category     || 'none', 
+        $self->duration,
+        $self->comments     || 'none', 
+    );
 
-    my $v = Test::TAP::HTMLMatrix->new( $model, $extra );
-    $v->has_inline_css(1);
-    my $html = $v->html;
+    my $v = Smolder::TAPHTMLMatrix->new( $model, $extra );
+    $v->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
+    $v->title("Test Details - #$self");
+    my $html = $v->detail_html;
 
     # save this to a file
     my $dir = catdir( InstallRoot, 'tmp', 'html_smoke_reports' );
@@ -282,7 +289,7 @@ sub send_emails {
     my $self = shift;
 
     # setup some stuff for the emails that we only need to do once
-    my $subject = "Smolder - new " . ( $self->fail ? "failed " : '' ) . "smoke report";
+    my $subject = "Smolder - new " . ( $self->failed ? "failed " : '' ) . "smoke report";
     my $tt_params = { report => $self };
 
     # get all the developers of this project
@@ -295,7 +302,7 @@ sub send_emails {
         # skip it, if they don't want to receive it
         next
           if ( $pref->email_freq eq 'never'
-            or ( !$self->fail and $pref->email_freq eq 'on_fail' ) );
+            or ( !$self->failed and $pref->email_freq eq 'on_fail' ) );
 
         # see if we need to reset their email_sent_timestamp
         # if we've started a new day
@@ -497,6 +504,7 @@ sub upload_report {
             format       => $args{format},
             test_files   => scalar( $report_model->test_files ),
             duration     => ( $struct->{end_time} - $struct->{start_time} ),
+            failed       => $self->_did_test_fail($report_model),
         }
     );
     Smolder::DB->dbi_commit();
@@ -519,12 +527,25 @@ sub upload_report {
     unlink($file);
 
     # now send an email to all the user's who want this report
-    #$report->send_emails();
+    $report->send_emails();
 
     # now purge old reports
     $project->purge_old_reports();
 
     return $report;
+}
+
+# we can't just count the number of tests that failed since
+# files exiting with a non-zero status with no_plan won't have
+# any failing test counts, but will fail none-the-less
+sub _did_test_fail {
+    my ($self, $model) = @_;
+    return $model->total_failed if( $model->total_failed );
+
+    foreach my $file ($model->test_files) {
+        return 1 unless $file->ok;
+    }
+    return 0;
 }
 
 1;

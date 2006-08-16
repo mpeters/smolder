@@ -1,0 +1,100 @@
+body {
+	font-family: Verdana, Arial, Helvetica, Tahoma;
+	font-size: small;
+}
+
+a { color: #000066; text-decoration: none; }
+
+pre {
+    font-size: 10pt;
+}
+
+th, tfoot td {
+	border: 1px solid #444444;
+	font-weight: bold;
+	font-size: 1em;
+	color: black
+   	text-align: center;
+	vertical-align: center;
+	background-color: #efefef;
+}
+
+tfoot td, th {
+    color: black; 
+    border: 1px solid #505050; 
+	text-align: center;
+	font-weight: bold;
+	font-size: 0.85em;
+	padding: 0.1em;
+}
+
+h1 {
+    font-size: 14pt;
+    background-image: url('/images/smolder_text.png');
+    background-repeat: no-repeat;
+    background-position: top-left;
+    padding-top: 47px;
+    padding-left: 20px;
+}
+
+#matrix {
+	border-collapse: collapse;
+	border: 1px solid #444444;
+	background-color: #fbfbfb;
+    width: 700px;
+}
+
+td.filename {
+    overflow: hidden;
+}
+
+#header {
+    border-right: 1px solid #555555;
+    border-bottom: 1px solid #555555;
+    border-left: 1px solid #cccccc;
+    border-top: 1px solid #cccccc;
+    width: 550px;
+    margin-bottom: 10px;
+	background-color: #eeeeee;
+    padding-left: 5px;
+    padding-top: 5px;
+}
+
+.sum {
+    width: 1em;  
+	border: 1px solid #505050;
+	padding: 0px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 0.85em;
+	padding: 0.1em;
+}
+
+.ok, .failed { 
+    width: 1em;  
+	text-align: center;
+	font-weight: bold;
+	font-size: 0.85em;
+	padding: 0.1em;
+}
+
+.failed {
+    color: #ff3020;
+}
+
+.exp {
+	display: block;
+}
+
+.x { 
+    color: black; 
+    border: 1px solid #505050; 
+}
+
+.f { background-color: #ff3020; }
+.p { background-color: #00ff00; }
+.sk { background-color: #ddffdd; }
+.u { background-color: #ffdd20; color: white; }
+.t { background-color: #007f00; color: white; }
+.nottest { background-color: #7f7f7f; color: white ; }
+

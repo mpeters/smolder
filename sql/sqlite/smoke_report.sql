@@ -19,6 +19,7 @@ CREATE TABLE smoke_report  (
     duration        INTEGER DEFAULT 0,
     category        TEXT DEFAULT NULL,
     purged          INTEGER DEFAULT 0,
+    failed          INTEGER DEFAULT 0,
     CONSTRAINT 'fk_smoke_report_project' FOREIGN KEY ('project') REFERENCES 'project' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_smoke_report_developer' FOREIGN KEY ('developer') REFERENCES 'developer' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_smoke_report_project_category' FOREIGN KEY ('project', 'category') REFERENCES 'project_category' ('project', 'category')

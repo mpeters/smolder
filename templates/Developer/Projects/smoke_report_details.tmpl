@@ -1,7 +1,7 @@
 [% USE Number.Format %]
 [% UNLESS email %]
 
-<div class="header[% IF report.fail %] attention_header[% END %]">
+<div class="header[% IF report.failed %] attention_header[% END %]">
   [% IF report.invalid %]
     <span id="report_invalid_[% report.id %]_trigger"><strong>INVALID</strong></span> - 
     <div class="tooltip for_report_invalid_[% report.id %]_trigger" id="report_invalid_tip_[% report.id %]" style="display:none; position: absolute;">

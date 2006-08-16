@@ -26,6 +26,7 @@ CREATE TABLE smoke_report  (
     duration        INT UNSIGNED NOT NULL DEFAULT 0,
     category        VARCHAR(255) DEFAULT NULL,
     purged          BOOLEAN NOT NULL DEFAULT 0,
+    failed          BOOLEAN NOT NULL DEFAULT 0,
     INDEX i_project (project),
     INDEX i_developer (developer),
     INDEX i_category (category),
