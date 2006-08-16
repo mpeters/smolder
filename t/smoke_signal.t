@@ -14,7 +14,7 @@ use Smolder::TestData qw(
   delete_preferences
 );
 
-plan('no_plan');
+plan(tests => 29);
 
 my $bin          = catfile( InstallRoot(), 'bin', 'smolder_smoke_signal' );
 my $host         = HostName() . ':' . ApachePort();
@@ -54,8 +54,8 @@ $out =
 `$bin --server something.tld --project $project_name --username $username --password $pw --file $test_file 2>&1`;
 like( $out, qr/Could not reach/i );
 
-# non-existant project
 SKIP: {
+    # non-existant project
     $out =
 `$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $test_file 2>&1`;
     skip( "Smolder not running", 14 )
@@ -152,4 +152,19 @@ SKIP: {
 
     # category
     # TODO - add a category
+    my $cat = 'fake category';
+    $project->add_category($cat);
+    Smolder::DB->dbi_commit();
+    Smolder::DB->db_Main->disconnect();
+    $out =
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" --category '$cat' 2>&1`;
+    like( $out, qr/successfully uploaded/i );
+    $out =~ /as #(\d+)/;
+    $report_id = $1;
+    $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    is( $report->comments,     $comments );
+    is( $report->platform,     $platform );
+    is( $report->architecture, $arch );
+    is( $report->category,     $cat );
+    Smolder::DB->db_Main->disconnect();
 }
