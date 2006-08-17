@@ -34,10 +34,14 @@
         </tr>
       </tfoot>
       [% FOREACH ctest IN page.tests %]
-      <tbody id="test_[% loop.count %]">
-        [% SET test = ctest.first_file %]
+      [% SET test = ctest.first_file %]
+      <tbody id="test_[% loop.count %]"[% UNLESS test.ok %] class="failed"[% END %]>
         <tr>
-          <td class="filename"><a href="[% test.link %]">[% test.name | html %]</a></td>
+          <td class="filename">
+            <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] title="[% test.name | html %]">
+                [% test.name.chunk(25).join("\n") | html | html_line_break %]
+            </a>
+          </td>
           <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">[% test.str_status | html %]</td>
           <td>
             [% FOREACH case_row IN test.case_rows %]

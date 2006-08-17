@@ -28,6 +28,11 @@ tfoot td, th {
 	padding: 0.1em;
 }
 
+tbody.failed {
+    border-bottom: 1px solid #cccccc;
+    border-top: 1px solid #cccccc;
+}
+
 #matrix {
 	border-collapse: collapse;
 	border: 1px solid #444444;
@@ -45,7 +50,11 @@ tfoot td, th {
 	padding: 0.1em;
 }
 
-.ok, .failed { 
+td {
+    vertical-align: top;
+}
+
+td.ok, td.failed { 
     width: 1em;  
 	text-align: center;
 	font-weight: bold;
@@ -53,7 +62,7 @@ tfoot td, th {
 	padding: 0.1em;
 }
 
-.failed {
+td.failed, a.failed {
     color: #ff3020;
 }
 
