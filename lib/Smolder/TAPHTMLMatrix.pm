@@ -47,6 +47,12 @@ sub title {
     return $self->{title} || ("TAP Matrix - " . gmtime() . " GMT");
 }
 
+sub smoke_report { 
+    my ($self, $report) = @_;
+    $self->{smoke_report} = $report if( $report );
+    return $self->{smoke_report};
+}
+
 sub tests {
 	my $self = shift;
 	[ sort { $a->name cmp $b->name } $self->model->test_files ];
@@ -97,7 +103,12 @@ sub process_tmpl {
 	my $self = shift;
     my $file = shift;
     my $output;
-    $self->tmpl_obj->process($file, { page => $self }, \$output)
+    my %params = (
+        page         => $self,
+        smoke_report => $self->smoke_report,
+    );
+
+    $self->tmpl_obj->process($file, \%params, \$output)
         or croak "Problem processing template file '$file': "
         , $self->tmpl_obj->error;
     return $output;

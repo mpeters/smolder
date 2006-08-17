@@ -17,6 +17,45 @@
     <div id="content">
     <div id="page_title"><h1>[% page.title | html %]</h1></div>
 
+    <table id="details">
+    <tr>
+      <th>Project</th>
+      <td>[% smoke_report.project.name | html %]</td>
+    </tr>
+    <tr>
+      <th>Uploaded</th>
+      <td>[% smoke_report.added.strftime('%A, %B %e %Y, %l:%M:%S %p') %] by [% smoke_report.developer.username | html %]</td>
+    </tr>
+    [% IF smoke_report.platform %]
+    <tr>
+      <th>Platform</th>
+      <td>[% smoke_report.platform | html %]</td>
+    </tr>
+    [% END %]
+    [% IF smoke_report.architecture %]
+    <tr>
+      <th>Architecture</th>
+      <td>[% smoke_report.architecture | html %]</td>
+    </tr>
+    [% END %]
+    [% IF smoke_report.category %]
+    <tr>
+      <th>Category</th>
+      <td>[% smoke_report.category | html %]</td>
+    </tr>
+    [% END %]
+    <tr>
+      <th>Duration</th>
+      <td>[% smoke_report.duration %] secs</td>
+    </tr>
+    [% IF smoke_report.comments %]
+    <tr>
+      <th>Comments</th>
+      <td><pre>[% smoke_report.comments | html %]</pre></td>
+    </tr>
+    [% END %]
+    </table>
+
     <table id="matrix" summary="[% page.model.summary | html %]">
       <thead>
         <tr>
@@ -38,11 +77,14 @@
       <tbody id="test_[% loop.count %]"[% UNLESS test.ok %] class="failed"[% END %]>
         <tr>
           <td class="filename">
-            <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] title="[% test.name | html %]">
+            <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] 
+              title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
                 [% test.name.chunk(25).join("\n") | html | html_line_break %]
             </a>
           </td>
-          <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">[% test.str_status | html %]</td>
+          <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">
+            [% test.str_status | html %]
+          </td>
           <td>
             [% FOREACH case_row IN test.case_rows %]
             <table width="100%" summary="subtests">

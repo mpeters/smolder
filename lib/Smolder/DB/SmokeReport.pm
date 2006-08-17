@@ -118,33 +118,10 @@ sub html {
 
     # else we need to generate a new HTML file
     my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
-
-    # create some header text based on the info of the smoke_report
-    my $extra = <<END_EXTRA;
-
-Project:      %s
-Uploaded:     %s by %s
-Platform:     %s
-Architecture: %s
-Category:     %s
-Duration      %i secs
-Comments:     %s
-END_EXTRA
-    $extra = sprintf( 
-        $extra,
-        $self->project->name,       
-        $self->added->strftime('%A, %B %e %Y, %l:%M:%S %p'),
-        $self->developer->username, 
-        $self->platform     || 'Unknown',
-        $self->architecture || 'Unknown', 
-        $self->category     || 'none', 
-        $self->duration,
-        $self->comments     || 'none', 
-    );
-
-    my $v = Smolder::TAPHTMLMatrix->new( $model, $extra );
+    my $v = Smolder::TAPHTMLMatrix->new( $model );
     $v->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
     $v->title("Test Details - #$self");
+    $v->smoke_report( $self );
     my $html = $v->detail_html;
 
     # save this to a file
