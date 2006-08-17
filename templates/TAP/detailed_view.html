@@ -17,7 +17,7 @@
     <div id="content">
     <div id="page_title"><h1>[% page.title | html %]</h1></div>
 
-    <table id="matrix" summary="[% page.model.summary %]">
+    <table id="matrix" summary="[% page.model.summary | html %]">
       <thead>
         <tr>
           <th colspan="2">Test file</th>
@@ -37,15 +37,15 @@
       <tbody id="test_[% loop.count %]">
         [% SET test = ctest.first_file %]
         <tr>
-          <td class="filename"><a href="[% test.link %]">[% test.name %]</a></td>
-          <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">[% test.str_status %]</td>
+          <td class="filename"><a href="[% test.link %]">[% test.name | html %]</a></td>
+          <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">[% test.str_status | html %]</td>
           <td>
             [% FOREACH case_row IN test.case_rows %]
             <table width="100%" summary="subtests">
               <tr>
                 [% FOREACH case IN case_row.cases %]
                 <td class="[% case.css_class %]">
-                  <a href="[% case.link %]" title="[% case.popup %]">&#160;</a>
+                  <a href="[% case.link %]" title="[% case.popup | html %]">&#160;</a>
                 </td>
                 [% END %]
               </tr>
