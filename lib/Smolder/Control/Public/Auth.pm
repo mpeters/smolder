@@ -90,11 +90,17 @@ sub process_login {
             my $at = Smolder::AuthInfo->new();
 
             # now add the AuthTKT cookie going out
-            my $cookie = $at->cookie(
+            my $tkt = $at->ticket(
                 uid    => $dev->id,
                 tokens => join( ',', @tokens ),
             );
-            $self->header_add( -cookie => [$cookie] );
+            my $cookie = Apache::Cookie->new(
+                $self->param('r'),
+                -name    => 'auth_tkt',
+                -value   => $tkt,
+                -expires => '+96h',
+            );
+            $cookie->bake();
 
             # url of where to go next
             my $url = $self->query->param('back') || $HOME_PAGE_URL;
