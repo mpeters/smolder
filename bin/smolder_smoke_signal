@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 use File::Spec::Functions qw(catdir catfile splitdir);
-use Smolder::Mech;  # might just use LWP in the future to reduce deps
+use WWW::Mechanize;
 use File::Basename;
 
 =pod
@@ -147,7 +147,7 @@ if ( -r $file ) {
 
 # try and reach the smolder server
 print "Trying to reach Smolder server at $server.\n" if ($verbose);
-my $mech     = Smolder::Mech->new();
+my $mech     = WWW::Mechanize->new();
 my $base_url = "http://$server";
 $mech->get($base_url);
 unless ( $mech->status eq '200' ) {
