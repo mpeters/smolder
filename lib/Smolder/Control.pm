@@ -189,7 +189,7 @@ sub json_header {
 
     # IE is over-zealous in it's caching
     $self->header_add(-cache_control => 'no-cache');
-    $self->header_add(-pragme => 'no-cache');
+    $self->header_add(-pragma => 'no-cache');
 
     # Safari doesn't like empty content bodies
     return ' ';
