@@ -1,34 +1,29 @@
 <div style="float:right; padding-right: 30px;" id="smoke_reports_nav">
   <form class="ajaxable show_paging_indicator" name="smoke_reports" id="smoke_reports" action="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]" method="get">
+    <input type="hidden" name="offset" value="" />
     <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="paging_indicator" alt="loading" />
     [% SET cats = project.categories %]
     [% IF cats %]
-      <span style="padding-right: 20px">
-      <label>Category<label>
-      <select name="category" class="auto_submit">
-        <option value="">--none--</option>
-        [% FOREACH cat IN cats %]
-          <option value="[% cat | html %]"[% IF category == cat %]selected="selected"[% END %]>[% cat | html %]</option>
-        [% END %]
-      </select>
-      </span>
-    [% END %]
-    [% SET base_url    = '/app/' _ ( c.public ? 'public' : 'developer' ) _ '_projects/smoke_reports/' _ project.id _ '?limit=' _ limit %]
-    [% SET back_url    = base_url _ '&offset=' _ (offset - limit) %]
-    [% SET forward_url = base_url _ '&offset=' _ (offset + limit) %]
     <span>
+    <select name="category" class="auto_submit">
+      <option value="">--Category--</option>
+      [% FOREACH cat IN cats %]
+        <option value="[% cat | html %]"[% IF category == cat %]selected="selected"[% END %]>[% cat | html %]</option>
+      [% END %]
+    </select>
+    </span>
+    [% END %]
     [% IF limit && (offset - limit >= 0) %]
-      <a class="ajaxable show_paging_indicator" href="[% back_url %]" style="text-decoration: none">&lArr;</a>
+      <a class="smoke_reports_nav offset_[% offset - limit %]" href="#" style="text-decoration: none">&lArr;</a>
     [% ELSE %]
       &lArr;
     [% END %]
     |
-    [% IF limit && ((offset + limit) < project.report_count) %]
-      <a class="ajaxable show_paging_indicator" href="[% forward_url %]" style="text-decoration: none">&rArr;</a>
+    [% IF limit && ((offset + limit) < project.report_count(category)) %]
+      <a class="smoke_reports_nav offset_[% offset + limit %]" href="#" style="text-decoration: none">&rArr;</a>
     [% ELSE %]
       &rArr;
     [% END %]
-    </span>
     <select name="limit" class="auto_submit">
       <option[% IF limit == 5 %] selected="selected"[% END %]>5</option>
       <option[% IF limit == 10 %] selected="selected"[% END %]>10</option>

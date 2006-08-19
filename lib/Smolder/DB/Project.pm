@@ -257,19 +257,28 @@ sub all_reports {
 
 =head3 report_count
 
-The number of reports associated with this Project
+The number of reports associated with this Project. Can also provide an
+optional category to use as well
 
 =cut
 
 sub report_count {
-    my $self = shift;
+    my ($self, $cat) = @_;
     my $sql  = q(
         SELECT COUNT(*) FROM smoke_report, project
         WHERE smoke_report.project = project.id
         AND project.id = ?
     );
+    my @params = ($self->id);
+    
+    # add the optional category as well
+    if( $cat ) {
+        $sql .= ' AND category = ?';
+        push(@params, $cat);
+    }
+
     my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute( $self->id );
+    $sth->execute( @params );
     my $row = $sth->fetchrow_arrayref();
     $sth->finish();
     return $row->[0];

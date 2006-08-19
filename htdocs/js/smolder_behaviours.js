@@ -34,6 +34,22 @@ var myrules = {
             }
         );
     },
+    
+    'a.smoke_reports_nav' : function(element) {
+        // set the limit and then do an ajax request for the form
+        element.onclick = function() {
+            var offset = 0;
+            var matches = element.className.match(/(^|\s)offset_([^\s]+)($|\s)/);
+            if( matches != null )
+                offset = matches[2];
+            $('smoke_reports').elements['offset'].value = offset;
+            ajax_form_submit({
+                form      : $('smoke_reports'),
+                indicator : 'paging_indicator',
+            });
+            return false;
+        };
+    },
 
     'form.change_smoke_graph'  : function(element) {
         element.onsubmit = function() {
