@@ -12,8 +12,21 @@ use Getopt::Long;
 use Pod::Usage 1.12;
 use File::Spec;
 
+use Fcntl qw(:flock);
+use File::Temp qw(tempdir);
+
+# get an exclusive lock, or just wait until we do
+my $lock_file = File::Spec->catfile(
+    tempdir(), 'smolder_prove_lock'
+);
+my $lock_fh;
+open($lock_fh, '>', $lock_file) or
+    die "Could not open lock file '$lock_file': $!";
+flock($lock_fh, LOCK_EX);
+END { unlink($lock_file) if -e $lock_file };
+
 use vars qw( $VERSION );
-$VERSION = "1.04";
+$VERSION = "1.01";
 
 my $shuffle = 0;
 my $dry = 0;
@@ -106,13 +119,26 @@ if ( @tests ) {
     else {
         print "# ", scalar @tests, " tests to run\n" if $Test::Harness::debug;
         if( $xml ) {
-            require Test::TAP::XML;
+            eval { require Test::TAP::XML };
+            if( $@ ) {
+                print "\nCan't load Test::TAP::XML. Please install before using the --xml option\n";
+                exit(1);
+            }
             my $harness = Test::TAP::XML->new();
             $harness->run_tests(@tests);
             print $harness->xml();
         } elsif( $yaml ) {
-            require Test::TAP::Model;
-            require YAML;
+            eval { require Test::TAP::Model };
+            if( $@ ) {
+                print "\nCan't load Test::TAP::Model. Please install before using the --yaml option\n";
+                exit(1);
+            }
+            eval { require YAML };
+            if( $@ ) {
+                print "\nCan't load YAML. Please install before using the --yaml option\n";
+                exit(1);
+            }
+
             my $harness = Test::TAP::Model->new();
             $harness->run_tests(@tests);
             print YAML::Dump( $harness->structure );
@@ -142,6 +168,11 @@ smolder_prove [options] [files/directories]
 smolder_prove works exactly the same as the C<prove> utility that comes
 with L<Test::Harness> except that by default it outputs it's results
 as XML, suitable for uploading to a smolder server.
+
+smolder_prove also provides locking so that more than one instance cannot
+run at the same time. This makes it really easy to perform automated test
+runs in response to something like an SVN commit without worrying about
+multile concurrent runs.
 
 =head1 OPTIONS
 
