@@ -186,7 +186,8 @@ sub json_header {
     my ( $self, $struct ) = @_;
     my $json = objToJson($struct);
     $self->header_add( '-x-json' => $json );
-    return '';
+    # Safari doesn't like empty content bodies
+    return ' ';
 }
 
 =head1 TEMPLATE CONFIGURATION
