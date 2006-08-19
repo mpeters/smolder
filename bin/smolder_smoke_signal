@@ -5,8 +5,17 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 use File::Spec::Functions qw(catdir catfile splitdir);
-use WWW::Mechanize;
 use File::Basename;
+
+BEGIN {
+    eval { require WWW::Mechanize };
+    if( $@ ) {
+        print STDERR "\nCannot load WWW::Mechanize. " .
+            "\nPlease install it before using smolder_smoke_signal.\n\n";
+        exit(1);
+    }
+}
+
 
 =pod
 
