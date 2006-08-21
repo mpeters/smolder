@@ -190,7 +190,6 @@ exit(0);
 
 sub do_install {
     setup_getopts();
-    $DB_PLATFORM = Smolder::DBPlatform->load($options{DBPlatform});
 
     # Must be running as root, check now to avoid unpacking backup
     # only to fail on this trivial condition
@@ -199,11 +198,14 @@ sub do_install {
     # unpack backup, which contributes to options
     unpack_backup() if $options{FromBackup};
 
+    # enforce requirements
+    enforce_requirements();
+
     # load the plaform module for this distribution
     load_platform();
 
-    # enforce requirements
-    enforce_requirements();
+    # load our database plaform 
+    $DB_PLATFORM = Smolder::DBPlatform->load($options{DBPlatform});
 
     # Do installation
     check_prereqs();
