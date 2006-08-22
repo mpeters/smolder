@@ -586,6 +586,10 @@ sub build_perl_module {
     # Net::FTPServer needs this to not try to install /etc/ftp.conf
     local $ENV{NOCONF} = 1 if $name =~ /Net-FTPServer/;
 
+    # libapreq needs to know where to find our apache
+    local $ENV{APXS} = catfile($ENV{SMOLDER_ROOT}, 'apache', 'bin', 'apxs')
+        if $name =~ /libapreq/;
+
     # Module::Build or MakeMaker?
     my ( $cmd, $make_cmd );
     if ( -e 'Build.PL' ) {
