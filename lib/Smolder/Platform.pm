@@ -590,6 +590,10 @@ sub build_perl_module {
     local $ENV{APXS} = catfile($ENV{SMOLDER_ROOT}, 'apache', 'bin', 'apxs')
         if $name =~ /libapreq/;
 
+    # point Apache::Test to our local httpd
+    $EXTRA_ARGS = ' -httpd ' . catfile($ENV{SMOLDER_ROOT}, 'apache', 'bin', 'httpd')
+        if $name =~ /Apache-Test/;
+
     # Module::Build or MakeMaker?
     my ( $cmd, $make_cmd );
     if ( -e 'Build.PL' ) {

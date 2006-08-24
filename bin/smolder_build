@@ -123,6 +123,7 @@ my $APACHE       = 'Apache-MOD_PERL/apache_1.3.36.tar.gz';
 my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
+my $APACHE_TEST  = 'Apache-Test';
 my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
 
 # options
@@ -237,6 +238,7 @@ unless ($skip_modules) {
 
         # wait to build libapreq till after building Apache
         next if $file =~ /^$LIBAPREQ/o;
+        next if $file =~ /^$APACHE_TEST/o;
 
         # skip modules that we need to skip based on skipping external libs
         next if $file =~ /mysql/i  and $skip_mysql;
@@ -271,6 +273,11 @@ unless ($skip_apache) {
         mod_perl_dir     => $mod_perl_dir,
         mod_auth_tkt_dir => $mod_auth_tkt_dir,
     );
+
+    # build Apache::Test before libapreq but after apache
+    if( my ($apache_test) = grep /^$APACHE_TEST/, @files ) {
+        build_module($apache_test);
+    }
 
     # build libapreq now that mod_perl is in place
     if ( my ($libapreq) = grep /^$LIBAPREQ/, @files ) {
