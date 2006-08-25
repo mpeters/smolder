@@ -170,7 +170,11 @@ sub perl_module_questions {
     };
 }
 
+# we don't always have sudo
 sub has_sudo { 0 };
+
+# we don't want to skip the BSD modules
+sub skip_perl_modules { () };
 
 
 1;

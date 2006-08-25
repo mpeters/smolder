@@ -39,11 +39,6 @@ The script takes the following options:
 By default the script will build apache and mod_perl for you.  This
 option skips those steps.
 
-=item --no-swishe
-
-By default the script will build swish-e for you.  This
-option skips that step.
-
 =item --no-mysql
 
 This will skip the building of any MySQL related Perl modules
@@ -56,7 +51,7 @@ Specify a specific CPAN module to build.  The string you provide will
 be checked as a substring against the distribution file name. You can 
 specify this option multiple times to build a specific set of modules.
 
-When this is specified it automatically sets C<no-apache> and C<no-swishe>
+When this is specified it automatically sets C<no-apache>
 to true.
 
 =item --skip-module
@@ -124,17 +119,14 @@ my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
 my $MOD_AUTH_TKT = 'Apache-MOD_PERL/mod_auth_tkt-2.0.0b7.tar.gz';
 my $LIBAPREQ     = 'libapreq';
 my $APACHE_TEST  = 'Apache-Test';
-my $SWISHE       = 'swish-e/swish-e-2.4.3.tar.gz';
 
 # options
 my $skip_apache  = 0;
-my $skip_swishe  = 0;
 my $skip_mysql   = 0;
 my $skip_modules = 0;
 my ( @modules, @skip_modules, $help, $man );
 GetOptions(
     'no-apache'     => \$skip_apache,
-    'no-swishe'     => \$skip_swishe,
     'no-mysql'      => \$skip_mysql,
     'no-modules'    => \$skip_modules,
     'module=s'      => \@modules,
@@ -149,7 +141,6 @@ pod2usage( -verbose => 2 ) if $man;
 # don't build the extra stuff if we just want to build Perl modules
 if (@modules) {
     $skip_apache = 1;
-    $skip_swishe = 1;
 }
 
 # get platform arg
@@ -182,22 +173,6 @@ if (@ARGV) {
 # verify the platform
 $pkg->verify_dependencies( mode => 'build' );
 
-# now build swish-e first since SWISH::API requires it
-unless ($skip_swishe) {
-
-    #now let's extract swish-e
-    goto_build_dir();
-    my $swishe_gz = catfile( $SRC_DIR, $SWISHE );
-    system("tar zxf $swishe_gz") == 0
-      or die "Couldn't unpack file $swishe_gz: $?";
-    my ($swishe_dir) = $swishe_gz =~ m{/([^/]+)\.tar\.gz$};
-    die "Can't find swish-e dir '$swishe_dir'." unless -d $swishe_dir;
-
-    chdir($swishe_dir) or die "Unable to chdir($swishe_dir): $!";
-    print_message("Building SWISH-E");
-    $pkg->build_swishe( swishe_dir => catdir($ROOT), );
-}
-
 # get list of files to build, considering --module and --skip-module opts
 opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";
 my @files = sort readdir(SRC);
@@ -210,39 +185,40 @@ unless ($skip_modules) {
         # don't skip the Perl modules related to the external stuff
         # if we specifically specify the module
         $skip_mysql  = 0 if( grep { $_ =~ /mysql/i  } @modules );
-        $skip_swishe = 0 if( grep { $_ =~ /swish/i  } @modules );
 
     } elsif (@skip_modules) {
         @files = grep { !contains( \@skip_modules, $_ ) } @files;
     }
 
-    # TODO - do we want to put this list somewhere else so it's subclassable?
     # shuffle these modules to the back to get proper build order
-    foreach my $distribution qw(DBD-mysql DBD-SQLite) {
-        my ($file) = grep( /$distribution/, @files );
-        @files = grep( !/$distribution/, @files );
+    foreach my $dist ($pkg->last_perl_modules) {
+        my ($file) = grep( /$dist/, @files );
+        @files = grep( !/$dist/, @files );
         push @files, $file if $file;
     }
 
-    # TODO - do we want to put this list somewhere else so it's subclassable?
     # shuffle these modules to the front since they're needed by later build steps
-    foreach my $distribution qw(Module-Build Expect IO-Tty) {
-        my ($file) = grep( /\Q$distribution\E/, @files );
-        @files = grep( !/\Q$distribution\E/, @files );
+    foreach my $dist ($pkg->first_perl_modules) {
+        my ($file) = grep( /\Q$dist\E/, @files );
+        @files = grep( !/\Q$dist\E/, @files );
         unshift @files, $file if $file;
+    }
+
+    # remove these complete since our platform doesn't need them
+    foreach my $dist ($pkg->skip_perl_modules) {
+        @files = grep( !/\Q$dist\E/, @files );
     }
 
     # loop through files, unpacking and calling build_perl_module()
     foreach my $file (@files) {
         next unless $file =~ /gz$/;
 
-        # wait to build libapreq till after building Apache
+        # wait to build libapreq and Apache::Test til we've built Apache
         next if $file =~ /^$LIBAPREQ/o;
         next if $file =~ /^$APACHE_TEST/o;
 
         # skip modules that we need to skip based on skipping external libs
         next if $file =~ /mysql/i  and $skip_mysql;
-        next if $file =~ /swish/i  and $skip_swishe;
 
         build_module($file);
     }
@@ -327,10 +303,6 @@ sub build_module {
     die "Can't determine dist_dir for '$dist_file'." unless $dist_dir;
     chdir $dist_dir or die "Unable to chdir($dist_dir): $!";
 
-    # if it's SWISH-API then add the swishe bin to our path
-    if ( $file =~ /SWISH-API/ ) {
-        $ENV{SWISHBINDIR} = catdir( $ENV{SMOLDER_ROOT}, 'swish-e', 'bin' );
-    }
     eval { $pkg->build_perl_module( name => $dist_dir ); };
     die "Problem building $dist_dir in $BUILD_DIR:\n\n$@\n"
       if $@;

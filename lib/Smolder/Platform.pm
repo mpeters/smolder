@@ -643,6 +643,43 @@ sub build_perl_module {
     system("$make_cmd install") == 0 or die "$make_cmd install failed: $?";
 }
 
+=head2 first_perl_modules
+
+Returns a list of strings that are used to match against the Perl modules
+in the F<src/> directory to shuffle them to the front of the build list. 
+By default it's just the C<Module-Build>, C<Expect> and C<IO-Tty> modules.
+
+=cut
+
+sub first_perl_modules {
+    return qw(Module-Build Expect IO-Tty);
+}
+
+=head2 last_perl_modules
+
+Returns a list of strings that are used to match against the Perl modules
+in the F<src/> directory to shuffle them to the back of the build list. 
+By default it's just the C<DBD-mysql> and C<DBD-SQLite> modules.
+
+=cut
+
+sub last_perl_modules {
+    return qw(DBD-mysql DBD-SQLite);
+}
+
+=head2 skip_perl_modules
+
+Returns a list of strings that are used to match against the Perl modules
+in the F<src/> directory to remove them from the build list. Certain
+modules may only be needed on certain platforms.
+By default it's just the C<BSD> modules.
+
+=cut
+
+sub skip_perl_modules {
+    return qw(BSD);
+}
+
 =head2 apache_modperl_questions
 
 This method returns a hashref where the keys are the questions (or the beginnings of
@@ -851,24 +888,6 @@ sub mod_perl_build_parameters {
       . "APACHE_SRC=$arg{apache_dir}/src "
       . "USE_APACI=1 "
       . "PERL_DEBUG=1 APACI_ARGS='--without-execstrip' EVERYTHING=1";
-}
-
-=head2 build_swishe
-
-Given the directory where swish-e will be installed to, and assuming
-we are already in the directory where swish-e has been unpacked, run
-the commands to build swish-e.
-
-=cut
-
-sub build_swishe {
-    my ( $pkg, %options ) = @_;
-    my $dir = $options{swishe_dir};
-
-    system( "./configure --prefix=$dir/swish-e " . "--exec_prefix=$dir/swish-e" ) == 0
-      or die "Unable to configure swish-e! $!";
-    system("make && make install") == 0
-      or die "Unable to make swish-e! $!";
 }
 
 =head2 finish_installation
