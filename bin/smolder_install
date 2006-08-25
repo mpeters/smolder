@@ -162,25 +162,31 @@ my @req_params = qw(
 );
 
 my @opt_params = qw(
-  DBUser
-  DBPass
-  DBName
-  DBPlatform
-  FromBackup
   AdminDBPass
-  DBHost
-  InstallPath
-  User
-  Group
   ApachePort
+  DBHost
+  DBName
+  DBPass
+  DBPlatform
+  DBUser
   FromAddress
+  FromBackup
+  Group
+  InstallPath
   SMTPHost
+  User
   verbose
 );
 
 my ($backup_dir, $backup_conf);
 
 my %options = ( map { $_ => undef } @req_params, @opt_params );
+
+# if our DBPlatform is MySQL and we didn't specify a DBHost
+# make it 'localhost' by default
+if( lc $options{DBPlatform} eq 'mysql' ) {
+    $options{DBHost} ||= 'localhost';
+} 
 
 do_install();
 exit(0);
