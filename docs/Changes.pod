@@ -4,6 +4,10 @@
 
 =over
 
+=item * Fixed some navigation issues with paged results of smoke reports when using categories. - M. Peters
+
+=item * Removed Swish-e and searchable docs from Smolder. We'll have this someday on the website (when we get one). - M. Peters
+
 =item * Fixed some build/install issues for FreeBSD - M. Peters
 
 =item * Added mising Method::Alias module - Sam Tregar
