@@ -118,8 +118,12 @@ system(qq($swishe_bin -v $verbose -c $tmp_conf -f $index)) == 0
   or die "Failed to index $doc_root into $index.";
 
 # create the list of words for autosuggest
-system(qq($swishe_bin -T INDEX_WORDS_META -f $index | grep -o -P "^\\S+" | grep -P "[a-z]{2}" > $words))
-    == 0 or die "Failed to create words filed $words from index $index!";
+my $cmd = qq($swishe_bin -T INDEX_WORDS_META -f $index | $^X) . 
+    q( -p -e 's/(\S\S+)\s.+/$1/i' > ) . $words;
+print STDERR "Running command '$cmd'\n"
+    if $verbose;
+system($cmd) == 0 
+    or die "Failed to create words filed $words from index $index!";
 
 # clean up last conf
 unlink($tmp_conf);
