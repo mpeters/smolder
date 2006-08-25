@@ -219,7 +219,7 @@ sub do_install {
     create_database();
     create_docs();
     finish_install();
-    start_smolder() if( $PLATFORM->has_sudo );
+    start_smolder();
     make_test() if ($run_tests);
     output_report();
 }
