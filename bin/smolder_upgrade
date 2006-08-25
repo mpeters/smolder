@@ -7,6 +7,7 @@ our $COPY_BIN;
 our $CHOWN_BIN;
 our $ECHO_BIN;
 our $PERL_BIN = $^X;
+our $PLATFORM;
 our $DB_PLATFORM;
 
 =head1 NAME
@@ -181,7 +182,6 @@ sub check_prereqs {
     exit_error("Must be run as root.") unless ( $> eq "0" );
 
     # make sure the platform is happy
-    our $PLATFORM;
     $PLATFORM->verify_dependencies( mode => 'install' );
 
     # Validate path to InstallRoot.
@@ -270,7 +270,7 @@ sub load_platform {
     exit_error("Can't find data/build.db.  Do you need to run 'make build'?")
       unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
     require Smolder::Platform;
-    our $PLATFORM = Smolder::Platform->load();
+    $PLATFORM = Smolder::Platform->load();
 
     print "Loaded platform module '$PLATFORM'...\n";
 
@@ -409,18 +409,19 @@ sub start_smolder {
     # clean out the tmp dir
     my $tmp_dir = catfile($InstallRoot, 'tmp', '*');
     system("rm -rf $tmp_dir") == 0
-        or warn("Can't remote tmp directory! $!");
+        or warn("Can't remove tmp directory! $!");
 
-    # now restart smolder
-    my $start = "SMOLDER_ROOT='' PERL5LIB='' " .
-        catfile($InstallRoot, 'bin', 'smolder_ctl start');
-    print "Starting Smolder running '$start'\n";
-    system($start) == 0
-     or die("Can't start Smolder.\n");
+    # now restart smolder if we can
+    if( $PLATFORM->has_sudo ) {
+        my $start = "SMOLDER_ROOT='' PERL5LIB='' " .
+            catfile($InstallRoot, 'bin', 'smolder_ctl start');
+        print "Starting Smolder running '$start'\n";
+        system($start) == 0
+         or die("Can't start Smolder.\n");
+    }
 }
 
 sub output_report {
-    our $PLATFORM;
     $PLATFORM->post_upgrade_message(
         options => {
             InstallPath => $options{InstallRoot},

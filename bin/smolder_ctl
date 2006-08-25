@@ -66,6 +66,9 @@ END
 }
 
 use Smolder::Conf qw(InstallRoot ApachePort User Group);
+use Smolder::Platform;
+
+my $platform = Smolder::Platform->load();
 
 # check for args
 usage() unless @ARGV;
@@ -93,7 +96,7 @@ sub _call_script {
     $script = catfile( InstallRoot, 'bin', $script );
 
     # will need sudo to run?
-    if ( ( $< != 0 or $> != 0 ) and $port <= 1024 ) {
+    if ( ( $< != 0 or $> != 0 ) and $port <= 1024 && $platform->has_sudo ) {
         $script = "sudo $script";
     # else we might need to chown the log files since they might
     # be owned by root if smolder was previously started on a privileged
@@ -105,7 +108,9 @@ sub _call_script {
         my $group = Group();
         foreach my $log (glob($dir)) {
             unless( -o $log ) {
-                system("sudo chown $user:$group $log") == 0
+                my $cmd = "chown $user:$group $log";
+                $cmd = "sudo $cmd" if $platform->has_sudo;
+                system($cmd) == 0
                     or die "Could not change ownership of file '$log': $?";
             }
         }

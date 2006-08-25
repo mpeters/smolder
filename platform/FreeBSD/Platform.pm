@@ -170,5 +170,7 @@ sub perl_module_questions {
     };
 }
 
+sub has_sudo { 0 };
+
 
 1;

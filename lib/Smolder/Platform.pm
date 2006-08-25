@@ -907,8 +907,7 @@ sub post_install_message {
 
     my %options = %{ $args{options} };
 
-    print <<EOREPORT;
-
+    my $report = qq(
 
 #####                                                         #####
 ###                                                             ###
@@ -921,12 +920,16 @@ sub post_install_message {
    Control script : $options{InstallPath}/bin/smolder_ctl
    Config file    : $options{InstallPath}/conf/smolder.conf
    Admin Password : 'qa_rocks'
-  
 
-   Running on $options{IPAddress} - http://$options{HostName}:$options{ApachePort}/
 
-EOREPORT
-
+    );
+    if( $pkg->has_sudo ) {
+        $report .= 
+            "Running on $options{IPAddress} - http://$options{HostName}:$options{ApachePort}/\n\n";
+    } else {
+        $report .= "Start smolder with bin/smolder_ctl\n\n";
+    }
+    print $report;
 }
 
 =head2 post_upgrade_message
@@ -944,7 +947,7 @@ sub post_upgrade_message {
 
     my %options = %{ $args{options} };
 
-    print <<EOREPORT;
+    my $report = qq(
 
 
 #####                                                         #####
@@ -957,12 +960,15 @@ sub post_upgrade_message {
    Installed at:      $options{InstallPath}
    Control script:    $options{InstallPath}/bin/smolder_ctl
    Smolder conf file: $options{InstallPath}/conf/smolder.conf
+ 
 
-   Running on $options{IPAddress} --
-     http://$options{HostName}:$options{ApachePort}/
-
-EOREPORT
-
+    );
+    if( $pkg->has_sudo ) {
+        $report .= "Running on $options{IPAddress} -- http://$options{HostName}:$options{ApachePort}/\n\n";
+    } else {
+        $report .= "Start smolder with bin/smolder_ctl\n\n";
+    }
+    print $report;
 }
 
 =head2 guess_platform
@@ -1022,6 +1028,14 @@ sub build_params {
         DBPlatforms => \@db_plats,
     );
 }
+
+=head2 has_sudo
+
+This method let's us know if this plaform has the C<sudo> command.
+
+=cut
+
+sub has_sudo { 1 };
 
 sub _load_expect {
 

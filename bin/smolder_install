@@ -17,6 +17,7 @@ our $ECHO_BIN;
 our $TAR_BIN;
 our $LN_BIN;
 our $DB_PLATFORM;
+our $PLATFORM;
 
 $|++;
 
@@ -218,7 +219,7 @@ sub do_install {
     create_database();
     create_docs();
     finish_install();
-    start_smolder();
+    start_smolder() if( $PLATFORM->has_sudo );
     make_test() if ($run_tests);
     output_report();
 }
@@ -285,8 +286,6 @@ sub unpack_backup {
 
 # load the platform module for this dist
 sub load_platform {
-    our $PLATFORM;
-
     exit_error("Can't find data/build.db.  Do you need to run smolder_build?")
       unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
     require Smolder::Platform;
@@ -305,7 +304,6 @@ sub load_platform {
 }
 
 sub check_prereqs {
-    our $PLATFORM;
     print "Checking prerequisites\n";
 
     # check that the platform is set up right.  This will check Perl,
@@ -401,13 +399,8 @@ sub create_db_user {
 }
 
 sub create_unix_user_group {
-
-    our $PLATFORM;
-
     my $gid = $PLATFORM->create_group( options => \%options );
-
     my $uid = $PLATFORM->create_user( group_id => $gid, options => \%options );
-
 }
 
 sub install_smolder {
@@ -615,7 +608,6 @@ sub create_docs {
 # "finishing" typically involves installing a control script
 # that gets run at startup/shutdown time to manage the service.
 sub finish_install {
-    our $PLATFORM;
     $PLATFORM->finish_installation( options => \%options );
 }
 
@@ -638,7 +630,6 @@ sub make_test {
 }
 
 sub output_report {
-    our $PLATFORM;
     $PLATFORM->post_install_message( options => \%options );
 }
 
