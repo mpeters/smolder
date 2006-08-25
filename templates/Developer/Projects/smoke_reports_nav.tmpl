@@ -14,13 +14,13 @@
     </span>
     [% END %]
     [% IF limit && (offset - limit >= 0) %]
-      <a class="smoke_reports_nav offset_[% offset - limit %]" href="#" style="text-decoration: none">&lArr;</a>
+      <a class="smoke_reports_nav offset_[% offset - limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset - limit %]&limit=[% limit %]" style="text-decoration: none">&lArr;</a>
     [% ELSE %]
       &lArr;
     [% END %]
     |
     [% IF limit && ((offset + limit) < project.report_count(category)) %]
-      <a class="smoke_reports_nav offset_[% offset + limit %]" href="#" style="text-decoration: none">&rArr;</a>
+      <a class="smoke_reports_nav offset_[% offset + limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset + limit %]&limit=[% limit %]" style="text-decoration: none">&rArr;</a>
     [% ELSE %]
       &rArr;
     [% END %]
