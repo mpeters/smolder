@@ -129,6 +129,7 @@ $mech->content_contains('My Projects');
     is( $report->total,      67 );
 }
 
+
 # 45..59
 # smoke_reports
 {
@@ -151,27 +152,26 @@ $mech->content_contains('My Projects');
 
     # check the paging
     my $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link );
+    ok( !defined $link, 'no go-back link' );
 
     # go from 1 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" } );
+    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" }, 'go from 1 to 2' );
 
     # go from 2 to 3
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" } );
-
+    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" }, 'go from 2 to 3' );
     # can't go past 3
     $link = $mech->find_link( n => 1, text => "\x{21d2}" );
-    ok( !defined $link );
+    ok( !defined $link, 'no go-forward link' );
 
     # go from 3 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" } );
+    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" }, 'go from 3 to 2' );
 
     # go from 2 to 1
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" } );
+    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" }, 'go from 2 to 1' );
 
     # can't go past 1
     $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link );
+    ok( !defined $link, 'no go-back link' );
 
     # changing the per-page
     $mech->form_name('smoke_reports');
