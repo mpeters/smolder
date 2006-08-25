@@ -4,6 +4,8 @@
 
 =over
 
+=item * Fixed some build/install issues for FreeBSD - M. Peters
+
 =item * Added mising Method::Alias module - Sam Tregar
 
 =item * HTML escape test data in the TAP Matrix - M. Peters
