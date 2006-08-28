@@ -218,7 +218,7 @@ sub process_add_report {
     # is this an exception we can deal with?
     my $e;
     if ( $e = Exception::Class->caught('Smolder::DB::SmokeReport::Exception::TAPCreation') ) {
-        $self->log->warn( $e->error . "\n" . $e->trace->as_string );
+        $self->log->warning( $e->error . "\n" . $e->trace->as_string );
         return $self->add_report( { invalid_report_file => 1 } );
     } else {
         $e = Exception::Class->caught();
