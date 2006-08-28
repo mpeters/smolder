@@ -68,6 +68,12 @@ perl module.
 The C<--module>, C<--skip-module> and C<--no-module>
 options are not intended to be used together.
 
+=item --debug
+
+This option will build Apache and mod_perl with debugging symbols
+turned on. This is extremely useful for tracking down segmentation
+faults.
+
 =item --help
 
 =item --man
@@ -124,7 +130,7 @@ my $APACHE_TEST  = 'Apache-Test';
 my $skip_apache  = 0;
 my $skip_mysql   = 0;
 my $skip_modules = 0;
-my ( @modules, @skip_modules, $help, $man );
+my ( @modules, @skip_modules, $help, $man, $debug );
 GetOptions(
     'no-apache'     => \$skip_apache,
     'no-mysql'      => \$skip_mysql,
@@ -133,6 +139,7 @@ GetOptions(
     'skip-module=s' => \@skip_modules,
     'help'          => \$help,
     'man'           => \$man,
+    'debug'         => \$debug,
 ) or pod2usage(2);
 
 pod2usage(1) if $help;
@@ -248,6 +255,7 @@ unless ($skip_apache) {
         apache_dir       => $apache_dir,
         mod_perl_dir     => $mod_perl_dir,
         mod_auth_tkt_dir => $mod_auth_tkt_dir,
+        debug            => $debug,
     );
 
     # build Apache::Test before libapreq but after apache
@@ -257,7 +265,7 @@ unless ($skip_apache) {
 
     # build libapreq now that mod_perl is in place
     if ( my ($libapreq) = grep /^$LIBAPREQ/, @files ) {
-        build_module($libapreq);
+        build_module($libapreq, debug => $debug);
     }
 }
 
