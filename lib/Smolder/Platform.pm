@@ -776,7 +776,7 @@ Apache installation in C<apache/>.
 sub build_apache_modperl {
     my ( $pkg, %arg ) = @_;
     my ( $apache_dir, $mod_perl_dir, $mod_auth_tkt_dir, $debug ) =
-      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir, $debug)};
+      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir debug)};
     _load_expect();
 
     print "\n\n************************************************\n\n",
@@ -854,7 +854,7 @@ C<configure> script by C<build_apache_modperl()>.
 
 sub apache_build_parameters {
     my ($pkg, %arg) = @_;
-    my $debug = $args{debug};
+    my $debug = $arg{debug};
     my $root  = $ENV{SMOLDER_ROOT};
     my $params = "--prefix=${root}/apache "
       . "--activate-module=src/modules/perl/libperl.a "
