@@ -464,7 +464,7 @@ sub upload_report {
 
     my $struct = $report_model->structure();
 
-    # now add it to the database
+    # add it to the database
     my $report = Smolder::DB::SmokeReport->create(
         {
             developer    => $dev,
@@ -481,12 +481,12 @@ sub upload_report {
             format       => $args{format},
             test_files   => scalar( $report_model->test_files ),
             duration     => ( $struct->{end_time} - $struct->{start_time} ),
-            failed       => $self->_did_test_fail($report_model),
+            failed       => $self->did_fail($report_model),
         }
     );
     Smolder::DB->dbi_commit();
 
-    # now move the tmp file to it's real destination and compress it
+    # move the tmp file to it's real destination and compress it
     my $dest   = $report->file;
     my $out_fh = IO::Zlib->new();
     $out_fh->open( $dest, 'wb9' )
@@ -503,19 +503,32 @@ sub upload_report {
     close($in_fh);
     unlink($file);
 
-    # now send an email to all the user's who want this report
+    # send an email to all the user's who want this report
     $report->send_emails();
 
-    # now purge old reports
+    # purge old reports
     $project->purge_old_reports();
+
+    # if it's a failed test, then let's go ahead and create
+    # the HTML Matrix for it since it's pretty common
+    $report->html if( $report->did_fail($report_model) );
 
     return $report;
 }
 
-# we can't just count the number of tests that failed since
-# files exiting with a non-zero status with no_plan won't have
-# any failing test counts, but will fail none-the-less
-sub _did_test_fail {
+=head2 did_fail
+
+This method returns whether or not the given L<Test::TAP::Model>
+object failed it's tests or not.
+
+We can't just count the number of tests that failed since
+files exiting with a non-zero status with no_plan won't have
+any failing test counts, but will fail none-the-less. This will
+catch those.
+
+=cut
+
+sub did_fail {
     my ($self, $model) = @_;
     return $model->total_failed if( $model->total_failed );
 
