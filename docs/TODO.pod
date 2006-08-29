@@ -32,11 +32,7 @@ Import/export projects (similar to backup and install from backup but by project
 
 =item *
 
-Add paging to other listing pages admin_developers/admin_projects, etc (possibly add sortable table as well)
-
-=item *
-
-Show test reports/graphs to the public
+Add paging to other listing pages admin_developers/admin_projects, etc (or add datagrid?)
 
 =item *
 
@@ -96,7 +92,7 @@ Look at making skinning easier so that organizations can brand it
 
 =item *
 
-Verify and test support for non AJAX browsers
+Verify support for non AJAX browsers
 
 =item *
 
