@@ -17,7 +17,7 @@ MaxRequestsPerChild  6000
 ErrorLog             <tmpl_var InstallRoot>/logs/apache_error_log
 LogFormat            "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 CustomLog            <tmpl_var InstallRoot>/logs/apache_access_log combined
-LogLevel             debug 
+LogLevel             info
 TypesConfig          <tmpl_var InstallRoot>/apache/conf/mime.types
 UseCanonicalName     On
 HostNameLookups      Off
