@@ -98,6 +98,7 @@ END
 }
 
 use Smolder;
+use Smolder::Platform;
 
 my $MAX_RESTART_WAIT = 20;                            # wait for stop on restart (in seconds)
 my $CONFIG           = Smolder::Conf->get_config();
@@ -272,8 +273,11 @@ sub fix_perms {
     my $dir   = catdir( $CONFIG->get('InstallRoot'), 'tmp' );
     my $user  = $CONFIG->get('User');
     my $group = $CONFIG->get('Group');
+    my $plat  = Smolder::Platform->load();
+    my $cmd   = "chown -R $user\:$group $dir";
+    $cmd = "sudo $cmd" if( $plat->has_sudo );
 
-    system("chown -R $user\:$group $dir") == 0
+    system($cmd) == 0
       or die "Could not change permissions on directory '$dir': $!";
 }
 
