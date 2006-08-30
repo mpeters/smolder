@@ -71,8 +71,8 @@ options are not intended to be used together.
 =item --debug
 
 This option will build Apache and mod_perl with debugging symbols
-turned on. This is extremely useful for tracking down segmentation
-faults.
+turned on, as well as making mod_auth_tkt verbose in it's debug logging.
+ This is extremely useful for tracking down segmentation faults.
 
 =item --help
 
