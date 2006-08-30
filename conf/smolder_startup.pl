@@ -32,6 +32,9 @@ use Smolder::Control::Developer::Prefs;
 use Smolder::Control::Developer::Projects;
 use Smolder::Control::Developer::Graphs;
 
+# since these are sometimes required by our libs, we want to preload them
+use XML::SAX;
+
 # don't let things get out of control
 # 10 clients == 355MB total worse-case scenario
 use Apache::SizeLimit;
