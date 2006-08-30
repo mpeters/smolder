@@ -132,7 +132,6 @@ if ( $command eq 'start' ) {
     }
 
     write_conf();
-    setup_env();
 
     print "$SCRIPT_NAME $command: starting httpd\n";
     if ( system($HTTPD_CMD) == 0 ) {
@@ -187,7 +186,6 @@ if ( $command eq 'restart' ) {
 
     # start
     write_conf();
-    setup_env();
 
     print "$SCRIPT_NAME $command: starting httpd\n";
     unless ( system($HTTPD_CMD) ) {
@@ -212,11 +210,6 @@ restart    - restart httpd if running
 END
 
     exit;
-}
-
-# make sure we can link against the swish-e libs
-sub setup_env {
-    $ENV{LD_LIBRARY_PATH} = catdir( $ROOT, 'swish-e', 'lib' );
 }
 
 # add all vars from conf/smolder.conf and also the following
