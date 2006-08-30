@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 
-use File::Spec::Functions qw(catdir catfile tmpdir);
+use File::Spec::Functions qw(catdir catfile);
 use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
 # turn off caching and setup our logging
@@ -228,7 +228,7 @@ of performance.
 # configuration options for CAP::TT (Template Toolkit)
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
-        COMPILE_DIR  => tmpdir(),
+        COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
         INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
@@ -253,7 +253,8 @@ my $TT_CONFIG = {
             $name = $1;
         }
         return catfile( $dir, $name . '.tmpl' );
-      }
+    },
+    #TEMPLATE_PRECOMPILE_DIR => catdir( InstallRoot, 'templates'),
 };
 __PACKAGE__->tt_config($TT_CONFIG);
 

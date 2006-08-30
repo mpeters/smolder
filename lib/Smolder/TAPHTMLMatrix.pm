@@ -15,7 +15,7 @@ use Smolder::Control;
 use overload '""' => "detail_html";
 
 our $TMPL = Template->new(
-    COMPILE_DIR  => File::Spec->tmpdir(),
+    COMPILE_DIR  => File::Spec->catdir( InstallRoot, 'tmp' ),
     COMPILE_EXT  => '.ttc',
     INCLUDE_PATH => File::Spec->catdir( InstallRoot, 'templates' ),
     ABSOLUTE     => 1,
