@@ -831,7 +831,6 @@ sub build_apache_modperl {
     chdir($old_dir)          or die $!;
     chdir($mod_auth_tkt_dir) or die "Unable to chdir($mod_auth_tkt_dir): $!";
     $cmd = "./configure --apxs=$root/apache/bin/apxs";
-    $cmd .= ' --debug-verbose' if( $debug );
     print "Calling '$cmd'.\n";
     system($cmd) == 0
       or die "mod_auth_tkt build failed: $?";
