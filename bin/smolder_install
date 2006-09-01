@@ -223,7 +223,6 @@ sub do_install {
     install_smolder();
     configure_smolder();
     create_database();
-    create_docs();
     finish_install();
     start_smolder();
     make_test() if ($run_tests);
@@ -600,15 +599,6 @@ sub create_database {
         system($createdb) == 0
           or die("Error calling smolder_createdb.  Unable to continue");
     }
-}
-
-sub create_docs {
-    my $InstallPath = $options{InstallPath};
-    my $cmd = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin";
-    system("$cmd/smolder_pod2html") == 0
-        or die "Could not create HTML versions of docs: $!";
-    system("$cmd/smolder_doc_indexer") == 0
-        or die "Could not index HTML versions of docs for searching: $!";
 }
 
 # "finishing" typically involves installing a control script
