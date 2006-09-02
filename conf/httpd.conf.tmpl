@@ -114,6 +114,9 @@ RewriteRule ^/$             /app [R,L]
 RewriteRule ^/index/?$      /app [R,L]
 RewriteRule ^/index.html?$  /app [R,L]
 
+# enable if you want to check on module sharing/pre-loading
+#PerlModule Smolder::Cleanup
+#PerlChildExitHandler Smolder::Cleanup->loaded_modules
 
 # handle the static stuff with Smolder::StaticContent
 # so that caching can be improved
@@ -150,6 +153,7 @@ RewriteRule ^/index.html?$  /app [R,L]
 
     # don't let our children get too big
     PerlCleanupHandler Apache::SizeLimit
+
 </Location>
 
 <Location /app/public_auth>

@@ -19,6 +19,7 @@ BEGIN{ $DBI::connect_via = 'connect_cached'; };
 # at the end of this file and tell it to use Apache::DBI after that.  Phew.
 
 use Smolder::DB;
+use Smolder::Dispatch;
 use Smolder::Control;
 use Smolder::Control::Public;
 use Smolder::Control::Public::Projects;
@@ -33,7 +34,34 @@ use Smolder::Control::Developer::Projects;
 use Smolder::Control::Developer::Graphs;
 
 # since these are sometimes required by our libs, we want to preload them
+use Apache::Log;
+use B::Deparse;
+use Carp::Heavy;
+use Class::DBI::Iterator;
+use Class::DBI::SQL::Transformer;
+use Class::Singleton;
+use Encode;
+use File::Compare;
+use File::Find;
+use IO::Select;
+use IO::Socket;
+use Log::Dispatch::ApacheLog;
+use Net::Cmd;
+use Net::Config;
+use Net::SMTP;
+use Number::Format;
+use Socket;
+use Template::Plugin;
+use Template::Plugin::Filter;
+use Template::Plugin::Number::Format;
+use URI::file::Base;
+use URI::file::Unix;
 use XML::SAX;
+use XML::SAX::Base;
+use XML::SAX::DocumentLocator;
+use XML::SAX::PurePerl;
+use YAML;
+use YAML::Dumper;
 
 # don't let things get out of control
 # 10 clients == 355MB total worse-case scenario
@@ -45,6 +73,12 @@ $Apache::SizeLimit::CHECK_EVERY_N_REQUESTS = 3;
 # Disconnect before fork and then switch to using Apache::DBI
 Smolder::DB->db_Main()->disconnect();
 $DBI::connect_via = 'Apache::DBI::connect';
+
+##################################################################
+#  Use this to check share modules
+##################################################################
+#use Smolder::Cleanup;
+#Apache->server->register_cleanup(sub { Smolder::Cleanup->loaded_modules('preload-before.txt') } );
 
 
 1;
