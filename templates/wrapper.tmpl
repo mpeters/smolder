@@ -44,7 +44,7 @@
   [ 
     [% IF username %]
         [% username %] |
-        <a href="/app/developer_projects"[% IF projects %] id="my_projects_menu_trigger" class="dropdownmenu"[% END %]>my projects</a> |
+        <a href="/app/developer_projects"[% IF projects.size %] id="my_projects_menu_trigger" class="dropdownmenu"[% END %]>my projects</a> |
         <a href="/app/developer_prefs">prefs</a> |
     [% END %]
 
