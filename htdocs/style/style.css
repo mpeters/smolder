@@ -23,6 +23,8 @@ h1 {
 
 h2 { 
     color: #FFFFFF;
+    background-image: url('/images/h2_bg.gif');
+    background-repeat: repeat-x;
     background-color: #555555;
     padding: 0px;
     margin: 0px;
@@ -35,6 +37,8 @@ h2 {
 h3 {
     color: #FFFFFF;
     background-color: #C47147;
+    background-image: url('/images/h3_bg.gif');
+    background-repeat: repeat-x;
     padding-left: 5px;
     margin-top: 0px;
     margin-bottom: 5px;
@@ -67,18 +71,19 @@ form {
 
 a.sub_menu {
     color: #C47147;
-    background-color: #ffffff;
-    border: 1px solid #555555;
+    background: #ffffff url('/images/sub_menu_bg.gif') no-repeat bottom right;
+    border-top: 1px solid #555555;
+    border-left: 1px solid #555555;
     padding: 2px;
     padding-left: 3px;
-    padding-right: 3px;
+    padding-right: 8px;
     text-decoration: none;
     font-size: 10pt;
 }
 
 a.sub_menu:hover {
     color: #ffffff;
-    background-color: #C47147;
+    background: #C47147 url('/images/sub_menu_bg-over.gif') no-repeat bottom right;
 }
 
 a.calendar_trigger {
@@ -120,6 +125,8 @@ th, td {
 
 tr.header, td.header {
     background-color: #C47147;
+    background-image: url('/images/h3_bg.gif');
+    background-repeat: repeat-x;
     color: #FFFFFF;
     font-weight: bold;
 }

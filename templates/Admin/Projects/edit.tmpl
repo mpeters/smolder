@@ -1,5 +1,8 @@
 <form class="ajaxable for_crud_add_container show_indicator" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
 
+<table class="boxed crud">
+<tr><td colspan="4" class="header2">Edit Project</td></tr>
+<tr><td colspan="4">
 [% PROCESS form_header.tmpl %]
 
 [% IF c.dfv_msgs.invalid_project_name || err_unique_project_name || c.dfv_msgs.invalid_unique_project_name || c.dfv_msgs.invalid_start_date %]
@@ -14,9 +17,8 @@
     [% END %]
 </ul>
 [% END %]
+</td></tr>
 
-<table class="boxed crud">
-<tr><td colspan="4" class="header2">Edit Project</td></tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name *</label></td>
   <td><input class="first hl" type="text" name="project_name" size="25" /></td>
