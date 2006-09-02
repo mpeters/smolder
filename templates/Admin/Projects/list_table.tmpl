@@ -15,12 +15,14 @@
     <td width="50px"><a href="/app/admin_projects/edit/[% project.id %]" class="crud_edit_trigger for_item_[% project.id %]" id="crud_edit_[% project.id %]">[Edit]</a></td>
     <td width="60px">
       <a href="#" class="popup_form" id="delete_project_[% project.id %]_trigger" >[Delete]</a>
-      <div class="popup_form" id="delete_project_[% project.id %]" style="display:none; position: absolute">
+      <div class="popup_form" id="delete_project_[% project.id %]" style="display:none; position: absolute; width: 240px; right: 100px">
       <form class="ajaxable show_indicator_[% project.id %]" name="delete_[% project.id %]" action="/app/admin_projects/delete/[% project.id %]" method="post">
-        Upon deletion, all information about this project will be removed.<br />
-        Are you sure this is what you want?
+        <p>
+        Upon deletion, all information about this project will be removed.
+        <strong>Are you sure this is what you want?</strong>
         <input type="submit" value="Yes">
         <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator_[% project.id %]" alt="loading" />
+        </p>
       </form>
       </div>
     </td>
