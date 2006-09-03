@@ -145,7 +145,7 @@ RewriteRule ^/index.html?$  /app [R,L]
     TKTAuthUnauthURL        http://<tmpl_var HostName>:<tmpl_var ApachePort>/app/public_auth/forbidden
     TKTAuthTimeout          96h
     TKTAuthTimeoutRefresh   .5
-    TKTAuthDebug            off
+    TKTAuthDebug            0
     # guest user on everything so that apache's auth
     # is triggered so that our ENV is setup for non-protected stuff
     TKTAuthGuestLogin on
