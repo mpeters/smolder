@@ -490,34 +490,6 @@ sub install_smolder {
         close SOURCE;
     }
 
-    # fix scripts shebang line
-    my @dirs = (
-        catdir( $InstallPath, 'htdocs' ),
-        catdir( $InstallPath, 'docs' ),
-        #catdir( $InstallPath, 'bench' ),   # doesn't exist yet
-        catdir( $InstallPath, 'conf' ),
-    );
-
-    my $wanted = sub {
-        my $script = $File::Find::name;
-
-        if ( $script =~ /\.(?:pl|cgi)$/ ) {
-            open( SOURCE, $script ) or die "Unable to $script: $!";
-            my $source = do { local $/; <SOURCE> };
-
-            $source =~ s/^#![\w\/\.]+(\s*.*)$/#!$PERL_BIN$1/m
-              or warn "can't find shebang line in $script\n";
-
-            open( SOURCE, '>', $script ) or die "Unable to write $script: $!";
-            print SOURCE $source;
-            close SOURCE;
-
-            system("$CHMOD_BIN +x $script") && die "Can't set execute bit for $script: $!";
-        }
-    };
-
-    find( $wanted, @dirs );
-
     # Set all files in Smolder/bin/*
     $chmod = $CHMOD_BIN . " +x $InstallPath/bin/*";
     system($chmod) && die("Can't set execute bits: $!");
