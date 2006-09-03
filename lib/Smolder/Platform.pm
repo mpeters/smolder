@@ -952,7 +952,7 @@ sub post_install_message {
 
    Running on $options{IPAddress} - http://$options{HostName}:$options{ApachePort}/
 
-    );
+);
     print $report;
 }
 
@@ -986,7 +986,7 @@ sub post_upgrade_message {
    Smolder conf file: $options{InstallPath}/conf/smolder.conf
  
 
-    );
+);
     if( $pkg->has_sudo ) {
         $report .= "Running on $options{IPAddress} -- http://$options{HostName}:$options{ApachePort}/\n\n";
     } else {

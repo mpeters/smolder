@@ -100,7 +100,7 @@ sub run_sql_file {
 sub dbh {
     my ( $class, %args ) = @_;
     my ( $user, $pw, $host, $db_name ) = @args{qw(user passwd host db_name)};
-    my $dsn = "dbi:mysql:database=$db_name;host=" . ( $host || 'localhost' );
+    my $dsn = "dbi:mysql:database=" . ($db_name || '') . ";host=" . ( $host || 'localhost' );
     return DBI->connect_cached( $dsn, $user, $pw, \%Smolder::DBPlatform::CONNECT_OPTIONS, );
 }
 
@@ -195,7 +195,7 @@ sub create_user {
         user    => 'root',
         passwd  => $admin_pw,
         host    => $host,
-        db_name => $db_name,
+#        db_name => $db_name,
     );
 
     my $sql = "GRANT ALL ON $db_name\.* to $user";

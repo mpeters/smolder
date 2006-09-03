@@ -80,7 +80,7 @@ sub connect {
     return $db_platform->dbh(
         user    => DBUser,
         passwd  => DBPass,
-        host    => DBHost,
+        host    => ( DBHost || ''),
         db_name => DBName,
     );
 }
