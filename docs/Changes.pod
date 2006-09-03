@@ -8,7 +8,7 @@
 
 =item * Removed Swish-e and searchable docs from Smolder. We'll have this someday on the website (when we get one). - M. Peters
 
-=item * Fixed some build/install issues for FreeBSD - M. Peters
+=item * Fixed some build/install issues for FreeBSD and MySQL - M. Peters
 
 =item * Added mising Method::Alias module - Sam Tregar
 
