@@ -6,11 +6,11 @@
     <a class="sub_menu" href="/app/admin_projects/developers">Assign Developers to Projects</a>
 </div>
 
-<div class="crud_header">
-<img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="crud_indicator" alt="loading" />
-<a href="/app/admin_developers/add" id="crud_add_trigger">Add New Developer</a>
-</div>
-<div id="crud_add_container" class="crud_add for_crud_list" style="display:none"></div>
-<div id="crud_list">
-[% PROCESS Admin/Developers/list_table.tmpl %]
+<div id="developer_crud" class="crud for_admin_developers">
+    <div class="crud_header">
+      <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" alt="loading" />
+      <a href="/app/admin_developers/add" class="add_trigger">Add New Developer</a>
+    </div>
+    <div id="developer_add_container" class="add_container" style="display:none"></div>
+    <div id="developer_list_container" class="list_container">[% PROCESS Admin/Developers/list_table.tmpl %]</div>
 </div>

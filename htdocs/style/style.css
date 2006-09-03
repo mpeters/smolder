@@ -464,7 +464,7 @@ img.indicator {
 }
 
 /* CRUD styles */
-table.crud, div.crud {
+table.crud {
     width: 720px;
 }
 
@@ -508,7 +508,7 @@ div.crud_header a {
     background-color: #333;
     back\ground-color: transparent;
     background-image: url('/images/blank.gif');
-    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale");
+    /* filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale"); */
 }
 
 

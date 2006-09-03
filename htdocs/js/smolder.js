@@ -65,7 +65,7 @@ function ajax_submit (args) {
         {
             parameters  : query_params,
             asynchronous: true,
-            onComplete : function(request) {
+            onComplete : function(request, json) {
                 // reapply any dynamic bits
                 Behaviour.apply();
                 Tooltip.setup();
@@ -75,9 +75,11 @@ function ajax_submit (args) {
                 // hide the indicator
                 hideIndicator(indicator);
                 // do whatever else the user wants
+                args.request = request;
+                args.json    = json;
                 complete(args);
             },
-            onFailure: function(request) { show_error() }
+            onFailure: function(request) { show_error() },
         }
     );
 };

@@ -1,4 +1,4 @@
-<form class="ajaxable for_crud_add_container show_indicator" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
+<form class="edit_form" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
 
 <table class="boxed crud">
 <tr><td colspan="4" class="header2">Edit Project</td></tr>
@@ -37,7 +37,7 @@
   </td>
   <td colspan="2" align="right">
     <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator" alt="loading" />
-    <input type="button" id="crud_edit_cancel" value="Cancel" />
+    <input type="button" class="edit_cancel" value="Cancel" />
     <input type="submit" value="Update" />
   </td>
 </tr>

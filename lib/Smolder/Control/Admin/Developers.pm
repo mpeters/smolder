@@ -160,6 +160,7 @@ sub process_edit {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
+    $self->json_header({ list_changed => 1 });
     return $self->tt_process( 'Admin/Developers/edit_success.tmpl', { developer => $developer }, );
 }
 
@@ -246,6 +247,7 @@ sub process_add {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
+    $self->json_header({ list_changed => 1 });
     return $self->tt_process( 'Admin/Developers/add_success.tmpl', { developer => $developer }, );
 }
 
@@ -270,6 +272,7 @@ sub delete {
     $developer->delete();
     Smolder::DB->dbi_commit();
 
+    $self->query->param(table_only => 1);
     return $self->list();
 }
 

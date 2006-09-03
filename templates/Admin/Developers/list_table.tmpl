@@ -1,5 +1,5 @@
 [% IF developers %]
-<table class="boxed crud">
+<table class="boxed crud" id="developer_list">
 <tr class="header">
   <td>Username</td>
   <td>Name</td>
@@ -15,7 +15,7 @@
     <td width="180px">[% IF developer.lname %][% developer.lname | html %], [% END %][% developer.fname | html %]</td>
     <td width="100px">[% developer.email | html %]</td>
     <td width="80px">[% IF developer.admin %]Yes[% ELSE %]No[% END %]</td>
-    <td width="50px"><a href="/app/admin_developers/edit/[% developer.id %]" class="crud_edit_trigger for_item_[% developer.id %]" id="crud_edit_[% developer.id %]">[Edit]</a></td>
+    <td width="50px"><a href="/app/admin_developers/edit/[% developer.id %]" class="edit_trigger for_item_[% developer.id %]" id="crud_edit_[% developer.id %]">[Edit]</a></td>
     <td width="110px">
       <a href="#" class="popup_form" id="resetpw_developer_[% developer.id %]_trigger">[Reset Password]</a>
       <div id="resetpw_developer_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
@@ -28,14 +28,16 @@
       </div>
     </td>
     <td width="60px">
-      <a href="#" class="popup_form" id="delete_developer_form_[% developer.id %]_trigger">[Delete]</a>
-      <div id="delete_developer_form_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
-        <form class="ajaxable show_indicator_[% developer.id %]" name="delete_[% developer.id %]" action="/app/admin_developers/delete/[% developer.id %]" method="post">
-        Upon deletion, all information about this project will be removed.<br />
-        Are you sure this is what you want?
-        <input type="submit" value="Yes">
-        <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator_[% developer.id %]" alt="loading" />
-        </form>
+      <a href="#" class="delete_trigger for_item_[% developer.id %]">[Delete]</a>
+      <div class="popup_form" id="delete_[% developer.id %]" style="display: none; position: absolute; width: 240px; right: 100px;">
+      <form id="delete_form_[% developer.id %]" name="delete_[% developer.id %]" action="/app/admin_developers/delete/[% developer.id %]" method="post">
+        <p>
+        Upon deletion, all information about this project will be removed.
+        <strong>Are you sure this is what you want?</strong>
+        <input type="submit" value="Yes" />
+        <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="delete_indicator_[% developer.id %]" alt="loading" />
+        </p>
+      </form>
       </div>
     </td>
   </tr>

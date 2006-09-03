@@ -6,10 +6,11 @@
     <a class="sub_menu" href="/app/admin_projects/developers">Add Developers to Projects</a>
 </div>
 
-<div class="crud_header">
-<img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="crud_indicator" alt="loading" />
-<a href="/app/admin_projects/add" id="crud_add_trigger">Add New Project</a>
+<div id="project_crud" class="crud for_admin_projects">
+    <div class="crud_header">
+      <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" alt="loading" />
+      <a href="/app/admin_projects/add" class="add_trigger">Add New Project</a>
+    </div>
+    <div id="project_add_container" class="add_container" style="display:none"></div>
+    <div id="project_list_container" class="list_container">[% PROCESS Admin/Projects/list_table.tmpl %]</div>
 </div>
-<div id="crud_add_container" class="crud_add for_crud_list" style="display:none"></div>
-<div id="crud_list">
-[% PROCESS Admin/Projects/list_table.tmpl %]

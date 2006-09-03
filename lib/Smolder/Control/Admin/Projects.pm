@@ -177,7 +177,7 @@ sub edit {
         my %project_data = (
             id           => $project->id,
             project_name => $project->name,
-            start_date   => $project->start_date->strftime('%d/%m/%Y'),
+            start_date   => $project->start_date->strftime('%m/%d/%Y'),
             public       => $project->public,
         );
         $output = HTML::FillInForm->new->fill(
@@ -282,8 +282,9 @@ sub process_add {
     Smolder::DB->dbi_commit();
 
     # now show the project's success message
+    $self->json_header({ list_changed => 1 });
     my $tmpl = $id ? "edit_success.tmpl" : "add_success.tmpl";
-    return $self->tt_process( "Admin/Projects/$tmpl", { project => $project }, );
+    return $self->tt_process( "Admin/Projects/$tmpl", { project => $project } );
 }
 
 =head2 details
@@ -335,7 +336,8 @@ sub delete {
         Smolder::DB->dbi_commit();
 
     }
-    return $self->list('delete');
+    $self->query->param(table_only => 1);
+    return $self->list();
 }
 
 1;

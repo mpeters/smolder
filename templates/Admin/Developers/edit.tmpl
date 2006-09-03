@@ -1,21 +1,21 @@
-<form class="ajaxable for_crud_add_container show_indicator" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
+<form class="edit_form" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
 
+<table class="boxed crud">
+<tr><td colspan="4" class="header2">Edit Developer</td></tr>
+<tr><td colspan="4">
 [% PROCESS form_header.tmpl %]
 
 [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id || c.dfv_msgs.invalid_email %]
 <ul>
-  [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
-  <li><em class="warn">A developer with that username already exists.</em></li>
-  [% END %]
-  [% IF c.dfv_msgs.invalid_email %]
-  <li><em class="warn">Not a valid email address!</em></li>
-  [% END %]
+    [% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
+    <li><em class="warn">A developer with that username already exists.</em></li>
+    [% END %]
+    [% IF c.dfv_msgs.invalid_email %]
+    <li><em class="warn">Not a valid email address!</em></li>
+    [% END %]
 </ul>
 [% END %]
-
-
-<table class="boxed crud">
-<tr><td colspan="4" class="header2">Edit Developer</td></tr>
+</td></tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_username || err_unique_username %] warn[% END %]">Username</label></td>
   <td><input class="first hl" type="text" name="username" size="25" /></td>
@@ -36,7 +36,7 @@
   </td>
   <td colspan="2" align="right">
       <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator" alt="loading" />
-      <input type="button" id="crud_edit_cancel" value="Cancel" />
+      <input type="button" class="edit_cancel" value="Cancel" />
       <input type="submit" value="Update" />
   </td>
 </tr>

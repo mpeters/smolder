@@ -172,7 +172,7 @@ $mech->content_contains('Developers');
     ok( $mech->form_name("delete_$dev") );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Developers');
+    $mech->content_contains('developer_list');
     $mech->content_lacks( $dev->username );
 }
 

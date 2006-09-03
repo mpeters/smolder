@@ -259,7 +259,7 @@ $mech->content_contains('Projects');
     ok( $mech->form_name("delete_$proj") );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Projects');
+    $mech->content_contains('project_list');
     $mech->content_lacks( $proj->name );
 }
 
