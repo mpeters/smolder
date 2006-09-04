@@ -1,5 +1,11 @@
 var cruds = [];
 var myrules = {
+    'div.boxed': function(element) {
+        // create a new div to the right and bottom
+        var dim = Element.getDimensions(element);
+        new Insertion.After(element, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
+        new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
+    },
     '#top_nav a.dropdownmenu' : function(element) {
         var menuId = element.id.replace(/_trigger$/, '');
         element.onmouseover = function(event) {
@@ -277,7 +283,7 @@ var myrules = {
     'select.hl': function(element) {
         element.onfocus = function() { highlight(element);   };
         element.onblur  = function() { unHighlight(element); };
-    },
+    }
 };
 
 Behaviour.register(myrules);

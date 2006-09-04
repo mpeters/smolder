@@ -111,12 +111,25 @@ label {
 }
 
 table.boxed, div.boxed {
-    border: 1px solid #888888;
-    border-left-color: #CCCCCC;
-    border-top-color: #CCCCCC;
-    background-color: #FFFFFF;
+    border-left: 1px solid #CCCCCC;
+    border-top: 1px solid #CCCCCC;
+    background: #FFFFFF;
     padding: 3px;
-    margin-bottom: 10px;
+    float:left;
+    width: 720px;
+}
+
+div.boxed_right {
+    background: transparent url('/images/boxed-bg-right.png') repeat-y; 
+    float:left; 
+    width:5px; 
+}
+
+div.boxed_bottom {
+    background: transparent url('/images/boxed-bg-bottom.png') repeat-x right; 
+    float:left; 
+    height:5px; 
+    margin-bottom: 8px;
 }
 
 th, td {
