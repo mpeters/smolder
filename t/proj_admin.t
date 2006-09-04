@@ -72,7 +72,7 @@ $mech->content_contains('My Projects');
 
     # is form pre-filled
     $mech->get_ok("$url/$proj1");
-    $mech->content_contains('Project Settings');
+    $mech->content_contains('Settings');
     $mech->content_contains('checked="checked" value="1"');
     $mech->content_contains('value="Foo"');
     $mech->content_contains('value="Bar"');
@@ -94,7 +94,7 @@ $mech->content_contains('My Projects');
     $mech->set_fields(%settings);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('successfully updated');
+    $mech->contains_message('successfully updated');
     Smolder::DB->dbi_commit();
 
     my $proj_id = $proj1->id;
@@ -112,7 +112,7 @@ $mech->content_contains('My Projects');
     my $url        = "/app/developer_projects/admin_settings";
     my @categories = ( "Stuff", "More Stuff", );
     $mech->get_ok("$url/$proj1");
-    $mech->content_contains('Project Settings');
+    $mech->content_contains('Settings');
     $mech->content_contains('none');
 
     # empty form
@@ -134,7 +134,7 @@ $mech->content_contains('My Projects');
     $mech->set_fields( category => $categories[0] );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('succesfully added');
+    $mech->contains_message('successfully added');
     $mech->content_contains( $categories[0] );
     Smolder::DB->dbi_commit();
 
@@ -150,7 +150,7 @@ $mech->content_contains('My Projects');
     $mech->set_fields( category => $categories[1] );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('succesfully added');
+    $mech->contains_message('successfully added');
     $mech->content_contains( $categories[0] );
     $mech->content_contains( $categories[1] );
     Smolder::DB->dbi_commit();

@@ -83,7 +83,7 @@ $mech->content_contains('Projects');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains("New project '$data{project_name}' successfully created");
+    $mech->contains_message("New project '$data{project_name}' successfully created");
     ($proj) = Smolder::DB::Project->search( name => $data{project_name} );
 
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
@@ -136,7 +136,7 @@ $mech->content_contains('Projects');
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains("Project '$new_data{project_name}' successfully updated");
+    $mech->contains_message("Project '$new_data{project_name}' successfully updated");
     $mech->get_ok("$url/details/$proj");
     $mech->content_contains('Yes');
     $mech->content_lacks('No');

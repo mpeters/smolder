@@ -85,7 +85,7 @@ $mech->content_contains('Developers');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains("New developer '$data{username}' successfully created");
+    $mech->contains_message("New developer '$data{username}' successfully created");
     ($dev) = Smolder::DB::Developer->search( username => $data{username} );
     END { $dev->delete() if ($dev) }
 }
@@ -138,7 +138,7 @@ $mech->content_contains('Developers');
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains("Developer '$data{username}' successfully updated");
+    $mech->contains_message("Developer '$data{username}' has been successfully updated");
     $mech->get_ok("$url/list");
     $mech->follow_link_ok( { url => "/app/admin_developers/edit/$dev" } );
     $mech->content_contains( $new_data{fname} );

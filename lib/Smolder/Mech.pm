@@ -4,6 +4,9 @@ use warnings;
 use base 'Test::WWW::Mechanize';
 use Smolder::Conf qw(DBPlatform);
 use Smolder::TestData qw(base_url);
+use JSON qw(jsonToObj);
+use Test::Builder;
+use Test::More;
 
 =head1 NAME 
 
@@ -132,6 +135,46 @@ sub request {
         Smolder::DB->db_Main->disconnect();
     }
     return $self->SUPER::request(@_);
+}
+
+=head1 contains_message
+
+This method will look in the C<X-JSON> HTTP header
+of the response, look through each message in the
+C<messages> array and see if any of them match
+the given message.
+
+If given message is a scalar, the message must match
+exactly, else if it's a regex, then it will be matched
+against that.
+
+=cut
+
+sub contains_message {
+    my ($self, $match) = @_;
+    my $resp = $self->response();
+    my $json = jsonToObj($self->response->header('X-JSON') || '{}');
+    my $msgs = $json->{messages} || [];
+    my $diag = "contains message $match";
+
+    # so test diagnostics are right
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    foreach my $msg (@$msgs) {
+        if( ref $match eq 'Regexp' ) {
+            if( $msg->{msg} =~ $match ) {
+                ok(1, $diag);
+                return 1;
+            }
+        } else {
+            if( index($msg->{msg}, $match) != -1 ) {
+                ok(1, $diag);
+                return 1;
+            }
+        } 
+    }
+    ok(0, $diag);
+    return 0;
 }
 
 1;

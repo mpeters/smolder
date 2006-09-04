@@ -88,7 +88,7 @@ $mech->content_contains('Preferences');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Preferences successfully updated');
+    $mech->contains_message('successfully updated');
     is( db_field_value( 'preference', 'email_type', $dev->preference->id ), $data{email_type} );
     is( db_field_value( 'preference', 'email_freq', $dev->preference->id ), $data{email_freq} );
 
@@ -227,7 +227,7 @@ $mech->content_contains('Preferences');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('Password successfully changed!');
+    $mech->contains_message('successfully changed');
 
     # now logout and log back in with the new pw
     $mech->logout();
