@@ -68,6 +68,9 @@ sub change_admins {
     $project->clear_admins();
     $project->set_admins(@admins) if (@admins);
     Smolder::DB->dbi_commit();
+    $self->add_message(
+        msg => "Successfully changed admins for project '" . $project->name . "'."
+    );
 
     return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project }, );
 }
@@ -118,6 +121,10 @@ sub add_developer {
             die $@ unless $DB_PLATFORM->unique_failure_msg($@);
         } else {
             Smolder::DB->dbi_commit();
+            $self->add_message(
+                msg => "Developer '" . $developer->username 
+                    . "' has been added to project '" . $project->name . "'."
+            );
         }
     }
 
@@ -144,6 +151,11 @@ sub remove_developer {
             project   => $project,
         )->delete();
         Smolder::DB->dbi_commit();
+
+        $self->add_message(
+            msg => "Developer '" . $developer->username 
+                . "' has been removed from project '" . $project->name . "'."
+        );
     }
 
     return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
@@ -282,9 +294,10 @@ sub process_add {
     Smolder::DB->dbi_commit();
 
     # now show the project's success message
-    $self->json_header({ list_changed => 1 });
-    my $tmpl = $id ? "edit_success.tmpl" : "add_success.tmpl";
-    return $self->tt_process( "Admin/Projects/$tmpl", { project => $project } );
+    my $msg = $id ?  "Project '" . $project->name . "' successfully updated."
+        : "New project '" . $project->name . "' successfully created.";
+    $self->add_message(msg => $msg);
+    return $self->json_header({ list_changed => 1 });
 }
 
 =head2 details
@@ -332,10 +345,12 @@ sub delete {
         my @smokes = $project->smoke_reports();
         $_->delete_files foreach (@smokes);
 
+        my $project_name = $project->name;
         $project->delete();
         Smolder::DB->dbi_commit();
-
+        $self->add_message(msg => "Project '$project_name' successfully deleted.");
     }
+
     $self->query->param(table_only => 1);
     return $self->list();
 }

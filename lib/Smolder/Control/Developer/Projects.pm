@@ -98,6 +98,11 @@ sub smoke_test_validity {
     $report->update();
     Smolder::DB->dbi_commit();
 
+    # notify the user
+    $self->add_message( 
+        msg => "Report #$report has been marked as " 
+            . ($valid->{invalid} ? 'invalid' : 'valid') . "."
+    );
     return $self->tt_process(
         'Developer/Projects/smoke_report_details.tmpl',
         { report => $report, project => $report->project },
@@ -439,7 +444,10 @@ sub process_admin_settings {
     $project->update();
     Smolder::DB->dbi_commit();
 
-    return $self->admin_settings( { success => 1 } );
+    $self->add_message(
+        msg => "Project settings successfully updated.",
+    );
+    return $self->admin_settings({ success => 1});
 }
 
 =head2 categories
@@ -497,9 +505,13 @@ sub add_category {
         }
     }
     Smolder::DB->dbi_commit();
+    $self->add_message(
+        msg => "Category '$valid->{category}' successfully added to project '" 
+            . $project->name . "'."
+    );
 
     # now return to that page again
-    return $self->categories( { add_success => 1 }, $project );
+    return $self->categories( {}, $project );
 }
 
 =head2 delete_category
@@ -534,13 +546,22 @@ sub delete_category {
             category    => $cat,
             replacement => $replacement,
         );
+
+        $self->add_message(
+            msg => "Category '$cat' was successfully replaced by '$replacement'." 
+        );
     }
 
     # delete the old category
     $project->delete_category($cat);
     Smolder::DB->dbi_commit();
 
-    return $self->categories( { delete_successful => 1 }, $project );
+    $self->add_message(
+        msg => "Category '$cat' successfully delete from project '" 
+            . $project->name . "'."
+    );
+
+    return $self->categories( {}, $project );
 }
 
 1;

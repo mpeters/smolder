@@ -74,8 +74,11 @@ sub reset_pw {
         $self->log->warning("[WARN] - $msg - $error");
         return $self->error_message($msg);
     } else {
-        return $self->tt_process( 'Admin/Developers/resetpw_success.tmpl',
-            { developer => $developer } );
+        $self->add_message(
+            msg => "Password for '" . $developer->username . 
+                "' has been reset and an email sent with their new password."
+        );
+        return ' ';
     }
 }
 
@@ -160,8 +163,8 @@ sub process_edit {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
-    $self->json_header({ list_changed => 1 });
-    return $self->tt_process( 'Admin/Developers/edit_success.tmpl', { developer => $developer }, );
+    $self->add_message( msg => "Developer '" . $developer->username . "' has been successfully updated.");
+    return $self->json_header({ list_changed => 1 });
 }
 
 =head2 list
@@ -247,8 +250,8 @@ sub process_add {
     Smolder::DB->dbi_commit();
 
     # now show the successful message
-    $self->json_header({ list_changed => 1 });
-    return $self->tt_process( 'Admin/Developers/add_success.tmpl', { developer => $developer }, );
+    $self->add_message(msg => "New developer '" . $developer->username . "' successfully created.");
+    return $self->json_header({ list_changed => 1 });
 }
 
 =head2 delete 
@@ -263,14 +266,18 @@ sub delete {
     my $id        = $self->param('id');
     my $developer = Smolder::DB::Developer->retrieve($id);
 
-    # remove all reports from this developer
-    my @smokes = $developer->smoke_reports();
-    foreach my $smoke (@smokes) {
-        $smoke->delete_files();
-    }
+    if( $developer ) {
+        # remove all reports from this developer
+        my @smokes = $developer->smoke_reports();
+        foreach my $smoke (@smokes) {
+            $smoke->delete_files();
+        }
 
-    $developer->delete();
-    Smolder::DB->dbi_commit();
+        my $username = $developer->username;
+        $developer->delete();
+        Smolder::DB->dbi_commit();
+        $self->add_message(msg => "Developer '$username' has been successfully deleted.");
+    }
 
     $self->query->param(table_only => 1);
     return $self->list();

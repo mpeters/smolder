@@ -6,7 +6,7 @@ use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
-use JSON qw(objToJson);
+use JSON qw(objToJson jsonToObj);
 
 #use CGI::Application::Plugin::DebugScreen;
 
@@ -19,12 +19,11 @@ use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile);
 use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
-# turn off caching and setup our logging
+# turn off browser caching and setup our logging
 __PACKAGE__->add_callback(
     init => sub {
-
-        # it's all dynamic, so don't let the browser cache anything
         my $self = shift;
+        # it's all dynamic, so don't let the browser cache anything
         $self->param('r')->no_cache(1);
 
         # setup log dispatch to use Apache::Log
@@ -39,6 +38,27 @@ __PACKAGE__->add_callback(
                 }
             ],
         );
+    }
+);
+
+# make sure out messages get sent out in the X-JSON header
+__PACKAGE__->add_callback(
+    postrun => sub {
+        my $self = shift;
+
+        if( $self->param('__MSGS') ) {
+            my %headers = $self->header_props;
+            my $json = jsonToObj($headers{'-x-json'} || '{}');
+            $json->{messages} ||= [];
+
+            # add any messages that we might have
+            foreach my $msg (@{$self->param('__MSGS')}) {
+                # html escape the message text
+                $msg->{msg} = escape_html( $msg->{msg}, EH_INPLACE );
+                push(@{$json->{messages}}, $msg);
+            }
+            $self->json_header($json);
+        }
     }
 );
 
@@ -187,12 +207,36 @@ sub json_header {
     my $json = objToJson($struct);
     $self->header_add( '-x-json' => $json );
 
-    # IE is over-zealous in it's caching
-    $self->header_add(-cache_control => 'no-cache');
-    $self->header_add(-pragma => 'no-cache');
-
     # Safari doesn't like empty content bodies
     return ' ';
+}
+
+=head2 add_message
+
+Adds an message that will be displayed to the user.
+Takes the following name-value pairs;
+
+=over
+
+=item msg
+
+The text of the message to send. It will be HTML escaped, so
+it must not contain HTML.
+
+=item type
+
+The type of the message, either C<info> or C<warning>. By
+default C<info> is assumed.
+
+=back
+
+=cut
+
+sub add_message {
+    my ($self, %args) = @_;
+    my $msgs = $self->param('__MSGS') || [];
+    push(@$msgs, { type => ($args{type} || 'info') , msg => ($args{msg} || '') });
+    $self->param('__MSGS' => $msgs);
 }
 
 =head1 TEMPLATE CONFIGURATION

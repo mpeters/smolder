@@ -97,7 +97,8 @@ sub process_change_pw {
     $dev->password( $valid->{new_pw} );
     $dev->update();
     Smolder::DB->dbi_commit();
-    return $self->change_pw( { success => 1 } );
+    $self->add_message(msg => "Password successfully changed.");
+    return $self->change_pw();
 }
 
 =head2 show
@@ -180,6 +181,16 @@ sub update_pref {
         $pref->set(%$valid);
         $pref->update();
         Smolder::DB->dbi_commit();
+
+        # is this the default pref?
+        if( $pref->id eq $self->developer->preference ) {
+            $self->add_message( msg => "Default preferences successfully updated.");
+        } else {
+            $self->add_message(
+                msg => "Preference for project '" . $pref->project->name 
+                    . "' has been successfully updated'"
+            );
+        }
     }
 
     # if we are updating the default pref and they want to sync them
@@ -190,10 +201,11 @@ sub update_pref {
             $proj->preference->update();
         }
         Smolder::DB->dbi_commit();
-        return $self->show( { sync_success => 1 }, $pref );
-    } else {
-        return $self->show( { success => 1 }, $pref );
+        $self->add_message(
+            msg => "Preferences have been successfully synced with all Projects."
+        );
     }
+    return $self->show({}, $pref);
 }
 
 1;
