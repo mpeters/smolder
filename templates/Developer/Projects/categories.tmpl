@@ -1,12 +1,5 @@
-[% INCLUDE form_header.tmpl %]
-[% IF add_success %]
-  <span class="warn">Category succesfully added.</span>
-[% END %]
-[% IF delete_success %]
-  <span class="warn">Category succesfully deleted.</span>
-[% END %]
-
 <div class="boxed">
+[% INCLUDE form_header.tmpl %]
 <form action="/app/developer_projects/add_category/[% project.id %]" class="ajaxable for_project_categories show_categories_indicator" name="project_categories_form" method="post">
 <table>
 <tr>

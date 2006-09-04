@@ -1,6 +1,6 @@
-[% SET page_title = 'Project Settings' %]
+[% SET page_title = project.name %]
 
-<h2>[% project.name %] Settings</h2>
+<h2>Settings</h2>
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
@@ -12,7 +12,7 @@
   [% PROCESS Developer/Projects/admin_settings_form.tmpl %]
 </div>
 
-<h2>[% project.name %] Categories</h2>
+<h2>Categories</h2>
 
 <div id="project_categories">
 [% PROCESS Developer/Projects/categories.tmpl %]

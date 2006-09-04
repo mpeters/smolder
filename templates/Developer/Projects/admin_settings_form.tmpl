@@ -1,9 +1,5 @@
-[% INCLUDE form_header.tmpl %]
-[% IF success %]
-  <span class="warn">Project settings successfully updated.</span>
-[% END %]
-
 <div class="boxed">
+[% INCLUDE form_header.tmpl %]
 <form action="/app/developer_projects/process_admin_settings/[% project.id %]" class="ajaxable for_admin_settings show_settings_indicator" name="admin_settings_form" method="post">
 <table>
 <tr>

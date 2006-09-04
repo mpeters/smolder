@@ -4,13 +4,8 @@
     <a class="sub_menu" href="/app/developer_prefs">Preferences</a>
 </div>
 
-[% PROCESS form_header.tmpl %]
-
-[% IF success %]
-  <span class="warn">Password successfully changed!</span>
-[% END %]
-
 <div class="boxed">
+[% PROCESS form_header.tmpl %]
 <form action="/app/developer_prefs/process_change_pw" class="ajaxable show_indicator" name="change_pw" id="change_pw" method="post">
 <table>
 <tr>
