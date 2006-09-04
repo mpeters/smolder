@@ -60,26 +60,33 @@ function ajax_submit (args) {
         div = 'content';
 
     new Ajax.Updater(
-        { success : div, },
+        { success : div },
         url_parts[0],
         {
             parameters  : query_params,
             asynchronous: true,
             onComplete : function(request, json) {
+                // show any messages we got
+                show_messages(json);
+
                 // reapply any dynamic bits
                 Behaviour.apply();
                 Tooltip.setup();
+
                 // reset which forms are open
                 shownPopupForm = '';
                 shownForm = '';
+
                 // hide the indicator
                 hideIndicator(indicator);
+
                 // do whatever else the user wants
                 args.request = request;
                 args.json    = json;
                 complete(args);
             },
-            onFailure: function(request) { show_error() },
+            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            onFailure: function(request) { show_error() }
         }
     );
 };
@@ -91,7 +98,7 @@ function show_error() {
         $('ajax_error_container').innerHTML,
         {
             messagecolor : '#FFFFFF',
-            autoHide     : 'false',
+            autoHide     : 'false'
         }
     );
 }
@@ -109,8 +116,7 @@ function new_accordion (element_name, height) {
             collapsedTextColor  : '#FFFFFF',
             hoverBg             : '#BBBBBB',
             hoverTextColor      : '#555555',
-            borderColor         : '#DDDDDD',
-
+            borderColor         : '#DDDDDD'
         }
     );
 }
@@ -276,7 +282,7 @@ function highlight(el) {
         {
             'startcolor'  : '#ffffff',
             'endcolor'    : '#ffff99',
-            'restorecolor': '#ffff99',
+            'restorecolor': '#ffff99'
         }
     );
 }
@@ -289,7 +295,7 @@ function unHighlight(el) {
         {
             'startcolor'  : '#ffff99',
             'endcolor'    : '#ffffff',
-            'restorecolor': '#ffffff',
+            'restorecolor': '#ffffff'
         }
     );
 }
@@ -302,10 +308,27 @@ function flash(el) {
         {
             'startcolor'  : '#ffff99',
             'endcolor'    : '#ffffff',
-            'restorecolor': '#ffffff',
+            'restorecolor': '#ffffff'
         }
     );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function show_messages(json) {
+    if( json ) {
+        var msgs = json.messages || [];
+        msgs.each(
+            function(msg) {
+                new Insertion.Top(
+                    $('message_container'),
+                    '<div class="' + msg.type + '">' + msg.msg + '</div>'
+                );
+            }
+        );
+    }
+}
+
 
 
 

@@ -148,10 +148,8 @@ Object.extend(CRUD.prototype, {
             onComplete : function(args) {
                 // if the submission changed the list
                 if( args.json.list_changed ) {
-                    // XXX - this will be replaced by hide_add() once
-                    // we move messages into a separate entity
-                    this.add_shown  = false;
-
+                    this.add_shown = false;
+                    Element.hide(this.add_container);
                     this.update_list();
                 }
             }.bindAsEventListener(this)

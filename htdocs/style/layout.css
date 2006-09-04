@@ -68,6 +68,29 @@ body {
     font-weight: bold;
 }
 
+#message_container {
+    width: 200px;
+    position: absolute;
+    right: 180px;
+    top: 160px;
+}
+
+#message_container div.info, #message_container div.warning {
+    border: 1px dotted #e1b856;
+    padding: 5px;
+    padding-left: 30px;
+    margin-bottom: 10px;
+    font-size: 9pt;
+}
+
+#message_container div.info {
+    background: #ffffff url('/images/info.png') no-repeat left;
+}
+
+#message_container div.warning {
+    background: #ffffff url('/images/warning.png') no-repeat left;
+}
+
 #content {
     padding: 3px;
 }

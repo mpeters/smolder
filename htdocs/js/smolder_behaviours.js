@@ -1,10 +1,23 @@
 var cruds = [];
 var myrules = {
     'div.boxed': function(element) {
-        // create a new div to the right and bottom
-        var dim = Element.getDimensions(element);
-        new Insertion.After(element, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
-        new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
+        // don't add them if we already have a 'boxed_right' div after us
+        if( element.nextSibling && element.nextSibling.className != 'boxed_right' ) {
+            // create a new div to the right and bottom
+            var dim = Element.getDimensions(element);
+            new Insertion.After(element, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
+            new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
+        }
+    },
+    '#message_container div.warning': function(element) {
+        var fade = function() { new Effect.Fade(element, { duration: .4 } ); };
+        element.onclick = fade;
+        setTimeout(fade, 10000);
+    },
+    '#message_container div.info': function(element) {
+        var fade = function() { new Effect.Fade(element, { duration: .4 } ); };
+        element.onclick = fade;
+        setTimeout(fade, 10000);
     },
     '#top_nav a.dropdownmenu' : function(element) {
         var menuId = element.id.replace(/_trigger$/, '');
@@ -48,7 +61,7 @@ var myrules = {
             $('smoke_reports').elements['offset'].value = offset;
             ajax_form_submit({
                 form      : $('smoke_reports'),
-                indicator : 'paging_indicator',
+                indicator : 'paging_indicator'
             });
             return false;
         };

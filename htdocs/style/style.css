@@ -117,12 +117,14 @@ table.boxed, div.boxed {
     padding: 3px;
     float:left;
     width: 720px;
+    margin-bottom: 0px;
 }
 
 div.boxed_right {
     background: transparent url('/images/boxed-bg-right.png') repeat-y; 
     float:left; 
     width:5px; 
+    margin-bottom: 0px;
 }
 
 div.boxed_bottom {
@@ -521,7 +523,7 @@ div.crud_header a {
     background-color: #333;
     back\ground-color: transparent;
     background-image: url('/images/blank.gif');
-    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale");
+    /* filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale"); */
 }
 
 
