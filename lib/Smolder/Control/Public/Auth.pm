@@ -139,7 +139,6 @@ that developer. If successful, then return to the C<forgot_pw> mode.
 sub process_forgot_pw {
     my $self = shift;
     my ($developer) = Smolder::DB::Developer->search( username => $self->query->param('username') );
-    my $tt_params = {};
     if ($developer) {
         my $new_pw = $developer->reset_password();
         Smolder::DB->dbi_commit();
@@ -159,12 +158,18 @@ sub process_forgot_pw {
             $self->log->debug(
                 "New password for developer " . $developer->username . " is '$new_pw'" );
         }
-        $tt_params->{success} = 1;
-        $tt_params->{email}   = $developer->email;
+        $self->add_message(
+             msg => "An email with a new password has been successfully sent to " 
+                . $developer->email,
+            type => 'info'
+        );
     } else {
-        $tt_params->{not_found} = 1;
+        $self->add_message(
+            msg  => "A user with that username does not exist in this installation of smolder!",
+            type => 'warning',
+        );
     }
-    return $self->forgot_pw($tt_params);
+    return $self->forgot_pw();
 }
 
 =head2 logout

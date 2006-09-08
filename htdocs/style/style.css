@@ -120,6 +120,10 @@ table.boxed, div.boxed {
     margin-bottom: 0px;
 }
 
+table.short, div.short {
+    width: 400px;
+}
+
 div.boxed_right {
     background: transparent url('/images/boxed-bg-right.png') repeat-y; 
     float:left; 

@@ -11,7 +11,7 @@ use Smolder::Conf qw(HostName);
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan('no_plan');
+    plan(tests => 27);
 } else {
     plan( skip_all => 'Smolder Apache not running' );
 }
@@ -82,7 +82,7 @@ my $dev = create_developer( password => $pw );
     $mech->content_contains('logout was successful');
 }
 
-# 18..26
+# 18..25
 # forgot_pw
 {
     $mech->get_ok( $url . '/login' );
@@ -91,11 +91,10 @@ my $dev = create_developer( password => $pw );
 
     # non existant developer
     $mech->form_name('forgot_pw');
-    $mech->set_fields( username => 'completely fake usernamed that wont exist' );
+    $mech->set_fields( username => 'completely fake username that wont exist' );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('User does not exist!');
-    $mech->content_contains('class="required warn">Username');
+    $mech->contains_message('username does not exist');
 
     # successful
     my $old_pw = $dev->password();
@@ -103,11 +102,11 @@ my $dev = create_developer( password => $pw );
     $mech->set_fields( username => $dev->username );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('email with a new password');
+    $mech->contains_message('email with a new password');
     isnt( $old_pw, db_field_value( 'developer', 'password', $dev->id ) );
 }
 
-# 27..28
+# 26..27
 # timeout, forbidden
 {
     $mech->get_ok( $url . '/timeout' );
