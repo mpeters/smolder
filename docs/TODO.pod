@@ -16,11 +16,6 @@ Review upgrade procedure to make sure it's working completely
 
 =item *
 
-More dynamic, AJAX HTML Matrix for test reports. Should reduce bandwidth
-and make it quicker for the user to see what he wants to see.
-
-=item *
-
 Add support for plain TAP
 
 =item *

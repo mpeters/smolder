@@ -4,6 +4,8 @@
 
 =over
 
+=item * Added dynamic HTML TAP Matrix views - M. Peters
+
 =item * Fixed some navigation issues with paged results of smoke reports when using categories. - M. Peters
 
 =item * Removed Swish-e and searchable docs from Smolder. We'll have this someday on the website (when we get one). - M. Peters
