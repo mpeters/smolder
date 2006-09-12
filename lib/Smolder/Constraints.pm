@@ -99,7 +99,7 @@ at most $max number of printable characters.
 
 sub length_max {
     my $max = shift;
-    return qr/^[[:print:]]{1,$max}$/;
+    return qr/^[[:print:]\s]{1,$max}$/;
 }
 
 =head2 length_min
@@ -111,7 +111,7 @@ at least $min number of printable characters.
 
 sub length_min {
     my $min = shift;
-    return qr/^[[:print:]]{$min,}$/;
+    return qr/^[[:print:]\s]{$min,}$/;
 }
 
 =head2 length_between
