@@ -36,7 +36,6 @@ sub new {
 	my $self = bless {}, $pkg;
 
 	$self->model(@models);
-	$self->extra($ext);
 	
 	$self;
 }
@@ -69,12 +68,6 @@ sub model {
 	$self->{model};
 }
 
-sub extra {
-	my $self = shift;
-	$self->{extra} = shift if @_;
-	$self->{extra};
-}
-
 sub tmpl_file {
 	my $self = shift;
     my $file = shift;
@@ -91,12 +84,22 @@ sub tmpl_obj {
 
 sub detail_html {
 	my $self = shift;
-	$self->process_tmpl($self->tmpl_file || $self->detail_template);
+	$self->process_tmpl($self->tmpl_file);
 }
 
-sub summary_html {
-	my $self = shift;
-	$self->process_tmpl($self->tmpl_file || $self->summary_template);
+sub test_detail_html {
+	my ($self, $num) = @_;
+    $self->detail_test_file($num);
+	$self->process_tmpl($self->tmpl_file);
+}
+
+sub detail_test_file {
+	my ($self, $num) = @_;
+    if( $num ) {
+        my $tests = $self->tests();
+        $self->{detail_test_file} = $tests->[$num -1]->first_file;
+    }
+    return $self->{detail_test_file};
 }
 
 sub process_tmpl {
@@ -112,16 +115,6 @@ sub process_tmpl {
         or croak "Problem processing template file '$file': "
         , $self->tmpl_obj->error;
     return $output;
-}
-
-sub detail_template {
-	my $self = shift;
-    return File::Spec->catfile('TAP', 'detailed_view.html');
-}
-
-sub summary_template {
-	my $self = shift;
-    return File::Spec->catfile('TAP', 'summary_view.html');
 }
 
 __END__
@@ -153,23 +146,20 @@ and produce a pretty html file.
 
 =over 4
 
-=item new (@models, $?extra)
+=item new (@models)
 
 @model is at least one L<Test::TAP::Model> object (or exactly one
-L<Test::TAP::Model::Consolidated>) to extract results from, and the optional
-$?extra is a string to put in <pre></pre> at the top.
+L<Test::TAP::Model::Consolidated>)
 
 =item detail_html
 
-=item summary_html
+=item test_detail_html
 
 Returns an HTML string for the corresponding template.
 
 This is also the method implementing stringification.
 
 =item model
-
-=item extra
 
 =item tmpl_file
 
@@ -188,6 +178,8 @@ A reasonable title for the page:
 A sorted array ref, resulting from $self->model->test_files;
 
 =item detail_template
+
+=item test_detail_template
 
 =item summary_template
 

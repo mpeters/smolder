@@ -1,10 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xml:lang="en" lang = "en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-<title>[% page.title | html %]</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="/style/tapmatrix.css" type="text/css" />
+  <title>[% page.title | html %]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="/style/tapmatrix.css" type="text/css" />
+  <script type="text/javascript" src="/js/prototype.js"></script>
+  <script type="text/javascript" src="/js/effects.js"></script>
+  <script type="text/javascript" src="/js/behaviour.js"></script>
+  <script type="text/javascript" src="/js/smolder.js"></script>
+  <script type="text/javascript" src="/js/tap_behaviours.js"></script>
+  <script type="text/javascript" src="/js/tooltip.js"></script>
 </head>
 
 <body>
@@ -18,87 +23,77 @@
     <div id="page_title"><h1>[% page.title | html %]</h1></div>
 
     <table id="details">
+    <thead>
+      <tr><th colspan="2">Details</th></tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th colspan="2">
+          Uploaded [% smoke_report.added.strftime('%B %e %Y, %l:%M %p') %] 
+          by [% smoke_report.developer.username | html %]
+        </th>
+      </tr>
+    </tfoot>
+    <tbody>
     <tr>
       <th>Project</th>
       <td>[% smoke_report.project.name | html %]</td>
     </tr>
     <tr>
-      <th>Uploaded</th>
-      <td>[% smoke_report.added.strftime('%A, %B %e %Y, %l:%M:%S %p') %] by [% smoke_report.developer.username | html %]</td>
-    </tr>
-    [% IF smoke_report.platform %]
-    <tr>
-      <th>Platform</th>
-      <td>[% smoke_report.platform | html %]</td>
-    </tr>
-    [% END %]
-    [% IF smoke_report.architecture %]
-    <tr>
-      <th>Architecture</th>
-      <td>[% smoke_report.architecture | html %]</td>
-    </tr>
-    [% END %]
-    [% IF smoke_report.category %]
-    <tr>
-      <th>Category</th>
-      <td>[% smoke_report.category | html %]</td>
-    </tr>
-    [% END %]
-    <tr>
       <th>Duration</th>
       <td>[% smoke_report.duration %] secs</td>
     </tr>
-    [% IF smoke_report.comments %]
-    <tr>
-      <th>Comments</th>
-      <td><pre>[% smoke_report.comments | html %]</pre></td>
-    </tr>
+    [% FOREACH label IN ['platform', 'architecture', 'category', 'comments'] %]
+      [% IF smoke_report.$label %]
+      <tr>
+        <th[% IF loop.last %] class="last"[% END %]>[% label | ucfirst %]</th>
+        <td[% IF loop.last %] class="last"[% END %]>[% smoke_report.$label | html | html_line_break %]</td>
+      </tr>
+      [% END %]
     [% END %]
+    </tbody>
     </table>
 
     <table id="matrix" summary="[% page.model.summary | html %]">
       <thead>
         <tr>
-          <th colspan="2">Test file</th>
-          <th>Test cases</th>
+          <th>Test file</th>
+          <th>Results</th>
           <th>%</th>
         </tr>
       </thead>
       <tfoot>
         <tr>
-          <td>TOTAL</td>
-          <td>[% page.model.test_files.size %] files</td>
           <td>[% page.model.summary %]</td>
+          <td>[% page.model.test_files.size %] files</td>
           <td class="sum" style="[% page.model.color_css %]">[% page.model.total_percentage %]</td>
         </tr>
       </tfoot>
       [% FOREACH ctest IN page.tests %]
       [% SET test = ctest.first_file %]
-      <tbody id="test_[% loop.count %]"[% UNLESS test.ok %] class="failed"[% END %]>
+      <tbody id="test_[% loop.count %]" class="results[% UNLESS test.ok %] failed[% END %]">
         <tr>
           <td class="filename">
+            <span style="float: right">
+            <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
+            <a href="/app/developer_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
+                id="for_testfile_details_[% loop.count %]" 
+                class="testfile_details_trigger show_indicator_[% loop.count %][% UNLESS test.ok %] failed[% END %]">
+                Details?
+            </a>
+            </span>
             <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] 
-              title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
-                [% test.name.chunk(25).join("\n") | html | html_line_break %]
+                title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
+            [% test.name | html %]
             </a>
           </td>
-          <td class="[% IF test.ok %]ok[% ELSE %]failed[% END %]">
+          <td class="x [% IF test.ok %]ok[% ELSE %]failed[% END %]">
             [% test.str_status | html %]
           </td>
-          <td>
-            [% FOREACH case_row IN test.case_rows %]
-            <table width="100%" summary="subtests">
-              <tr>
-                [% FOREACH case IN case_row.cases %]
-                <td class="[% case.css_class %]">
-                  <a href="[% case.link %]" title="[% case.popup | html %]">&#160;</a>
-                </td>
-                [% END %]
-              </tr>
-            </table>
-            [% END %]
-          </td>
           <td class="x sum" style="[% ctest.color_css %]">[% ctest.percentage %]</td>
+        </tr>
+        <tr>
+          <td colspan="3"><div id="testfile_details_[% loop.count %]" class="testfile_details" style="display:none"></div></td>
         </tr>
       </tbody>
       [% END %]

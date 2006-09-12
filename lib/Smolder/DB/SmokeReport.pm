@@ -111,18 +111,18 @@ A reference to the HTML text of this Test Report.
 sub html {
     my $self = shift;
 
-    # if we already have the file then use it
-    if ( $self->html_file && -e $self->html_file ) {
-        return $self->_slurp_file( $self->html_file );
-    }
+#    # if we already have the file then use it
+#    if ( $self->html_file && -e $self->html_file ) {
+#        return $self->_slurp_file( $self->html_file );
+#    }
 
     # else we need to generate a new HTML file
     my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
-    my $v = Smolder::TAPHTMLMatrix->new( $model );
-    $v->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
-    $v->title("Test Details - #$self");
-    $v->smoke_report( $self );
-    my $html = $v->detail_html;
+    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
+    $matrix->title("Test Details - #$self");
+    $matrix->smoke_report( $self );
+    my $html = $matrix->detail_html;
 
     # save this to a file
     my $dir = catdir( InstallRoot, 'tmp', 'html_smoke_reports' );
@@ -157,6 +157,28 @@ sub html_nonref {
     my $self = shift;
     my $html = $self->html;
     return $$html;
+}
+
+=head3 html_test_detail 
+
+This method will return the HTML for the details of an individual
+test file. This is useful when you only need the details for some
+of the test files (such as an AJAX request).
+
+It receives one argument, which is the index of the test file to
+show.
+
+=cut
+
+sub html_test_detail {
+    my ($self, $num) = @_;
+    # build the visual model
+    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
+    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'test_detailed_view.html'));
+    $matrix->smoke_report( $self );
+    my $html = $matrix->test_detail_html($num);
+    return \$html;
 }
 
 sub _slurp_file {

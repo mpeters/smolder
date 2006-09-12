@@ -1,0 +1,10 @@
+[% SET test = page.detail_test_file %]
+[% FOREACH case_row IN test.case_rows %]
+<table width="100%" summary="subtests" class="subtests">
+<tr>
+  [% FOREACH case IN case_row.cases %]
+  <td class="[% case.css_class %]"><a href="[% case.link %]" title="[% case.popup | html %]">&#160;</a></td>
+  [% END %]
+</tr>
+</table>
+[% END %]

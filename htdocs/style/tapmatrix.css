@@ -13,9 +13,9 @@ th, tfoot td {
 	border: 1px solid #444444;
 	font-weight: bold;
 	font-size: 1em;
-	color: black
+	color: black;
    	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 	background-color: #efefef;
 }
 
@@ -28,20 +28,42 @@ tfoot td, th {
 	padding: 0.1em;
 }
 
-tbody.failed {
+td.filename {
+	vertical-align: top;
+    padding-right: 8px;
+}
+
+tbody.results {
     border-bottom: 1px solid #cccccc;
-    border-top: 1px solid #cccccc;
 }
 
 #details {
-    margin-bottom: 5px;
+	border-collapse: collapse;
+    border: 1px solid #505050;
+    width: 650px;
+    margin-bottom: 15px;
+}
+
+#details thead th, #details tfoot th {
+    text-align: center;
+    border-bottom: 1px solid #505050;
+}
+
+#details th, #details td {
+    text-align: left;
+    border-bottom: 1px solid #cccccc;
+}
+
+#details th.last, #details td.last {
+    text-align: left;
+    border-bottom: none;
 }
 
 #matrix {
 	border-collapse: collapse;
 	border: 1px solid #444444;
 	background-color: #fbfbfb;
-    width: 700px;
+    width: 650px;
 }
 
 .sum {
@@ -52,6 +74,11 @@ tbody.failed {
 	font-weight: bold;
 	font-size: 0.85em;
 	padding: 0.1em;
+}
+
+table.subtests td {
+    vertical-align: middle;
+    text-align: center;
 }
 
 td, th {
@@ -67,7 +94,8 @@ td.ok, td.failed {
 }
 
 td.failed, a.failed {
-    color: #ff3020;
+    color: #e76423;
+    font-weight: bold;
 }
 
 .exp {
