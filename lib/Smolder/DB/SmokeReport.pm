@@ -111,10 +111,10 @@ A reference to the HTML text of this Test Report.
 sub html {
     my $self = shift;
 
-#    # if we already have the file then use it
-#    if ( $self->html_file && -e $self->html_file ) {
-#        return $self->_slurp_file( $self->html_file );
-#    }
+    # if we already have the file then use it
+    if ( $self->html_file && -e $self->html_file ) {
+        return $self->_slurp_file( $self->html_file );
+    }
 
     # else we need to generate a new HTML file
     my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
