@@ -3,13 +3,15 @@
 <head>
   <title>[% page.title | html %]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="stylesheet" href="/style/tapmatrix.css" type="text/css" />
+  <link rel="stylesheet" href="[% IF email %]http://[% host_name %][% END %]/style/tapmatrix.css" type="text/css" />
+  [% UNLESS email %]
   <script type="text/javascript" src="/js/prototype.js"></script>
   <script type="text/javascript" src="/js/effects.js"></script>
   <script type="text/javascript" src="/js/behaviour.js"></script>
   <script type="text/javascript" src="/js/smolder.js"></script>
   <script type="text/javascript" src="/js/tap_behaviours.js"></script>
   <script type="text/javascript" src="/js/tooltip.js"></script>
+  [% END %]
 </head>
 
 <body>
@@ -74,6 +76,7 @@
       <tbody id="test_[% loop.count %]" class="results[% UNLESS test.ok %] failed[% END %]">
         <tr>
           <td class="filename">
+            [% UNLESS email %]
             <span style="float: right">
             <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
             <a href="/app/developer_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
@@ -82,6 +85,7 @@
                 Details?
             </a>
             </span>
+            [% END %]
             <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] 
                 title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
             [% test.name | html %]

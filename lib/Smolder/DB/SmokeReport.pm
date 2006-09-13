@@ -142,19 +142,25 @@ sub html {
     return \$html;
 }
 
-=head3 html_nonref 
+=head3 html_email
 
-The L<html> method returns a reference to the full HTML report and this
-is almost always what you want. However, in templates, you cannot use
-a scalar reference. So instead, this convenience method is supplied to
-allow calling it within a template.
+Returns the same HTML as the L<html> method, except more suited for
+email (no JS, etc).
 
 =cut
 
-sub html_nonref {
+sub html_email {
     my $self = shift;
-    my $html = $self->html;
-    return $$html;
+
+    # create the visual model for this
+    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
+    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'Email', 'smoke_report_full.tmpl'));
+    $matrix->title("Test Details - #$self");
+    $matrix->smoke_report( $self );
+    my $html = $matrix->detail_html;
+
+    return $html;
 }
 
 =head3 html_test_detail 

@@ -57,7 +57,9 @@ my $html = $report->html();
 is( ref $html, 'SCALAR' );
 contains_string( $$html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"' );
 ok( -e $report->html_file );    # was the html file cached?
-is_string( $$html, $report->html_nonref );
+
+# this just checks for failure... it could be much better
+ok($report->html_email );
 my $xml = $report->xml;
 contains_string( $$xml, "<?xml version='1.0' standalone='yes'?>" );
 my $yaml = $report->yaml;
