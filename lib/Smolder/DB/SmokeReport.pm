@@ -129,15 +129,13 @@ sub html {
     unless ( -d $dir ) {
         mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
-    my $tmp = new File::Temp(
-        UNLINK => 0,
-        SUFFIX => '.html',
-        DIR    => $dir,
-    );
-    print $tmp $html
-      or croak "Could not print to $tmp! $!";
-    close($tmp);
-    $self->html_file( $tmp->filename );
+    my $file = catfile( $dir, $self->id . '.html');
+    open( my $OUT, '>', $file) 
+        or croak "Could not open file '$file' for writing: $!";
+    print $OUT $html
+      or croak "Could not print to '$file'! $!";
+    close($OUT);
+    $self->html_file( $file );
     $self->update();
     Smolder::DB->dbi_commit();
 
@@ -172,12 +170,32 @@ show.
 
 sub html_test_detail {
     my ($self, $num) = @_;
+
+    # where will this be stored?
+    my $dir  = catdir(InstallRoot, 'tmp', 'html_smoke_reports', $self->id);
+    my $file = catfile($dir, "$num.html");
+
+    # if we already have the file then use it
+    return $self->_slurp_file( $file ) if ( -e $file );
+
     # build the visual model
     my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
     my $matrix = Smolder::TAPHTMLMatrix->new( $model );
     $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'test_detailed_view.html'));
     $matrix->smoke_report( $self );
     my $html = $matrix->test_detail_html($num);
+
+    # now save this data to the file
+    if( ! -d $dir ) {
+        mkdir $dir
+            or croak "Could not create directory '$dir': $!";
+    }
+
+    open( my $OUT, '>', $file)
+        or croak "Could not open file '$file' for writing! $!";
+    print $OUT $html
+        or croak "Could print to file '$file'! :$!";
+    close( $OUT );
     return \$html;
 }
 
@@ -353,6 +371,14 @@ sub delete_files {
     }
     if ( $self->html_file && -e $self->html_file ) {
         unlink $self->html_file or die "Could not delete file '" . $self->html_file . "'! $!";
+        # remove any details files that my exist as well
+        my $dir = catdir(InstallRoot, 'tmp', 'html_smoke_reports', $self->id);
+        if( -d $dir ) {
+            unlink glob(catfile($dir, '*.html'))
+                or die "Could not delete HTML files in directory '$dir': $!";
+            rmdir $dir
+                or die "Could not delete directory '$dir': $!";
+        }
     }
     $self->file(undef);
     $self->html_file(undef);
@@ -531,9 +557,14 @@ sub upload_report {
     # purge old reports
     $project->purge_old_reports();
 
-    # if it's a failed test, then let's go ahead and create
-    # the HTML Matrix for it since it's pretty common
-    $report->html if( $report->did_fail($report_model) );
+    # let's go ahead and create # the HTML Matrix for this test 
+    # since that can  take a long time depending on the size
+    $report->html;
+    # now create the details files too
+    my $count = $report->test_files;
+    for(1..$count) {
+        $report->html_test_detail($_);
+    }
 
     return $report;
 }
