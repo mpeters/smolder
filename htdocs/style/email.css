@@ -5,7 +5,7 @@ body {
 #container {
     text-align: left;
     width: 600px;
-    height: 100px;
+    height: 70px;
     background-color: #EEEEEE;
     margin-bottom: 20px;
     border-width: 1px;
@@ -33,7 +33,7 @@ body {
     background-image: url(/images/smolder_small_no_text.png);
     background-repeat: no-repeat;
     width: 100px;
-    height: 100px;
+    height: 70px;
 }
 
 #title {
@@ -43,7 +43,7 @@ body {
     height: 57px;
     position: absolute;
     right: 0px;
-    top: 84px;
+    top: 30px;
 }
 
 #content {

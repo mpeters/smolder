@@ -117,8 +117,7 @@ sub html {
     }
 
     # else we need to generate a new HTML file
-    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
-    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
     $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
     $matrix->title("Test Details - #$self");
     $matrix->smoke_report( $self );
@@ -153,8 +152,7 @@ sub html_email {
     my $self = shift;
 
     # create the visual model for this
-    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
-    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
     $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'Email', 'smoke_report_full.tmpl'));
     $matrix->title("Test Details - #$self");
     $matrix->smoke_report( $self );
@@ -185,8 +183,7 @@ sub html_test_detail {
     return $self->_slurp_file( $file ) if ( -e $file );
 
     # build the visual model
-    my $model = Test::TAP::Model::Visual->new_with_struct( $self->model_obj->structure );
-    my $matrix = Smolder::TAPHTMLMatrix->new( $model );
+    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
     $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'test_detailed_view.html'));
     $matrix->smoke_report( $self );
     my $html = $matrix->test_detail_html($num);
@@ -255,9 +252,8 @@ A reference to the YAML representation of this Test Report
 =cut
 
 sub yaml {
-    my $self  = shift;
-    my $model = $self->model_obj;
-    my $yaml  = YAML::Dump( $model->structure );
+    my $self = shift;
+    my $yaml = YAML::Dump( $self->model_obj->structure );
     return \$yaml;
 }
 
@@ -300,6 +296,22 @@ sub model_obj {
     return $self->{__TAP_MODEL_XML};
 }
 
+=head3 model_obj_visual
+
+The L<Test::TAP::Model::Visual> object representing this test run.
+
+=cut
+
+sub model_obj_visual {
+    my $self = shift;
+    unless( $self->{__TAP_MODEL_VISUAL} ) {
+        $self->{__TAP_MODEL_VISUAL} = Test::TAP::Model::Visual->new_with_struct( 
+            $self->model_obj->structure 
+        );
+    }
+    return $self->{__TAP_MODEL_VISUAL};
+}
+
 =head3 send_emails
 
 This method will send the appropriate email to all developers of this Smoke
@@ -313,7 +325,10 @@ sub send_emails {
 
     # setup some stuff for the emails that we only need to do once
     my $subject = "Smolder - new " . ( $self->failed ? "failed " : '' ) . "smoke report";
-    my $tt_params = { report => $self };
+    my $tt_params = { 
+        report => $self, 
+        matrix => Smolder::TAPHTMLMatrix->new( $self->model_obj_visual ),
+    };
 
     # get all the developers of this project
     my @devs = $self->project->developers();
