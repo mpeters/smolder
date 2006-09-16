@@ -70,13 +70,16 @@ body {
 
 #message_container {
     width: 200px;
-    position: absolute;
+    position: fixed;
     right: 180px;
-    top: 160px;
+    top: 60px;
+    z-index: 1000;
 }
 
 #message_container div.info, #message_container div.warning {
     border: 1px dotted #e1b856;
+    border-bottom: 2px solid #777777;
+    border-right: 2px solid #777777;
     padding: 5px;
     padding-left: 30px;
     margin-bottom: 10px;
