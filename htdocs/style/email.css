@@ -47,7 +47,11 @@ body {
 }
 
 #content {
-    padding-top: 25px;
+    padding-top: 8px;
+}
+
+h1 { 
+    margin: 3px; 
 }
 
 td, th {
