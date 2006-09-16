@@ -164,7 +164,7 @@ sub process_edit {
 
     # now show the successful message
     $self->add_message( msg => "Developer '" . $developer->username . "' has been successfully updated.");
-    return $self->json_header({ list_changed => 1 });
+    return $self->add_json_header(list_changed => 1);
 }
 
 =head2 list
@@ -251,7 +251,7 @@ sub process_add {
 
     # now show the successful message
     $self->add_message(msg => "New developer '" . $developer->username . "' successfully created.");
-    return $self->json_header({ list_changed => 1 });
+    return $self->add_json_header(list_changed => 1);
 }
 
 =head2 delete 

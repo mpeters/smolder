@@ -146,7 +146,7 @@ sub get_pref_details {
         %data = map { $_ => $pref->$_ } qw(email_type email_freq email_limit);
     }
 
-    return $self->json_header( \%data );
+    return $self->add_json_header(%data);
 }
 
 =head2 update_pref

@@ -297,7 +297,7 @@ sub process_add {
     my $msg = $id ?  "Project '" . $project->name . "' successfully updated."
         : "New project '" . $project->name . "' successfully created.";
     $self->add_message(msg => $msg);
-    return $self->json_header({ list_changed => 1 });
+    return $self->add_json_header(list_changed => 1);
 }
 
 =head2 details

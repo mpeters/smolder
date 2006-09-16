@@ -6,7 +6,7 @@ use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
-use JSON qw(objToJson jsonToObj);
+use CGI::Application::Plugin::JSON qw(:all);
 
 #use CGI::Application::Plugin::DebugScreen;
 
@@ -38,27 +38,6 @@ __PACKAGE__->add_callback(
                 }
             ],
         );
-    }
-);
-
-# make sure out messages get sent out in the X-JSON header
-__PACKAGE__->add_callback(
-    postrun => sub {
-        my $self = shift;
-
-        if( $self->param('__MSGS') ) {
-            my %headers = $self->header_props;
-            my $json = jsonToObj($headers{'-x-json'} || '{}');
-            $json->{messages} ||= [];
-
-            # add any messages that we might have
-            foreach my $msg (@{$self->param('__MSGS')}) {
-                # html escape the message text
-                $msg->{msg} = escape_html( $msg->{msg}, EH_INPLACE );
-                push(@{$json->{messages}}, $msg);
-            }
-            $self->json_header($json);
-        }
     }
 );
 
@@ -194,23 +173,6 @@ sub static_url {
     }
 }
 
-=head2 json_header
-
-Given a Perl data structure, this will serialize it into JSON
-and put that data into the outgoing X-JSON header for the browser
-to consume.
-
-=cut
-
-sub json_header {
-    my ( $self, $struct ) = @_;
-    my $json = objToJson($struct);
-    $self->header_add( '-x-json' => $json );
-
-    # Safari doesn't like empty content bodies
-    return ' ';
-}
-
 =head2 add_message
 
 Adds an message that will be displayed to the user.
@@ -234,9 +196,9 @@ default C<info> is assumed.
 
 sub add_message {
     my ($self, %args) = @_;
-    my $msgs = $self->param('__MSGS') || [];
+    my $msgs = $self->json_header_value('messages') || [];
     push(@$msgs, { type => ($args{type} || 'info') , msg => ($args{msg} || '') });
-    $self->param('__MSGS' => $msgs);
+    $self->add_json_header(messages => $msgs);
 }
 
 =head1 TEMPLATE CONFIGURATION
