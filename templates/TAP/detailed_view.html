@@ -58,6 +58,12 @@
     </tbody>
     </table>
 
+    [% UNLESS email || !page.model.total_ok %]
+    <div class="">
+        <a href="#first_failure">First Failure</a>
+    </div>
+    [% END %]
+
     <table id="matrix" summary="[% page.model.summary | html %]">
       <thead>
         <tr>
@@ -73,25 +79,34 @@
           <td class="sum" style="[% page.model.color_css %]">[% page.model.total_percentage %]</td>
         </tr>
       </tfoot>
+      [% SET found_first_failure = 0 %]
       [% FOREACH ctest IN page.tests %]
       [% SET test = ctest.first_file %]
       <tbody id="test_[% loop.count %]" class="results[% UNLESS test.ok %] failed[% END %]">
         <tr>
           <td class="filename">
             [% UNLESS email %]
-            <span style="float: right">
-            <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
-            <a href="/app/developer_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
-                id="for_testfile_details_[% loop.count %]" 
-                class="testfile_details_trigger show_indicator_[% loop.count %][% UNLESS test.ok %] failed[% END %]">
+              <span style="float: right">
+              <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
+              <a href="/app/developer_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
+                  id="for_testfile_details_[% loop.count %]" 
+                  class="testfile_details_trigger show_indicator_[% loop.count %][% UNLESS test.ok %] failed[% END %]">
                 Details?
-            </a>
-            </span>
+              </a>
+              </span>
+              [% IF !found_first_failure && !test.ok %]
+                <a name="first_failure"></a>
+                [% found_first_failure = 1 %]
+              [% END %]
             [% END %]
+            <!-- we'll make this a link when we can link to individual tests 
             <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] 
                 title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
+            -->
+            <span class="filename[% UNLESS test.ok %] failed[% END %]">
             [% test.name | html %]
-            </a>
+            </span>
+            <!-- </a> -->
           </td>
           <td class="x [% IF test.ok %]ok[% ELSE %]failed[% END %]">
             [% test.str_status | html %]

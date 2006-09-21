@@ -93,7 +93,7 @@ td.ok, td.failed {
 	padding: 0.1em;
 }
 
-td.failed, a.failed {
+td.failed, a.failed, span.failed {
     color: #e76423;
     font-weight: bold;
 }
