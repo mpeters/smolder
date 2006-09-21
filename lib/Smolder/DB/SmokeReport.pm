@@ -124,7 +124,7 @@ sub html {
     my $html = $matrix->detail_html;
 
     # save this to a file
-    my $dir = catdir( InstallRoot, 'tmp', 'html_smoke_reports' );
+    my $dir = catdir( InstallRoot, 'data', 'html_smoke_reports' );
     unless ( -d $dir ) {
         mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
@@ -176,7 +176,7 @@ sub html_test_detail {
     my ($self, $num) = @_;
 
     # where will this be stored?
-    my $dir  = catdir(InstallRoot, 'tmp', 'html_smoke_reports', $self->id);
+    my $dir  = catdir(InstallRoot, 'data', 'html_smoke_reports', $self->id);
     my $file = catfile($dir, "$num.html");
 
     # if we already have the file then use it
@@ -393,7 +393,7 @@ sub delete_files {
     if ( $self->html_file && -e $self->html_file ) {
         unlink $self->html_file or die "Could not delete file '" . $self->html_file . "'! $!";
         # remove any details files that my exist as well
-        my $dir = catdir(InstallRoot, 'tmp', 'html_smoke_reports', $self->id);
+        my $dir = catdir(InstallRoot, 'data', 'html_smoke_reports', $self->id);
         if( -d $dir ) {
             unlink glob(catfile($dir, '*.html'))
                 or die "Could not delete HTML files in directory '$dir': $!";
