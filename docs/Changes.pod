@@ -1,6 +1,6 @@
 =head1 SMOLDER CHANGES
 
-=head2 0.4 (1.0 RC2)
+=head2 1.00
 
 =over
 
