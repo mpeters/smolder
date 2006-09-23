@@ -228,7 +228,7 @@ sub process_add_report {
     } else {
         $e = Exception::Class->caught();
         if( $e ) {
-            ref $e ? $e->rethrow : die $e;
+            ref $e && $e->isa('Exception::Class') ? $e->rethrow : die $e;
         }
     }
 
