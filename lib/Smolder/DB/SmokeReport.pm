@@ -264,8 +264,10 @@ The L<Test::TAP::XML> object for this smoke test run.
 =cut
 
 sub model_obj {
-    my $self = shift;
-    if ( !$self->{__TAP_MODEL_XML} ) {
+    my ($self, $obj) = @_;
+    if( $obj ) {
+        $self->{__TAP_MODEL_XML} = $obj;
+    } elsif ( !$self->{__TAP_MODEL_XML} ) {
         my $file = $self->file;
 
         # are we dealing with a compressed file
@@ -496,6 +498,7 @@ sub upload_report {
     my $file    = $args{file};
     my $dev     = $args{developer};
     my $project = $args{project};
+    my $format  = $args{format};
 
     # get the 'guest' developer if we weren't given one
     $dev ||= Smolder::DB::Developer->get_guest();
@@ -517,9 +520,9 @@ sub upload_report {
 
     # take the uploaded file and create a Test::TAP::Model object from it
     my $report_model;
-    if ( $args{format} eq 'XML' ) {
+    if ( $format eq 'XML' ) {
         eval { $report_model = Test::TAP::XML->from_xml_file($file); };
-    } elsif ( $args{format} eq 'YAML' ) {
+    } elsif ( $format eq 'YAML' ) {
         require YAML;
         eval { $report_model = Test::TAP::XML->new_with_struct( YAML::LoadFile($file) ); };
     }
@@ -539,9 +542,9 @@ sub upload_report {
             developer    => $dev,
             project      => $args{project},
             architecture => ( $args{architecture} || '' ),
-            platform     => ( $args{platform} || '' ),
-            comments     => ( $args{comments} || '' ),
-            category     => ( $args{category} || undef ),
+            platform     => ( $args{platform}     || '' ),
+            comments     => ( $args{comments}     || '' ),
+            category     => ( $args{category}     || undef ),
             pass         => $report_model->total_passed,
             fail         => $report_model->total_failed,
             skip         => $report_model->total_skipped,
@@ -554,22 +557,30 @@ sub upload_report {
         }
     );
     Smolder::DB->dbi_commit();
+    $report->model_obj($report_model);
 
     # move the tmp file to it's real destination and compress it
     my $dest   = $report->file;
     my $out_fh = IO::Zlib->new();
     $out_fh->open( $dest, 'wb9' )
       or die "Could not open file $dest for writing compressed!";
-    my $in_fh;
-    open( $in_fh, $file )
-      or die "Could not open file $file for reading! $!";
 
-    my $buffer;
-    while ( read( $in_fh, $buffer, 10240 ) ) {
-        print $out_fh $buffer;
+    if( $format eq 'XML' ) {
+        # if we're processing an XML file, then just copy it directly
+        my $in_fh;
+        open( $in_fh, $file )
+          or die "Could not open file $file for reading! $!";
+        my $buffer;
+        while ( read( $in_fh, $buffer, 10240 ) ) {
+            print $out_fh $buffer;
+        }
+        close($in_fh);
+    } elsif( $format eq 'YAML' ) {
+        # else we'll pull the XML and print it
+        print $out_fh $report->model_obj->xml;
     }
+
     $out_fh->close();
-    close($in_fh);
     unlink($file);
 
     # send an email to all the user's who want this report

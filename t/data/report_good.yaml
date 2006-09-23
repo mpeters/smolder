@@ -1,0 +1,560 @@
+---
+end_time: 1139070505
+start_time: 1139070504
+test_files:
+  - events:
+      - actual_ok: 1
+        line: "ok 1 - lib/Test/TAP/XML.pm\n"
+        num: 1
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 1/1
+        todo: ''
+        type: test
+    file: t/pod.t
+    results:
+      bonus: 0
+      exit: 0
+      max: 1
+      ok: 1
+      passing: 1
+      seen: 1
+      skip: 0
+      todo: 0
+      wait: 0
+  - events:
+      - actual_ok: 1
+        line: "ok 1 - Pod coverage on Test::TAP::XML\n"
+        num: 1
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 1/1
+        todo: ''
+        type: test
+    file: t/pod-coverage.t
+    results:
+      bonus: 0
+      exit: 0
+      max: 1
+      ok: 1
+      passing: 1
+      seen: 1
+      skip: 0
+      todo: 0
+      wait: 0
+  - events:
+      - actual_ok: 1
+        line: "ok 1 - use Test::TAP::XML;\n"
+        num: 1
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 1/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 2\n"
+        num: 2
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 2/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 3\n"
+        num: 3
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 3/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 4\n"
+        num: 4
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 4/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 5\n"
+        num: 5
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 5/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 6\n"
+        num: 6
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 6/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 7\n"
+        num: 7
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 7/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 8\n"
+        num: 8
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 8/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 9\n"
+        num: 9
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 9/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 10\n"
+        num: 10
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 10/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 11\n"
+        num: 11
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 11/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 12\n"
+        num: 12
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 12/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 13\n"
+        num: 13
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 13/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 14\n"
+        num: 14
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 14/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 15 - The object isa Test::TAP::XML\n"
+        num: 15
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 15/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 16 - The object isa Test::TAP::XML\n"
+        num: 16
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 16/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 17 - ok returns the same\n"
+        num: 17
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 17/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 18 - ok returns the same\n"
+        num: 18
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 18/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 19 - passing returns the same\n"
+        num: 19
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 19/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 20 - passing returns the same\n"
+        num: 20
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 20/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 21 - passed returns the same\n"
+        num: 21
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 21/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 22 - passed returns the same\n"
+        num: 22
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 22/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 23 - nok returns the same\n"
+        num: 23
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 23/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 24 - nok returns the same\n"
+        num: 24
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 24/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 25 - failed returns the same\n"
+        num: 25
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 25/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 26 - failed returns the same\n"
+        num: 26
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 26/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 27 - failing returns the same\n"
+        num: 27
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 27/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 28 - failing returns the same\n"
+        num: 28
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 28/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 29 - total_ok returns the same\n"
+        num: 29
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 29/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 30 - total_ok returns the same\n"
+        num: 30
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 30/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 31 - total_passed returns the same\n"
+        num: 31
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 31/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 32 - total_passed returns the same\n"
+        num: 32
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 32/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 33 - total_nok returns the same\n"
+        num: 33
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 33/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 34 - total_nok returns the same\n"
+        num: 34
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 34/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 35 - total_failed returns the same\n"
+        num: 35
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 35/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 36 - total_failed returns the same\n"
+        num: 36
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 36/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 37 - total_percentage returns the same\n"
+        num: 37
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 37/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 38 - total_percentage returns the same\n"
+        num: 38
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 38/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 39 - total_ratio returns the same\n"
+        num: 39
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 39/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 40 - total_ratio returns the same\n"
+        num: 40
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 40/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 41 - total_seen returns the same\n"
+        num: 41
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 41/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 42 - total_seen returns the same\n"
+        num: 42
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 42/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 43 - total_skipped returns the same\n"
+        num: 43
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 43/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 44 - total_skipped returns the same\n"
+        num: 44
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 44/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 45 - total_todo returns the same\n"
+        num: 45
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 45/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 46 - total_todo returns the same\n"
+        num: 46
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 46/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 47 - total_unexpectedly_succeeded returns the same\n"
+        num: 47
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 47/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 48 - total_unexpectedly_succeeded returns the same\n"
+        num: 48
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 48/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 49 - ratio returns the same\n"
+        num: 49
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 49/50
+        todo: ''
+        type: test
+      - actual_ok: 1
+        line: "ok 50 - ratio returns the same\n"
+        num: 50
+        ok: 1
+        pos: ~
+        reason: ''
+        skip: ''
+        str: ok 50/50
+        todo: ''
+        type: test
+    file: t/xml.t
+    results:
+      bonus: 0
+      exit: 0
+      max: 50
+      ok: 50
+      passing: 1
+      seen: 50
+      skip: 0
+      todo: 0
+      wait: 0

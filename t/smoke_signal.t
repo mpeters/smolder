@@ -14,7 +14,7 @@ use Smolder::TestData qw(
   delete_preferences
 );
 
-plan(tests => 29);
+plan(tests => 34);
 
 my $bin          = catfile( InstallRoot(), 'bin', 'smolder_smoke_signal' );
 my $host         = HostName() . ':' . ApachePort();
@@ -23,8 +23,9 @@ my $project_name = $project->name;
 my $pw           = 's3cr3t';
 my $dev          = create_developer( password => $pw );
 my $username     = $dev->username;
-my $test_file    = catfile( InstallRoot(), 't', 'data', 'report_good.xml' );
-my $test_file_gz = catfile( InstallRoot(), 't', 'data', 'report_good.xml.gz' );
+my $xml_file     = catfile( InstallRoot(), 't', 'data', 'report_good.xml' );
+my $xml_file_gz  = catfile( InstallRoot(), 't', 'data', 'report_good.xml.gz' );
+my $yaml_file    = catfile( InstallRoot(), 't', 'data', 'report_good.yaml' );
 
 END {
     delete_projects();
@@ -51,25 +52,25 @@ like( $out, qr/does not exist/i );
 
 # invalid server
 $out =
-`$bin --server something.tld --project $project_name --username $username --password $pw --file $test_file 2>&1`;
+`$bin --server something.tld --project $project_name --username $username --password $pw --file $xml_file 2>&1`;
 like( $out, qr/Could not reach/i );
 
 SKIP: {
     # non-existant project
     $out =
-`$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $test_file 2>&1`;
+`$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $xml_file 2>&1`;
     skip( "Smolder not running", 14 )
       if ( $out =~ /Received status 500/ );
     like( $out, qr/you are not a member of/i );
 
     # invalid login
     $out =
-`$bin --server $host --project "$project_name" --username $username --password asdf --file $test_file 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password asdf --file $xml_file 2>&1`;
     like( $out, qr/Could not login/i );
 
     # non-project-member
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file 2>&1`;
     like( $out, qr/you are not a member of/i );
 
     # add this person to the project
@@ -83,81 +84,90 @@ SKIP: {
     Smolder::DB->dbi_commit();
     Smolder::DB->db_Main->disconnect();
 
-    # successfull upload
+    # successfull xml upload
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file 2>&1`;
-    like( $out, qr/successfully uploaded/i );
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file 2>&1`;
+    like( $out, qr/successfully uploaded/i, 'XML' );
 
     # make sure it's uploaded to the server
     $out =~ /as #(\d+)/;
     my $report_id = $1;
     my $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    Smolder::DB->db_Main->disconnect();
     isa_ok( $report, 'Smolder::DB::SmokeReport' );
+    Smolder::DB->db_Main->disconnect();
 
-    # successfull gzip upload
+    # successfull xml gzip upload
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file_gz 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file_gz 2>&1`;
+    like( $out, qr/successfully uploaded/i, 'XML Gzip' );
+
+    # make sure it's uploaded to the server
+    $out =~ /as #(\d+)/;
+    $report_id = $1;
+    $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    isa_ok( $report, 'Smolder::DB::SmokeReport' );
+    ok( $report->html, 'html can be created' );
+    ok( $report->yaml, 'yaml can be created' );
+    Smolder::DB->db_Main->disconnect();
+
+    # successfull yaml gzip upload
+    $out =
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $yaml_file 2>&1`;
     like( $out, qr/successfully uploaded/i );
 
     # make sure it's uploaded to the server
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    Smolder::DB->db_Main->disconnect();
     isa_ok( $report, 'Smolder::DB::SmokeReport' );
     ok( $report->html, 'html can be created' );
+    ok( $report->xml,  'xml can be created' );
+    Smolder::DB->db_Main->disconnect();
 
     # test optional options
     # comments
     my $comments = "Some tests";
-    Smolder::DB->db_Main->disconnect();
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file --comments "$comments" 2>&1`;
     like( $out, qr/successfully uploaded/i );
-    Smolder::DB->db_Main->disconnect();
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    Smolder::DB->db_Main->disconnect();
     is( $report->comments, $comments );
+    Smolder::DB->db_Main->disconnect();
 
     # platform
     my $platform = "my platform";
-    Smolder::DB->db_Main->disconnect();
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file --comments "$comments" --platform "$platform" 2>&1`;
     like( $out, qr/successfully uploaded/i );
-    Smolder::DB->db_Main->disconnect();
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    Smolder::DB->db_Main->disconnect();
     is( $report->comments, $comments );
     is( $report->platform, $platform );
+    Smolder::DB->db_Main->disconnect();
 
     # architecture
     my $arch = "128 bit something";
-    Smolder::DB->db_Main->disconnect();
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
     like( $out, qr/successfully uploaded/i );
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    Smolder::DB->db_Main->disconnect();
     is( $report->comments,     $comments );
     is( $report->platform,     $platform );
     is( $report->architecture, $arch );
+    Smolder::DB->db_Main->disconnect();
 
     # category
-    # TODO - add a category
     my $cat = 'fake category';
     $project->add_category($cat);
     Smolder::DB->dbi_commit();
     Smolder::DB->db_Main->disconnect();
     $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $test_file --comments "$comments" --platform "$platform" --architecture "$arch" --category '$cat' 2>&1`;
+`$bin --server $host --project "$project_name" --username $username --password $pw --file $xml_file --comments "$comments" --platform "$platform" --architecture "$arch" --category '$cat' 2>&1`;
     like( $out, qr/successfully uploaded/i );
     $out =~ /as #(\d+)/;
     $report_id = $1;
