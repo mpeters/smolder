@@ -9,6 +9,15 @@ var myrules = {
             new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
         }
     },
+    'table.boxed': function(element) {
+        // don't add them if we already have a 'boxed_right' div after us
+        if( element.nextSibling && element.nextSibling.className != 'boxed_right' ) {
+            // create a new div to the right and bottom
+            var dim = Element.getDimensions(element);
+            new Insertion.After(element, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
+            new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
+        }
+    },
     '#message_container div.warning': function(element) {
         var fade = function() { new Effect.Fade(element, { duration: .4 } ); };
         element.onclick = fade;
