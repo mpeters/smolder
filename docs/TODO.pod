@@ -1,15 +1,5 @@
 =head1 TODO
 
-=head2 FOR 1.0
-
-=over
-
-=item *
-
-Review upgrade procedure to make sure it's working completely
-
-=back
-
 =head2 FOR 2.0
 
 =over
@@ -38,7 +28,7 @@ Add paging to other listing pages admin_developers/admin_projects, etc (or add d
 
 Capture STDERR and associate with test files 
 
-needs changes to Test::Builder
+needs changes to Test::Builder/Test.pm or using a better TAPx::Parser
 
 =item *
 
@@ -60,10 +50,6 @@ Optional logging of critical problems to email?
 
 =item *
 
-Built-in SSL support?
-
-=item *
-
 Add some benchmarks so we can see how things perform as changes are made
 
 =item *
@@ -72,7 +58,7 @@ Add CSV download option for tests (for projects?)
 
 =item *
 
-Look at using an XML schema that isn't so tied to the internal representation of Test::TAP::Model and Test::Harness::Straps
+Drop XML and just use YAML?
 
 =item *
 
@@ -96,15 +82,7 @@ Verify support for non AJAX browsers
 
 =item *
 
-Support for other databases (need developers to support them)
-
-=over
-
-=item *
-
-PostgreSQL
-
-=back
+Make SQLite the default instead of MySQL?
 
 =back
     
