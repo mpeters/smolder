@@ -44,6 +44,7 @@ clean:
 	- rm -f data/build.db
 	- rm -f data/smolder.sqlite
 	- rm -rf data/smoke_reports/*
+	- rm -rf data/data/html_smoke_reports/
 
 test:
 	bin/smolder_test
