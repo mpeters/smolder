@@ -19,6 +19,8 @@ smolder_test
 
     ./bin/smolder_test --xml > report.xml
 
+    ./bin/smolder_test --yaml > report.yaml
+
 =head1 DESCRIPTION
 
 Script used to run the Smolder tests and output either to the screen using the
@@ -124,6 +126,7 @@ extension.
 my $verbose   = 0;
 my $quiet     = 0;
 my $xml       = 0;
+my $yaml      = 0;
 my @testfiles = ();
 my $help      = 0;
 my $man       = 0;
@@ -137,6 +140,7 @@ GetOptions(
     'help!'        => \$help,
     'man!'         => \$man,
     'xml'          => \$xml,
+    'yaml'         => \$yaml,
   )
   || pod2usage();
 
@@ -173,7 +177,6 @@ print_header("Running Tests");
 
 # if we don't have anything in tests
 if ( !scalar(@testfiles) ) {
-
     # do a depth-first search on the 't' directory to find all of the files
     find(
         sub {
@@ -208,7 +211,10 @@ if ($xml) {
     my $cmd = catfile($ENV{SMOLDER_ROOT}, 'bin', 'smolder_prove');
     system($cmd . ' ' . join(' ', @testfiles)) == 0
         or die "Could not run smolder_prove for tests! $!";
-
+} elsif ($yaml ) {
+    my $cmd = catfile($ENV{SMOLDER_ROOT}, 'bin', 'smolder_prove') . ' --yaml';
+    system($cmd . ' ' . join(' ', @testfiles)) == 0
+        or die "Could not run smolder_prove for tests! $!";
 } else {
     # else we just want to run normal Test::Harness tests
     $Test::Harness::Verbose = $verbose;
