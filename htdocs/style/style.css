@@ -503,6 +503,10 @@ div.crud_header a {
     font-weight: bold;
 }
 
+div.add_container {
+    padding-bottom: 10px;
+}
+
 /* Notify styles */
 #NotifyAlertWrap{
     margin: 10%;
