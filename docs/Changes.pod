@@ -1,5 +1,15 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.01
+
+=over
+
+=item * Fixed bug with uploading YAML files instead of XML - M. Peters
+
+=item * Disable form inputs when AJAXified forms are submitting, then re-enable them on request completion - M. Peters
+
+=back
+
 =head2 1.00
 
 =over
