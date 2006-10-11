@@ -212,11 +212,11 @@ $mech->content_contains('Preferences');
     $mech->submit();
     ok( $mech->success );
     $mech->content_contains('class="required warn">Current Password');
-    $mech->content_contains('Does not match your current password');
+    $mech->content_contains('does not match what we have');
     $mech->content_contains('class="required warn">New Password');
-    $mech->content_contains('Must be at least 4 characters long');
+    $mech->content_contains('must be at least 4 characters long');
     $mech->content_contains('class="required warn">New Password <em>(Retyped)</em>');
-    $mech->content_contains('Does not match your New Password');
+    $mech->content_contains('2nd New Password does not match');
 
     # successful form
     $mech->form_name('change_pw');

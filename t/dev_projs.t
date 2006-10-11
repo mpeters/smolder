@@ -73,7 +73,7 @@ $mech->content_contains('My Projects');
     ok( $mech->form_name('add_report') );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
 
@@ -88,14 +88,14 @@ $mech->content_contains('My Projects');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
     $mech->content_contains('class="warn">Architecture');
     $mech->content_contains('class="warn">Platform');
     $mech->content_contains('class="warn">Comments');
-    $mech->content_contains('Must be less than 1000 characters');
-    $mech->content_contains('Must be less than 255 characters');
+    $mech->content_contains('must be less than 1000 characters');
+    $mech->content_contains('must be less than 255 characters');
     $mech->content_contains(qq(value="$too_big"));
     $mech->content_contains( '>' . ( $too_big x 4 ) . '<' );
 

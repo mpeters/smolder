@@ -10,7 +10,7 @@ use Smolder::TestData qw(
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 65 );
+    plan( tests => 64 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -50,7 +50,7 @@ $mech->content_contains('Developers');
     $mech->form_name('add');
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('class="required warn">First Name');
     $mech->content_contains('class="required warn">Last Name');
@@ -69,7 +69,7 @@ $mech->content_contains('Developers');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('developer with that username already');
     $mech->content_contains('class="required warn">First Name');
@@ -99,7 +99,7 @@ $mech->content_contains('Developers');
     $mech->content_contains( $dev->email );
 }
 
-# 32..52
+# 32..51
 # edit
 {
     $mech->get_ok("$url/list");
@@ -122,7 +122,6 @@ $mech->content_contains('Developers');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('developer with that username already');
     $mech->content_contains('class="required warn">First Name');
@@ -145,7 +144,7 @@ $mech->content_contains('Developers');
     $mech->content_lacks( $data{fname} );
 }
 
-# 53..55
+# 52..54
 # reset_pw
 {
     $mech->get_ok("$url/list");
@@ -155,7 +154,7 @@ $mech->content_contains('Developers');
     isnt( $dev->password, db_field_value( 'developer', 'password', $dev->id ) );
 }
 
-# 56..60
+# 55..59
 # list
 {
     $mech->get_ok("$url/list");
@@ -165,7 +164,7 @@ $mech->content_contains('Developers');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 61..65
+# 60..64
 # delete
 {
     $mech->get_ok("$url/list");

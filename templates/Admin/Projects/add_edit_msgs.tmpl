@@ -1,4 +1,4 @@
-[% IF c.dfv_msgs.any_errors %]
+[% IF c.dfv_msgs.any_errors || err_unique_project_name %]
 <script type="text/javascript">
 [% IF err_unique_project_name || c.dfv_msgs.invalid_unique_project_name %]
     show_message('warning', 'A project with that name already exists.');
@@ -10,3 +10,4 @@
     show_message('warning', 'Invalid Start Date');
 [% END %]
 </script>
+[% END %]

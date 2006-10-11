@@ -13,7 +13,7 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 86 );
+    plan( tests => 84 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -40,7 +40,7 @@ $mech->get_ok($url);
 $mech->content_contains('Admin');
 $mech->content_contains('Projects');
 
-# 6..20
+# 6..19
 # add
 {
 
@@ -49,7 +49,7 @@ $mech->content_contains('Projects');
     $mech->form_name('add');
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('class="required warn">Public Project?');
@@ -70,7 +70,6 @@ $mech->content_contains('Projects');
     $mech->request($request);
 
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('name already exists');
 
@@ -89,7 +88,7 @@ $mech->content_contains('Projects');
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
 }
 
-# 21..24
+# 20..23
 # details
 {
     $mech->get_ok("$url/details/$proj");
@@ -98,7 +97,7 @@ $mech->content_contains('Projects');
     $mech->content_contains( $proj->public ? 'Yes' : 'No' );
 }
 
-# 25..40
+# 23..38
 # edit
 {
     $mech->follow_link_ok( { text => 'Edit' } );
@@ -122,7 +121,6 @@ $mech->content_contains('Projects');
     $mech->request($request);
     ok( $mech->success );
 
-    $mech->content_contains('either incomplete or invalid');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('name already exists');
     $mech->content_contains('class="required warn">Start Date');
@@ -142,7 +140,7 @@ $mech->content_contains('Projects');
     $mech->content_lacks('No');
 }
 
-# 41..45
+# 39..43
 # list
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
@@ -152,7 +150,7 @@ $mech->content_contains('Projects');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 46..81
+# 44..79
 # add_developer, change_admins and remove_developer
 {
 
@@ -252,7 +250,7 @@ $mech->content_contains('Projects');
     $mech->content_contains( $dev3->username );
 }
 
-# 82..86
+# 80..84
 # delete
 {
     $mech->follow_link_ok( { text => 'All Projects' } );

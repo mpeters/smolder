@@ -27,7 +27,6 @@ my $dev = create_developer( password => $pw );
 # 2..15
 # login
 {
-
     # incomplete
     $mech->get_ok( $url . '/login' );
     $mech->form_name('login');
@@ -37,7 +36,7 @@ my $dev = create_developer( password => $pw );
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
 
     # invalid
@@ -50,7 +49,7 @@ my $dev = create_developer( password => $pw );
     ok( $mech->success );
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('class="required warn">Password');
-    $mech->content_contains('Invalid username or password!');
+    $mech->content_contains('Invalid username or password');
 
     # valid username, invalid pw
     $mech->form_name('login');
@@ -62,7 +61,7 @@ my $dev = create_developer( password => $pw );
     ok( $mech->success );
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('class="required warn">Password');
-    $mech->content_contains('Invalid username or password!');
+    $mech->content_contains('Invalid username or password');
 
     # valid
     $mech->form_name('login');

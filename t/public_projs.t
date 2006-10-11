@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 73 );
+    plan( tests => 74 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -71,7 +71,7 @@ use_ok('Smolder::Control::Public::Projects');
     ok( $mech->form_name('add_report') );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
 
@@ -86,14 +86,15 @@ use_ok('Smolder::Control::Public::Projects');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
     $mech->content_contains('class="warn">Architecture');
     $mech->content_contains('class="warn">Platform');
     $mech->content_contains('class="warn">Comments');
-    $mech->content_contains('Must be less than 1000 characters');
-    $mech->content_contains('Must be less than 255 characters');
+    $mech->content_contains('Comments must be less than 1000 characters');
+    $mech->content_contains('Architecture must be less than 255 characters');
+    $mech->content_contains('Platform must be less than 255 characters');
     $mech->content_contains(qq(value="$too_big"));
     $mech->content_contains( '>' . ( $too_big x 4 ) . '<' );
 
@@ -128,7 +129,7 @@ use_ok('Smolder::Control::Public::Projects');
     is( $report->total,      67 );
 }
 
-# 45..60
+# 46..61
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
@@ -181,7 +182,7 @@ use_ok('Smolder::Control::Public::Projects');
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
 
-# 61..69
+# 62..70
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
@@ -202,7 +203,7 @@ use_ok('Smolder::Control::Public::Projects');
     ok( $mech->ct, 'text/plain' );
 }
 
-# 70..73
+# 71..74
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);

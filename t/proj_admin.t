@@ -16,7 +16,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 40 );
+    plan( tests => 39 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -85,8 +85,8 @@ $mech->content_contains('My Projects');
     );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
-    $mech->content_contains('Too long. Must be under 255 characters.');
+    $mech->content_contains('Default Platform must be under 255 characters');
+    $mech->content_contains('Default Architecture must be under 255 characters.');
     Smolder::DB->dbi_commit();
 
     # valid form
@@ -105,7 +105,7 @@ $mech->content_contains('My Projects');
     }
 }
 
-# 22..40
+# 21..39
 # add_category, delete_category
 {
     my $proj1      = _get_proj($proj1_id);
@@ -119,15 +119,14 @@ $mech->content_contains('My Projects');
     $mech->form_name('project_categories_form');
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
+    $mech->content_contains('missing required fields');
 
     # invalid form
     $mech->form_name('project_categories_form');
     $mech->set_fields( category => ( 'x' x 300 ) );
     $mech->submit();
     ok( $mech->success );
-    $mech->content_contains('either incomplete or invalid');
-    $mech->content_contains('Too long');
+    $mech->content_contains('Category name must be under 255 characters.');
 
     # successful
     $mech->form_name('project_categories_form');
