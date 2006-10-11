@@ -16,6 +16,21 @@ function ajax_form_submit(args) {
     var queryParams = Form.serialize(form);
     args['url'] = url + "?" + queryParams;
 
+    // disable all of the inputs of this form that
+    // aren't already and remember which ones we disabled
+    var disabled = [];
+    $A(form.elements).each(
+        function(input, i) { 
+            if( !input.disabled ) {
+                disabled.push(input.name);
+                input.disabled = true;
+            }
+        }
+    );
+    args['form_disabled_inputs'] = disabled;
+
+
+    // now submit this normally
     ajax_submit(args);
 };
 
@@ -76,6 +91,17 @@ function ajax_submit (args) {
                 // reset which forms are open
                 shownPopupForm = '';
                 shownForm = '';
+
+                // if we have a form, enable all of the inputs
+                // that we disabled
+                if( args['form'] && args['form_disabled_inputs'].length > 0 ) {
+                    var form = args['form'];
+                    $A(args['form_disabled_inputs']).each(
+                        function(name, i) {
+                            form.elements[name].disabled = false;
+                        }
+                    );
+                }
 
                 // hide the indicator
                 hideIndicator(indicator);
