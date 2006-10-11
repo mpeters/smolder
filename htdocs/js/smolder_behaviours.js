@@ -1,4 +1,3 @@
-var cruds = [];
 var myrules = {
     'div.boxed': function(element) {
         // don't add them if we already have a 'boxed_right' div after us
