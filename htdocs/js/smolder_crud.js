@@ -20,7 +20,7 @@ Object.extend(CRUD.prototype, {
         // find the containers, triggers and indicator that won't change
         this.list_container = document.getElementsByClassName('list_container', this.div)[0];
         this.add_container  = document.getElementsByClassName('add_container', this.div)[0];
-        this.indicator      = document.getElementsByClassName('indicator', this.div)[0];
+        this.indicator      = document.getElementsByClassName('indicator', this.div)[0].id;
         this.add_trigger    = document.getElementsByClassName('add_trigger', this.div)[0];
         // add the handlers for the triggers
         this.add_trigger.onclick = function() {
@@ -74,7 +74,7 @@ Object.extend(CRUD.prototype, {
         ajax_submit({
             url        : this.add_trigger.href,
             div        : this.add_container.id,
-            indicator  : this.inidcator,
+            indicator  : this.indicator,
             onComplete : function(args) {
                 if( !this.add_shown ) {
                     new Effect.SlideDown(this.add_container)
@@ -145,9 +145,13 @@ Object.extend(CRUD.prototype, {
         togglePopupForm(popup);
     },
     submit_change: function(form) {
+
+        // find the add_inidicator
+        var indicator = document.getElementsByClassName('add_indicator', this.add_container)[0].id;
         ajax_form_submit({
             form       : form,
             div        : this.add_container.id,
+            indicator  : indicator,
             onComplete : function(args) {
                 // if the submission changed the list
                 if( args.json.list_changed ) {
