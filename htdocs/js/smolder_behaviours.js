@@ -17,16 +17,6 @@ var myrules = {
             new Insertion.After(element, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
         }
     },
-    '#message_container div.warning': function(element) {
-        var fade = function() { new Effect.Fade(element, { duration: .4 } ); };
-        element.onclick = fade;
-        setTimeout(fade, 10000);
-    },
-    '#message_container div.info': function(element) {
-        var fade = function() { new Effect.Fade(element, { duration: .4 } ); };
-        element.onclick = fade;
-        setTimeout(fade, 10000);
-    },
     '#top_nav a.dropdownmenu' : function(element) {
         var menuId = element.id.replace(/_trigger$/, '');
         element.onmouseover = function(event) {
@@ -209,11 +199,6 @@ var myrules = {
             
         
         new_accordion(element.id, height);
-    },
-
-    'input.first' : function(element) {
-        element.focus();
-        highlight(element);
     },
     'div.crud' : function(element) {
         var matches = element.className.match(/(^|\s)for_(\w+)($|\s)/);

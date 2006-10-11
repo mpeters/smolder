@@ -13,16 +13,6 @@
 <input type="hidden" name="default_pref_id" value="[% c.developer.preference.id %]" />
 
 <h2>Update Preferences</h2>
-[% IF success %]
-  <p class="warn">
-    Preferences successfully updated.
-  </p>
-[% END %]
-[% IF sync_success %]
-  <p class="warn">
-    All project preferences have been synced.
-  </p>
-[% END %]
 [% PROCESS form_header.tmpl %]
 
 <table>

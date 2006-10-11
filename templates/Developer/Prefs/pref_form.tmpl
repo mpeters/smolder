@@ -5,16 +5,6 @@
 <input type="hidden" name="sync" value="0" />
 [% END %]
 
-[% IF success %]
-  <p class="warn">
-    Preferences successfully updated.
-  </p>
-[% END %]
-[% IF default && sync_success %]
-  <p class="warn">
-    All project preferences have been synced.
-  </p>
-[% END %]
 [% PROCESS form_header.tmpl %]
 
 <table>

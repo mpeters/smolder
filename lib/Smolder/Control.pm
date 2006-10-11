@@ -335,6 +335,7 @@ sub _create_dfv_msgs {
             foreach my $missing ( $dfv->missing ) {
                 $msgs{"err_$missing"}     = 1;
                 $msgs{"missing_$missing"} = 1;
+                $msgs{'has_missing'}      = 1;
             }
         }
     }

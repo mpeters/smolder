@@ -1,0 +1,12 @@
+[% IF c.dfv_msgs.any_errors %]
+<script type="text/javascript">
+[% IF err_unique_project_name || c.dfv_msgs.invalid_unique_project_name %]
+    show_message('warning', 'A project with that name already exists.');
+[% ELSIF c.dfv_msgs.invalid_project_name %]
+    show_message('warning', 'Name is too long. Must be less than 255 characters.');
+[% END %]
+
+[% IF c.dfv_msgs.invalid_start_date %]
+    show_message('warning', 'Invalid Start Date');
+[% END %]
+</script>

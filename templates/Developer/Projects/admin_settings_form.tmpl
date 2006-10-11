@@ -1,24 +1,26 @@
 <div class="boxed">
 [% INCLUDE form_header.tmpl %]
+
+[% IF c.dfv_msgs.any_errors %]
+<script type="text/javascript">
+  [% IF c.dfv_msgs.invalid_default_platform %]
+    show_message('warning', 'Default Platform must be under 255 characters.');
+  [% END %]
+  [% IF c.dfv_msgs.invalid_default_arch %]
+    show_message('warning', 'Default Architecture must be under 255 characters.');
+  [% END %]
+</script>
+[% END %]
+
 <form action="/app/developer_projects/process_admin_settings/[% project.id %]" class="ajaxable for_admin_settings show_settings_indicator" name="admin_settings_form" method="post">
 <table>
 <tr>
   <td><label [% IF c.dfv_msgs.err_default_platform %]class="warn"[% END %]>Default Platform</label></td>
   <td><input class="first" type="text" name="default_platform" /></td>
-  [% IF c.dfv_msgs.invalid_default_platform %]
-  <td class="warn">
-    Too long. Must be under 255 characters.
-  </td>
-  [% END %]
 </tr>
 <tr>
   <td><label [% IF c.dfv_msgs.err_default_arch %]class="warn"[% END %]>Default Architecture</label></td>
   <td><input type="text" name="default_arch" /></td>
-  [% IF c.dfv_msgs.invalid_default_arch %]
-  <td class="warn">
-    Too long. Must be under 255 characters.
-  </td>
-  [% END %]
 </tr>
 <tr>
   <td><label [% IF c.dfv_msgs.err_graph_start %]class="warn"[% END %]>Graphs Start Date</label></td>

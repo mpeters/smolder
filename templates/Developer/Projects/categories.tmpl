@@ -1,15 +1,21 @@
 <div class="boxed">
 [% INCLUDE form_header.tmpl %]
+
+[% IF c.dfv_msgs.any_errors || err_duplicate_category %]
+<script type="text/javascript">
+  [% IF c.dfv_msgs.invalid_category %]
+    show_message('warning', 'Category name must be under 255 characters.');
+  [% ELSIF err_duplicate_category %]
+    show_message('warning', 'A category with that name already exists for this project.');
+  [% END %]
+</script>
+[% END %]
+
 <form action="/app/developer_projects/add_category/[% project.id %]" class="ajaxable for_project_categories show_categories_indicator" name="project_categories_form" method="post">
 <table>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_category %] warn[% END %]">Category Name *</label></td>
   <td><input type="text" name="category" /></td>
-  [% IF c.dfv_msgs.invalid_category %]
-    <td class="warn">Too long. Must be under 255 characters.</td>
-  [% ELSIF err_duplicate_category %]
-    <td class="warn">A category with that name already exists for this project.</td>
-  [% END %]
 </tr>
 <tr>
   <td colspan="2" align="right">

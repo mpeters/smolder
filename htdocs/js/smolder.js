@@ -80,6 +80,7 @@ function ajax_submit (args) {
         {
             parameters  : query_params,
             asynchronous: true,
+            evalScripts : true,
             onComplete : function(request, json) {
                 // show any messages we got
                 show_messages(json);
@@ -112,7 +113,7 @@ function ajax_submit (args) {
                 args.json    = json || {};
                 complete(args);
             },
-            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
             onFailure: function(request) { show_error() }
         }
     );
@@ -345,19 +346,25 @@ function flash(el) {
 function show_messages(json) {
     if( json ) {
         var msgs = json.messages || [];
-        msgs.each(
-            function(msg) {
-                new Insertion.Top(
-                    $('message_container'),
-                    '<div class="' + msg.type + '">' + msg.msg + '</div>'
-                );
-            }
-        );
+        msgs.each( function(msg) { show_message(msg.type, msg.msg) } );
     }
 }
 
+var __message_count = 0;
+function show_message(type, text) {
+    __message_count++;
+    // insert it at the top of the messages
+    new Insertion.Top(
+        $('message_container'),
+        '<div class="' + type + '" id="message_' + __message_count + '">' + text + '</div>'
+    );
 
-
+    // fade it out after 10 secs, or onclick
+    var el = $('message_' + __message_count);
+    var fade = function() { new Effect.Fade(el, { duration: .4 } ); };
+    el.onclick = fade;
+    setTimeout(fade, 10000);
+}
 
 
 

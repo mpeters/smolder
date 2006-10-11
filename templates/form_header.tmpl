@@ -1,14 +1,13 @@
-[% IF c.dfv_msgs.any_errors %]
-<p class="warn">
-    The information you provided was either incomplete or invalid. Please review, make changes and then resubmit.
-    <br />
-    [% UNLESS no_required_fields %]
-    All fields marked with a '<strong>*</strong>' are required.
-    [% END %]
-</p>
-[% ELSIF ! no_required_fields %]
+[% IF ! no_required_fields %]
 <p>
     All fields marked with a '<strong>*</strong>' are required.
 </p>
+    [% IF c.dfv_msgs.any_errors && c.dfv_msgs.has_missing %]
+    <script type="text/javascript">
+        show_message('warning', 'Please fill in the missing required fields.');
+    </script>
+    [% END %]
 [% END %]
+
+
 
