@@ -1,7 +1,7 @@
 [% PROCESS Admin/Developers/add_edit_msgs.tmpl %]
 <form class="edit_form" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
 
-<table class="crud boxed_simple">
+<table class="crud boxed" id="crud_edit_table">
 <tr><td colspan="4" class="header2">Edit Developer</td></tr>
 <tr><td colspan="4">[% PROCESS form_header.tmpl %]</td></tr>
 

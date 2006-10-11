@@ -77,7 +77,10 @@ Object.extend(CRUD.prototype, {
             indicator  : this.indicator,
             onComplete : function(args) {
                 if( !this.add_shown ) {
-                    new Effect.SlideDown(this.add_container)
+                    new Effect.SlideDown(
+                        this.add_container,
+                        { afterFinish: function() { boxify($('crud_add_table')); } }
+                    )
                 }
                 this.add_shown  = true;
 
@@ -108,7 +111,10 @@ Object.extend(CRUD.prototype, {
             indicator  : this.indicator,
             onComplete : function() {
                 if( !this.add_shown ) {
-                    Effect.SlideDown(this.add_container);
+                    Effect.SlideDown(
+                        this.add_container,
+                        { afterFinish: function() { boxify($('crud_edit_table')); } }
+                    );
                 }
                 this.add_shown = true;
 

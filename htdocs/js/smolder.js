@@ -350,6 +350,9 @@ function show_messages(json) {
     }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 var __message_count = 0;
 function show_message(type, text) {
     __message_count++;
@@ -367,4 +370,18 @@ function show_message(type, text) {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function boxify(el) {
+    // don't add them if we already have a 'boxed_right' div after us
+    if( el.nextSibling && el.nextSibling.className != 'boxed_right' ) {
+        // create a new div to the right and bottom
+        var dim = Element.getDimensions(el);
+        // only if it's visible
+        if( dim.width && dim.height ) {
+            new Insertion.After(el, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
+            new Insertion.After(el, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
+        }
+    }
+}
 
