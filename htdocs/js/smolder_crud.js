@@ -88,7 +88,7 @@ Object.extend(CRUD.prototype, {
         });
     },
     _handle_form_submit: function(name) {
-        var form = document.getElementsByClassName('add_form', this.add_container)[0];
+        var form = document.getElementsByClassName(name, this.add_container)[0];
         if( form ) {
             form.onsubmit = function() {
                 this.submit_change(form);
