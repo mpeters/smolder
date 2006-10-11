@@ -98,7 +98,8 @@ function ajax_submit (args) {
                     var form = args['form'];
                     $A(args['form_disabled_inputs']).each(
                         function(name, i) {
-                            form.elements[name].disabled = false;
+                            if( name && form.elements[name] )
+                                form.elements[name].disabled = false;
                         }
                     );
                 }
@@ -108,7 +109,7 @@ function ajax_submit (args) {
 
                 // do whatever else the user wants
                 args.request = request;
-                args.json    = json;
+                args.json    = json || {};
                 complete(args);
             },
             onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
