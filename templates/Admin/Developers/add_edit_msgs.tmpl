@@ -10,8 +10,4 @@
     show_message('warning', 'Must be at leat 4 characters!');
 [% END %]
 </script>
-[% ELSIF c.dfv_msgs.any_errors %]
-<script type="text/javascript">
-    show_message('warning', 'Please fill in the missing required fields.');
-</script>
 [% END %]

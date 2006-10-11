@@ -110,7 +110,7 @@ label {
     color: #555555;
 }
 
-table.boxed, div.boxed {
+.boxed, .boxed_simple {
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
     background: #FFFFFF;
@@ -118,6 +118,12 @@ table.boxed, div.boxed {
     float:left;
     width: 720px;
     margin-bottom: 0px;
+}
+
+.boxed_simple {
+    margin-bottom: 13px;
+    border-right: 1px solid #555555;
+    border-bottom: 1px solid #555555;
 }
 
 table.short, div.short {
