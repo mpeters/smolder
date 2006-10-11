@@ -28,7 +28,7 @@ Object.extend(CRUD.prototype, {
             // prevent submission of the link
             return false;
         }.bindAsEventListener(this);
-        
+
         // find our triggers that might change (edit and delete)
         this.refresh();
 
@@ -81,43 +81,46 @@ Object.extend(CRUD.prototype, {
                 }
                 this.add_shown  = true;
 
-                // find the form that was just added and make sure it submits right
-                var form = document.getElementsByClassName('add_form', this.add_container)[0];
-                form.onsubmit = function() {
-                    this.submit_change(form);
-                    return false;
-                }.bindAsEventListener(this);
+                // make sure we submit the add changes correctly
+                this._handle_form_submit('add_form');
 
             }.bindAsEventListener(this)
         });
     },
+    _handle_form_submit: function(name) {
+        var form = document.getElementsByClassName('add_form', this.add_container)[0];
+        if( form ) {
+            form.onsubmit = function() {
+                this.submit_change(form);
+                return false;
+            }.bindAsEventListener(this);
+        }
+    },
     show_edit: function(trigger) {
         var matches = trigger.className.match(/(^|\s)for_item_(\d+)($|\s)/);
         var itemId  = matches[2];
-        if( itemId != null ) {
-            ajax_submit({
-                url        : trigger.href,
-                div        : this.add_container.id,
-                indicator  : this.indicator,
-                onComplete : function() {
-                    if( !this.add_shown ) {
-                        Effect.SlideDown(this.add_container);
-                    }
-                    this.add_shown = true;
+        if( itemId == null ) 
+            return;
 
-                    // setup the 'cancel' button
-                    var cancel = document.getElementsByClassName('edit_cancel', this.add_container)[0];
-                    cancel.onclick = function() { this.hide_add(); }.bindAsEventListener(this);
+        ajax_submit({
+            url        : trigger.href,
+            div        : this.add_container.id,
+            indicator  : this.indicator,
+            onComplete : function() {
+                if( !this.add_shown ) {
+                    Effect.SlideDown(this.add_container);
+                }
+                this.add_shown = true;
 
-                    // find the form that was just added and make sure it submits right
-                    var form = document.getElementsByClassName('edit_form', this.add_container)[0];
-                    form.onsubmit = function() {
-                        this.submit_change(form);
-                        return false;
-                    }.bindAsEventListener(this);
-                }.bindAsEventListener(this)
-            });
-        }
+                // setup the 'cancel' button
+                var cancel = document.getElementsByClassName('edit_cancel', this.add_container)[0];
+                cancel.onclick = function() { this.hide_add(); }.bindAsEventListener(this);
+
+                // make sure we submit the add changes correctly
+                this._handle_form_submit('edit_form');
+
+            }.bindAsEventListener(this)
+        });
     },
     show_delete: function(trigger) {
         var matches = trigger.className.match(/(^|\s)for_item_(\d+)($|\s)/);
@@ -152,6 +155,13 @@ Object.extend(CRUD.prototype, {
                     Element.hide(this.add_container);
                     this.update_list();
                 }
+
+                // since the add/edit forms may exist still
+                // (ie, their submission was incorrect so it reappears with error msgs)
+                // we need to make sure they're submitted correctly the 2nd time
+                this._handle_form_submit('add_form');
+                this._handle_form_submit('edit_form');
+        
             }.bindAsEventListener(this)
         });
     },
