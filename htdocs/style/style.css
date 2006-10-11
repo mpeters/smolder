@@ -157,6 +157,8 @@ tr.header, td.header {
 }
 
 tr.header2, td.header2 {
+    background-image: url('/images/header2_bg.gif');
+    background-repeat: repeat-x;
     background-color: #C3C3C3;
     color: #000000;
     font-weight: bold;

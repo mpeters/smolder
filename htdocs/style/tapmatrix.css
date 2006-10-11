@@ -139,7 +139,7 @@ td.failed, a.failed, span.failed {
     border-style: solid;
     -moz-border-radius: 10px;
     position: relative;
-    background-image: url(/images/gride.png);
+    background-image: url(/images/grid.png);
 }
 
 #logo {
