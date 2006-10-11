@@ -1,31 +1,16 @@
+[% PROCESS Admin/Projects/add_edit_msgs.tmpl %]
 <form class="add_form" name="add" action="/app/admin_projects/process_add" method="post">
 
-<table class="boxed crud">
+<table class="crud">
 <tr><td colspan="4" class="header2">Add A New Project</td></tr>
-<tr><td colspan="4">
-[% PROCESS form_header.tmpl %]
-
-[% IF c.dfv_msgs.invalid_project_name || c.dfv_msgs.invalid_unique_project_name || err_unique_project_name || c.dfv_msgs.invalid_start_date %]
-<ul>
-    [% IF err_unique_project_name || c.dfv_msgs.invalid_unique_project_name %]
-    <li><em class="warn">A project with that name already exists.</em></li>
-    [% ELSIF c.dfv_msgs.invalid_project_name %]
-    <li><em class="warn">Name is too long. Must be less than 255 characters.</em></li>
-    [% END %]
-    [% IF c.dfv_msgs.invalid_start_date %]
-    <li><em class="warn">Invalid Start Date</em></li>
-    [% END %]
-</ul>
-[% END %]
-  </td>
-</tr>
+<tr><td colspan="4">[% PROCESS form_header.tmpl %]</td></tr>
 
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name *</label></td>
-  <td><input class="first hl" type="text" name="project_name" size="25" /></td>
+  <td><input class="first" type="text" name="project_name" size="25" /></td>
   <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date *</label></td>
   <td>
-    <input class="hl" type="text" name="start_date" size="10" id="start_date" />
+    <input type="text" name="start_date" size="10" id="start_date" />
     <a href="#" id="start_date_calendar_trigger" class="calendar_trigger">&nbsp;</a>
     <div id="start_date_calendar" class="calendar_container" />
   </td>

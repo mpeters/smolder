@@ -19,7 +19,7 @@
 <tr>
   <td><label [% IF c.dfv_msgs.err_architecture %]class="warn"[% END %]>Architecture</label></td>
   <td>
-    <input class="first hl" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch | html %]" />
+    <input class="first" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch | html %]" />
     <div class="auto_complete" id="architecture_auto_complete" />
   </td>
   [% IF c.dfv_msgs.err_architecture %]
@@ -31,7 +31,7 @@
 <tr>
   <td><label [% IF c.dfv_msgs.err_platform %]class="warn"[% END %]>Platform</label></td>
   <td>
-    <input class="hl" type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform | html %]" />
+    <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform | html %]" />
     <div class="auto_complete" id="platform_auto_complete" />
   </td>
   [% IF c.dfv_msgs.err_platform %]
@@ -45,7 +45,7 @@
 <tr>
   <td><label [% IF c.dfv_msgs.err_category %]class="warn"[% END %]>Category</label></td>
   <td>
-    <select name="category" id="category" class="hl">
+    <select name="category" id="category">
       <option value="">--none--</option>
       [% FOREACH category IN categories %]
         <option value="[% category | html %]">[% category | html %]</option>
@@ -57,7 +57,7 @@
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_format %] warn[% END %]">Format *</label></td>
   <td>
-    <select name="format" id="format" class="hl">
+    <select name="format" id="format">
       <option value="XML">XML</option>
       <option value="YAML">YAML</option>
     </select>
@@ -65,7 +65,7 @@
 </tr>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_report_file || err_valid_file %] warn[% END %]">Smoke Report File *</label></td>
-  <td><input class="hl" type="file" name="report_file" id="report_file" /></td>
+  <td><input type="file" name="report_file" id="report_file" /></td>
   [% IF err_valid_file || c.dfv_msgs.err_report_file %] 
   <td><span class="warn">
     [% IF error_valid_xml %]
@@ -82,7 +82,7 @@
 </tr>
 <tr>
   <td><label [% IF c.dfv_msgs.err_comments %]class="warn"[% END %]>Comments</label></td>
-  <td><textarea name="comments" id="comments" rows="4" cols="40" class="hl"></textarea></td>
+  <td><textarea name="comments" id="comments" rows="4" cols="40"></textarea></td>
   [% IF c.dfv_msgs.err_comments %]
   <td><span class="warn">
     Must be less than 1000 characters

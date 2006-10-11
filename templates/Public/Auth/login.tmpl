@@ -12,14 +12,14 @@
 <table class="boxed short">
 <tr class="odd">
   <td><label class="required[% IF c.dfv_msgs.err_username || validation_failed %] warn[% END %]">Username<label></td>
-  <td><input class="first hl" type="text" name="username" value="" size="20" /></td>
+  <td><input class="first" type="text" name="username" value="" size="20" /></td>
   [% IF validation_failed %]
     <td><label class="warn">Invalid username or password!</label></td>
   [% END %]
 </tr>
 <tr class="even">
   <td><label class="required[% IF c.dfv_msgs.err_password || validation_failed %] warn[% END %]">Password<label></td>
-  <td><input class="hl" type="password" name="password" value="" size="20" /></td>
+  <td><input type="password" name="password" value="" size="20" /></td>
 </tr>
 <tr>
   <td colspan="2" align="right"><input type="submit" id="submit" value="Login" /></td>

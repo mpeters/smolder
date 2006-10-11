@@ -4,7 +4,7 @@
 <table>
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_category %] warn[% END %]">Category Name *</label></td>
-  <td><input class="hl" type="text" name="category" /></td>
+  <td><input type="text" name="category" /></td>
   [% IF c.dfv_msgs.invalid_category %]
     <td class="warn">Too long. Must be under 255 characters.</td>
   [% ELSIF err_duplicate_category %]
