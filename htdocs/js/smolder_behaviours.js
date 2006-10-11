@@ -258,7 +258,7 @@ var myrules = {
             }
     
             // get the preference details from the server
-            showIndicator('pref_indicator');
+            show_indicator('pref_indicator');
             new Ajax.Request(
                 '/app/developer_prefs/get_pref_details',
                 {

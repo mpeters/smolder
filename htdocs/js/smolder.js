@@ -59,7 +59,7 @@ function ajax_submit (args) {
     var complete  = args['onComplete'] || Prototype.emptyFunction;;
 
     // tell the user that we're doing something
-    showIndicator(indicator);
+    show_indicator(indicator);
 
     // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
@@ -287,7 +287,7 @@ function makeLinkAjaxable(element) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function showIndicator(indicator) {
+function show_indicator(indicator) {
     indicator = $(indicator);
     if( indicator != null )
         Element.show(indicator);
