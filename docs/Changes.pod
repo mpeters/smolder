@@ -8,6 +8,8 @@
 
 =item * Disable form inputs when AJAXified forms are submitting, then re-enable them on request completion - M. Peters
 
+=item * Minor bug fixes with CRUD UI's - M. Peters
+
 =back
 
 =head2 1.00
