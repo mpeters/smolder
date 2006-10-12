@@ -1,6 +1,8 @@
-use Test::More;
 use strict;
+use warnings;
+use Test::More;
 use Data::FormValidator;
+use Smolder::TestScript;
 use Smolder::TestData qw(create_project delete_projects);
 
 plan( tests => 44 );

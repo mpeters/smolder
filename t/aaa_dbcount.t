@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Test::More qw(no_plan);
 
+use Smolder::TestScript;
 use Smolder::Conf qw(SmolderRoot);
 use Smolder::DB;
 use File::Spec::Functions qw(catfile);

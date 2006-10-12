@@ -3,7 +3,10 @@
 <table width="100%" summary="subtests" class="subtests">
 <tr>
   [% FOREACH case IN case_row.cases %]
-  <td class="[% case.css_class %]"><a href="[% case.link %]" title="[% case.popup | html %]">&#160;</a></td>
+  <td class="[% case.css_class %] diag">
+    <div style="display:none; position:absolute;" class="[% case.css_class %] diag">[% case.popup.replace('\n\n', "\n") | trim | html_line_break %]</div>
+    &nbsp;
+  </td>
   [% END %]
 </tr>
 </table>

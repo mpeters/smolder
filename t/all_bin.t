@@ -1,5 +1,8 @@
 use strict;
+use warnings;
+
 use Test::More;
+use Smolder::TestScript;
 use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);

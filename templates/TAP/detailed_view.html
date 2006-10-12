@@ -80,8 +80,7 @@
         </tr>
       </tfoot>
       [% SET found_first_failure = 0 %]
-      [% FOREACH ctest IN page.tests %]
-      [% SET test = ctest.first_file %]
+      [% FOREACH test IN page.tests %]
       <tbody id="test_[% loop.count %]" class="results[% UNLESS test.ok %] failed[% END %]">
         <tr>
           <td class="filename">
@@ -111,7 +110,7 @@
           <td class="x [% IF test.ok %]ok[% ELSE %]failed[% END %]">
             [% test.str_status | html %]
           </td>
-          <td class="x sum" style="[% ctest.color_css %]">[% ctest.percentage %]</td>
+          <td class="x sum" style="[% test.color_css %]">[% test.percentage %]</td>
         </tr>
         <tr>
           <td colspan="3"><div id="testfile_details_[% loop.count %]" class="testfile_details" style="display:none"></div></td>

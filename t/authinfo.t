@@ -1,6 +1,8 @@
-use Test::More;
 use strict;
+use warnings;
 
+use Test::More;
+use Smolder::TestScript;
 use Smolder::TestData qw(
   is_apache_running
 );

@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Smolder::TestScript;
 use Smolder::Conf qw(DBPlatform);
 
 plan( tests => 2 );

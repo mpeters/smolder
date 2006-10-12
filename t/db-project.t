@@ -1,5 +1,7 @@
-use Test::More;
 use strict;
+use warnings;
+use Test::More;
+use Smolder::TestScript;
 use Smolder::TestData qw(
   create_project
   delete_projects

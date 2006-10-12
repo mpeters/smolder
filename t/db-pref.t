@@ -1,5 +1,8 @@
-use Test::More;
 use strict;
+use warnings;
+
+use Test::More;
+use Smolder::TestScript;
 plan( tests => 12 );
 
 # 1

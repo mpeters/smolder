@@ -1,5 +1,7 @@
 use strict;
+use warnings;
 use Test::More;
+use Smolder::TestScript;
 use Smolder::TestData qw(
   create_developer
   delete_developers

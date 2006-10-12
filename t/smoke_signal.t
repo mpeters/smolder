@@ -1,7 +1,9 @@
 use strict;
+use warnings;
 use Test::More;
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
+use Smolder::TestScript;
 use Smolder::Conf qw(InstallRoot HostName ApachePort);
 use Smolder::DB::SmokeReport;
 use Smolder::DB::ProjectDeveloper;

@@ -27,17 +27,13 @@ sub static_url {
 }
 
 sub new {
-	my ( $pkg, @models ) = @_;
+	my ( $pkg, $model ) = @_;
 
-	my $ext = pop @models unless eval { $models[-1]->isa("Test::TAP::Model") };
-
-	@models || croak "must supply a model to graph";
-
+	$model || croak "must supply a model to graph";
 	my $self = bless {}, $pkg;
 
-	$self->model(@models);
-	
-	$self;
+	$self->model($model);
+	return $self;
 }
 
 sub title { 
@@ -60,12 +56,10 @@ sub tests {
 sub model {
 	my $self = shift;
 	if (@_) {
-		$self->{model} = $_[0]->isa("Test::TAP::Model::Consolidated")
-			? shift
-			: Test::TAP::Model::Consolidated->new(@_);
+        $self->{model} = shift;
 	}
 
-	$self->{model};
+	return $self->{model};
 }
 
 sub tmpl_file {
@@ -97,7 +91,7 @@ sub detail_test_file {
 	my ($self, $num) = @_;
     if( $num ) {
         my $tests = $self->tests();
-        $self->{detail_test_file} = $tests->[$num -1]->first_file;
+        $self->{detail_test_file} = $tests->[$num -1];
     }
     return $self->{detail_test_file};
 }

@@ -1,5 +1,7 @@
 use strict;
+use warnings;
 use Test::More;
+use Smolder::TestScript;
 use Smolder::TestData qw(
   base_url
   is_apache_running

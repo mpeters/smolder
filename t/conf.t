@@ -1,6 +1,9 @@
-use Test::More;
 use strict;
-plan( tests => 4 );
+use warnings;
+
+use Test::More;
+use Smolder::TestScript;
+plan( tests => 6 );
 
 use_ok('Smolder::Conf');
 ok( Smolder::Conf->get('InstallRoot') );
