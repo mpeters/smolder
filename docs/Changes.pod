@@ -12,6 +12,8 @@
 
 =item * Changed the validation messages to use the same message stack as other messages instead of being inlined. - M. Peters
 
+=item * Better display of test descriptions and diagnostic messages in HTML results matrix. - M. Peters
+
 =back
 
 =head2 1.00
