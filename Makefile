@@ -39,9 +39,10 @@ dist:
 clean:
 	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | xargs rm -rf
 	- find apache/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
-	- find swish-e/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- find docs/html -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- rm -f data/build.db
+
+clean_db:
 	- rm -f data/smolder.sqlite
 	- rm -rf data/smoke_reports/*
 	- rm -rf data/data/html_smoke_reports/
