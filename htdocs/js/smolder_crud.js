@@ -79,7 +79,7 @@ Object.extend(CRUD.prototype, {
                 if( !this.add_shown ) {
                     new Effect.SlideDown(
                         this.add_container,
-                        { afterFinish: function() { boxify($('crud_add_table')); } }
+                        { afterFinish: function() { shadowify($('crud_add_table')); } }
                     )
                 }
                 this.add_shown  = true;
@@ -113,7 +113,7 @@ Object.extend(CRUD.prototype, {
                 if( !this.add_shown ) {
                     Effect.SlideDown(
                         this.add_container,
-                        { afterFinish: function() { boxify($('crud_edit_table')); } }
+                        { afterFinish: function() { shadowify($('crud_edit_table')); } }
                     );
                 }
                 this.add_shown = true;

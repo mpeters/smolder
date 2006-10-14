@@ -1,9 +1,9 @@
 var myrules = {
     'div.boxed': function(element) {
-        boxify(element);
+        shadowify(element);
     },
     'table.boxed': function(element) {
-        boxify(element);
+        shadowify(element);
     },
     '#top_nav a.dropdownmenu' : function(element) {
         var menuId = element.id.replace(/_trigger$/, '');

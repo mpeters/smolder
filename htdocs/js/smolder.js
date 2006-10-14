@@ -372,7 +372,7 @@ function show_message(type, text) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function boxify(el) {
+function shadowify(el) {
     // don't add them if we already have a 'boxed_right' div after us
     if( el.nextSibling && el.nextSibling.className != 'boxed_right' ) {
         // create a new div to the right and bottom
