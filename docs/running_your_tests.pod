@@ -1,0 +1,78 @@
+=head1 Running Your Test Suite
+
+Smolder tries as hard as possible to not dictacte how you
+write or structure your tests. It even tries hard not to
+care how you run your tests too much. But it does need some
+help to get the right information in the right format.
+
+=head2 TAP
+
+Smolder relies on TAP (the Test Anything Protocol) as the
+source of this data. If your project is in Perl, then it's 
+as simple as using C<Test::More> and friends in your testing
+scripts. Other languages also have libraries to output TAP.
+
+But at the time of this writing there are no good TAP parsers
+in Perl that are also not test harnesses too. To get around this
+we use the C<Test::TAP::Model> family of modules to run the tests
+and then serialize the resulting data with either XML or YAML
+
+=head2 Running
+
+The easiest way to run your tests for Smolder is to use 
+L<smolder_prove|bin/smolder_prove>. It works just like the normal
+C<prove> that comes with L<Test::Harness> except that it will either
+output XML or YAML
+
+    $ smolder_prove --xml
+
+    $ smolder_prove --yaml
+
+If you can't use L<smolder_prove|bin/smolder_prove> for your project
+then you can use the underlying L<Test::TAP::Model> classes to accomplish
+the same thing. L<Test::TAP::Model> is a subclass as L<Test::Harness::Straps>
+which is what C<prove> uses under the hood.
+
+To get XML output, you can do something like this:
+
+    use Test::TAP::XML;
+    my @test_files = qw(t/foo.t t/bar.t);
+
+    my $harness = Test::TAP::XML->new();
+    $harness->run_tests(@test_files);
+    print $harness->xml();
+
+To get it into YAML, you can do the following:
+
+    use YAML;
+    use Test::TAP::Model;
+    my @test_files = qw(t/foo.t t/bar.t);
+
+    my $harness = Test::TAP::Model->new();
+    $harness->run_tests(@test_files);
+    print YAML::Dump( $harness->structure );
+
+=head2 Uploading to Smolder
+
+The easiest way to automate the uploading of test results to a running
+Smolder is to use L<smolder_smoke_signal|bin/smolder_smoke_signal>. It
+takes an XML or YAML file and uploads it to the Smolder server of your
+choice.
+
+    smolder_smoke_signal --server smolder.foo.com \
+       --username myself --password s3cr3t --file test_report.xml \
+       --project MyProject
+
+=head2 Altogether Now
+
+Typically, your automated test/upload code can be a bash script as simple
+as this:
+
+    !#/bin/bash
+    smolder_prove --xml > test_report.xml
+    smolder_smoke_signal --server smolder.foo.com \
+       --username myself --password s3cr3t --file test_report.xml \
+       --project MyProject
+
+Pretty easy.
+
