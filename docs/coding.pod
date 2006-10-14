@@ -117,14 +117,12 @@ A list of modules related to this module.
 
 =back
 
-
 =item Script Documentation
 
 All command-line scripts will have full POD documentation describing
 their usage.  Scripts should use L<Pod::Usage> and L<GetOpt::Long>.  Scripts
 must support C<--man> and C<--help> options as shown in the L<Pod::Usage>
 documentation.
-
 
 =item Configuration Documentation
 
@@ -134,8 +132,6 @@ F<smolder.conf> explaining their usage along with a reasonable default
 setting.  Second, they need an entry in F<docs/configuration.pod>.
 
 =back
-
-
 
 =head2 SVN
 
@@ -156,7 +152,6 @@ failures.
 
 =back
 
-
 =head2 Database Conventions
 
 =over 4
@@ -164,7 +159,7 @@ failures.
 =item Table Names
 
 Tables should be named with singluar nouns.  For example, the table
-containing data managed by L<Smolder::Project> is called C<project> not
+containing data managed by L<Smolder::DB::Project> is called C<project> not
 C<projects>.
 
 =item Join Table Names
@@ -174,7 +169,7 @@ by combining the two table names.  For example, the C<project> table is
 joined to the C<developer> table using the C<project_developer> table.
 Consider choosing the first member based on which module "owns" the
 data in the table.  For example, C<project_developer> is better than
-C<developer_project> because C<Smolder::Project> is responsible for
+C<developer_project> because L<Smolder::DB::Project> is responsible for
 maintaining this relationship.
 
 =item Primary Keys
@@ -184,15 +179,15 @@ table, it should be named simply C<id>.
 
 =item VARCHAR columns
 
-All VARCHAR columns must be of the maximum allowed width (255 in MySQL
-3.23) unless there is a compelling reason to do otherwise.  VARCHARs
+All C<VARCHAR> columns must be of the maximum allowed width (255 in MySQL)
+unless there is a compelling reason to do otherwise. C<VARCHAR>s
 should be used when users will access the data in a text input through
 the UI.
 
 =item TEXT columns
 
 When a textarea is used in the UI, the column recieving the data
-should be of the TEXT type.  This will avoid unnecessary restrictions
+should be of the C<TEXT> type.  This will avoid unnecessary restrictions
 on the length of the data entered.
 
 =item SQL comments
