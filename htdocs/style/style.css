@@ -256,54 +256,6 @@ a.button:hover, a.dead_button {
     background-color: #ffffff;
 }
 
-/* Tooltip styles */
-.tooltip {
-    background-color: #EEEEEE;
-    font-size: 10pt;
-    color: #000000;
-    width: 200px;
-    border: 1px solid #555555;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    z-index: 100;
-}
-
-.tooltip .content {
-    padding: 5px;
-}
-
-.tooltip .header {
-    background-color: #C47147;
-    font-weight: bold;
-    font-size: 11pt;
-    color: #FFFFFF;
-    padding-left: 5px;
-    padding-right: 5px;
-    border-bottom: 1px solid #555555;
-}
-
-.tooltip a.close {
-    color: #ffffff;
-    background-color: #C47147;
-    border: 1px solid #555555;
-    padding: 2px;
-    padding-left: 2px;
-    padding-right: 2px;
-    margin-left: 2px;
-    text-decoration: none;
-    font-size: 8pt;
-    font-weight: bold;
-    margin-right: 8px;
-}
-
-.tooltip a.close:hover {
-    color: #C47147;
-    background-color: #ffffff;
-}
-
-.tooltip p.close {
-    padding-bottom: 8px;
-}
 
 /* Calendar DatePicker Styles */
 .datepicker {
@@ -416,11 +368,11 @@ div.accordion, div.fake_accordion {
     border: solid 1px #555555;
 }
 
-div.accordion div.panel, div.fake_accordion div.panel {
+div.accordion > div.panel, div.fake_accordion > div.panel {
     border-bottom: 1px solid #000000;
 }
 
-div.accordion div.panel div.header, div.fake_accordion div.panel div.header {
+div.accordion > div.panel > div.header, div.fake_accordion > div.panel > div.header {
     font-size: 11pt;
     padding: 2px 6px 2px 6px;
     border-style: solid none solid none;
@@ -534,11 +486,11 @@ div.add_container {
     background-image: url('/images/error_overlay.png');
     z-index:1000;
 }
+
 * html #NotifyAlertOverlay{
     background-color: #333;
     back\ground-color: transparent;
     background-image: url('/images/blank.gif');
     /* filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale"); */
 }
-
 

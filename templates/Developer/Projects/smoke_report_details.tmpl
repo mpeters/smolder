@@ -3,10 +3,10 @@
 
 <div class="header[% IF report.failed %] attention_header[% END %]">
   [% IF report.invalid %]
-    <span id="report_invalid_[% report.id %]_trigger"><strong>INVALID</strong></span> - 
-    <div class="tooltip for_report_invalid_[% report.id %]_trigger" id="report_invalid_tip_[% report.id %]" style="display:none; position: absolute;">
-      <div class="header">Reason</div>
-      <div class="content">[% report.invalid_reason | html %]</div>
+    <span class="tooltip_trigger for_invalid_reason_[% report.id %]"><strong>INVALID</strong></span> - 
+    <div class="tooltip" id="invalid_reason_[% report.id %]" style="display:none; position:absolute;">
+      <div class="header">Invalid Reason</div>
+      [% report.invalid_reason | html %]
     </div>
   [% END %]
   #[% report.id %] Added [% report.added.strftime('%D %l:%M %p') %] by [% report.developer.username | html %]

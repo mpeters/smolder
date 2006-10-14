@@ -87,7 +87,6 @@ function ajax_submit (args) {
 
                 // reapply any dynamic bits
                 Behaviour.apply();
-                Tooltip.setup();
 
                 // reset which forms are open
                 shownPopupForm = '';
@@ -385,3 +384,10 @@ function shadowify(el) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function setup_tooltip(trigger, target) {
+    trigger.onclick = function() {
+       new Effect.toggle(target, 'appear');
+    };
+}

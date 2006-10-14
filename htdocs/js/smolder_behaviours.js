@@ -194,6 +194,10 @@ var myrules = {
         if( ! CRUD.exists(element.id) ) {
             new CRUD(element.id, url);
         }
+        
+        
+        
+        
     },
     'form.resetpw_form': function(element) {
         makeFormAjaxable(element);
@@ -278,30 +282,15 @@ var myrules = {
         element.onfocus = function() { highlight(element);   };
         element.onblur  = function() { unHighlight(element); };
     },
-    // TAP Matrix triggers for more test file details
-    'a.testfile_details_trigger' : function(element) {
-        // get the id of the target div
-        var matches = element.id.match(/^for_(.*)$/);
-        var targetId = matches[0];
-        // get the id of the indicator image
-        matches = element.className.match(/(^|\s)show_(.*)($|\s)/);
-        var indicator = matches[1];
 
-        element.onclick = function() {
-            if( Element.visible(targetId) ) {
-                Effect.SlideUp(targetId);
-            } else {
-                ajax_submit({
-                    url: element.href,
-                    div: targetId,
-                    indicator: indicator,
-                    onComplete: function() {
-                        Effect.SlideDown(targetId);
-                    }
-                });
-            }
-            return false;
-        };
+    // setup tooltips
+    '.tooltip_trigger': function(element) {
+        var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
+        var target  = matches[2];
+        if( target ) {
+            setup_tooltip(element, $(target));
+            setup_tooltip($(target), $(target));
+        }
     }
 };
 

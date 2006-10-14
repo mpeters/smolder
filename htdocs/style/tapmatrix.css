@@ -167,23 +167,17 @@ h1 {
     margin-top: 0px;
 }
 
-div.diag {
-    min-width: 200px;
-    padding: 5px;
-    background: #ffffff;
-    text-align: left;
-    border: 1px solid #CCCCCC;
-    border-right: 1px solid #555555;
-    border-bottom: 1px solid #555555;
-    font-weight: bold;
-}
-
 div.f {
     color: #a91509;
 }
 
 div.p {
     color: #2d852d;
+}
+
+div.tooltip > pre {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 

@@ -3,8 +3,8 @@
 <table width="100%" summary="subtests" class="subtests">
 <tr>
   [% FOREACH case IN case_row.cases %]
-  <td class="[% case.css_class %] diag">
-    <div style="display:none; position:absolute;" class="[% case.css_class %] diag">[% case.popup.replace('\n\n', "\n") | trim | html_line_break %]</div>
+  <td class="[% case.css_class %] tooltip_trigger">
+    <div style="display:none; position:absolute;" class="[% case.css_class %] tooltip"><pre>[% case.popup.replace('\n\n', "\n").replace('\s*$', '') %]</div>
     &nbsp;
   </td>
   [% END %]

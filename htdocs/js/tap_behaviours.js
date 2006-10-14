@@ -29,17 +29,11 @@ var myrules = {
         };
     },
     'div.diag': function(el) {
-        el.onclick = function() {
-           new Effect.toggle(el, 'appear');
-        };
+        setup_tooltip(el, el);
     },
-    'td.diag' : function(el) {
-        var diag = document.getElementsByClassName('diag', el)[0];
-        if( diag ) {
-            el.onclick = function() {
-                new Effect.toggle(diag, 'appear');
-            };
-        }
+    'td.tooltip_trigger' : function(el) {
+        var diag = document.getElementsByClassName('tooltip', el)[0];
+        setup_tooltip(el, diag);
     }
 };
 
