@@ -76,3 +76,45 @@ as this:
 
 Pretty easy.
 
+=head2 Full Diagnostic Messages
+
+Many times a failing test will output diagnostics messages giving more
+information (ie, expected vs. received return values, etc). In Perl tests there
+is a slight problem with capturing this output. Smolder would
+be able to capture this reliably if it weren't for a legacy design decision
+in L<Test::Builder>, which is used by almost every testing class in Perl.
+
+To get around this, you need to inform L<Test::Builder> that diagnostic
+output should go to the same output stream as normal TAP output. The following
+code accomplishes this:
+
+    use Test::Builder;
+    sub import {
+        no warnings;
+        *Test::Builder::failure_output = sub { return \*STDOUT };
+    }
+
+Now, it would be pretty annoying and repetitive to put this at the top of
+every test file in your project. A better way would be to create a package
+for your project that contains this, and then use that package in all your test
+scripts.
+
+Something like this:
+
+    package MyProject::TestScript;
+    use Test::Builder;
+    sub import {
+        no warnings;
+        *Test::Builder::failure_output = sub { return \*STDOUT };
+    }
+    1;
+
+And then in your testfile F<t/foo.t> you would have something like this:
+
+    use script;
+    use warnings;
+    use Test::More;
+    use MyProject::TestScript;
+
+    
+   
