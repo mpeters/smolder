@@ -28,6 +28,7 @@ sub setup {
               smoke_reports
               smoke_report
               report_details
+              test_file_report_details
               add_report
               process_add_report
               forbidden

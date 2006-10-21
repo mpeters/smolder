@@ -87,7 +87,7 @@
             [% UNLESS email %]
               <span style="float: right">
               <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
-              <a href="/app/developer_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
+              <a href="/app/public_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
                   id="for_testfile_details_[% loop.count %]" 
                   class="testfile_details_trigger show_indicator_[% loop.count %][% UNLESS test.ok %] failed[% END %]">
                 Details?
