@@ -1,5 +1,9 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.02
+
+=item * Fixed bug to allow anonymous access to test file details for public projects - M. Peters
+
 =head2 1.01
 
 =over
