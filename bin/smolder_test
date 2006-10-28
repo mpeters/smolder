@@ -98,10 +98,6 @@ By default this option is false.
 
     ./bin/smolder_test --quiet
 
-The user used when performing a C<freshsvn>.
-This is used in combination with the C<svnuser> option.
-By default, this option is an empty string.
-
 =item xml
 
 This options tess the script to create an XML structure of the test ouput
