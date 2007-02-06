@@ -1,5 +1,13 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.03
+
+=over
+
+=item * Fixed bug when building with --no-mysql on a system that doesnt have MySQL installed - Trushar Zaveri and M. Peters
+
+=back
+
 =head2 1.02
 
 =item * Fixed bug to allow anonymous access to test file details for public projects - M. Peters

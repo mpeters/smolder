@@ -178,7 +178,7 @@ if (@ARGV) {
 }
 
 # verify the platform
-$pkg->verify_dependencies( mode => 'build' );
+$pkg->verify_dependencies( mode => 'build', no_mysql => $skip_mysql );
 
 # get list of files to build, considering --module and --skip-module opts
 opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";

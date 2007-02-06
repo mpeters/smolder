@@ -111,7 +111,29 @@ header files (.h) are search for in $Config{usrinc}, /include and /usr/local/inc
 The default implementation runs the following default checks (which
 are all overrideable):
 
-    verify_dependencies(mode => 'install')
+=over
+
+=item *
+
+If installing, verify that we have a Perl with the same version that
+the Smolder binary was built against.
+
+=item *
+
+Make sure we have the correct databases installed. Right now this
+means SQLite and MySQL. These can be skipped by providing the
+C<no_mysql> and C<no_sqlite> params.
+
+=item *
+
+Make sure we have libgd installed.
+
+=back
+
+    verify_dependencies(
+        mode     => 'install',
+        no_mysql => 1,
+    )
 
 =cut
 
@@ -127,7 +149,7 @@ sub verify_dependencies {
     }
 
     # check the database
-    $pkg->check_databases( mode => $mode );
+    $pkg->check_databases( mode => $mode, no_mysql => $arg{no_mysql}, no_sqlite => $arg{no_sqlite} );
 
     # look for libgd
     $pkg->check_libgd( mode => $mode );
@@ -144,20 +166,32 @@ method.
 sub check_databases {
     my ( $self, %args ) = @_;
     my $mode = $args{mode};
+    my $no_mysql = $args{no_mysql};
+    my $no_sqlite = $args{no_sqlite};
 
-    my $db_platform_dir = catdir( $ENV{SMOLDER_ROOT}, 'lib', 'Smolder', 'DBPlatform' );
-    opendir( my $DIR, $db_platform_dir ) or die $!;
-    my @dbs = grep {
-        $_ !~ /^\.\.?$/        # not the parent or a hidden file
-          and $_ !~ /\.svn/    # ignore SVN cruft
-          and $_ !~ /~$/       # ignore editor droppings
-          and $_ !~ /\.swp$/
-    } sort readdir $DIR;
+    my @dbs;
+    # our list of available DBPlatforms comes from build.db when installing
+    if( $mode eq 'install' ) {
+        my %build_params = $self->build_params();
+        @dbs = @{$build_params{DBPlatforms}}
+    } else {
+        # else get the list from the available modules
+        my $db_platform_dir = catdir( $ENV{SMOLDER_ROOT}, 'lib', 'Smolder', 'DBPlatform' );
+        opendir( my $DIR, $db_platform_dir ) or die $!;
+        @dbs = grep {
+            $_ !~ /^\.\.?$/        # not the parent or a hidden file
+              and $_ !~ /\.svn/    # ignore SVN cruft
+              and $_ !~ /~$/       # ignore editor droppings
+              and $_ !~ /\.swp$/
+        } sort readdir $DIR;
+    }
 
     # now load each db platform and verify it
     require Smolder::DBPlatform;
     foreach my $db (@dbs) {
         my $basename = basename( $db, '.pm' );
+        next if $no_mysql && lc $basename eq 'mysql';
+        next if $no_sqlite && lc $basename eq 'sqlite';
         my $db_platform = Smolder::DBPlatform->load($basename);
         $db_platform->verify_dependencies( mode => $mode );
     }

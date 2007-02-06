@@ -67,11 +67,13 @@ sub upgrade {
     my $file = catfile( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql' );
     if ( -e $file ) {
         print "    Upgrading DB with file '$file'.\n";
-        my $mysql_bin = $platform->find_bin( bin => 'mysql' );
-        my $cmd = "$mysql_bin " . DBName . " -u" . DBUser . " -p" . DBPass;
-        $cmd .= " -h" . DBHost if (DBHost);
-        system("$cmd < $file") == 0
-          or die "Could not run SQL in '$file': $!";
+        my $db_platform = Smolder::DBPlatform->load();
+        $db_platform->run_sql_file(
+            file => $file,
+            user => DBUser,
+            passwd => DBPass,
+            host => DBHost,
+        );
     } else {
         print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
     }
