@@ -6,7 +6,31 @@
 
 =item *
 
-Add support for plain TAP
+Add support for plain TAP (using TAPx::Parser)
+
+=item *
+
+RSS in addition to email (XML::RSS?)
+
+=item *
+
+Replace image based graphs with C<< <canvas> >> ones (using Plotr?)
+
+=item *
+
+Support TAP tags (tags made with Test::Description::Tagged)
+
+=item *
+
+Better message stack that works arcoss sessions.
+
+=item *
+
+Upgrade Prototype.js and Scriptaculous to latest versions
+
+=item *
+
+Allow Smolder to actually run the tests. Simple framework with SCM support
 
 =item *
 
@@ -23,12 +47,6 @@ Import/export projects (similar to backup and install from backup but by project
 =item *
 
 Add paging to other listing pages admin_developers/admin_projects, etc (or add datagrid?)
-
-=item *
-
-Capture STDERR and associate with test files 
-
-needs changes to Test::Builder/Test.pm or using a better TAPx::Parser
 
 =item *
 
