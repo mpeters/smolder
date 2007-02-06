@@ -295,7 +295,6 @@ Also, the 'any_errors' message will be set.
 __PACKAGE__->add_callback(
     init => sub {
         my $self  = shift;
-        my $query = $self->query();
         $self->param(
             'dfv_defaults' => {
                 filters                 => ['trim'],
