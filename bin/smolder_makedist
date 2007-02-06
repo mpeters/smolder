@@ -164,6 +164,7 @@ find(
               m!.swp!                          or    # skip Vi droppings
               m!.swo!                          or    # skip Vi droppings
               m!SMOLDER-[^/]+\.tar\.gz!        or    # skip Smolder distribs
+              m!_log$!                         or    # skip log files
               ( not $source_dist and m!^$name/./src!o );
 
             # print "Excluding $_.\n";
