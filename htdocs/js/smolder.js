@@ -391,6 +391,6 @@ function shadowify(el) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function setup_tooltip(trigger, target) {
     trigger.onclick = function() {
-       new Effect.toggle(target, 'appear');
+       new Effect.toggle(target, 'appear', { duration: .4 });
     };
 }
