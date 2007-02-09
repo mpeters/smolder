@@ -193,15 +193,18 @@ function changeSmokeGraph(form) {
         }
     }
 
+    var img = $('graph_image');
+    img.onload = function() {
+        new Effect.Highlight(
+            $('graph_container'), 
+            { 
+                startcolor  : '#FFFF99',
+                endcolor    : '#FFFFFF',
+                restorecolor: '#FFFFFF'
+            }
+        );
+    };
     $('graph_image').src = url;
-    new Effect.Highlight(
-        $('graph_container'), 
-        { 
-            startcolor  : '#FFFF99',
-            endcolor    : '#FFFFFF',
-            restorecolor: '#FFFFFF'
-        }
-    );
 }
 
 
