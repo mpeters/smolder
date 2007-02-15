@@ -4,7 +4,9 @@
 
 =over
 
-=item * Fixed bug when building with --no-mysql on a system that doesnt have MySQL installed - Trushar Zaveri and M. Peters
+=item * Added C<--not-perl> option to F<bin/smolder_prove> so that it will simply exec files without treating them like Perl scripts. - M. Peters
+
+=item * Fixed bug when building with C<--no-mysql> on a system that doesnt have MySQL installed - Trushar Zaveri and M. Peters
 
 =back
 
