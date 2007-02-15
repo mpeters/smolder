@@ -191,7 +191,7 @@ unless ($skip_modules) {
     
         # don't skip the Perl modules related to the external stuff
         # if we specifically specify the module
-        $skip_mysql  = 0 if( grep { $_ =~ /mysql/i  } @modules );
+        $skip_mysql  = 0 if( grep { $_ =~ /mysql/i } @modules );
 
     } elsif (@skip_modules) {
         @files = grep { !contains( \@skip_modules, $_ ) } @files;
@@ -225,7 +225,8 @@ unless ($skip_modules) {
         next if $file =~ /^$APACHE_TEST/o;
 
         # skip modules that we need to skip based on skipping external libs
-        next if $file =~ /mysql/i  and $skip_mysql;
+        # but we still need DateTime::Format::MySQL since it works under sqlite too
+        next if ($skip_mysql && $file =~ /mysql/i  && $file !~ /DateTime-Format-MySQL/i);
 
         build_module($file);
     }
