@@ -37,6 +37,7 @@ my @includes = ();
 my @switches = ();
 my $xml = 1;
 my $yaml = 0;
+my $not_perl = 0;
 
 # Allow cuddling the paths with the -I
 @ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
@@ -66,6 +67,7 @@ GetOptions(
     'V|version'     => sub { print_version(); exit; },
     'x|xml'         => \$xml,
     'y|yaml'        => \$yaml,
+    'not-perl'      => \$not_perl,
 ) or exit 1;
 
 $ENV{TEST_VERBOSE} = 1 if $Test::Harness::verbose;
@@ -118,6 +120,11 @@ if ( @tests ) {
     }
     else {
         print "# ", scalar @tests, " tests to run\n" if $Test::Harness::debug;
+
+        if( $not_perl ) {
+            $ENV{HARNESS_PERL} = '';
+            $ENV{HARNESS_PERL_SWITCHES} = '';
+        }
         if( $xml ) {
             eval { require Test::TAP::XML };
             if( $@ ) {
@@ -187,6 +194,10 @@ additions and removals
 
     -y, --yaml      Test results are output as YAML. This is false by default
                     and will override the C<--xml> option if used.
+
+    --not-perl      The test files to be executed are not Perl scripts and
+                    are just executables (or shell commands) to be run
+                    that will output TAP
 
 =head2 Removed Options
 
