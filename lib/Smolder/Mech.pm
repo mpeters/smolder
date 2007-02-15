@@ -22,21 +22,6 @@ helper methods
 
 =head1 METHODS
 
-=head2 new
-
-Constructor
-
-    my $mech = Smolder::Mech->new();
-
-=cut
-
-sub new {
-    my $class = shift;
-    my $self  = $class->SUPER::new(@_);
-    bless $self, $class;
-    return $self;
-}
-
 =head2 login
 
 This routine will go to the login form, provide credentials
