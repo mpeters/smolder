@@ -369,9 +369,9 @@ sub send_emails {
             subject   => $subject,
             tt_params => $tt_params,
         );
-        croak "Could not send smoke_report_$type email to $email! $error"
-          if ($error);
 
+        warn "Could not send 'smoke_report_$type' email to '$email': $error" if $error;
+            
         # now increment their sent count
         $pref->email_sent( $pref->email_sent + 1 );
         $pref->update();
