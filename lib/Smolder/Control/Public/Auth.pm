@@ -140,13 +140,14 @@ sub process_forgot_pw {
     my $self = shift;
     my ($dev) = Smolder::DB::Developer->search( username => $self->query->param('username') );
     if ($dev) {
-        my $new_pw = $dev->reset_password();
-        my $email  = $dev->email;
+        my $email    = $dev->email;
+        my $username = $dev->username;
+        my $new_pw   = $dev->reset_password();
         Smolder::DB->dbi_commit();
 
         if ( $self->log->would_log('debug') ) {
             $self->log->debug(
-                "New password for developer " . $developer->username . " is '$new_pw'" );
+                "New password for developer $username is '$new_pw'" );
         }
 
         # send an email with the new password
@@ -155,7 +156,7 @@ sub process_forgot_pw {
             to        => $email,
             subject   => 'Forgot your Smolder password',
             tt_params => {
-                developer => $developer,
+                developer => $dev,
                 new_pw    => $new_pw,
             },
         );
