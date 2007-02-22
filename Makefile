@@ -42,6 +42,7 @@ clean:
 	- find docs/html -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- rm -f data/build.db
 	- rm -rf tmp/*
+	- rm -rf logs/*
 
 clean_db:
 	- rm -f data/smolder.sqlite
