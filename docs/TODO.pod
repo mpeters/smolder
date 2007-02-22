@@ -14,6 +14,19 @@ RSS in addition to email (XML::RSS?)
 
 =item *
 
+Add ability to not use SMTPServer but straight sendmail
+
+=item *
+
+Add preference to just get plain-text emails
+
+=item *
+
+Create an interface for comparing 2 sets of reports for the same project. 
+Possibly similar to the way you select data for graphing.
+
+=item *
+
 Replace image based graphs with C<< <canvas> >> ones (using Plotr?)
 
 =item *
