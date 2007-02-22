@@ -18,6 +18,10 @@ Replace image based graphs with C<< <canvas> >> ones (using Plotr?)
 
 =item *
 
+Allow for recent-listing page to be filted by failure status
+
+=item *
+
 Support TAP tags (tags made with Test::Description::Tagged)
 
 =item *
