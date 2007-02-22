@@ -138,31 +138,39 @@ that developer. If successful, then return to the C<forgot_pw> mode.
 
 sub process_forgot_pw {
     my $self = shift;
-    my ($developer) = Smolder::DB::Developer->search( username => $self->query->param('username') );
-    if ($developer) {
-        my $new_pw = $developer->reset_password();
+    my ($dev) = Smolder::DB::Developer->search( username => $self->query->param('username') );
+    if ($dev) {
+        my $new_pw = $dev->reset_password();
+        my $email  = $dev->email;
         Smolder::DB->dbi_commit();
+
+        if ( $self->log->would_log('debug') ) {
+            $self->log->debug(
+                "New password for developer " . $developer->username . " is '$new_pw'" );
+        }
 
         # send an email with the new password
         my $error = Smolder::Email->send_mime_mail(
             name      => 'forgot_pw',
-            to        => $developer->email,
-            subject   => 'Forgot your password',
+            to        => $email,
+            subject   => 'Forgot your Smolder password',
             tt_params => {
                 developer => $developer,
                 new_pw    => $new_pw,
             },
         );
 
-        if ( $self->log->would_log('debug') ) {
-            $self->log->debug(
-                "New password for developer " . $developer->username . " is '$new_pw'" );
+        if( $error ) {
+            $self->add_message(
+                msg => "Problems sending new password email! Please check the logs.",
+                type => 'warning'
+            );
+        } else {
+            $self->add_message(
+                msg => "An email with a new password has been successfully sent to $email.",
+                type => 'info'
+            );
         }
-        $self->add_message(
-             msg => "An email with a new password has been successfully sent to " 
-                . $developer->email,
-            type => 'info'
-        );
     } else {
         $self->add_message(
             msg  => "A user with that username does not exist in this installation of smolder!",
