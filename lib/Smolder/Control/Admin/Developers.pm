@@ -52,34 +52,37 @@ displaying the result.
 
 sub reset_pw {
     my $self      = shift;
-    my $developer = Smolder::DB::Developer->retrieve( $self->param('id') );
+    my $dev = Smolder::DB::Developer->retrieve( $self->param('id') );
     return $self->error_message("Developer no longer exists!")
-      unless $developer;
+      unless $dev;
 
-    my $new_pw = $developer->reset_password();
+    my $email  = $dev->email;
+    my $user   = $dev->username;
+    my $new_pw = $dev->reset_password();
     Smolder::DB->dbi_commit();
 
     # send the email
     my $error = Smolder::Email->send_mime_mail(
         name      => 'reset_pw',
-        to        => $developer->email,
+        to        => $email,
         subject   => 'Reset of password by Admin',
         tt_params => {
-            developer => $developer,
+            developer => $dev,
             new_pw    => $new_pw,
         },
     );
     if ($error) {
-        my $msg = "Could not send 'reset_pw' email to " . $developer->email . "!";
-        $self->log->warning("[WARN] - $msg - $error");
-        return $self->error_message($msg);
+        $self->add_message(
+            msg  => "Could not send email to '$user'. Please check error logs!",
+            type => 'warning',
+        );
+        $self->log->warning("Could not send 'reset_pw' email to $email - $error");
     } else {
         $self->add_message(
-            msg => "Password for '" . $developer->username . 
-                "' has been reset and an email sent with their new password."
+            msg => "Password for '$user' has been reset and an email sent with their new password."
         );
-        return ' ';
     }
+    return ' ';
 }
 
 =head2 edit 
