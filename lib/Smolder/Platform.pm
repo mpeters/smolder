@@ -740,27 +740,27 @@ Additions should be made as new CPAN modules are added.
 
 sub perl_module_questions {
     return {
-        "ParserDetails.ini?"                                 => 'n',
-        "remove gif support?"                                => 'n',
-        "mech-dump utility?"                                 => 'n',
-        "configuration (y|n) ?"                              => 'n',
-        "unicode entities?"                                  => 'n',
-        "Do you want to skip these tests?"                   => 'y',
-        "('!' to skip)"                                      => '!',
-        "Mail::Sender? (y/N)"                                => 'n',
-        "It requires access to an existing test database."   => 'n',
-        "Do you want to build the XS Stash module?"          => 'y',
-        "Do you want to use the XS Stash for all Templates?" => 'y',
-        "Do you want to enable the latex filter?"            => 'n',
-        "Do you want to install these components?"           => 'n',
-
+        "ParserDetails.ini?"                            => 'n',
+        "remove gif support?"                           => 'n',
+        "mech-dump utility?"                            => 'n',
+        "configuration (y|n) ?"                         => 'n',
+        "unicode entities?"                             => 'n',
+        "Do you want to skip these tests?"              => 'y',
+        "('!' to skip)"                                 => '!',
+        "Mail::Sender? (y/N)"                           => 'n',
+        "requires access to an existing test database." => 'n',
+        "Do you want to build the XS Stash module?"     => 'y',
+        "Do you want to use the XS Stash"               => 'y',
+        "Do you want to enable the latex filter?"       => 'n',
+        "Do you want to install these components?"      => 'n',
+        "Do you wish to install the 'runtests' utility" => 'n',
         # all Smolder graphs are PNGs, and this is a private copy
-        "Build PNG support? [y]"               => 'y',
-        "Build JPEG support? [y]"              => 'n',
-        "Build FreeType support? [y]"          => 'n',
-        "Build support for animated GIFs? [y]" => 'n',
-        "Build XPM support? [y]"               => 'n',
-        "Where is libgd installed? [/usr/lib]" => '/usr/lib',
+        "Build PNG support? [y]"                        => 'y',
+        "Build JPEG support? [y]"                       => 'n',
+        "Build FreeType support? [y]"                   => 'n',
+        "Build support for animated GIFs? [y]"          => 'n',
+        "Build XPM support? [y]"                        => 'n',
+        "Where is libgd installed? [/usr/lib]"          => '/usr/lib',
     };
 }
 
