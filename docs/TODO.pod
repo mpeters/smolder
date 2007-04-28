@@ -69,6 +69,10 @@ Add paging to other listing pages admin_developers/admin_projects, etc (or add d
 
 Add help tooltips where appropriate
 
+=item *
+
+Allow smolder_smoke_signal to use the Smolder modules directly if it's on the same machine.
+
 =back
 
 =head2 BEYOND
