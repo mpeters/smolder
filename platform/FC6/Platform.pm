@@ -1,4 +1,4 @@
-package FC5::Platform;
+package FC6::Platform;
 use strict;
 use warnings;
 
