@@ -10,17 +10,24 @@ var myrules = {
 
         el.onclick = function() {
             if( Element.visible(targetId) ) {
-                Effect.BlindUp(targetId);
+                Effect.BlindUp(targetId, { duration: .5 });
             } else {
+                $(indicator).style.visibility = 'visible';
                 ajax_submit({
                     url: el.href,
                     div: targetId,
-                    indicator: indicator,
+                    indicator: 'none',
                     onComplete: function() {
+                        window.setTimeout(function() { $(indicator).style.visibility = 'hidden'}, 200);
                         Effect.BlindDown(
                             targetId,
                             // reapply any dynamic bits
-                            { afterFinish : function() { Behaviour.apply(); } }
+                            { 
+                                afterFinish : function() { 
+                                    Behaviour.apply(); 
+                                },
+                                duration    : .5
+                            }
                         );
                     }
                 });

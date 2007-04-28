@@ -155,14 +155,14 @@ function togglePopupForm(formId) {
 
     // first turn off any other forms showing of this type
     if( shownPopupForm != '' && $(shownPopupForm) != null ) {
-        new Effect.SlideUp( shownPopupForm );
+        new Effect.SlideUp( shownPopupForm, { duration: .5 } );
     }
 
     if( shownPopupForm == formId ) {
         shownPopupForm = '';
     } else {
 
-        new Effect.SlideDown(formId);
+        new Effect.SlideDown(formId, { duration: .5 });
         shownPopupForm = formId;
     }
     return false;
@@ -292,16 +292,14 @@ function makeLinkAjaxable(element) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function show_indicator(indicator) {
     indicator = $(indicator);
-    if( indicator != null )
-        Element.show(indicator);
+    if( indicator ) Element.show(indicator);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function hideIndicator(indicator) {
     indicator = $(indicator);
-    if( indicator != null )
-        Element.hide(indicator);
+    if( indicator ) Element.hide(indicator);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

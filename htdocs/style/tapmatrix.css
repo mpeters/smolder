@@ -1,5 +1,5 @@
 body {
-	font-family: Verdana, Arial, Helvetica, Tahoma;
+	font-family: Helvetica, Arial;
 	font-size: small;
 }
 
@@ -107,11 +107,11 @@ td.failed, a.failed, span.failed {
     border: 1px solid #505050; 
 }
 
-.f { background-color: #ff3020; }
-.p { background-color: #00ff00; }
-.sk { background-color: #ddffdd; }
-.u { background-color: #ffdd20; color: white; }
-.t { background-color: #007f00; color: white; }
+.fail    { background-color: #ff3020; }
+.ok      { background-color: #00ff00; }
+.skip    { background-color: #ddffdd; }
+.todo_ok { background-color: #ffdd20; color: white; }
+.todo    { background-color: #007f00; color: white; }
 .nottest { background-color: #7f7f7f; color: white ; }
 
 /* layout styles */
@@ -173,6 +173,15 @@ div.f {
 
 div.p {
     color: #2d852d;
+}
+
+div.tooltip {
+    background-color: #ffffff;
+    border: 1px solid #999999;
+    border-bottom: 1px solid #333333;
+    border-right: 1px solid #333333;
+    padding: 5px;
+    text-align: left;
 }
 
 div.tooltip > pre {

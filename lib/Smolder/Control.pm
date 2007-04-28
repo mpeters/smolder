@@ -239,7 +239,7 @@ my $TT_CONFIG = {
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,
-        FILTERS      => { pass_fail_color    => \&Smolder::Util::pass_fail_color, },
+        FILTERS      => { pass_fail_color => \&Smolder::Util::pass_fail_color },
     },
     TEMPLATE_NAME_GENERATOR => sub {
         my $self = shift;

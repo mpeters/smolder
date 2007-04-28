@@ -2,23 +2,19 @@ package Smolder::TAPHTMLMatrix;
 use strict;
 use warnings;
 
-use Test::TAP::Model::Visual;
-use Test::TAP::Model::Consolidated;
 use Carp qw/croak/;
-use File::Spec;
+use File::Spec::Functions qw(catdir catfile);
 use File::Path;
 use URI::file;
 use Template;
 use Smolder::Conf qw(InstallRoot);
 use Smolder::Control;
 
-use overload '""' => "detail_html";
-
 our $TMPL = Template->new(
-    COMPILE_DIR  => File::Spec->catdir( InstallRoot, 'tmp' ),
+    COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
     COMPILE_EXT  => '.ttc',
-    INCLUDE_PATH => File::Spec->catdir( InstallRoot, 'templates' ),
-    ABSOLUTE     => 1,
+    INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
+    FILTERS      => { pass_fail_color => \&Smolder::Util::pass_fail_color },
 );
 
 # use Smolder::Control's version
@@ -27,88 +23,45 @@ sub static_url {
 }
 
 sub new {
-	my ( $pkg, $model ) = @_;
-
-	$model || croak "must supply a model to graph";
-	my $self = bless {}, $pkg;
-
-	$self->model($model);
+	my ( $pkg, %args ) = @_;
+    my $self = bless(\%args, $pkg);
 	return $self;
 }
 
-sub title { 
-    my ($self, $title) = @_;
-    $self->{title} = $title if( $title );
-    return $self->{title} || ("TAP Matrix - " . gmtime() . " GMT");
-}
+sub report  { shift->{smoke_report} }
+sub results { shift->{test_results} }
 
-sub smoke_report { 
-    my ($self, $report) = @_;
-    $self->{smoke_report} = $report if( $report );
-    return $self->{smoke_report};
-}
-
-sub tests {
+sub generate_html {
 	my $self = shift;
-	[ sort { $a->name cmp $b->name } $self->model->test_files ];
-}
 
-sub model {
-	my $self = shift;
-	if (@_) {
-        $self->{model} = shift;
-	}
-
-	return $self->{model};
-}
-
-sub tmpl_file {
-	my $self = shift;
-    my $file = shift;
-    $self->{tmpl_file} = $file if $file;
-    return $self->{tmpl_file}
-}
-
-sub tmpl_obj {
-    my $self = shift;
-    # use the package level var to hold the object
-    # to use TT's in-memory caching
-    return $TMPL;
-}
-
-sub detail_html {
-	my $self = shift;
-	$self->process_tmpl($self->tmpl_file);
-}
-
-sub test_detail_html {
-	my ($self, $num) = @_;
-    $self->detail_test_file($num);
-	$self->process_tmpl($self->tmpl_file);
-}
-
-sub detail_test_file {
-	my ($self, $num) = @_;
-    if( $num ) {
-        my $tests = $self->tests();
-        $self->{detail_test_file} = $tests->[$num -1];
+    # where are we saving the results
+    my $dir = catdir( InstallRoot, 'data', 'html_smoke_reports' );
+    unless ( -d $dir ) {
+        mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
-    return $self->{detail_test_file};
-}
+    my $file = catfile($dir, $self->report->id . '.html');
 
-sub process_tmpl {
-	my $self = shift;
-    my $file = shift;
-    my $output;
-    my %params = (
-        page         => $self,
-        smoke_report => $self->smoke_report,
-    );
+    # process the full report
+    $TMPL->process( 
+        'TAP/full_report.html', 
+        { report => $self->report, results => $self->results },
+        $file, 
+    ) or croak $TMPL->error;
 
-    $self->tmpl_obj->process($file, \%params, \$output)
-        or croak "Problem processing template file '$file': "
-        , $self->tmpl_obj->error;
-    return $output;
+    # now generate the HTML for each individual file
+    my $count = 0;
+    foreach my $test (@{$self->results}) {
+        my $save_file = catfile($dir, $self->report->id, $count . '.html');
+        $TMPL->process( 
+            'TAP/individual_test.html', 
+            { report => $self->report, test_file => $test->{file}, tests => $test->{tests} },
+            $save_file, 
+        ) or croak "Problem processing template file '$file': ", $TMPL->error;
+        $count++;
+    }
+
+    # let them know where the main file is found
+    return $file;
 }
 
 __END__

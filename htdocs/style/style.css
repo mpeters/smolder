@@ -1,5 +1,5 @@
 html {
-    font-size: 11pt;
+    font: 11pt helvetica,arial,sans-serif;
 }
 
 p, ol, ul {
@@ -216,8 +216,8 @@ tr.header2, td.header2 {
 }
 
 div.pass_fail_ratio {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border: 1px solid #555555;
     text-align: center;
     -moz-border-radius: 10px;

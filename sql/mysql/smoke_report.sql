@@ -16,6 +16,7 @@ CREATE TABLE smoke_report  (
     fail            INT UNSIGNED NOT NULL DEFAULT 0,
     skip            INT UNSIGNED NOT NULL DEFAULT 0,
     todo            INT UNSIGNED NOT NULL DEFAULT 0,
+    todo_pass       INT UNSIGNED NOT NULL DEFAULT 0,
     test_files      INT UNSIGNED NOT NULL DEFAULT 0,
     total           INT UNSIGNED NOT NULL DEFAULT 0,
     format          ENUM ('XML', 'YAML') NOT NULL DEFAULT 'XML',

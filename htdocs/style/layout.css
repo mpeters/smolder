@@ -108,17 +108,18 @@ body {
 #version {
     font-weight: bold;
     position: absolute;
-    right: 5px;
-    top: 120px;
+    right: 20px;
+    top: 140px;
+    color: #555555;
 }
 
 #title {
     background-image: url(/images/smolder_text.png);
     background-repeat: no-repeat;
-    width: 291px;
-    height: 78px;
+    width: 298px;
+    height: 86px;
     position: absolute;
-    right: 30px;
+    right: 0px;
     top: 84px;
 }
 

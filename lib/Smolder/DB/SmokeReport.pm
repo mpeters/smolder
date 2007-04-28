@@ -4,17 +4,17 @@ use warnings;
 use base 'Smolder::DB';
 use Smolder::Conf qw(InstallRoot);
 use Smolder::Email;
-use File::Spec::Functions qw(catdir catfile);
+use File::Spec::Functions qw(catdir catfile abs2rel);
 use File::Path qw(mkpath);
 use File::Copy qw(move);
-use File::Temp;
+use File::Temp qw(tempdir);
+use File::Find qw(find);
+use Cwd qw(fastcwd);
 use DateTime;
 use DateTime::Format::MySQL;
-use Test::TAP::Model;
-use Test::TAP::XML;
 use Smolder::TAPHTMLMatrix;
-use Test::TAP::Model::Visual;
-use YAML;
+use TAP::Parser;
+use TAP::Parser::Aggregator;
 use Carp qw(croak);
 use IO::Zlib;
 
@@ -22,11 +22,11 @@ __PACKAGE__->set_up_table('smoke_report');
 
 # exceptions
 use Exception::Class (
-    'Smolder::DB::SmokeReport::Exception',
-    'Smolder::DB::SmokeReport::Exception::TAPCreation' => {
-        isa         => 'Smolder::DB::SmokeReport::Exception',
-        description => 'Could not create Test::TAP::XML from uploaded file!',
-        
+    'Smolder::Exception::InvalidTAP' => {
+        description => 'Could not parse TAP files!',
+    },
+    'Smolder::Exception::InvalidArchive' => {
+        description => 'Could not unpack file!',
     },
 );
 
@@ -85,7 +85,7 @@ The L<Smolder::DB::Project> object that this report is about
 
 =head3 file
 
-This returns the file name of where the full XML file for this
+This returns the file name of where the full report file for this
 smoke report does (or will) reside. If the directory does not
 yet exist, it will be created.
 
@@ -99,7 +99,7 @@ sub file {
     # create it if it doesn't exist
     mkpath($dir) if ( !-d $dir );
 
-    return catfile( $dir, $self->id . '.xml.gz' );
+    return catfile( $dir, $self->id . '.gz' );
 }
 
 =head3 html
@@ -110,55 +110,23 @@ A reference to the HTML text of this Test Report.
 
 sub html {
     my $self = shift;
+    # TODO - do something else if this result has been deleted
+    # TODO - stream the file instead of slurping into memory
+    return $self->_slurp_file( $self->html_file );
+}
 
-    # if we already have the file then use it
-    if ( $self->html_file && -e $self->html_file ) {
-        return $self->_slurp_file( $self->html_file );
-    }
+sub _generate_html {
+    my ($self, $results) = @_;
 
     # else we need to generate a new HTML file
-    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
-    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'detailed_view.html'));
-    $matrix->title("Test Details - #$self");
-    $matrix->smoke_report( $self );
-    my $html = $matrix->detail_html;
-
-    # save this to a file
-    my $dir = catdir( InstallRoot, 'data', 'html_smoke_reports' );
-    unless ( -d $dir ) {
-        mkpath($dir) or croak "Could not create directory '$dir'! $!";
-    }
-    my $file = catfile( $dir, $self->id . '.html');
-    open( my $OUT, '>', $file) 
-        or croak "Could not open file '$file' for writing: $!";
-    print $OUT $html
-      or croak "Could not print to '$file'! $!";
-    close($OUT);
+    my $matrix = Smolder::TAPHTMLMatrix->new( 
+        smoke_report => $self, 
+        test_results => $results, 
+    );
+    my $file = $matrix->generate_html();
     $self->html_file( $file );
     $self->update();
     Smolder::DB->dbi_commit();
-
-    return \$html;
-}
-
-=head3 html_email
-
-Returns the same HTML as the L<html> method, except more suited for
-email (no JS, etc).
-
-=cut
-
-sub html_email {
-    my $self = shift;
-
-    # create the visual model for this
-    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
-    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'Email', 'smoke_report_full.tmpl'));
-    $matrix->title("Test Details - #$self");
-    $matrix->smoke_report( $self );
-    my $html = $matrix->detail_html;
-
-    return $html;
 }
 
 =head3 html_test_detail 
@@ -174,32 +142,12 @@ show.
 
 sub html_test_detail {
     my ($self, $num) = @_;
+    my $file = catfile(InstallRoot, 'data', 'html_smoke_reports', $self->id, "$num.html");
 
-    # where will this be stored?
-    my $dir  = catdir(InstallRoot, 'data', 'html_smoke_reports', $self->id);
-    my $file = catfile($dir, "$num.html");
-
-    # if we already have the file then use it
-    return $self->_slurp_file( $file ) if ( -e $file );
-
-    # build the visual model
-    my $matrix = Smolder::TAPHTMLMatrix->new( $self->model_obj_visual );
-    $matrix->tmpl_file(catfile(InstallRoot, 'templates', 'TAP', 'test_detailed_view.html'));
-    $matrix->smoke_report( $self );
-    my $html = $matrix->test_detail_html($num);
-
-    # now save this data to the file
-    if( ! -d $dir ) {
-        mkdir $dir
-            or croak "Could not create directory '$dir': $!";
-    }
-
-    open( my $OUT, '>', $file)
-        or croak "Could not open file '$file' for writing! $!";
-    print $OUT $html
-        or croak "Could print to file '$file'! :$!";
-    close( $OUT );
-    return \$html;
+    # just return the file
+    # TODO - do something else if the file no longer exists
+    # TODO - stream the file instead of slurping into memory
+    return $self->_slurp_file( $file );
 }
 
 sub _slurp_file {
@@ -215,121 +163,19 @@ sub _slurp_file {
     return \$text;
 }
 
-=head3 xml
 
-A reference to the XML text of this Test Report.
+#This method will send the appropriate email to all developers of this Smoke
+#Report's project who requested email notification (through their preferences), 
+#depending on this report's status.
 
-=cut
-
-sub xml {
-    my $self = shift;
-    my $file = $self->file;
-
-    # return as-is unless compressed
-    return $self->_slurp_file($file)
-      unless $file =~ /\.gz$/;
-
-    # uncompress the XML file and return
-    my $in_fh = IO::Zlib->new();
-    $in_fh->open( $file, 'rb' )
-      or die "Could not open file $file for reading compressed!";
-
-    # IO::Zlib ignores $/ and doesn't support an offset for read(), so
-    # the usual faster slurp won't work
-    my ( $buffer, $xml );
-    while ( read( $in_fh, $buffer, 10240 ) ) {
-        $xml .= $buffer;
-    }
-    $in_fh->close();
-
-    return \$xml;
-}
-
-=head3 yaml
-
-A reference to the YAML representation of this Test Report
-
-=cut
-
-sub yaml {
-    my $self = shift;
-    my $yaml = YAML::Dump( $self->model_obj->structure );
-    return \$yaml;
-}
-
-=head3 model_obj
-
-The L<Test::TAP::XML> object for this smoke test run.
-
-=cut
-
-sub model_obj {
-    my ($self, $obj) = @_;
-    if( $obj ) {
-        $self->{__TAP_MODEL_XML} = $obj;
-    } elsif ( !$self->{__TAP_MODEL_XML} ) {
-        my $file = $self->file;
-
-        # are we dealing with a compressed file
-        if ( $file =~ /\.gz/ ) {
-
-            # uncompress the XML file into a temp file
-            my $tmp = new File::Temp(
-                UNLINK => 1,
-                SUFFIX => '.xml',
-            );
-            my $in_fh = IO::Zlib->new();
-            $in_fh->open( $self->file, 'rb' )
-              or die "Could not open file $tmp for reading compressed!";
-
-            my $buffer;
-            while ( read( $in_fh, $buffer, 10240 ) ) {
-                print $tmp $buffer or die "Could not print buffer to $tmp: $!";
-            }
-            close($tmp);
-            $in_fh->close();
-            $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $tmp->filename );
-        } else {
-            $file = $self->file;
-            $self->{__TAP_MODEL_XML} = Test::TAP::XML->from_xml_file( $self->file );
-        }
-
-    }
-    return $self->{__TAP_MODEL_XML};
-}
-
-=head3 model_obj_visual
-
-The L<Test::TAP::Model::Visual> object representing this test run.
-
-=cut
-
-sub model_obj_visual {
-    my $self = shift;
-    unless( $self->{__TAP_MODEL_VISUAL} ) {
-        $self->{__TAP_MODEL_VISUAL} = Test::TAP::Model::Visual->new_with_struct( 
-            $self->model_obj->structure 
-        );
-    }
-    return $self->{__TAP_MODEL_VISUAL};
-}
-
-=head3 send_emails
-
-This method will send the appropriate email to all developers of this Smoke
-Report's project who requested email notification (through their preferences), 
-depending on this report's status.
-
-=cut
-
-sub send_emails {
-    my $self = shift;
+sub _send_emails {
+    my ($self, $results) = @_;
 
     # setup some stuff for the emails that we only need to do once
     my $subject = "Smolder - new " . ( $self->failed ? "failed " : '' ) . "smoke report";
     my $tt_params = { 
         report => $self, 
-        matrix => Smolder::TAPHTMLMatrix->new( $self->model_obj_visual ),
+        matrix => Smolder::TAPHTMLMatrix->new( $results ),
     };
 
     # get all the developers of this project
@@ -456,11 +302,6 @@ It takes the following named arguments
 The full path to the uploaded file.
 This is required.
 
-=item format
-
-The format of the file (XML, YAML).
-This is required.
-
 =item project
 
 The L<Smolder::DB::Project> object that this report is being associated with.
@@ -493,51 +334,42 @@ This is optional.
 
 sub upload_report {
     # TODO - validate params
-    my ($self, %args) = @_;
+    my ($class, %args) = @_;
 
     my $file    = $args{file};
-    my $dev     = $args{developer};
+    my $dev     = $args{developer} ||= Smolder::DB::Developer->get_guest();
     my $project = $args{project};
-    my $format  = $args{format};
 
-    # get the 'guest' developer if we weren't given one
-    $dev ||= Smolder::DB::Developer->get_guest();
+    # create a temp directory to hold in-progress archive
+    my $temp_dir = tempdir( DIR => catdir(InstallRoot, 'tmp'));
 
-    # if the file is compressed, let's uncompress it
-    if ( $file =~ /\.gz$/ ) {
-        my $tmp = new File::Temp( UNLINK => 0, );
-        my $in_fh = IO::Zlib->new();
-        $in_fh->open( $file, 'rb' )
-          or die "Could not open file $tmp for reading compressed!";
+    # open up the .tar.gz file so we can examine the files
+    my $z = "";
+    $z = "z" if $file =~ /\.gz$/;
+    my $cmd = "tar -x${z}f $file";
+    my $old_dir = fastcwd();
+    chdir($temp_dir) or die "Could not chdir to $temp_dir - $!";
+    system($cmd) == 0 or Smolder::Exception::InvalidArchive->throw(error => $@);
 
-        my $buffer;
-        while ( read( $in_fh, $buffer, 10240 ) ) {
-            print $tmp $buffer;
-        }
-        unlink($file);
-        $file = $tmp->filename();
-    }
-
-    # take the uploaded file and create a Test::TAP::Model object from it
-    my $report_model;
-    if ( $format eq 'XML' ) {
-        eval { $report_model = Test::TAP::XML->from_xml_file($file); };
-    } elsif ( $format eq 'YAML' ) {
-        require YAML;
-        eval { $report_model = Test::TAP::XML->new_with_struct( YAML::LoadFile($file) ); };
-    }
-
-    # if we couldn't create a model of the test
-    if ( !$report_model || $@ ) {
-        my $err = $@;
-        unlink($file);
-        Smolder::DB::SmokeReport::Exception::TAPCreation->throw(error => $err);
-    };
-
-    my $struct = $report_model->structure();
+    # parse the results and create the HTML results we need
+    my $aggregate = TAP::Parser::Aggregator->new();
+    my @test_results;
+    find(
+        {
+            wanted => sub {
+                return unless $_ =~ /\.tap$/;
+                my $fh;
+                open($fh, $_) or croak "Could not open file $_ for reading: $!";
+                my $file = abs2rel($_, $temp_dir);
+                push(@test_results, $class->_parse_test_results($aggregate, $file, $fh));
+            },
+            no_chdir => 1,
+        },
+        $temp_dir
+    );
 
     # add it to the database
-    my $report = Smolder::DB::SmokeReport->create(
+    my $report = $class->create(
         {
             developer    => $dev,
             project      => $args{project},
@@ -545,82 +377,124 @@ sub upload_report {
             platform     => ( $args{platform}     || '' ),
             comments     => ( $args{comments}     || '' ),
             category     => ( $args{category}     || undef ),
-            pass         => $report_model->total_passed,
-            fail         => $report_model->total_failed,
-            skip         => $report_model->total_skipped,
-            todo         => $report_model->total_todo,
-            total        => $report_model->total_seen,
-            format       => $args{format},
-            test_files   => scalar( $report_model->test_files ),
-            duration     => ( $struct->{end_time} - $struct->{start_time} ),
-            failed       => $self->did_fail($report_model),
+            pass         => scalar $aggregate->passed,
+            fail         => scalar $aggregate->failed,
+            skip         => scalar $aggregate->skipped,
+            todo         => scalar $aggregate->todo,
+            todo_pass    => scalar $aggregate->todo_passed,
+            total        => $aggregate->total,
+            test_files   => scalar @test_results,
+            failed       => ! !$aggregate->failed,
+            #duration     => ( $struct->{end_time} - $struct->{start_time} ),
         }
     );
     Smolder::DB->dbi_commit();
-    $report->model_obj($report_model);
+
+    # generate the HTML reports
+    $report->_generate_html(\@test_results);
+
+    # send an email to all the user's who want this report
+    #$report->_send_emails(\@test_results);
 
     # move the tmp file to it's real destination and compress it
     my $dest   = $report->file;
     my $out_fh = IO::Zlib->new();
     $out_fh->open( $dest, 'wb9' )
       or die "Could not open file $dest for writing compressed!";
-
-    if( $format eq 'XML' ) {
-        # if we're processing an XML file, then just copy it directly
-        my $in_fh;
-        open( $in_fh, $file )
-          or die "Could not open file $file for reading! $!";
-        my $buffer;
-        while ( read( $in_fh, $buffer, 10240 ) ) {
-            print $out_fh $buffer;
-        }
-        close($in_fh);
-    } elsif( $format eq 'YAML' ) {
-        # else we'll pull the XML and print it
-        print $out_fh $report->model_obj->xml;
+    my $in_fh;
+    open( $in_fh, $file )
+      or die "Could not open file $file for reading! $!";
+    my $buffer;
+    while ( read( $in_fh, $buffer, 10240 ) ) {
+        print $out_fh $buffer;
     }
-
+    close($in_fh);
     $out_fh->close();
     unlink($file);
-
-    # send an email to all the user's who want this report
-    $report->send_emails();
 
     # purge old reports
     $project->purge_old_reports();
 
-    # let's go ahead and create # the HTML Matrix for this test 
-    # since that can  take a long time depending on the size
-    $report->html;
-    # now create the details files too
-    my $count = $report->test_files;
-    for(1..$count) {
-        $report->html_test_detail($_);
-    }
-
     return $report;
 }
 
-=head2 did_fail
+=head3 summary
 
-This method returns whether or not the given L<Test::TAP::Model>
-object failed it's tests or not.
-
-We can't just count the number of tests that failed since
-files exiting with a non-zero status with no_plan won't have
-any failing test counts, but will fail none-the-less. This will
-catch those.
+Returns a text string summarizing the whole test run.
 
 =cut
 
-sub did_fail {
-    my ($self, $model) = @_;
-    return $model->total_failed if( $model->total_failed );
+sub summary {
+    my $self = shift;
+    return sprintf(
+        '%i test cases: %i ok, %i failed, %i todo, %i skipped and %i unexpectedly succeeded',
+        $self->total,
+        $self->pass,
+        $self->fail,
+        $self->todo,
+        $self->skip,
+        $self->todo_pass,
+    );
+}
 
-    foreach my $file ($model->test_files) {
-        return 1 unless $file->ok;
+=head3
+
+Returns the total percentage of passed tests.
+
+=cut
+
+sub total_percentage {
+    my $self = shift;
+    if( $self->total && $self->failed ) {
+        return sprintf('%i', (($self->total - $self->failed) / $self->total) * 100);
+    } else {
+        return 100;
     }
-    return 0;
+}
+
+sub _parse_test_results {
+    my ($class, $aggregate, $file_name, $fh) = @_;
+    my @tests;
+    my $parser = TAP::Parser->new({source => $fh});
+
+    my $total   = 0;
+    my $failed  = 0;
+    my $skipped = 0;
+    while(my $line = $parser->next) {
+        if( $line->type eq 'test' ) {
+            my %details = (
+                ok      => $line->is_ok,
+                skip    => $line->has_skip,
+                todo    => $line->has_todo,
+                comment => $line->as_string,
+            );
+            $total++;
+            $failed++ if !$line->is_ok;
+            $skipped++ if $line->has_skip;
+            push(@tests, \%details);
+        } elsif( $line->type eq 'comment' ) {
+            # TAP doesn't have an explicit way to associate a comment
+            # with a test (yet) so we'll assume it goes with the last
+            # test. Look backwards through the stack for the last test
+            my $last_test = $tests[-1];
+            if( $last_test ) {
+                $last_test->{comment} ||= '';
+                $last_test->{comment} .= ("\n" . $line->as_string);
+            }
+        }
+    }
+
+    # add this to the aggregator
+    $aggregate->add($file_name, $parser);
+    my $percent = $total ? sprintf('%i', (($total - $failed) / $total) * 100 ) : 100;
+    return {
+        file        => $file_name,
+        tests       => \@tests,
+        total       => $total,
+        failed      => $failed,
+        percent     => $percent,
+        all_skipped => ( $skipped == $total ),
+    }
 }
 
 1;

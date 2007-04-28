@@ -1,13 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-  <title>[% page.title | html %]</title>
+  <title>Test Details #[% report.id %]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="stylesheet" href="[% IF email %]http://[% host_name %][% END %]/style/tapmatrix.css" type="text/css" />
   [% IF email %]
-  <link rel="stylesheet" href="[% IF email %]http://[% host_name %][% END %]/style/email.css" type="text/css" />
+  <link rel="stylesheet" href="http://[% host_name %]/style/email.css" type="text/css" />
   [% ELSE %]
-  <link rel="stylesheet" href="[% IF email %]http://[% host_name %][% END %]/style/tooltip.css" type="text/css" />
+  <link rel="stylesheet" href="http://[% host_name %]/style/tooltip.css" type="text/css" />
   <script type="text/javascript" src="/js/prototype.js"></script>
   <script type="text/javascript" src="/js/scriptaculous/effects.js"></script>
   <script type="text/javascript" src="/js/behaviour.js"></script>
@@ -24,7 +24,7 @@
         <div id="title"></div>
     </div>
     <div id="content">
-    <div id="page_title"><h1>[% page.title | html %]</h1></div>
+    <div id="page_title"><h1>Test Details #[% report.id %]</h1></div>
 
     <table id="details">
     <thead>
@@ -33,22 +33,24 @@
     <tfoot>
       <tr>
         <th colspan="2">
-          Uploaded [% smoke_report.added.strftime('%B %e %Y, %l:%M %p') %] 
-          by [% smoke_report.developer.username | html %]
+          Uploaded [% report.added.strftime('%B %e %Y, %l:%M %p') %] 
+          by [% report.developer.username | html %]
         </th>
       </tr>
     </tfoot>
     <tbody>
     <tr>
       <th>Project</th>
-      <td>[% smoke_report.project.name | html %]</td>
+      <td>[% report.project.name | html %]</td>
     </tr>
+    [% IF report.duration %]
     <tr>
       <th>Duration</th>
-      <td>[% smoke_report.duration %] secs</td>
+      <td>[% report.duration %] secs</td>
     </tr>
+    [% END %]
     [% FOREACH label IN ['platform', 'architecture', 'category', 'comments'] %]
-      [% IF smoke_report.$label %]
+      [% IF report.$label %]
       <tr>
         <th[% IF loop.last %] class="last"[% END %]>[% label | ucfirst %]</th>
         <td[% IF loop.last %] class="last"[% END %]>[% smoke_report.$label | html | html_line_break %]</td>
@@ -58,65 +60,64 @@
     </tbody>
     </table>
 
-    [% UNLESS email || !page.model.total_ok %]
+    [% IF report.failed && ! email %]
     <div class="">
         <a href="#first_failure">First Failure</a>
     </div>
     [% END %]
 
-    <table id="matrix" summary="[% page.model.summary | html %]">
+    <table id="matrix" summary="[% report.summary | html %]">
       <thead>
         <tr>
+          <th>#</th>
           <th>Test file</th>
           <th>Results</th>
           <th>%</th>
         </tr>
       </thead>
-      <tfoot>
-        <tr>
-          <td>[% page.model.summary %]</td>
-          <td>[% page.model.test_files.size %] files</td>
-          <td class="sum" style="[% page.model.color_css %]">[% page.model.total_percentage %]</td>
-        </tr>
-      </tfoot>
       [% SET found_first_failure = 0 %]
-      [% FOREACH test IN page.tests %]
-      <tbody id="test_[% loop.count %]" class="results[% UNLESS test.ok %] failed[% END %]">
+      [% FOREACH test IN results %]
+      <tbody id="test_[% loop.index %]" class="results[% IF test.failed %] failed[% END %]">
         <tr>
+          <td>[% loop.count %]</td>
           <td class="filename">
             [% UNLESS email %]
               <span style="float: right">
-              <img src="/images/indicator.gif" style="display:none; border: none" id="indicator_[% loop.count %]" />
-              <a href="/app/public_projects/test_file_report_details/[% smoke_report.id %]/[% loop.count %]" 
-                  id="for_testfile_details_[% loop.count %]" 
-                  class="testfile_details_trigger show_indicator_[% loop.count %][% UNLESS test.ok %] failed[% END %]">
+              <img src="/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
+              <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+                  id="for_testfile_details_[% loop.index %]" 
+                  class="testfile_details_trigger show_indicator_[% loop.index %][% IF test.failed %] failed[% END %]">
                 Details?
               </a>
               </span>
-              [% IF !found_first_failure && !test.ok %]
+              [% IF !found_first_failure && test.failed %]
                 <a name="first_failure"></a>
                 [% found_first_failure = 1 %]
               [% END %]
             [% END %]
             <!-- we'll make this a link when we can link to individual tests 
-            <a href="[% test.link %]"[% UNLESS test.ok %] class="failed"[% END %] 
-                title="[% test.name | html %][% IF (!test.ok && !test.failed_tests) %] - exited prematurely![% END %]">
+            <a href="[% test.link %]"[% IF test.failed %] class="failed"[% END %] title="[% test.file | html %]">
             -->
-            <span class="filename[% UNLESS test.ok %] failed[% END %]">
-            [% test.name | html %]
-            </span>
+            <span class="filename[% IF test.failed %] failed[% END %]">[% test.file | html %]</span>
             <!-- </a> -->
           </td>
-          <td class="x [% IF test.ok %]ok[% ELSE %]failed[% END %]">
-            [% test.str_status | html %]
+          <td class="x [% IF test.failed %]failed[% ELSE %]ok[% END %]">
+            [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
           </td>
-          <td class="x sum" style="[% test.color_css %]">[% test.percentage %]</td>
+          <td class="x sum" style="[% test.percent | pass_fail_color %]">[% test.percent %]%</td>
         </tr>
         <tr>
-          <td colspan="3"><div id="testfile_details_[% loop.count %]" class="testfile_details" style="display:none"></div></td>
+          <td colspan="3"><div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div></td>
         </tr>
       </tbody>
       [% END %]
+      <tfoot>
+        <tr>
+          <td colspan="2">[% report.summary %]</td>
+          <td>[% report.test_files %] files</td>
+          <td class="sum" style="[% report.total_percentage | pass_fail_color %]">[% report.total_percentage %]%</td>
+        </tr>
+      </tfoot>
     </table>
 
     </div>

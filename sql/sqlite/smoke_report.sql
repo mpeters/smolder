@@ -9,6 +9,7 @@ CREATE TABLE smoke_report  (
     fail            INTEGER DEFAULT 0,
     skip            INTEGER DEFAULT 0,
     todo            INTEGER DEFAULT 0,
+    todo_pass       INTEGER DEFAULT 0,
     test_files      INTEGER DEFAULT 0,
     total           INTEGER DEFAULT 0,
     format          TEXT DEFAULT 'XML',

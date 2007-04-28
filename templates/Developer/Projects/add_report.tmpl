@@ -70,15 +70,6 @@
 </tr>
 [% END %]
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_format %] warn[% END %]">Format *</label></td>
-  <td>
-    <select name="format" id="format">
-      <option value="XML">XML</option>
-      <option value="YAML">YAML</option>
-    </select>
-  </td>
-</tr>
-<tr>
   <td><label class="required[% IF c.dfv_msgs.err_report_file || err_valid_file %] warn[% END %]">Smoke Report File *</label></td>
   <td><input type="file" name="report_file" id="report_file" /></td>
 </tr>

@@ -166,8 +166,8 @@ sub add_report {
 =head2 process_add_report
 
 Process the incoming information from the C<add_report> mode. If validation passes
-we upload the file and update the database. The report is stored for permanent storage
-as a compressed XML file and summary information is extracted and inserted into the database.
+we upload the file and update the database. The report is stored for permanent storage,
+and summary information is extracted and inserted into the database.
 If successful, redirects the user to the "Recent Smoke Tests" screen for the same
 project.
 
@@ -189,15 +189,13 @@ sub process_add_report {
         return $self->error_message('Unauthorized for this project');
     }
     my $form = {
-        required           => [qw(report_file format)],
+        required           => [qw(report_file)],
         optional           => [qw(architecture platform comments category)],
         constraint_methods => {
-            format       => enum_value( 'smoke_report', 'format' ),
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
-            report_file  =>
-              file_mtype(qw(text/plain text/xml text/yaml application/x-gzip multipart/x-gzip)),
+            report_file  => file_mtype(qw(application/x-gzip multipart/x-gzip)),
             category     => existing_project_category($project),
         },
     };
@@ -210,7 +208,6 @@ sub process_add_report {
     eval {
         $report = Smolder::DB::SmokeReport->upload_report(
             file         => $valid->{report_file},
-            format       => $valid->{format},
             developer    => $self->developer,
             project      => $project,
             architecture => $valid->{architecture},
@@ -222,7 +219,10 @@ sub process_add_report {
 
     # is this an exception we can deal with?
     my $e;
-    if ( $e = Exception::Class->caught('Smolder::DB::SmokeReport::Exception::TAPCreation') ) {
+    if ( $e = Exception::Class->caught('Smolder::Exception::InvalidTAP') ) {
+        $self->log->warning( $e->error . "\n" . $e->trace->as_string );
+        return $self->add_report( { invalid_report_file => 1 } );
+    } elsif ( $e = Exception::Class->caught('Smolder::Exception::InvalidArchive') ) {
         $self->log->warning( $e->error . "\n" . $e->trace->as_string );
         return $self->add_report( { invalid_report_file => 1 } );
     } else {
