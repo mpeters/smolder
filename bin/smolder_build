@@ -72,7 +72,12 @@ options are not intended to be used together.
 
 This option will build Apache and mod_perl with debugging symbols
 turned on, as well as making mod_auth_tkt verbose in it's debug logging.
- This is extremely useful for tracking down segmentation faults.
+This is extremely useful for tracking down segmentation faults.
+
+item --dev
+
+This will build a series of optional modules that help developers in
+the creation and maintenence of Smolder.
 
 =item --help
 
@@ -130,6 +135,7 @@ my $APACHE_TEST  = 'Apache-Test';
 my $skip_apache  = 0;
 my $skip_mysql   = 0;
 my $skip_modules = 0;
+my $dev          = 0;
 my ( @modules, @skip_modules, $help, $man, $debug );
 GetOptions(
     'no-apache'     => \$skip_apache,
@@ -140,6 +146,7 @@ GetOptions(
     'help'          => \$help,
     'man'           => \$man,
     'debug'         => \$debug,
+    'dev'           => \$dev,
 ) or pod2usage(2);
 
 pod2usage(1) if $help;
@@ -216,6 +223,13 @@ unless ($skip_modules) {
         @files = grep( !/\Q$dist\E/, @files );
     }
 
+    # remove these if we aren't in dev mode
+    if( !$dev ) {
+        foreach my $dist ($pkg->dev_perl_modules) {
+            @files = grep( !/\Q$dist\E/, @files );
+        }
+    }
+
     # loop through files, unpacking and calling build_perl_module()
     foreach my $file (@files) {
         next unless $file =~ /gz$/;
@@ -283,6 +297,7 @@ print DB "Platform $platform\n";
 print DB sprintf "Perl \"%d.%d.%d\"\n", ( map { ord($_) } split( "", $^V, 3 ) );
 print DB "Arch \"$Config{archname}\"\n";
 print DB "DBPlatforms " . join(', ', @db_plats) if( @db_plats );
+print DB "Dev $dev\n";
 close DB;
 
 # all done, cleanup build dir

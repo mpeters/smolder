@@ -714,6 +714,23 @@ sub skip_perl_modules {
     return qw(BSD);
 }
 
+=head2 dev_perl_modules
+
+Returns a list of strings that are used to match against the Perl modules
+in the F<src/> directory to remove them from the build list if we aren't.
+building a setup for a developer.
+
+=cut
+
+sub dev_perl_modules {
+    return qw(
+        Apache-Reload
+        Module-Depends
+        Pod-Parser
+        Pod-Xhtml
+    );
+}
+
 =head2 apache_modperl_questions
 
 This method returns a hashref where the keys are the questions (or the beginnings of
@@ -1063,7 +1080,7 @@ sub build_params {
     # caller isn't running the right architecture then it will fail to
     # load.  So, fall back to parsing by hand...
     open( DB, $db_file ) or die "Unable to open '$db_file': $!\n";
-    my ( $platform, $perl, $arch, @db_plats );
+    my ( $platform, $perl, $arch, @db_plats, $dev );
     while (<DB>) {
         chomp;
         next if /^\s*#/;
@@ -1075,6 +1092,8 @@ sub build_params {
             $arch = $1;
         } elsif (/^\s*dbplatforms\s+["']?([^'"]+)/i) {
             @db_plats = split( /,\s*/, $1 );
+        } elsif (/^\s*dev\s+["']?([^'"]+)/i) {
+            $dev = 1;
         }
     }
     close DB;
@@ -1084,6 +1103,7 @@ sub build_params {
         Perl        => $perl,
         Arch        => $arch,
         DBPlatforms => \@db_plats,
+        Dev         => $dev,
     );
 }
 
