@@ -4,9 +4,9 @@
       <table width="100%" summary="subtests" class="subtests">
       <tr>
     [% END %]
-    [% IF test.skip      %] [% SET css_class = 'skip' %]
-    [% ELSIF test.failed %] [% SET css_class = test.todo ? 'todo'    : 'fail' %]
-    [% ELSE              %] [% SET css_class = test.todo ? 'todo_ok' : 'ok' %]
+    [% IF test.skip  %] [% SET css_class = 'skip' %]
+    [% ELSIF test.ok %] [% SET css_class = test.todo ? 'todo_ok' : 'ok' %]
+    [% ELSE          %] [% SET css_class = test.todo ? 'todo'    : 'fail' %]
     [% END %]
     <td class="x [% css_class %] tooltip_trigger">
       <div style="display:none; position:absolute;" class="tooltip"><pre>[% test.comment %]</pre></div>&nbsp;

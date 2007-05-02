@@ -5,14 +5,14 @@
   [% UNLESS email %]
     <div style="float: right">
     [% IF report.purged %]
-      <a class="dead_button" title="Details have been purged">HTML</a>
+      <a class="button dead" title="Details have been purged">HTML</a>
     [% ELSE %]
-      <a class="button smoke_report_window" title="HTML test report"
+      <a class="button invert smoke_report_window" title="HTML test report"
           href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]/html">HTML</a>
     [% END %]
     [% IF ! public && project.is_admin(c.developer) %]
       [% IF report.invalid %]
-        <a class="button popup_form" href="#" id="valid_form_[% report.id %]_trigger">Mark As Valid</a>
+        <a class="button invert popup_form" href="#" id="valid_form_[% report.id %]_trigger">Mark As Valid</a>
         <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" 
           class="indicator" id="valid_form_[% report.id %]_indicator" alt="loading" />
         <div id="valid_form_[% report.id %]" class="popup_form" style="display:none; position:relative; right: 124px; width: 200px;">
@@ -26,7 +26,7 @@
           </form>
         </div>
       [% ELSE %]
-        <a class="button popup_form" href="" id="invalid_form_[% report.id %]_trigger">Mark As Invalid</a>
+        <a class="button invert popup_form" href="" id="invalid_form_[% report.id %]_trigger">Mark As Invalid</a>
         <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" 
           class="indicator" id="invalid_form_[% report.id %]_indicator" alt="loading" />
         <div id="invalid_form_[% report.id %]" class="popup_form" style="display:none; position:relative; right: 124px; width: 220px;">
@@ -71,22 +71,16 @@
       <th>Architecture</th>
       <td>[% (report.architecture OR 'Unknown') | html %]</td>
       <td rowspan="4" align="right">
-        <table>
-          <tr>
-            <td class="right">
-            [% IF report.total %]
-              [% SET pass_ratio = (report.pass / report.total) %]
-              [% SET pass_percent = pass_ratio * 100 %]
-              [% SET fail_percent = (report.fail / report.total) * 100 %]
-              <div class="pass_fail_ratio" style="background-color: #[% pass_ratio FILTER pass_fail_color %];">
-                <br />[% pass_percent | round %] %
-              </div>
-            [% END %]
-            </td>
-          </tr>
-        </table>
+        [% IF report.total %]
+          [% SET pass_ratio = (report.pass / report.total) %]
+          [% SET pass_percent = pass_ratio * 100 %]
+          [% SET fail_percent = (report.fail / report.total) * 100 %]
+          <div class="pass_fail_ratio" style="background-color: #[% pass_ratio FILTER pass_fail_color %];">
+            <br />[% pass_percent | round %]%
+          </div>
+        [% END %]
       </td>
-    <tr>
+    </tr>
     <tr>
       <th># Test Files</th>
       <td>[% report.test_files %]</td>

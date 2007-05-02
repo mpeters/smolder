@@ -216,12 +216,14 @@ tr.header2, td.header2 {
 }
 
 div.pass_fail_ratio {
-    width: 50px;
+    width: 70px;
     height: 50px;
     border: 1px solid #555555;
     text-align: center;
-    -moz-border-radius: 10px;
+    -moz-border-radius: 5px;
     font-weight: bold;
+    margin-right: 6px;
+    margin-top: 6px;
 }
 
 div.popup_form {
@@ -234,26 +236,29 @@ div.popup_form {
     max-width: 300px;
 }
 
-div.popup_form input[type="submit"], div.popup_form a.button, a.dead_button {
+div.popup_form input[type="submit"], div.popup_form a.button {
     margin-bottom: 5px;
 }
 
-a.button, a.dead_button {
+a.button {
     color: #ffffff;
     background-color: #C47147;
     border: 1px solid #555555;
     padding: 2px;
-    padding-left: 2px;
-    padding-right: 2px;
     margin-left: 2px;
     text-decoration: none;
     font-size: 8pt;
     font-weight: bold;
 }
 
-a.button:hover, a.dead_button {
+a.button:hover, a.button.invert, a.button.dead {
     color: #C47147;
     background-color: #ffffff;
+}
+
+a.button.invert:hover {
+    color: #ffffff;
+    background-color: #C47147;
 }
 
 

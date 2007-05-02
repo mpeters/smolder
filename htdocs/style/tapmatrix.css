@@ -189,4 +189,8 @@ div.tooltip > pre {
     margin-bottom: 0px;
 }
 
+td.tooltip_trigger:hover {
+  cursor: pointer;
+}
+
 

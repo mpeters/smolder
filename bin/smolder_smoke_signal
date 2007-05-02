@@ -16,7 +16,6 @@ BEGIN {
     }
 }
 
-
 =pod
 
 =head1 NAME
@@ -59,9 +58,9 @@ The password for the Smolder user given by C<username>.
 
 =item file
 
-The name of the file to upload. The type of the file will
-be determined by the extension, so a '.xml' file will be treated
-as an XML file.
+The name of the file to upload. Please see F<docs/file_format.pod>
+for more details about the format that Smolder expects this file to
+take.
 
 =back
 
@@ -95,7 +94,6 @@ Print verbose output of our actions to STDOUT.
 
 # default options
 my ( $server, $project, $user, $pw, $file, $arch, $platform, $category, $comments, $verbose );
-my $format;
 my ( $help, $man );
 
 GetOptions(
@@ -135,17 +133,7 @@ _missing_required('file')     unless $file;
 
 # make sure our file is there and is of the right type
 if ( -r $file ) {
-    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.xml(?:\.gz)?$/, qr/\.yml(?:\.gz)?$/, qr/\.yaml(?:\.gz)?$/ );
-    my %formats = (
-        '.xml'      => 'XML',
-        '.xml.gz'   => 'XML',
-        '.yml'      => 'YAML',
-        '.yml.gz'   => 'YAML',
-        '.yaml'     => 'YAML',
-        '.yaml.gz'  => 'YAML',
-    );
-    $format = $formats{$suffix};
-    unless ($format) {
+    unless( $file =~ /\.tar(\.gz)?$/ ) {
         print "File '$file' is not of the correct type!\n";
         exit(1);
     }
@@ -204,10 +192,7 @@ if ( $mech->status ne '200' || $content !~ /New Smoke Report/ ) {
     exit(1);
 }
 $mech->form_name('add_report');
-my %fields = (
-    report_file => $file,
-    format      => $format,
-);
+my %fields = (report_file => $file);
 $fields{platform}     = $platform if ($platform);
 $fields{architecture} = $arch     if ($arch);
 $fields{category}     = $category if ($category);

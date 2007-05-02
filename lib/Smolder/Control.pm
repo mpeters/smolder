@@ -272,6 +272,7 @@ __PACKAGE__->add_callback(
             $vars->{no_wrapper} = 1;
             $vars->{ajax}       = 1;
         }
+        $vars->{smolder_version} = $Smolder::VERSION;
         return;
     }
 );

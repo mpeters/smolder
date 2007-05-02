@@ -213,23 +213,13 @@ Will delete all test reports create by L<create_smoke_report>.
 
         # set some defaults
         %args = (
+            file => catfile( $config->get('InstallRoot'), 't', 'data', 'test_run_bad.tar.gz' ),
             architecture => 'x386',
             platform     => 'Linux',
-            pass         => 62,
-            fail         => 5,
-            skip         => 5,
-            todo         => 5,
-            test_files   => 3,
-            total        => 67,
-            format       => 'XML',
             %args,
         );
-        my $report = Smolder::DB::SmokeReport->create( \%args );
+        my $report = Smolder::DB::SmokeReport->upload_report( %args );
 
-        # copy the bad report to the file's location
-        my $orig_file = catfile( $config->get('InstallRoot'), 't', 'data', 'report_bad.xml' );
-        copy( $orig_file, $report->file );
-        push( @reports, $report );
         Smolder::DB->dbi_commit();
         return $report;
     }

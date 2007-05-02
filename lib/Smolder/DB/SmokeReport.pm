@@ -275,12 +275,10 @@ sub change_category {
     my ( $self, %args ) = @_;
 
     # TODO - use Params::Validate to validate these args
-    my $sth = $self->db_Main->prepare_cached(
-        q(
+    my $sth = $self->db_Main->prepare_cached(q(
         UPDATE smoke_report SET category = ?
         WHERE project = ? AND category = ?
-    )
-    );
+    ));
     $sth->execute( $args{replacement}, $args{project}->id, $args{category} );
 }
 
@@ -410,7 +408,6 @@ sub upload_report {
     }
     close($in_fh);
     $out_fh->close();
-    unlink($file);
 
     # purge old reports
     $project->purge_old_reports();

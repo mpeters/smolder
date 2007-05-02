@@ -18,7 +18,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 74 );
+    plan( tests => 69 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -84,7 +84,6 @@ use_ok('Smolder::Control::Public::Projects');
         architecture => $too_big,
         platform     => $too_big,
         comments     => ( $too_big x 4 ),
-        format       => 'XML',
     );
     $mech->submit();
     ok( $mech->success );
@@ -105,9 +104,8 @@ use_ok('Smolder::Control::Public::Projects');
     $mech->set_fields(
         architecture => 'x386',
         platform     => 'Linux',
-        format       => 'XML',
         comments     => 'Something random that I want to say',
-        report_file  => catfile( InstallRoot, 't', 'data', 'report_bad.xml' ),
+        report_file  => catfile( InstallRoot, 't', 'data', 'test_run_bad.tar.gz' ),
     );
     $mech->submit();
     ok( $mech->success );
@@ -122,16 +120,15 @@ use_ok('Smolder::Control::Public::Projects');
     isa_ok( $report->project,   'Smolder::DB::Project' );
     isa_ok( $report->developer, 'Smolder::DB::Developer' );
     is( $report->developer->guest, 1);
-    is( $report->format,     'XML' );
-    is( $report->pass,       62 );
-    is( $report->fail,       5 );
-    is( $report->skip,       5 );
-    is( $report->todo,       5 );
-    is( $report->test_files, 3 );
-    is( $report->total,      67 );
+    is($report->pass,        446, 'correct # of passed');
+    is($report->skip,        4,   'correct # of skipped');
+    is($report->fail,        8,   'correct # of failed');
+    is($report->todo,        0,   'correct # of todo');
+    is( $report->test_files, 20,  'correct # of files');
+    is( $report->total,      454, 'correct # of tests');
 }
 
-# 46..61
+# 46..60
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
@@ -184,7 +181,7 @@ use_ok('Smolder::Control::Public::Projects');
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
 
-# 62..70
+# 61..65
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
@@ -194,18 +191,12 @@ use_ok('Smolder::Control::Public::Projects');
     $mech->follow_link_ok( { n => 1, text => 'HTML' } );
     ok( $mech->ct, 'text/html' );
 
-    # now XML
-    $mech->get_ok("/app/public_projects/smoke_reports/$proj1");
-    $mech->follow_link_ok( { n => 1, text => 'XML' } );
-    ok( $mech->ct, 'text/xml' );
-
-    # now YAML
-    $mech->get_ok("/app/public_projects/smoke_reports/$proj1");
-    $mech->follow_link_ok( { n => 1, text => 'YAML' } );
-    ok( $mech->ct, 'text/plain' );
+    # individual report files
+    $mech->get_ok("/app/public_projects/test_file_report_details/$proj1/0");
+    ok( $mech->ct, 'text/html' );
 }
 
-# 71..74
+# 66..69
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);
