@@ -71,7 +71,6 @@ END
 use Smolder::Script;
 use Smolder::Conf qw(InstallRoot);
 use Test::Harness;
-use Test::TAP::XML;
 use IO::Scalar;
 use Pod::Usage;
 use File::Find;
