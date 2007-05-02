@@ -56,17 +56,11 @@ use Template::Plugin::Filter;
 use Template::Plugin::Number::Format;
 use URI::file::Base;
 use URI::file::Unix;
-use XML::SAX;
-use XML::SAX::Base;
-use XML::SAX::DocumentLocator;
-use XML::SAX::PurePerl;
-use YAML;
-use YAML::Dumper;
 
 # don't let things get out of control
 # 10 clients == 355MB total worse-case scenario
 use Apache::SizeLimit;
-$Apache::SizeLimit::MAX_PROCESS_SIZE  = 37000;  # 37MB 
+$Apache::SizeLimit::MAX_PROCESS_SIZE  = 40000;  # 40MB 
 $Apache::SizeLimit::MIN_SHARE_SIZE    = 1500;   # 1.5MB
 $Apache::SizeLimit::CHECK_EVERY_N_REQUESTS = 3;
 
