@@ -58,7 +58,7 @@ The password for the Smolder user given by C<username>.
 
 =item file
 
-The name of the file to upload. Please see F<docs/file_format.pod>
+The name of the file to upload. Please see F<docs/upload_file_format.pod>
 for more details about the format that Smolder expects this file to
 take.
 
