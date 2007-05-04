@@ -12,11 +12,13 @@ or the F<bin/smolder_smoke_signal> script for automating the upload.
 
 TAP is the "Test Anything Prototcol" and is the basic format behind all
 test reports. Whatever language you use for your testing or whatever
-infrastructure or harness you have running your tests. If it can output
+infrastructure or harness you have running your tests, if it can output
 TAP then it can work with Smolder. There are TAP emiters for almost all
 currently popular languages (C, Java, PHP, Perl, Python, Ruby, etc). And
 even if your language of choice doesn't have an existing TAP emiter, TAP
 is such a simple protocol that it's a fairly trivial task to write one.
+
+The full documentation for TAP can be found at http://search.cpan.org/perldoc?TAP with more information available at http://testanything.org.
 
 The basic idea is that a single file of TAP output is equivalent to a
 single test script or module. These files are collected together in a tar
