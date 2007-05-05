@@ -1,2 +1,3 @@
 ALTER TABLE smoke_report DROP COLUMN format;
+ALTER TABLE smoke_report DROP COLUMN html_file;
 ALTER TABLE ADD COLUMN todo_pass INT UNSIGNED NOT NULL DEFAULT 0;

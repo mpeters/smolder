@@ -16,7 +16,6 @@ CREATE TABLE smoke_report  (
     comments        BLOB DEFAULT '',
     invalid         INTEGER DEFAULT 0,
     invalid_reason  BLOB DEFAULT '',
-    html_file       TEXT,
     duration        INTEGER DEFAULT 0,
     category        TEXT DEFAULT NULL,
     purged          INTEGER DEFAULT 0,
