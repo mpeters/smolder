@@ -40,7 +40,7 @@ clean:
 	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | xargs rm -rf
 	- find apache/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- find docs/html -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
-	- rm -rf data/build.db data/smoke_reports/* data/html_smoke_reports/*
+	- rm -rf data/build.db data/smoke_reports/* 
 	- rm -rf tmp/*
 	- rm -rf logs/*
 

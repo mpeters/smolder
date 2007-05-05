@@ -308,9 +308,8 @@ sub smoke_reports {
 
 =head2 report_details
 
-Show the full report in a given format (HTML, XML, YAML) in the browser or
-for download. Does not use a template but outputs the details directly
-in the format requested.
+Show the full report for download.  Does not use a template but simply
+outputs the pregenerated file.
 
 =cut
 
@@ -319,28 +318,13 @@ sub report_details {
     my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
     return $self->error_message('Test Report does not exist')
       unless $report;
-    my $type = $self->param('type') || 'html';
 
     # make sure ths developer is a member of this project
     unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
         return $self->error_message('Unauthorized for this project');
     }
 
-    my ( $content, $content_type );
-    if ( $type eq 'html' ) {
-        $content      = $report->html();
-        $content_type = 'text/html';
-    } elsif ( $type eq 'xml' ) {
-        $content      = $report->xml();
-        $content_type = 'text/xml';
-    } elsif ( $type eq 'yaml' ) {
-        $content      = $report->yaml();
-        $content_type = 'text/plain';
-    }
-    $self->header_type('none');
-    my $r = $self->param('r');
-    $r->send_http_header($content_type);
-    return $content;
+    return $report->html;
 }
 
 =head2 test_file_report_details

@@ -8,7 +8,7 @@
       <a class="button dead" title="Details have been purged">HTML</a>
     [% ELSE %]
       <a class="button invert smoke_report_window" title="HTML test report"
-          href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]/html">HTML</a>
+          href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">Details</a>
     [% END %]
     [% IF ! public && project.is_admin(c.developer) %]
       [% IF report.invalid %]

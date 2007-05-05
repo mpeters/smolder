@@ -5,7 +5,7 @@ use base 'Smolder::DB';
 use Smolder::Conf qw(InstallRoot);
 use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile abs2rel);
-use File::Path qw(mkpath);
+use File::Path qw(mkpath rmtree);
 use File::Copy qw(move);
 use File::Temp qw(tempdir);
 use File::Find qw(find);
@@ -83,6 +83,23 @@ The L<Smolder::DB::Project> object that this report is about
 
 =head2 OBJECT METHODS
 
+=head3 data_dir
+
+The directory in which the data files for this report reside.
+If it doesn't exist it will be created.
+
+=cut
+
+sub data_dir {
+    my $self = shift;
+    my $date = $self->added()->strftime('%Y%m');
+    my $dir  = catdir( InstallRoot, 'data', 'smoke_reports', $self->project->id, $date, $self->id );
+
+    # create it if it doesn't exist
+    mkpath($dir) if ( !-d $dir );
+    return $dir;
+}
+
 =head3 file
 
 This returns the file name of where the full report file for this
@@ -93,13 +110,7 @@ yet exist, it will be created.
 
 sub file {
     my $self = shift;
-    my $date = $self->added()->strftime('%Y%m');
-    my $dir  = catdir( InstallRoot, 'data', 'smoke_reports', $self->project->id, $date, );
-
-    # create it if it doesn't exist
-    mkpath($dir) if ( !-d $dir );
-
-    return catfile( $dir, $self->id . '.gz' );
+    return catfile($self->data_dir, 'report.tar.gz');
 }
 
 =head3 html
@@ -112,7 +123,8 @@ sub html {
     my $self = shift;
     # TODO - do something else if this result has been deleted
     # TODO - stream the file instead of slurping into memory
-    return $self->_slurp_file( $self->html_file );
+warn "HTML FILE: " . catfile($self->data_dir, 'html', 'report.html');
+    return $self->_slurp_file( catfile($self->data_dir, 'html', 'report.html') );
 }
 
 sub _generate_html {
@@ -124,7 +136,6 @@ sub _generate_html {
         test_results => $results, 
     );
     my $file = $matrix->generate_html();
-    $self->html_file( $file );
     $self->update();
     Smolder::DB->dbi_commit();
 }
@@ -142,7 +153,7 @@ show.
 
 sub html_test_detail {
     my ($self, $num) = @_;
-    my $file = catfile(InstallRoot, 'data', 'html_smoke_reports', $self->id, "$num.html");
+    my $file = catfile($self->data_dir, 'html', "$num.html");
 
     # just return the file
     # TODO - do something else if the file no longer exists
@@ -164,9 +175,9 @@ sub _slurp_file {
 }
 
 
-#This method will send the appropriate email to all developers of this Smoke
-#Report's project who requested email notification (through their preferences), 
-#depending on this report's status.
+# This method will send the appropriate email to all developers of this Smoke
+# Report's project who requested email notification (through their preferences), 
+# depending on this report's status.
 
 sub _send_emails {
     my ($self, $results) = @_;
@@ -228,29 +239,14 @@ sub _send_emails {
 =head3 delete_files
 
 This method will delete all of the files that can be created and stored in association
-with a smoke test report (the 'html_file' and 'file' fields). It will C<croak> if the
+with a smoke test report (the 'data_dir' directory). It will C<croak> if the
 files can't be deleted for some reason. Returns true if all is good.
 
 =cut
 
 sub delete_files {
     my $self = shift;
-    if ( $self->file && -e $self->file ) {
-        unlink $self->file or die "Could not delete file '" . $self->file . "'! $!";
-    }
-    if ( $self->html_file && -e $self->html_file ) {
-        unlink $self->html_file or die "Could not delete file '" . $self->html_file . "'! $!";
-        # remove any details files that my exist as well
-        my $dir = catdir(InstallRoot, 'data', 'html_smoke_reports', $self->id);
-        if( -d $dir ) {
-            unlink glob(catfile($dir, '*.html'))
-                or die "Could not delete HTML files in directory '$dir': $!";
-            rmdir $dir
-                or die "Could not delete directory '$dir': $!";
-        }
-    }
-    $self->file(undef);
-    $self->html_file(undef);
+    rmtree($self->data_dir);
     $self->update();
     Smolder::DB->dbi_commit();
     return 1;
@@ -338,35 +334,7 @@ sub upload_report {
     my $dev     = $args{developer} ||= Smolder::DB::Developer->get_guest();
     my $project = $args{project};
 
-    # create a temp directory to hold in-progress archive
-    my $temp_dir = tempdir( DIR => catdir(InstallRoot, 'tmp'));
-
-    # open up the .tar.gz file so we can examine the files
-    my $z = "";
-    $z = "z" if $file =~ /\.gz$/;
-    my $cmd = "tar -x${z}f $file";
-    my $old_dir = fastcwd();
-    chdir($temp_dir) or die "Could not chdir to $temp_dir - $!";
-    system($cmd) == 0 or Smolder::Exception::InvalidArchive->throw(error => $@);
-
-    # parse the results and create the HTML results we need
-    my $aggregate = TAP::Parser::Aggregator->new();
-    my @test_results;
-    find(
-        {
-            wanted => sub {
-                return unless $_ =~ /\.tap$/;
-                my $fh;
-                open($fh, $_) or croak "Could not open file $_ for reading: $!";
-                my $file = abs2rel($_, $temp_dir);
-                push(@test_results, $class->_parse_test_results($aggregate, $file, $fh));
-            },
-            no_chdir => 1,
-        },
-        $temp_dir
-    );
-
-    # add it to the database
+    # create our initial report
     my $report = $class->create(
         {
             developer    => $dev,
@@ -375,30 +343,27 @@ sub upload_report {
             platform     => ( $args{platform}     || '' ),
             comments     => ( $args{comments}     || '' ),
             category     => ( $args{category}     || undef ),
-            pass         => scalar $aggregate->passed,
-            fail         => scalar $aggregate->failed,
-            skip         => scalar $aggregate->skipped,
-            todo         => scalar $aggregate->todo,
-            todo_pass    => scalar $aggregate->todo_passed,
-            total        => $aggregate->total,
-            test_files   => scalar @test_results,
-            failed       => ! !$aggregate->failed,
-            #duration     => ( $struct->{end_time} - $struct->{start_time} ),
         }
     );
-    Smolder::DB->dbi_commit();
 
-    # generate the HTML reports
-    $report->_generate_html(\@test_results);
+    $report->update_from_tap_archive($file);
 
     # send an email to all the user's who want this report
     #$report->_send_emails(\@test_results);
 
-    # move the tmp file to it's real destination and compress it
+    # move the tmp file to it's real destination 
     my $dest   = $report->file;
-    my $out_fh = IO::Zlib->new();
-    $out_fh->open( $dest, 'wb9' )
-      or die "Could not open file $dest for writing compressed!";
+    my $out_fh;
+    if( $file =~ /\.gz$/ ) {
+        open($out_fh, '>', $dest)
+            or die "Could not open file $dest for writing:$!";
+    } else {
+        #compress it if it's not already
+        $out_fh = IO::Zlib->new();
+        $out_fh->open( $dest, 'wb9' )
+            or die "Could not open file $dest for writing compressed!";
+    }
+
     my $in_fh;
     open( $in_fh, $file )
       or die "Could not open file $file for reading! $!";
@@ -413,6 +378,56 @@ sub upload_report {
     $project->purge_old_reports();
 
     return $report;
+}
+
+sub update_from_tap_archive {
+    my ($self, $file) = @_;
+    $file ||= $self->file;
+
+    # create a temp directory to hold in-progress archive
+    my $temp_dir = tempdir( DIR => catdir(InstallRoot, 'tmp'));
+
+    # open up the .tar.gz file so we can examine the files
+    my $z = "";
+    $z = "z" if $file =~ /\.gz$/;
+    my $cmd = "tar -x${z}f $file";
+    my $old_dir = fastcwd();
+    chdir($temp_dir) or die "Could not chdir to $temp_dir - $!";
+    system($cmd) == 0 or Smolder::Exception::InvalidArchive->throw(error => $@);
+
+    # parse the TAP files into a results structure
+    my $aggregate = TAP::Parser::Aggregator->new();
+    my @test_results;
+    find(
+        {
+            wanted => sub {
+                return unless $_ =~ /\.tap$/;
+                my $fh;
+                open($fh, $_) or croak "Could not open file $_ for reading: $!";
+                my $file = abs2rel($_, $temp_dir);
+                push(@test_results, $self->_parse_test_results($aggregate, $file, $fh));
+            },
+            no_chdir => 1,
+        },
+        $temp_dir
+    );
+
+    # update
+    $self->set(
+        pass       => scalar $aggregate->passed,
+        fail       => scalar $aggregate->failed,
+        skip       => scalar $aggregate->skipped,
+        todo       => scalar $aggregate->todo,
+        todo_pass  => scalar $aggregate->todo_passed,
+        total      => $aggregate->total,
+        test_files => scalar @test_results,
+        failed     => ! !$aggregate->failed,
+        #duration   => ( $struct->{end_time} - $struct->{start_time} ),
+    );
+    Smolder::DB->dbi_commit();
+
+    # generate the HTML reports
+    $self->_generate_html(\@test_results);
 }
 
 =head3 summary

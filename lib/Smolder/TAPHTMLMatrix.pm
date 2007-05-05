@@ -35,11 +35,11 @@ sub generate_html {
 	my $self = shift;
 
     # where are we saving the results
-    my $dir = catdir( InstallRoot, 'data', 'html_smoke_reports' );
+    my $dir = catdir( $self->report->data_dir, 'html' );
     unless ( -d $dir ) {
         mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
-    my $file = catfile($dir, $self->report->id . '.html');
+    my $file = catfile($dir, 'report.html');
 
     # process the full report
     $TMPL->process( 
@@ -51,7 +51,7 @@ sub generate_html {
     # now generate the HTML for each individual file
     my $count = 0;
     foreach my $test (@{$self->results}) {
-        my $save_file = catfile($dir, $self->report->id, $count . '.html');
+        my $save_file = catfile($dir, $count . '.html');
         $TMPL->process( 
             'TAP/individual_test.html', 
             { report => $self->report, test_file => $test->{file}, tests => $test->{tests} },
@@ -59,9 +59,6 @@ sub generate_html {
         ) or croak "Problem processing template file '$file': ", $TMPL->error;
         $count++;
     }
-
-    # let them know where the main file is found
-    return $file;
 }
 
 __END__

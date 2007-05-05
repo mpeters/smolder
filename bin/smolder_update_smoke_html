@@ -1,0 +1,67 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+=head1 NAME
+
+smolder_update_smoke_html - Re-create the HTML for all non-purged smoke reports.
+
+=head1 SYNOPSIS
+
+  $ smolder_update_smoke_html
+
+=head1 DESCRIPTION
+
+This script will simply grab all non-purged L<Smolder::DB::SmokeReport>
+records and re-create their HTML files from the original TAP archive.
+This is useful after upgrades or template changes.
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
+
+    # use $SMOLDER_ROOT/lib for modules
+    my $lib    = catdir($ENV{SMOLDER_ROOT}, "lib");
+    $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : "${lib}";
+    unshift @INC, $lib, "$lib/".$Config{archname};
+
+    eval { require Smolder };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::DB::SmokeReport;
+
+my @reports = Smolder::DB::SmokeReport->search(purged => 0);
+unless( @reports ) {
+    print "No non-purged reports to recreate.\n";
+    exit(0);
+}
+
+foreach my $report (@reports) {
+    print "Updating report #$report\n";
+    eval { $report->update_from_tap_archive() };
+    if( $@ ) {
+        print "Problem updating report #$report: $@\n";
+    }
+}
+
+print "Done.";
+
+
