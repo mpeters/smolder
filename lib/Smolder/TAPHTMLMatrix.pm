@@ -54,7 +54,7 @@ sub generate_html {
         my $save_file = catfile($dir, $count . '.html');
         $TMPL->process( 
             'TAP/individual_test.html', 
-            { report => $self->report, test_file => $test->{file}, tests => $test->{tests} },
+            { report => $self->report, test_file => $test->{label}, tests => $test->{tests} },
             $save_file, 
         ) or croak "Problem processing template file '$file': ", $TMPL->error;
         $count++;
