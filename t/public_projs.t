@@ -186,9 +186,8 @@ use_ok('Smolder::Control::Public::Projects');
 {
     my $proj1 = _get_proj($proj1_id);
 
-    # first HTML
     $mech->get_ok("/app/public_projects/smoke_reports/$proj1");
-    $mech->follow_link_ok( { n => 1, text => 'HTML' } );
+    $mech->follow_link_ok( { n => 1, text => 'Details' } );
     ok( $mech->ct, 'text/html' );
 
     # individual report files

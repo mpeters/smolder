@@ -188,7 +188,7 @@ $mech->content_contains('My Projects');
 
     # first HTML
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
-    $mech->follow_link_ok( { n => 1, text => 'HTML' } );
+    $mech->follow_link_ok( { n => 1, text => 'Details' } );
     ok( $mech->ct, 'text/html' );
 
     # individual report files
