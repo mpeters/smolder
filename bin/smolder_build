@@ -74,7 +74,7 @@ This option will build Apache and mod_perl with debugging symbols
 turned on, as well as making mod_auth_tkt verbose in it's debug logging.
 This is extremely useful for tracking down segmentation faults.
 
-item --dev
+=item --dev
 
 This will build a series of optional modules that help developers in
 the creation and maintenence of Smolder.
