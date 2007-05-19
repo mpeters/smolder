@@ -18,7 +18,9 @@ currently popular languages (C, Java, PHP, Perl, Python, Ruby, etc). And
 even if your language of choice doesn't have an existing TAP emiter, TAP
 is such a simple protocol that it's a fairly trivial task to write one.
 
-The full documentation for TAP can be found at http://search.cpan.org/perldoc?TAP with more information available at http://testanything.org.
+The full documentation for TAP can be found at
+http://search.cpan.org/perldoc?TAP with more information available at
+http://testanything.org.
 
 The basic idea is that a single file of TAP output is equivalent to a
 single test script or module. These files are collected together in a tar
@@ -58,21 +60,27 @@ one file with the F<.yml> extension. It looks something like this:
     start_time: 1178159475
     stop_time: 1178159983
 
-Since this entire file is optional, if you do include it you can include which ever parts are of interest to you. Smolder can care about the following keys of the YAML map:
+Since this entire file is optional, if you do include it you can include
+which ever parts are of interest to you. Smolder can care about the
+following keys of the YAML map:
 
 =over
 
 =item * file_order
 
-This is simply just a list of the files from your test suite in the order you desire. This will usually be the order in which they are run.
+This is a list of the TAP files from your test run in the order you desire
+to display them. This will usually be the order in which they are run.
+The path to the TAP file is relative to the directory of the TAP archive.
 
 =item * start_time
 
-The time the test suite started to run. This time is given in epoch seconds (seconds since 01/01/1970).
+The time the test suite started to run. This time is given in epoch
+seconds (seconds since 01/01/1970).
 
 =item * stop_time
 
-The time the test suite finished it's run. This time is given in epoch seconds (seconds since 01/01/1970).
+The time the test suite finished it's run. This time is given in epoch
+seconds (seconds since 01/01/1970).
 
 =back
 
