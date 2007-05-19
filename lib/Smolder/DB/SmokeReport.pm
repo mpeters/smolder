@@ -123,21 +123,7 @@ sub html {
     my $self = shift;
     # TODO - do something else if this result has been deleted
     # TODO - stream the file instead of slurping into memory
-warn "HTML FILE: " . catfile($self->data_dir, 'html', 'report.html');
     return $self->_slurp_file( catfile($self->data_dir, 'html', 'report.html') );
-}
-
-sub _generate_html {
-    my ($self, $results) = @_;
-
-    # else we need to generate a new HTML file
-    my $matrix = Smolder::TAPHTMLMatrix->new( 
-        smoke_report => $self, 
-        test_results => $results, 
-    );
-    my $file = $matrix->generate_html();
-    $self->update();
-    Smolder::DB->dbi_commit();
 }
 
 =head3 html_test_detail 
@@ -395,22 +381,49 @@ sub update_from_tap_archive {
     chdir($temp_dir) or die "Could not chdir to $temp_dir - $!";
     system($cmd) == 0 or Smolder::Exception::InvalidArchive->throw(error => $@);
 
+    my ($duration, @tap_files);
+
+    # do we have a .yml file in the archive?
+    my ($yaml_file) = glob("$temp_dir/*.yml");
+    if( $yaml_file ) {
+        # parse it into a structure
+        require YAML::Tiny;
+        my $meta = YAML::Tiny->new()->read($yaml_file);
+        die "Could not read YAML $yaml_file: " . YAML::Tiny->errstr if YAML::Tiny->errstr;
+        $meta = $meta->[0];
+
+        if( $meta->{start_time} && $meta->{stop_time} ) {
+            $duration = $meta->{stop_time} - $meta->{start_time};
+        }
+
+        if( $meta->{file_order} && ref $meta->{file_order} eq 'ARRAY' ) {
+            foreach my $file (@{$meta->{file_order}}) {
+                $file = catfile($temp_dir, $file);
+                push(@tap_files, $file) if -e $file;
+            }
+        }
+    }
+
+    # if we don't have the file names yet, just traverse the archive
+    # and use all .tap files
+    if(! @tap_files ) {
+        find(
+            {
+                wanted => sub { push(@tap_files, $_) if $_ =~ /\.tap$/ },
+                no_chdir => 1,
+            },
+            $temp_dir
+        );
+    }
+
     # parse the TAP files into a results structure
     my $aggregate = TAP::Parser::Aggregator->new();
     my @test_results;
-    find(
-        {
-            wanted => sub {
-                return unless $_ =~ /\.tap$/;
-                my $fh;
-                open($fh, $_) or croak "Could not open file $_ for reading: $!";
-                my $file = abs2rel($_, $temp_dir);
-                push(@test_results, $self->_parse_test_results($aggregate, $file, $fh));
-            },
-            no_chdir => 1,
-        },
-        $temp_dir
-    );
+    foreach my $tap_file (@tap_files) {
+        my $label = abs2rel($tap_file, $temp_dir);
+        $label =~ s/\.tap$//;
+        push(@test_results, $self->parse_tap_file($tap_file, $aggregate, $label));
+    }
 
     # update
     $self->set(
@@ -422,12 +435,18 @@ sub update_from_tap_archive {
         total      => $aggregate->total,
         test_files => scalar @test_results,
         failed     => ! !$aggregate->failed,
-        #duration   => ( $struct->{end_time} - $struct->{start_time} ),
+        duration   => $duration,
     );
     Smolder::DB->dbi_commit();
 
     # generate the HTML reports
-    $self->_generate_html(\@test_results);
+    my $matrix = Smolder::TAPHTMLMatrix->new( 
+        smoke_report => $self, 
+        test_results => \@test_results, 
+    );
+    $matrix->generate_html();
+    $self->update();
+    Smolder::DB->dbi_commit();
 }
 
 =head3 summary
@@ -464,8 +483,11 @@ sub total_percentage {
     }
 }
 
-sub _parse_test_results {
-    my ($class, $aggregate, $file_name, $fh) = @_;
+sub parse_tap_file {
+    my ($class, $file_name, $aggregate, $label) = @_;
+    my $fh;
+    open($fh, $file_name) or die "Could not open $file_name for reading: $!";
+
     my @tests;
     my $parser = TAP::Parser->new({source => $fh});
 
@@ -497,10 +519,10 @@ sub _parse_test_results {
     }
 
     # add this to the aggregator
-    $aggregate->add($file_name, $parser);
+    $aggregate->add($label, $parser) if $aggregate;
     my $percent = $total ? sprintf('%i', (($total - $failed) / $total) * 100 ) : 100;
     return {
-        file        => $file_name,
+        label       => $label,
         tests       => \@tests,
         total       => $total,
         failed      => $failed,

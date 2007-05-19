@@ -12,7 +12,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile catdir);
 use Test::LongString;
 
-plan( tests => 60 );
+plan( tests => 68 );
 
 # setup
 END { delete_developers() }
@@ -58,30 +58,43 @@ isa_ok( $report->project,   'Smolder::DB::Project' );
 isa_ok( $report->added,     'DateTime' );
 
 # basic datum
-is($report->pass,        446, 'correct # of passed');
-is($report->skip,        4,   'correct # of skipped');
-is($report->fail,        8,   'correct # of failed');
-is($report->todo,        0,   'correct # of todo');
-is( $report->test_files, 20,  'correct # of files');
-is( $report->total,      454, 'correct # of tests');
+is($report->pass,       446, 'correct # of passed');
+is($report->skip,       4,   'correct # of skipped');
+is($report->fail,       8,   'correct # of failed');
+is($report->todo,       0,   'correct # of todo');
+is($report->test_files, 20,  'correct # of files');
+is($report->total,      454, 'correct # of tests');
+ok(! defined $report->duration, 'duration not provided');
+
+my $html_file = catfile($report->data_dir, 'html', 'report.html');
+
 
 my $html = $report->html;
 is( ref $html, 'SCALAR' );
 contains_string( $$html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"' );
-ok( -e $report->html_file, 'HTML file saved to disk' );
+ok( -e $html_file, 'HTML file saved to disk' );
 
 # make sure that each test file has it's own HTML file too
 my $html_dir = catdir(InstallRoot, 'data', 'html_smoke_reports', $report->id);
 for(0.. ($report->test_files -1)) {
-    ok(-e catfile($html_dir, $_ . '.html'), "Test $_ has HTML file");
+    ok(-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ has HTML file");
 }
 
-# now delete everything
+# try uploading a report with a meta yml file
+$report->update_from_tap_archive(catfile(InstallRoot, 't', 'data', 'test_run_bad_yml.tar.gz'));
+is($report->pass,       446, 'correct # of passed');
+is($report->skip,       4,   'correct # of skipped');
+is($report->fail,       8,   'correct # of failed');
+is($report->todo,       0,   'correct # of todo');
+is($report->test_files, 20,  'correct # of files');
+is($report->total,      454, 'correct # of tests');
+is($report->duration,   208, 'correct duration');
+
+# now delete the leftover files
 $report->delete_files();
 ok( !-e $report->file, 'TAP tarball removed');
-ok( !-e $report->html_file, 'HTML file removed');
+ok( !-e $html_file, 'HTML file removed');
 for(0.. ($report->test_files -1)) {
-    ok(!-e catfile($html_dir, $_ . '.html'), "Test $_ has no HTML");
+    ok(!-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ HTML has been removed");
 }
-
 

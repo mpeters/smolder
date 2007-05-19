@@ -98,7 +98,7 @@
             <!-- we'll make this a link when we can link to individual tests 
             <a href="[% test.link %]"[% IF test.failed %] class="failed"[% END %] title="[% test.file | html %]">
             -->
-            <span class="filename[% IF test.failed %] failed[% END %]">[% test.file | html %]</span>
+            <span class="filename[% IF test.failed %] failed[% END %]">[% test.label | html %]</span>
             <!-- </a> -->
           </td>
           <td class="x [% IF test.failed %]failed[% ELSE %]ok[% END %]">
