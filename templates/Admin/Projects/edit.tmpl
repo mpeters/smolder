@@ -21,7 +21,14 @@
     <input type="radio" name="public" value="1" /> Yes
     <input type="radio" name="public" value="0" /> No
   </td>
-  <td colspan="2" align="right">
+  <td><label class="required[% IF c.dfv_msgs.err_enable_rss %] warn[% END %]">Enable RSS Feeds? *</label></td>
+  <td>
+    <input type="radio" name="enable_rss" value="1" /> Yes
+    <input type="radio" name="enable_rss" value="0" /> No
+  </td>
+</tr>
+<tr>
+  <td colspan="4" align="right">
     <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="add_indicator" id="proj_edit_indicator" alt="loading" />
     <input type="button" class="edit_cancel" value="Cancel" />
     <input type="submit" value="Update" />

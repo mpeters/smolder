@@ -12,7 +12,6 @@ CREATE TABLE smoke_report  (
     todo_pass       INTEGER DEFAULT 0,
     test_files      INTEGER DEFAULT 0,
     total           INTEGER DEFAULT 0,
-    format          TEXT DEFAULT 'XML',
     comments        BLOB DEFAULT '',
     invalid         INTEGER DEFAULT 0,
     invalid_reason  BLOB DEFAULT '',

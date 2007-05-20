@@ -12,7 +12,7 @@ use CGI::Application::Plugin::JSON qw(:all);
 
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass);
+use Smolder::Conf qw(InstallRoot HostName ApachePort DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 
@@ -148,6 +148,18 @@ sub auto_complete_results {
         $html .= '<li>' . escape_html( $_, EH_INPLACE ) . '</li>';
     }
     return $html . '</ul>';
+}
+
+=head2 base_url
+
+This method will return the base url for the installed version of
+Smolder.
+
+=cut
+
+sub base_url {
+    my $self = shift;
+    return 'http://' . HostName() . (ApachePort() == 80 ? '' : ':' . ApachePort())
 }
 
 =head2 static_url

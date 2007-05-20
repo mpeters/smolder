@@ -542,6 +542,25 @@ sub purge_old_reports {
     }
 }
 
+=head3 most_recent_report
+
+Returns the most recent L<Smolder::DB::SmokeReport> object that was added.
+
+=cut
+
+sub most_recent_report {
+    my $self = shift;
+    my $sth = $self->db_Main->prepare_cached(q/
+        SELECT * FROM smoke_report
+        WHERE project = ?
+        ORDER BY added DESC
+        LIMIT 1
+    /);
+    $sth->execute($self->id);
+    my ($report) = Smolder::DB::SmokeReport->sth_to_objects($sth);
+    return $report;
+}
+
 =head2 CLASS METHODS
 
 =head3 all_names

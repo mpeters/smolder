@@ -13,6 +13,9 @@
     [% IF project.allow_anon %]
     <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Upload Smoke Test</a>
     [% END %]
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
 </div>
 
 [% IF reports %]

@@ -238,6 +238,40 @@ sub delete_files {
     return 1;
 }
 
+=head3 summary
+
+Returns a text string summarizing the whole test run.
+
+=cut
+
+sub summary {
+    my $self = shift;
+    return sprintf(
+        '%i test cases: %i ok, %i failed, %i todo, %i skipped and %i unexpectedly succeeded',
+        $self->total,
+        $self->pass,
+        $self->fail,
+        $self->todo,
+        $self->skip,
+        $self->todo_pass,
+    );
+}
+
+=head3
+
+Returns the total percentage of passed tests.
+
+=cut
+
+sub total_percentage {
+    my $self = shift;
+    if( $self->total && $self->failed ) {
+        return sprintf('%i', (($self->total - $self->failed) / $self->total) * 100);
+    } else {
+        return 100;
+    }
+}
+
 =head2 CLASS METHODS
 
 =head3 change_category
@@ -447,40 +481,6 @@ sub update_from_tap_archive {
     $matrix->generate_html();
     $self->update();
     Smolder::DB->dbi_commit();
-}
-
-=head3 summary
-
-Returns a text string summarizing the whole test run.
-
-=cut
-
-sub summary {
-    my $self = shift;
-    return sprintf(
-        '%i test cases: %i ok, %i failed, %i todo, %i skipped and %i unexpectedly succeeded',
-        $self->total,
-        $self->pass,
-        $self->fail,
-        $self->todo,
-        $self->skip,
-        $self->todo_pass,
-    );
-}
-
-=head3
-
-Returns the total percentage of passed tests.
-
-=cut
-
-sub total_percentage {
-    my $self = shift;
-    if( $self->total && $self->failed ) {
-        return sprintf('%i', (($self->total - $self->failed) / $self->total) * 100);
-    } else {
-        return 100;
-    }
 }
 
 sub parse_tap_file {

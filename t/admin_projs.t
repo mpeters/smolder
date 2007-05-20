@@ -16,7 +16,7 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 84 );
+    plan( tests => 89 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -30,6 +30,7 @@ my %data = (
     project_name => "Im A Test Project",
     start_date   => '01/01/2006',
     public       => 0,
+    enable_rss   => 0,
 );
 my $proj;
 
@@ -43,7 +44,7 @@ $mech->get_ok($url);
 $mech->content_contains('Admin');
 $mech->content_contains('Projects');
 
-# 6..19
+# 6..21
 # add
 {
 
@@ -55,7 +56,8 @@ $mech->content_contains('Projects');
     $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('class="required warn">Start Date');
-    $mech->content_contains('class="required warn">Public Project?');
+    $mech->content_contains('class="required warn">Public Project');
+    $mech->content_contains('class="required warn">Enable RSS');
 
     # invalid form
     my $other_proj = create_project();
@@ -68,6 +70,7 @@ $mech->content_contains('Projects');
             project_name => $other_proj->name,
             start_date   => '01/01/06',
             public       => 'abc',
+            enable_rss   => 'efg',
         }
     );
     $mech->request($request);
@@ -78,7 +81,8 @@ $mech->content_contains('Projects');
 
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('Invalid Start Date');
-    $mech->content_contains('class="required warn">Public Project?');
+    $mech->content_contains('class="required warn">Public Project');
+    $mech->content_contains('class="required warn">Enable RSS');
 
     # complete form
     $mech->form_name('add');
@@ -91,24 +95,27 @@ $mech->content_contains('Projects');
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
 }
 
-# 20..23
+# 22..26
 # details
 {
     $mech->get_ok("$url/details/$proj");
     $mech->content_contains( $proj->name );
     $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
-    $mech->content_contains( $proj->public ? 'Yes' : 'No' );
+    $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*No\s*|);
+    $mech->content_like(qr|Enable RSS Feeds\?</label>\s*</td>\s*<td>\s*No\s*|);
 }
 
-# 23..38
+# 27..43
 # edit
 {
     $mech->follow_link_ok( { text => 'Edit' } );
 
     # make sure it's prefilled
-    $mech->content_contains( 'value="' . $proj->name . '"' );
-    $mech->content_contains( 'value="' . $proj->start_date->strftime('%d/%m/%Y') . '"' );
-    $mech->content_contains( 'value="' . $proj->public . '"' );
+    my $form = $mech->form_name('edit');
+    is($form->value('project_name'), $proj->name, 'name prefilled');
+    is($form->value('start_date'), $proj->start_date->strftime('%d/%m/%Y'), 'start_date prefilled');
+    is($form->value('public'), $proj->public, 'public prefilled');
+    is($form->value('enable_rss'), $proj->enable_rss, 'enable_rss prefilled');
 
     # invalid form
     my $other_proj = create_project();
@@ -119,6 +126,7 @@ $mech->content_contains('Projects');
             project_name => $other_proj->name,
             start_date   => '01/01/06',
             public       => 'abc',
+            enable_rss   => 'def',
         }
     );
     $mech->request($request);
@@ -128,22 +136,24 @@ $mech->content_contains('Projects');
     $mech->content_contains('name already exists');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('Invalid Start Date');
-    $mech->content_contains('class="required warn">Public Project?');
+    $mech->content_contains('class="required warn">Public Project');
+    $mech->content_contains('class="required warn">Enable RSS');
 
     # valid
     $mech->form_name('edit');
     my %new_data = %data;
     $new_data{public} = 1;
+    $new_data{enable_rss} = 1;
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
     $mech->contains_message("Project '$new_data{project_name}' successfully updated");
     $mech->get_ok("$url/details/$proj");
-    $mech->content_contains('Yes');
-    $mech->content_lacks('No');
+    $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*Yes\s*|);
+    $mech->content_like(qr|Enable RSS Feeds\?</label>\s*</td>\s*<td>\s*Yes\s*|);
 }
 
-# 39..43
+# 44..48
 # list
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
@@ -153,7 +163,7 @@ $mech->content_contains('Projects');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 44..79
+# 49..84
 # add_developer, change_admins and remove_developer
 {
 
@@ -253,7 +263,7 @@ $mech->content_contains('Projects');
     $mech->content_contains( $dev3->username );
 }
 
-# 80..84
+# 85..89
 # delete
 {
     $mech->follow_link_ok( { text => 'All Projects' } );

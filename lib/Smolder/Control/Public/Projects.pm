@@ -1,6 +1,7 @@
 package Smolder::Control::Public::Projects;
 use strict;
 use base 'Smolder::Control::Developer::Projects';
+use Smolder::Conf qw(HostName);
 use Smolder::DB;
 use Smolder::DB::Project;
 use HTML::FillInForm;
@@ -32,6 +33,7 @@ sub setup {
               add_report
               process_add_report
               forbidden
+              rss
               )
         ]
     );
@@ -68,21 +70,6 @@ sub show_all {
     return $self->tt_process( { projects => \@projs } );
 }
 
-=head2 details
-
-Shows the details of a project.
-
-=cut
-
-sub details {
-    my $self = shift;
-    my $proj = $self->param('project');
-    if ($proj) {
-        return $self->tt_process( { project => $proj } );
-    } else {
-        return $self->error_message('That project does not exist!');
-    }
-}
 
 =head2 forbidden 
 
@@ -128,6 +115,48 @@ Process the information from the L<add_report> run mode.
 
 This method is provided by L<Smolder::Control::Developer::Projects>.
 
+=head2 rss
+
+Will return an RSS 2.0 feed to the browser. The 5 most recent smoke
+reports for a project are included in this feed. An optional C<type>
+can also be specified which is can either be C<all> or C<failures>.Only
+projects that have been marked as C<enable_rss> will appear in any
+RSS feed.
+
 =cut
+
+sub rss {
+    my $self = shift;
+    my @binds;
+    my $sql = qq/
+        SELECT sr.* FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        WHERE p.enable_rss = 1 AND p.id = ?
+    /;
+    my $id = $self->param('id');
+    my $type = $self->param('type');
+    push(@binds, $id);
+
+    if( $type and $type eq 'failed' ) {
+        $sql .= ' AND sr.failed = 1 ';
+    }
+
+    $sql .= ' ORDER BY sr.added DESC LIMIT 5';
+
+    my $sth = Smolder::DB::SmokeReport->db_Main->prepare_cached($sql);
+    $sth->execute(@binds);
+    my @reports = Smolder::DB::SmokeReport->sth_to_objects($sth);
+
+    $self->header_props(-type => 'text/xml');
+    
+    my $output = $self->tt_process(
+        'RSS/public_project.tmpl', 
+        { 
+            reports => \@reports, 
+            hostname => HostName(),
+            no_wrapper => 1,
+        }
+    );
+}
 
 1;

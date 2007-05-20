@@ -3,6 +3,7 @@ CREATE TABLE project (
     name                TEXT NOT NULL,
     start_date          INTEGER NOT NULL,
     public              INTEGER DEFAULT 1,
+    enable_rss          INTEGER DEFAULT 1,
     default_platform    TEXT DEFAULT '',
     default_arch        TEXT DEFAULT '',
     graph_start         TEXT DEFAULT 'project',

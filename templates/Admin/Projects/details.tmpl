@@ -31,6 +31,10 @@
   <td>[% IF project.public %] Yes [% ELSE %] No [% END %]</td>
 </tr>
 <tr>
+  <td><label>Enable RSS Feeds?</label></td>
+  <td>[% IF project.enable_rss %] Yes [% ELSE %] No [% END %]</td>
+</tr>
+<tr class="even">
   <td valign="top"><label>Project Admin(s)</label></td>
   <td>
     [% SET admins = project.admins %]
@@ -43,8 +47,7 @@
     [% END %]
   </td>
 </tr>
-
-<tr class="even">
+<tr>
   <td valign="top"><label>Developers</label></td>
   <td valign="top">
     [% SET devs = project.developers %]

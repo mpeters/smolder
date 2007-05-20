@@ -8,7 +8,6 @@ sub dispatch_args {
         prefix => 'Smolder::Control',
         table  => [
             ''                      => { app => 'Public' },
-            'doc_search/:rm?'       => { app => 'DocSearch' },
             ':app/:rm?/:id?/:type?' => {},
         ],
     };

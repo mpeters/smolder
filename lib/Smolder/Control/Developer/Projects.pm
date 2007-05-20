@@ -53,6 +53,7 @@ sub setup {
               process_admin_settings
               add_category
               delete_category
+              details
               )
         ]
     );
@@ -569,5 +570,28 @@ sub delete_category {
 
     return $self->categories( {}, $project );
 }
+
+=head2 details
+
+Shows the details of a project.
+
+=cut
+
+sub details {
+    my $self = shift;
+    my $id = $self->param('id');
+    my $proj = Smolder::DB::Project->retrieve($id);
+
+    unless ( $proj->public || $proj->has_developer( $self->developer ) ) {
+        return $self->error_message('Unauthorized for this project');
+    }
+
+    if ($proj) {
+        return $self->tt_process( { project => $proj } );
+    } else {
+        return $self->error_message('That project does not exist!');
+    }
+}
+
 
 1;

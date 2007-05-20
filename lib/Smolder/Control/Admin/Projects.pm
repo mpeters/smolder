@@ -191,6 +191,7 @@ sub edit {
             project_name => $project->name,
             start_date   => $project->start_date->strftime('%m/%d/%Y'),
             public       => $project->public,
+            enable_rss   => $project->enable_rss,
         );
         $output = HTML::FillInForm->new->fill(
             scalarref => $self->tt_process( \%tt_params ),
@@ -246,11 +247,12 @@ sub process_add {
     my $self = shift;
     my $id   = $self->param('id');
     my $form = {
-        required           => [qw(project_name start_date public)],
+        required           => [qw(project_name start_date public enable_rss)],
         constraint_methods => {
             project_name => [ length_max(255), unique_field_value( 'project', 'name', $id ), ],
             start_date   => to_datetime('%m/%d/%Y'),
             public       => bool(),
+            enable_rss   => bool(),
         },
     };
 
