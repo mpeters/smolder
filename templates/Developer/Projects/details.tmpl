@@ -5,7 +5,7 @@
 <div class="sub_menu">
     <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
     <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
-    [% IF public && allow_anon %]
+    [% IF public && project.allow_anon %]
     <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% ELSIF ! public %]
     <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>

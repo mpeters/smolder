@@ -11,7 +11,7 @@
     <a class="sub_menu" href="/app/public_projects/details/[% project.id %]">Project Details</a>
     <a class="sub_menu" href="/app/public_graphs/start/[% project.id %]">Progress Graphs</a>
     [% IF project.allow_anon %]
-    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Upload Smoke Test</a>
+    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% END %]
     [% IF project.is_admin(c.developer) %]
     <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>

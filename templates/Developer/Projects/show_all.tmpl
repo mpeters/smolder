@@ -7,7 +7,7 @@
     <div class="header">[% project.name | html %]<!--[% project.id %]--></div>
     <div class="content">
       <ul>
-        <li><a href="/app/developer_projects/add_report/[% project.id %]">Upload Smoke Test</a></li>
+        <li><a href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a></li>
         <li><a href="/app/developer_projects/smoke_reports/[% project.id %]">Most Recent Smoke Tests</a></li>
         <li><a href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a></li>
         [% IF project.is_admin(c.developer) %]

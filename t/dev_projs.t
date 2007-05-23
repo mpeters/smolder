@@ -67,7 +67,7 @@ $mech->content_contains('My Projects');
 # add_report and process_add_report
 {
     my $proj1 = _get_proj($proj1_id);
-    $mech->follow_link_ok( { text => 'Upload Smoke Test', n => 1 } );
+    $mech->follow_link_ok( { text => 'Add Smoke Report', n => 1 } );
     $mech->content_contains('New Smoke Report');
     $mech->content_contains( $proj1->name );
 
