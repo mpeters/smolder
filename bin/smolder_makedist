@@ -147,7 +147,7 @@ print "Computing exclude file list...\n";
 my $list_file = catfile( $temp, 'list.txt' );
 open( LIST, '>', $list_file ) or die $!;
 
-my @dev_modules = Smolder::Platform->load->dev_modules();
+my @dev_modules = Smolder::Platform->load->dev_perl_modules();
 
 find(
     {
