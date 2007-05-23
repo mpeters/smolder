@@ -141,10 +141,13 @@ chdir($temp) or die $!;
 system( 'ln -s ' . $ENV{SMOLDER_ROOT} . " $name" );
 die "Unable to setup link." unless -e catfile( $name, 'lib', 'Smolder.pm' );
 
+
 # build file list in temp dir
 print "Computing exclude file list...\n";
 my $list_file = catfile( $temp, 'list.txt' );
 open( LIST, '>', $list_file ) or die $!;
+
+my @dev_modules = Smolder::Platform->load->dev_modules();
 
 find(
     {
@@ -166,6 +169,11 @@ find(
               m!SMOLDER-[^/]+\.tar\.gz!        or    # skip Smolder distribs
               m!_log$!                         or    # skip log files
               ( not $source_dist and m!^$name/./src!o );
+
+            # skip the dev modules
+            foreach my $dev_mod (@dev_modules) {
+                return if index($_, $dev_mod) >= 0; 
+            }
 
             # print "Excluding $_.\n";
             print LIST "$_\n";
