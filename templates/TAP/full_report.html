@@ -30,14 +30,6 @@
     <thead>
       <tr><th colspan="2">Details</th></tr>
     </thead>
-    <tfoot>
-      <tr>
-        <th colspan="2">
-          Uploaded [% report.added.strftime('%B %e %Y, %l:%M %p') %] 
-          by [% report.developer.username | html %]
-        </th>
-      </tr>
-    </tfoot>
     <tbody>
     <tr>
       <th>Project</th>
@@ -53,11 +45,19 @@
       [% IF report.$label %]
       <tr>
         <th[% IF loop.last %] class="last"[% END %]>[% label | ucfirst %]</th>
-        <td[% IF loop.last %] class="last"[% END %]>[% smoke_report.$label | html | html_line_break %]</td>
+        <td[% IF loop.last %] class="last"[% END %]>[% report.$label | html | html_line_break %]</td>
       </tr>
       [% END %]
     [% END %]
     </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2">
+          Uploaded [% report.added.strftime('%B %e %Y, %l:%M %p') %] 
+          by [% report.developer.username | html %]
+        </th>
+      </tr>
+    </tfoot>
     </table>
 
     [% IF report.failed && ! email %]
