@@ -77,10 +77,7 @@ Object.extend(CRUD.prototype, {
             indicator  : this.indicator,
             onComplete : function(args) {
                 if( !this.add_shown ) {
-                    new Effect.SlideDown(
-                        this.add_container,
-                        { afterFinish: function() { shadowify($('crud_add_table')); } }
-                    )
+                    new Effect.SlideDown(this.add_container)
                 }
                 this.add_shown  = true;
 
@@ -111,10 +108,7 @@ Object.extend(CRUD.prototype, {
             indicator  : this.indicator,
             onComplete : function() {
                 if( !this.add_shown ) {
-                    Effect.SlideDown(
-                        this.add_container,
-                        { afterFinish: function() { shadowify($('crud_edit_table')); } }
-                    );
+                    Effect.SlideDown(this.add_container);
                 }
                 this.add_shown = true;
 

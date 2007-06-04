@@ -113,6 +113,8 @@ label {
 .boxed, .boxed_simple {
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #555555;
+    border-bottom: 1px solid #555555;
     background: #FFFFFF;
     padding: 3px;
     float:left;
@@ -465,10 +467,6 @@ div.crud_header a {
     padding-right: 25px;
     text-decoration: none;
     font-weight: bold;
-}
-
-div.add_container {
-    padding-bottom: 10px;
 }
 
 /* Notify styles */
