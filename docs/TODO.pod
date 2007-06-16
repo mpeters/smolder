@@ -4,6 +4,22 @@
 
 =over
 
+=item *
+
+Make it easier for custom installation on existing Apache
+
+=over
+
+=item Work better under Apache2/mod_perl2 (possibly CGI?)
+
+=item Create a CPAN bundle
+
+=item Allow for different locations for smolder.conf
+
+=item Add a PrefixURL directive in case we're behind a simple proxy or configured for a different url
+
+=back
+
 =item * 
 
 Use Archive::Extract to support more than just tar
@@ -35,7 +51,9 @@ Replace image based graphs with C<< <canvas> >> ones (using Plotr?)
 
 =item *
 
-Allow for recent-listing page to be filted by failure status
+Create a full search system of smoke reports, not just a listing
+by most recent. This would allow for searching based on project,
+status, category, etc.
 
 =item *
 
@@ -48,10 +66,6 @@ Better message stack that works arcoss sessions.
 =item *
 
 Upgrade Prototype.js and Scriptaculous to latest versions
-
-=item *
-
-Allow Smolder to actually run the tests. Simple framework with SCM support
 
 =item *
 
