@@ -7,7 +7,6 @@ use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
-
 #use CGI::Application::Plugin::DebugScreen;
 
 use Smolder;
@@ -50,6 +49,22 @@ Smolder::Control
 This module serves as a base class for all controller classes in smolder. As such
 it defines some behavior with regard to templates, form validation, etc
 and provides some utility methods for accessing this data.
+
+=head1 VARIABLES
+
+=head2 MP2
+
+Will be true if we are running under Apache2/mod_perl2
+
+    if( $Smolder::Control::MP2 ) {
+        ...
+    }
+
+=cut
+
+our $MP2 = defined $ENV{MOD_PERL_API_VERSION} ?
+    $ENV{MOD_PERL_API_VERSION} == 2
+    : 0;
 
 =head1 METHODS
 
