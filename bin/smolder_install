@@ -537,6 +537,10 @@ sub configure_smolder {
         foreach my $param ( keys(%options) ) {
             $t->param( $param => $options{$param} );
         }
+
+        # add a unique secret for this install
+        $t->param(Secret => _random_secret() );
+
         my $output_conf = $InstallPath . "/conf/smolder.conf";
         open( OUTPUT, ">$output_conf" ) || die("Can't open '$output_conf' for writing: $!");
         print OUTPUT $t->output();
@@ -672,4 +676,13 @@ sub set_param_defaults {
         $options{$k} = $dv;
     }
 }
+
+sub _random_secret {
+    my $length = int(rand(10) + 20);
+    my $secret = '';
+    my @chars = ('a'..'z', 'A'..'Z', 0..9, qw(! @ $ % ^ & - _ = + | ; : . / < > ?));
+    $secret .= $chars[int(rand($#chars + 1))] for(0..$length);
+    return $secret;
+}
+
 

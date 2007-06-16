@@ -8,6 +8,7 @@ use Smolder::Conf qw(InstallRoot HostName ApachePort);
 use Smolder::DB::SmokeReport;
 use Smolder::DB::ProjectDeveloper;
 use Smolder::TestData qw(
+  is_apache_running
   create_project
   delete_projects
   create_developer
@@ -16,7 +17,11 @@ use Smolder::TestData qw(
   delete_preferences
 );
 
-plan(tests => 28);
+if( is_apache_running ) {
+    plan(tests => 28);
+} else {
+    plan( skip_all => 'Smolder apache not running' );
+}
 
 my $bin          = catfile( InstallRoot(), 'bin', 'smolder_smoke_signal' );
 my $host         = HostName() . ':' . ApachePort();

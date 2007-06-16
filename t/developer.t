@@ -26,7 +26,8 @@ END { delete_developers() }
 use_ok('Smolder::Control::Developer');
 
 # 2..6
-$mech->get_ok($url);
+$mech->get($url);
+is($mech->status, 401, 'auth required');
 $mech->content_lacks('Welcome');
 $mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );

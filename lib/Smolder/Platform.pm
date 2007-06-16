@@ -818,7 +818,6 @@ Apache installation in C<apache/>.
     build_apache_modperl(
         apache_dir       => $dir, 
         modperl_dir      => $dir, 
-        mod_auth_tkt_dir => $dir, 
         debug            => 0,
     )
 
@@ -826,12 +825,12 @@ Apache installation in C<apache/>.
 
 sub build_apache_modperl {
     my ( $pkg, %arg ) = @_;
-    my ( $apache_dir, $mod_perl_dir, $mod_auth_tkt_dir, $debug ) =
-      @arg{qw(apache_dir mod_perl_dir mod_auth_tkt_dir debug)};
+    my ( $apache_dir, $mod_perl_dir, $debug ) =
+      @arg{qw(apache_dir mod_perl_dir debug)};
     _load_expect();
 
     print "\n\n************************************************\n\n",
-      "  Building Apache/mod_perl/mod_auth_tkt",
+      "  Building Apache/mod_perl",
       "\n\n************************************************\n\n";
 
     # gather params
@@ -874,21 +873,6 @@ sub build_apache_modperl {
     # clean up unneeded apache directories
     my $root = $ENV{SMOLDER_ROOT};
     system("rm -rf $root/apache/man $root/apache/htdocs/*");
-
-    print "\n\n************************************************\n\n", "  Building mod_auth_tkt",
-      "\n\n************************************************\n\n";
-
-    # build mod_auth_tkt
-    chdir($old_dir)          or die $!;
-    chdir($mod_auth_tkt_dir) or die "Unable to chdir($mod_auth_tkt_dir): $!";
-    $cmd = "./configure --apxs=$root/apache/bin/apxs";
-    print "Calling '$cmd'.\n";
-    system($cmd) == 0
-      or die "mod_auth_tkt build failed: $?";
-    $cmd = "make && make install";
-    print "Calling '$cmd'.\n";
-    system($cmd) == 0
-      or die "mod_auth_tkt installation failed: $?";
 }
 
 =head2 apache_build_parameters

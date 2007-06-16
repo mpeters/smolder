@@ -47,6 +47,21 @@ FromAddress 'smolder@<tmpl_var HostName>'
 # Host name of the SMTP server
 SMTPHost 'mail.<tmpl_var HostName>'
 
+#
+# ProjectFullReportsMax: this sets the limit of the number of full
+# reports (compressed XML files) we should save. All summary data is
+# stored, even after this limit is reached, but we would loose the
+# ability to view the details of those that have been purged. This
+# directive mainly exists to save disk space for very active projects
+#
+# A value of '0' means that there is no limit.
+ProjectFullReportsMax 50
+
+# Secret
+# A secret key used for encrypting various bits (auth tokens, etc)
+Secret "<tmpl_var Secret>"
+
+
 
 
 

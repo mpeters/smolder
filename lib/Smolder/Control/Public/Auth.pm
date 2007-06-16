@@ -8,7 +8,8 @@ use Smolder::Email;
 use HTML::FillInForm;
 use CGI::Cookie;
 
-our $HOME_PAGE_URL = "/app/developer";
+our $HOME_PAGE_URL = '/app/developer';
+our $COOKIE_NAME   = 'smolder';
 
 =head1 NAME 
 
@@ -84,18 +85,16 @@ sub process_login {
         if ( crypt( $pw, $dev->password ) eq $dev->password ) {
 
             # figure out which tokens to add
-            my @tokens = ('developer');
-            push( @tokens, 'admin' ) if ( $dev->admin );
-
-            my $at = Smolder::AuthInfo->new();
+            my @groups = ('developer');
+            push( @groups, 'admin' ) if ( $dev->admin );
 
             # now add the AuthTKT cookie going out
-            my $tkt = $at->ticket(
-                uid    => $dev->id,
-                tokens => join( ',', @tokens ),
+            my $tkt = Smolder::AuthInfo->new->ticket(
+                id     => $dev->id,
+                groups => \@groups,
             );
             my $cookie = CGI::Cookie->new(
-                -name    => 'auth_tkt',
+                -name    => $COOKIE_NAME,
                 -value   => $tkt,
                 -expires => '+96h',
             );
@@ -196,7 +195,7 @@ sub logout {
 
     # now add the AuthTKT cookie going out
     my $cookie = CGI::Cookie->new(
-        -name    => 'auth_tkt',
+        -name    => $COOKIE_NAME,
         -value   => '',
         -expires => '-1d',
     );

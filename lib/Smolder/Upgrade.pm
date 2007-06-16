@@ -78,6 +78,16 @@ sub upgrade {
         print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
     }
     $self->post_db_upgrade($platform);
+
+    # add any new things to the config file
+    my $new_config_stuff = $self->add_to_config();
+    if( $new_config_stuff ) {
+        # write out the new lines
+        open(CONF, '>>', catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf'))
+          or die "Unable to open conf/krang.conf: $!";
+        print CONF $new_config_stuff;
+        close(CONF);
+    }
 }
 
 =head3 pre_db_upgrade
@@ -105,6 +115,17 @@ sub post_db_upgrade {
     my $self = shift;
     die "post_db_upgrade() must be implemented in " . ref($self);
 }
+
+=head3 add_to_config
+
+This method will take a given string and add it to the end of the
+current configuration file. This is useful for adding new required
+directives with a reasonable default.
+
+=cut
+
+sub add_to_config {}
+
 
 sub _load_platform {
 

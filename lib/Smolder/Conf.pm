@@ -19,6 +19,7 @@ BEGIN {
       HostName
       InstallRoot
       LogLevel
+      Secret
       SMTPHost
       User
       ProjectFullReportsMax
@@ -35,6 +36,7 @@ BEGIN {
       Group
       HostName
       LogLevel
+      Secret
       SMTPHost
       User
     );

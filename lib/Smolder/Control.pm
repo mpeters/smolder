@@ -79,8 +79,13 @@ from the C<$ENV{REMOTE_USER}> which is set by C<mod_auth_tkt>.
 sub developer {
     my $self = shift;
 
-    # REMOTE_USER is set bv mod_auth_tkt
-    return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
+    # REMOTE_USER is set by Smolder::AuthHandler
+    if( $ENV{REMOTE_USER} eq 'anon' ) {
+        return Smolder::DB::Developer->get_guest();
+    } else {
+        return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
+    }
+
 }
 
 =head2 public_projects
