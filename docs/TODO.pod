@@ -14,8 +14,6 @@ Make it easier for custom installation on existing Apache
 
 =item Create a CPAN bundle
 
-=item Add a PrefixURL directive in case we're behind a simple proxy or configured for a different url
-
 =back
 
 =item * 
