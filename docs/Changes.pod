@@ -6,7 +6,7 @@
 
 =item * Now using straight TAP (bundled in an archive file) instead of the custom XML/YAML thing we were using before. - M. Peters
 
-=item * Added RSS and Atom feeds that can be enabled per project. - M. Peters
+=item * Added Atom feeds that can be enabled per project. - M. Peters
 
 =item * Updated various component source modules and projects. - M. Peters
 

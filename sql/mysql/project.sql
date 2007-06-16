@@ -8,7 +8,7 @@ CREATE TABLE project (
     name                VARCHAR(255) NOT NULL DEFAULT '',
     start_date          DATETIME NULL,
     public              BOOL NOT NULL DEFAULT 1,
-    enable_rss          BOOL NOT NULL DEFAULT 1,
+    enable_feed         BOOL NOT NULL DEFAULT 1,
     default_platform    VARCHAR(255) NOT NULL DEFAULT '',
     default_arch        VARCHAR(255) NOT NULL DEFAULT '',
     graph_start         ENUM('project', 'year', 'month', 'week', 'day') NOT NULL DEFAULT 'project',

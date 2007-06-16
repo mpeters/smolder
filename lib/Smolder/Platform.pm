@@ -778,6 +778,7 @@ sub perl_module_questions {
         "Build support for animated GIFs? [y]"          => 'n',
         "Build XPM support? [y]"                        => 'n',
         "Where is libgd installed? [/usr/lib]"          => '/usr/lib',
+        "Add Object::Deadly"                            => 'n',
     };
 }
 

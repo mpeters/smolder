@@ -5,6 +5,7 @@ use Smolder::Conf qw(HostName);
 use Smolder::DB;
 use Smolder::DB::Project;
 use HTML::FillInForm;
+use XML::Atom::SimpleFeed;
 
 =head1 NAME 
 
@@ -33,7 +34,7 @@ sub setup {
               add_report
               process_add_report
               forbidden
-              rss
+              feed
               )
         ]
     );
@@ -115,23 +116,22 @@ Process the information from the L<add_report> run mode.
 
 This method is provided by L<Smolder::Control::Developer::Projects>.
 
-=head2 rss
+=head2 feed
 
-Will return an RSS 2.0 feed to the browser. The 5 most recent smoke
+Will return an XML data feed (Atom) to the browser. The 5 most recent smoke
 reports for a project are included in this feed. An optional C<type>
 can also be specified which is can either be C<all> or C<failures>.Only
-projects that have been marked as C<enable_rss> will appear in any
-RSS feed.
+projects that have been marked as C<enable_feed> will appear in any feed.
 
 =cut
 
-sub rss {
+sub feed {
     my $self = shift;
     my @binds;
     my $sql = qq/
         SELECT sr.* FROM smoke_report sr
         JOIN project p ON (sr.project = p.id)
-        WHERE p.enable_rss = 1 AND p.id = ?
+        WHERE p.enable_feed = 1 AND p.id = ?
     /;
     my $id = $self->param('id');
     my $type = $self->param('type');
@@ -148,15 +148,27 @@ sub rss {
     my @reports = Smolder::DB::SmokeReport->sth_to_objects($sth);
 
     $self->header_props(-type => 'text/xml');
-    
-    my $output = $self->tt_process(
-        'RSS/public_project.tmpl', 
-        { 
-            reports => \@reports, 
-            hostname => HostName(),
-            no_wrapper => 1,
-        }
+
+    my $feed = XML::Atom::SimpleFeed->new(
+        title   => 'Smolder - ' . HostName,
+        link    => $self->url_base,
+        id      => $self->url_base,
+        updated => $reports[0]->added->strftime('%FT%TZ'),
     );
+    foreach my $report (@reports) {
+        my $link = 'http://' . HostName . '/app/developer_projects/smoke_report/' . $report->id;
+        $feed->add_entry(
+            title => '#'
+              . $report->id . ' - '
+              . ( $report->failed ? 'Failed' : 'New' )
+              . ' Smoke Report',
+            author  => $report->developer->username,
+            link    => $link,
+            id      => $link,
+            summary => $report->summary,
+        );
+    }
+    return $feed->as_string();
 }
 
 1;
