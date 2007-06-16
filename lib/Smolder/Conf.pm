@@ -78,27 +78,46 @@ configuration document, which you can find at F<docs/configuration>.
 # package variables
 our $CONF;
 
+# look for the file in various places. Return the first one that exists
+sub _conf_file_path {
+    if( $ENV{SMOLDER_CONF} ) {
+        return $ENV{SMOLDER_CONF};
+    } elsif( $ENV{SMOLDER_ROOT} ) {
+        my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
+        return $conf_file if -e $conf_file;
+    }
+
+    my @paths = (
+        catdir('', 'usr', 'local', 'smolder', 'conf'),
+        catdir('', 'etc', 'smolder'),
+    );
+    foreach my $path (@paths) {
+        my $conf_file = catfile($path, 'smolder.conf');
+        return $conf_file if -e $conf_file;
+    }
+
+    # if we got here then something is wrong
+    croak(<<CROAK);
+
+Unable to find smolder.conf!
+We will look in the following directories in the following order:
+
+    /usr/local/smolder/conf
+    /etc/smolder
+    \$SMOLDER_ROOT/conf/smolder
+    
+Or can optionally be designated by using the SMOLDER_CONF environment
+variable.
+
+CROAK
+}
+
 # internal routine to load the conf file.  Called by a BEGIN during
 # startup, and used during testing.
 sub _load {
 
     # find a default conf file
-    my $conf_file;
-    if ( exists $ENV{SMOLDER_CONF} ) {
-        $conf_file = $ENV{SMOLDER_CONF};
-    } else {
-        $conf_file = catfile( $ENV{SMOLDER_ROOT}, "conf", "smolder.conf" );
-    }
-
-    croak(<<CROAK) unless -e $conf_file and -r _;
-
-Unable to find smolder.conf!
-
-Smolder scripts must be run from within an installed copy of Smolder,
-which will have a conf/smolder.conf file.  You might be trying to run a
-Smolder script from a Smolder source directory.
-
-CROAK
+    my $conf_file = _conf_file_path();
 
     # load conf file into package global
     eval {

@@ -170,16 +170,18 @@ sub auto_complete_results {
     return $html . '</ul>';
 }
 
-=head2 base_url
+=head2 url_base
 
 This method will return the base url for the installed version of
 Smolder.
 
 =cut
 
-sub base_url {
-    my $self = shift;
-    return 'http://' . HostName() . (ApachePort() == 80 ? '' : ':' . ApachePort())
+{
+    my $_base = 'http://' . HostName 
+        . ( ApachePort == 80 ? '' : ':' . ApachePort );
+
+    sub url_base { $_base };
 }
 
 =head2 static_url
@@ -193,7 +195,6 @@ frustrated by having to fight with browser caches.
 
 sub static_url {
     my ( $self, $url ) = @_;
-    my $version = $Smolder::VERSION;
 
     # only do this if we aren't a dev install
     # if the 'src' dir exists it's a dev install
@@ -201,7 +202,7 @@ sub static_url {
         return $url;
     } else {
         $url =~ s/^\///;
-        return catfile( '', $version, $url );
+        return catfile( '',  $Smolder::VERSION, $url );
     }
 }
 

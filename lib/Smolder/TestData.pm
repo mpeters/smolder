@@ -254,7 +254,10 @@ Returns the base url for the dynamic portions of the site.
 =cut
 
 sub base_url {
-    return 'http://' . $config->get('HostName') . ':' . $config->get('ApachePort') . '/app';
+    return 'http://' . $config->get('HostName') 
+        . ':' . $config->get('ApachePort') 
+        . ( $config->get('URLPrefix') || '' )
+        . '/app';
 }
 
 =head2 db_field_value 

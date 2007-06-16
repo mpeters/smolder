@@ -9,7 +9,12 @@ sub post_db_upgrade { }
 # add a new random secret
 sub add_to_config {
     my $secret = _random_secret();
-    return "\n# Secret\n# A secret key used for encrypting various bits (auth tokens, etc)\nSecret $secret\n";
+    return qq|
+# Secret
+# A secret key used for encrypting various bits (auth tokens, etc)
+Secret $secret
+
+|;
 }
 
 sub _random_secret {

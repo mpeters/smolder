@@ -1,5 +1,21 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.1
+
+=over
+
+=item * Now using straight TAP (bundled in an archive file) instead of the custom XML/YAML thing we were using before. - M. Peters
+
+=item * Added RSS and Atom feeds that can be enabled per project. - M. Peters
+
+=item * Updated various component source modules and projects. - M. Peters
+
+=item * Removed swish-e and mod_auth_tkt since they weren't essential to the functioning of smolder, but added a lot of size. - M. Peters
+
+=item * Allow F<smolder.conf> to be located in various places, not just F<$SMOLDER_ROOT/conf/smolder>. We now look first at F<$SMOLDER_CONF>, then in F<$SMOLDER_ROOT/conf>, F</usr/local/smolder/conf> and then F</etc/smolder>. - M. Peters
+
+=back
+
 =head2 1.02
 
 =over
