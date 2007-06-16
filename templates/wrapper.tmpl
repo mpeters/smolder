@@ -39,7 +39,7 @@
 
 [% SET projects = c.developer.projects %]
 [% SET public_projects = c.public_projects %]
-[% SET username = c.developer.username %]
+[% SET username = c.developer.guest ? '' : c.developer.username %]
 
 <div id="top_nav">
   [ 
