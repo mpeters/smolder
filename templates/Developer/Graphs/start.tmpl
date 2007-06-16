@@ -1,7 +1,5 @@
 [% SET page_title = 'Progress Graphs' %]
 
-<div id="graphs_[% project.id %]" class="boxed">
-
 <h2>[% project.name %]</h2>
 
 <div class="sub_menu">
@@ -42,7 +40,9 @@
     <input type="checkbox" id="skip"  name="skip"  value="1" />Skip
   </td>
 </tr>
+[% IF project.platforms.size || project.architectures.size %]
 <tr>
+  [% IF project.platforms.size %]
   <td><label>Platform</label></td>
   <td>
     <select name="platform">
@@ -52,6 +52,8 @@
       [% END %]
     </select>
   </td>
+  [% END %]
+  [% IF project.achitectures.size %]
   <td><label>Architecture</label></td>
   <td>
     <select name="architecture">
@@ -61,7 +63,9 @@
       [% END %]
     </select>
   </td>
+  [% END %]
 </tr>
+[% END %]
 <tr>
   <td><label>Graph Type</label></td>
   <td>
@@ -72,24 +76,27 @@
       <option value="points">Points</option>
     </select>
   </td>
-  [% SET cats = project.categories %]
-  [% IF cats %]
+  [% IF project.categories.size %]
   <td><label>Category</label></td>
   <td>
     <select name="category" id="category">
     <option value="">--none--</option>
-    [% FOREACH cat IN cats %]
+    [% FOREACH cat IN project.categories %]
     <option value="[% cat | html %]">[% cat | html %]</option>
     [% END %]
     </select>
   </td>
+  </tr>
+  <tr>
+    <td colspan="4" align="right">
+      <input type="submit" value="Update" />
+    </td>
+  </tr>
+  [% ELSE %]
+    <td colspan="2" align="right">
+      <input type="submit" value="Update" />
+    </td>
   [% END %]
-</tr>
-<tr>
-  <td colspan="4" align="right">
-    <input type="submit" value="Update" />
-  </td>
-</tr>
 </table>
 </form>
 
@@ -97,4 +104,3 @@
   <img id="graph_image" src="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/image/[% project.id %]" width="600px" height="300px" />
 </div>
 
-</div>
