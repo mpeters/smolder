@@ -6,7 +6,7 @@ use Smolder::DB::Developer;
 use Smolder::DB;
 use Smolder::Email;
 use HTML::FillInForm;
-use Apache::Cookie;
+use CGI::Cookie;
 
 our $HOME_PAGE_URL = "/app/developer";
 
@@ -94,20 +94,19 @@ sub process_login {
                 uid    => $dev->id,
                 tokens => join( ',', @tokens ),
             );
-            my $cookie = Apache::Cookie->new(
-                $self->param('r'),
+            my $cookie = CGI::Cookie->new(
                 -name    => 'auth_tkt',
                 -value   => $tkt,
                 -expires => '+96h',
             );
-            $cookie->bake();
+            $self->header_add(cookie => [$cookie]);
 
             # url of where to go next
             my $url = $self->query->param('back') || $HOME_PAGE_URL;
             $self->header_type('redirect');
             $self->header_add( -uri => $url );
             Smolder::DB->dbi_commit();
-            return "Redirecting to '$url'";
+            return "Redirecting...";
         }
     }
 
@@ -196,8 +195,7 @@ sub logout {
     my $at = Smolder::AuthInfo->new();
 
     # now add the AuthTKT cookie going out
-    my $cookie = Apache::Cookie->new(
-        $self->param('r'),
+    my $cookie = CGI::Cookie->new(
         -name    => 'auth_tkt',
         -value   => '',
         -expires => '-1d',
