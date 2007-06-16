@@ -10,7 +10,7 @@
       <a class="button invert smoke_report_window" title="HTML test report"
           href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">Details</a>
     [% END %]
-    [% IF ! public && project.is_admin(c.developer) %]
+    [% IF project.is_admin(c.developer) %]
       [% IF report.invalid %]
         <a class="button invert popup_form" href="#" id="valid_form_[% report.id %]_trigger">Mark As Valid</a>
         <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" 
