@@ -23,7 +23,10 @@ __PACKAGE__->add_callback(
     init => sub {
         my $self = shift;
         # it's all dynamic, so don't let the browser cache anything
-        $self->param('r')->no_cache(1);
+        my $r = $self->param('r');
+        # doing no_cache on internal redirects (auth redirects, etc)
+        # results in a seg fault
+        $r->no_cache(1) if $r->is_initial_req;
 
         # setup log dispatch to use Apache::Log
         $self->log_config(
