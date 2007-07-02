@@ -64,7 +64,7 @@ is($report->fail,       8,   'correct # of failed');
 is($report->todo,       0,   'correct # of todo');
 is($report->test_files, 20,  'correct # of files');
 is($report->total,      454, 'correct # of tests');
-ok(! defined $report->duration, 'duration not provided');
+ok(! $report->duration, 'duration not provided');
 
 my $html_file = catfile($report->data_dir, 'html', 'report.html');
 
