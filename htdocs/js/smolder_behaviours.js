@@ -245,7 +245,7 @@ var myrules = {
                                 flash(elm);
                             }
                         );
-                        hideIndicator('pref_indicator');
+                        hide_indicator('pref_indicator');
                     },
                     onFailure: function() { show_error() }
                 }

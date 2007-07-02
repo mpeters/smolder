@@ -118,7 +118,7 @@ function ajax_submit (args) {
                 }
 
                 // hide the indicator
-                hideIndicator(indicator);
+                hide_indicator(indicator);
 
                 // do whatever else the user wants
                 args.request = request;
@@ -310,7 +310,7 @@ function show_indicator(indicator) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function hideIndicator(indicator) {
+function hide_indicator(indicator) {
     indicator = $(indicator);
     if( indicator ) Element.hide(indicator);
 }
