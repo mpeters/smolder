@@ -23,6 +23,7 @@ sub setup {
               developer_tutorial
               admin_tutorial
               not_found
+              nav
               )
         ]
     );
@@ -39,6 +40,18 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 sub welcome {
     my $self = shift;
     return $self->tt_process( {} );
+}
+
+=head2 nav
+
+Return the nav HTML snippet incase we need to update it
+
+=cut
+
+sub nav {
+    my $self = shift;
+    return $self->tt_process('nav.tmpl', { no_wrapper => 1 });
+    
 }
 
 =head2 developer_tutorial
@@ -84,6 +97,5 @@ sub error {
     my $self = shift;
     return $self->tt_process( {} );
 }
-
 
 1;

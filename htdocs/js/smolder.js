@@ -1,4 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function update_nav() {
+    ajax_submit({
+        url : '/app/public/nav',
+        div : 'nav'
+    });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION: ajax_form_submit
 // takes the following named args
 // form      : the form object (required)
@@ -82,8 +91,12 @@ function ajax_submit (args) {
             asynchronous: true,
             evalScripts : true,
             onComplete : function(request, json) {
+                if(! json) json = {};
                 // show any messages we got
                 show_messages(json);
+
+                // update the navigation if we need to
+                if( json.update_nav ) update_nav();
 
                 // reapply any dynamic bits
                 Behaviour.apply();
@@ -109,7 +122,7 @@ function ajax_submit (args) {
 
                 // do whatever else the user wants
                 args.request = request;
-                args.json    = json || {};
+                args.json    = json;
                 complete(args);
             },
             //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
