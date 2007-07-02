@@ -108,7 +108,7 @@ label {
 }
 
 span.required, label.required {
-    background: url('/images/required.gif') no-repeat top left;
+    background: url('/images/required.png') no-repeat top left;
 }
 
 p.pushdown {
