@@ -257,7 +257,7 @@ sub summary {
     );
 }
 
-=head3
+=head3 total_percentage
 
 Returns the total percentage of passed tests.
 
@@ -506,14 +506,15 @@ sub parse_tap_file {
             $failed++ if !$line->is_ok;
             $skipped++ if $line->has_skip;
             push(@tests, \%details);
-        } elsif( $line->type eq 'comment' ) {
+        } elsif( $line->type eq 'comment' || $line->type eq 'unknown' ) {
+            my $slot = $line->type eq 'comment' ? 'comment' : 'uknonwn';
             # TAP doesn't have an explicit way to associate a comment
             # with a test (yet) so we'll assume it goes with the last
             # test. Look backwards through the stack for the last test
             my $last_test = $tests[-1];
             if( $last_test ) {
-                $last_test->{comment} ||= '';
-                $last_test->{comment} .= ("\n" . $line->as_string);
+                $last_test->{$slot} ||= '';
+                $last_test->{$slot} .= ("\n" . $line->as_string);
             }
         }
     }

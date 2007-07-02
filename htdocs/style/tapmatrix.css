@@ -189,6 +189,13 @@ div.tooltip > pre {
     margin-bottom: 0px;
 }
 
+div.tooltip > pre.unknown {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border: 1px solid #cccccc;
+    background: #dddddd;
+}
+
 td.tooltip_trigger:hover {
   cursor: pointer;
 }

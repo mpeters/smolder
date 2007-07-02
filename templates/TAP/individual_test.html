@@ -9,7 +9,10 @@
     [% ELSE          %] [% SET css_class = test.todo ? 'todo'    : 'fail' %]
     [% END %]
     <td class="x [% css_class %] tooltip_trigger">
-      <div style="display:none; position:absolute;" class="tooltip"><pre>[% test.comment %]</pre></div>&nbsp;
+      <div style="display:none; position:absolute;" class="tooltip">
+        <pre>[% test.comment %]</pre>
+        [% IF test.unknown %]<pre class="unknown">[% test.unknown %]</pre>[% END %]
+      </div>&nbsp;
     </td>
     [% IF loop.last || ( loop.count % 40 == 0 && !loop.first ) %]
       </tr>
