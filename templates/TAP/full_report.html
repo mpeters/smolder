@@ -60,11 +60,12 @@
     </tfoot>
     </table>
 
-    [% IF report.failed && ! email %]
     <div class="">
-        <a href="#first_failure">First Failure</a>
+      [% IF report.failed && ! email %]
+        <a href="#first_failure">Goto First Failure</a>
+      [% END %]
+      <a href="#" class="show_all">Show All Details</a>
     </div>
-    [% END %]
 
     <table id="matrix" summary="[% report.summary | html %]">
       <thead>

@@ -14,6 +14,8 @@
 
 =item * Allow F<smolder.conf> to be located in various places, not just F<$SMOLDER_ROOT/conf/smolder>. We now look first at F<$SMOLDER_CONF>, then in F<$SMOLDER_ROOT/conf>, F</usr/local/smolder/conf> and then F</etc/smolder>. - M. Peters
 
+=item * Added "Show All Details" link to test reports. Will suck browser resources if used on large test reports, but should be find on smaller ones - M. Peters
+
 =back
 
 =head2 1.02
