@@ -107,8 +107,12 @@ label {
     padding: 0 12px;
 }
 
-label.required {
+span.required, label.required {
     background: url('/images/required.gif') no-repeat top left;
+}
+
+p.pushdown {
+    clear: both;
 }
 
 .popup_form label {
