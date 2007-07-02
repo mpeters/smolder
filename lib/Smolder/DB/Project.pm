@@ -508,8 +508,8 @@ sub graph_start_datetime {
 =head3 purge_old_reports 
 
 This method will check to see if the C<ProjectFullReportsMax> configuration
-limit has been reached for this project and delete the compressed XML files
-associated with those reports, also marking them as C<purged>.
+limit has been reached for this project and delete the tap archive files
+associated with those reports, also marking the reports as C<purged>.
 
 =cut
 
@@ -523,10 +523,10 @@ sub purge_old_reports {
             SELECT id FROM smoke_report
             WHERE project = ? AND purged = 0
             ORDER BY added DESC
-            LIMIT ? OFFSET ? 
-        )
+            LIMIT 1000000 OFFSET 
+        ) . ProjectFullReportsMax
         );
-        $sth->execute( $self->id, 1000000, ProjectFullReportsMax );
+        $sth->execute( $self->id );
         my ( @ids, $id );
         $sth->bind_col( 1, \$id );
         push( @ids, $id ) while ( $sth->fetch );
