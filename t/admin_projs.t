@@ -30,7 +30,7 @@ my %data = (
     project_name => "Im A Test Project",
     start_date   => '01/01/2006',
     public       => 0,
-    enable_rss   => 0,
+    enable_feed  => 0,
 );
 my $proj;
 
@@ -57,7 +57,7 @@ $mech->content_contains('Projects');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('class="required warn">Public Project');
-    $mech->content_contains('class="required warn">Enable RSS');
+    $mech->content_contains('class="required warn">Data Feeds');
 
     # invalid form
     my $other_proj = create_project();
@@ -70,7 +70,7 @@ $mech->content_contains('Projects');
             project_name => $other_proj->name,
             start_date   => '01/01/06',
             public       => 'abc',
-            enable_rss   => 'efg',
+            enable_feed  => 'efg',
         }
     );
     $mech->request($request);
@@ -82,7 +82,7 @@ $mech->content_contains('Projects');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('Invalid Start Date');
     $mech->content_contains('class="required warn">Public Project');
-    $mech->content_contains('class="required warn">Enable RSS');
+    $mech->content_contains('class="required warn">Data Feeds');
 
     # complete form
     $mech->form_name('add');
@@ -102,7 +102,7 @@ $mech->content_contains('Projects');
     $mech->content_contains( $proj->name );
     $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*No\s*|);
-    $mech->content_like(qr|Enable RSS Feeds\?</label>\s*</td>\s*<td>\s*No\s*|);
+    $mech->content_like(qr|Data Feed[^<]*</label>\s*</td>\s*<td>\s*No\s*|);
 }
 
 # 27..43
@@ -115,7 +115,7 @@ $mech->content_contains('Projects');
     is($form->value('project_name'), $proj->name, 'name prefilled');
     is($form->value('start_date'), $proj->start_date->strftime('%d/%m/%Y'), 'start_date prefilled');
     is($form->value('public'), $proj->public, 'public prefilled');
-    is($form->value('enable_rss'), $proj->enable_rss, 'enable_rss prefilled');
+    is($form->value('enable_feed'), $proj->enable_feed, 'enable_feed prefilled');
 
     # invalid form
     my $other_proj = create_project();
@@ -126,7 +126,7 @@ $mech->content_contains('Projects');
             project_name => $other_proj->name,
             start_date   => '01/01/06',
             public       => 'abc',
-            enable_rss   => 'def',
+            enable_feed  => 'def',
         }
     );
     $mech->request($request);
@@ -137,20 +137,20 @@ $mech->content_contains('Projects');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('Invalid Start Date');
     $mech->content_contains('class="required warn">Public Project');
-    $mech->content_contains('class="required warn">Enable RSS');
+    $mech->content_contains('class="required warn">Data Feed');
 
     # valid
     $mech->form_name('edit');
     my %new_data = %data;
     $new_data{public} = 1;
-    $new_data{enable_rss} = 1;
+    $new_data{enable_feed} = 1;
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
     $mech->contains_message("Project '$new_data{project_name}' successfully updated");
     $mech->get_ok("$url/details/$proj");
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*Yes\s*|);
-    $mech->content_like(qr|Enable RSS Feeds\?</label>\s*</td>\s*<td>\s*Yes\s*|);
+    $mech->content_like(qr|Data Feeds[^<]*</label>\s*</td>\s*<td>\s*Yes\s*|);
 }
 
 # 44..48
