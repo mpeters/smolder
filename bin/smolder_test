@@ -17,14 +17,13 @@ smolder_test
 
     ./bin/smolder_test --files t/
 
-    ./bin/smolder_test --xml > report.xml
-
-    ./bin/smolder_test --yaml > report.yaml
+    ./bin/smolder_test --tap-archive
 
 =head1 DESCRIPTION
 
-Script used to run the Smolder tests and output either to the screen using the
-standard L<Test::Harness> format or create an HTML report of the tests.
+Script used to run the Smolder tests and output either to the screen
+using the standard L<Test::Harness> format or create an archive of the
+test run's TAP output.
 
 =cut
 
@@ -83,31 +82,31 @@ $ENV{HARNESS_ACTIVE} = 1;
 
 =item verbose
 
-The output of the test should be verbose. This is different
-from the C< quiet > option since it just affects how L<Test::Harness>
-runs the tests. By default this option is false.
+The output of the test should be verbose. This is different from the
+C< quiet > option since it just affects how L<Test::Harness> runs the
+tests. By default this option is false.
 
     ./bin/smolder_test --verbose
 
 =item quiet
 
-Surpress any normal output from the different scripts that it
-uses, or any normal output it may emit itself. This will not silence fatal errors. 
+Surpress any normal output from the different scripts that it uses, or
+any normal output it may emit itself. This will not silence fatal errors.
 By default this option is false.
 
     ./bin/smolder_test --quiet
 
-=item xml
+=item tap-archive
 
-This options tess the script to create an XML structure of the test ouput
-instead of the normal L<Test::Harness> style report. It will be output to the file
-F<smolder_test.xml>.
+This options tells the script to create an archive file of the TAP ouput
+instead of the normal L<Test::Harness> style report. The resulting file
+will be named F<smolder_test_run.tar.gz>.
 
 =item files
 
-This is a comma-delimited list of files (relative to the B<InstallRoot> root) that will be tested.
-By default this will be every file in the t/ dir (and all subdirs or t/) that has a '.t' 
-extension. 
+This is a comma-delimited list of files (relative to the B<InstallRoot>
+root) that will be tested.  By default this will be every file in the t/
+dir (and all subdirs or t/) that has a '.t' extension.
 
     ./bin/smolder_test --files 't/control/*'
 
@@ -120,8 +119,7 @@ extension.
 # default options
 my $verbose   = 0;
 my $quiet     = 0;
-my $xml       = 0;
-my $yaml      = 0;
+my $archive   = 0;
 my @testfiles = ();
 my $help      = 0;
 my $man       = 0;
@@ -134,10 +132,8 @@ GetOptions(
     'test_files=s' => \@testfiles,
     'help!'        => \$help,
     'man!'         => \$man,
-    'xml'          => \$xml,
-    'yaml'         => \$yaml,
-  )
-  || pod2usage();
+    'tap-archive'  => \$archive,
+) || pod2usage();
 
 if ($help) {
     pod2usage(
@@ -201,15 +197,9 @@ unshift @testfiles, $file if $file;
 @testfiles = grep( !/zzz_dbcount/, @testfiles );
 push @testfiles, $file if $file;
 
-# if we want XML output
-if ($xml) {
-    my $cmd = catfile($ENV{SMOLDER_ROOT}, 'bin', 'smolder_prove');
-    system($cmd . ' ' . join(' ', @testfiles)) == 0
-        or die "Could not run smolder_prove for tests! $!";
-} elsif ($yaml ) {
-    my $cmd = catfile($ENV{SMOLDER_ROOT}, 'bin', 'smolder_prove') . ' --yaml';
-    system($cmd . ' ' . join(' ', @testfiles)) == 0
-        or die "Could not run smolder_prove for tests! $!";
+# if we want the TAP archive
+if ($archive) {
+    create_tap_archive(\@testfiles);
 } else {
     # else we just want to run normal Test::Harness tests
     $Test::Harness::Verbose = $verbose;
@@ -233,5 +223,49 @@ sub print_header {
         print '#' x 60;
         print "\n\n";
     }
+}
+
+sub create_tap_archive {
+    my $files = shift;
+    require Archive::Tar;
+    require YAML;
+    require File::Temp;
+    require File::Basename;
+    require Cwd;
+
+    # create a an archive to put the TAP files into
+    my $temp_dir = File::Temp::tempdir();
+    my $archive = Archive::Tar->new();
+
+    my %meta_info = (
+        file_order => $files,
+        start_time => time(),
+    );
+    foreach my $f (@$files) {
+        my $basename = File::Basename::basename($f, '.t');
+        my $destination = catfile($temp_dir, "$basename.tap");
+        my $cmd = "$^X $f 2>&1 > $destination";
+        print "Capturing output of $f into $basename.tap\n" if $verbose;
+        system($cmd) == 0
+            or warn "Could not run command $cmd: $!";
+    }
+
+    # create the meta.yml file
+    $meta_info{stop_time} = time();
+    open(my $meta_fh, '>', catfile($temp_dir, 'meta.yml'))
+       or die "Could not open meta.yml for writing: $!";
+    print $meta_fh YAML::Dump(\%meta_info);
+    close($meta_fh);
+
+
+    # now tar up the archive
+    my $cwd = Cwd::getcwd();
+    chdir($temp_dir) or die "Could not change to directory $temp_dir: $!";
+    $archive->add_files(glob('*'));
+    chdir($cwd) or die "Could not change to directory $temp_dir: $!";
+
+    my $output_file = 'smolder_test_run.tar.gz';
+    $archive->write($output_file, 1);
+    print "Test run complete. Archive file - $output_file\n" unless $quiet;
 }
 
