@@ -104,6 +104,11 @@ div.sub_menu {
 label {
     color: #333333;
     font-weight: bold;
+    padding: 0 12px;
+}
+
+label.required {
+    background: url('/images/required.gif') no-repeat top left;
 }
 
 .popup_form label {

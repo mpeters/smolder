@@ -28,7 +28,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type</td>
   <td>
     <select name="email_type">
       <option value="full">Full HTML Report</option>
@@ -38,7 +38,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency</td>
   <td>
     <select name="email_freq">
       <option value="on_new">Everytime a new Test Report is Added </option>
@@ -48,7 +48,7 @@
   </td>
 </tr>
 <tr>
-  <td><label class="required[% IF c.dfv_msgs.err_email_limit %] warn[% END %]">Per-day Email Limit *</td>
+  <td><label class="required[% IF c.dfv_msgs.err_email_limit %] warn[% END %]">Per-day Email Limit</td>
   <td>
     <input name="email_limit" value="[% pref.email_limit %]" size="5"/>
     <em>0</em> means there is no limit

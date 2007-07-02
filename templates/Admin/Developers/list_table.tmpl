@@ -6,7 +6,7 @@
   <td>Email</td>
   <td>Admin</td>
   <td>Edit</td>
-  <td>Reset Password</td>
+  <td>Password</td>
   <td>Delete</td>
 </tr>
 [% FOREACH developer IN developers %]
@@ -17,7 +17,7 @@
     <td width="80px">[% IF developer.admin %]Yes[% ELSE %]No[% END %]</td>
     <td width="50px"><a href="/app/admin_developers/edit/[% developer.id %]" class="edit_trigger for_item_[% developer.id %]" id="crud_edit_[% developer.id %]">[Edit]</a></td>
     <td width="110px">
-      <a href="#" class="popup_form" id="resetpw_developer_[% developer.id %]_trigger">[Reset Password]</a>
+      <a href="#" class="popup_form" id="resetpw_developer_[% developer.id %]_trigger">[Reset]</a>
       <div id="resetpw_developer_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
         <form class="resetpw_form show_crud_indicator for_crud_add_container" id="resetpw_developer_[% developer.id %]_form" name="resetpw_[% developer.id %]" action="/app/admin_developers/reset_pw/[% developer.id %]" method="post">
         Resetting the Developer's password will remove their old one and create a new
