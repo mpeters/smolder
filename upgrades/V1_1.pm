@@ -2,9 +2,29 @@ package V1_1;
 use strict;
 use warnings;
 use base 'Smolder::Upgrade';
+use File::Path qw(rmtree);
+use File::Spec::Functions qw(catdir);
+use Smolder::Conf qw(InstallRoot);
 
 sub pre_db_upgrade  { }
-sub post_db_upgrade { }
+
+sub post_db_upgrade { 
+    # let's purge all the existing reports
+    require Smolder::DB::SmokeReport;
+    my @reports = Smolder::DB::SmokeReport->retrieve_all();
+    foreach my $report (@reports) {
+        $report->delete_files();
+        $report->purged(1);
+        $report->update();
+        Smolder::DB->dbi_commit();
+    }
+    # remove the old HTML reports in the old format
+    rmtree(catdir(InstallRoot, 'data', 'html_smoke_reports'));
+    # remove the old XML reports
+    my $report_dir = catdir(InstallRoot, 'data', 'smoke_reports');
+    rmtree($report_dir);
+    mkdir($report_dir);
+}
 
 # add a new random secret
 sub add_to_config {
