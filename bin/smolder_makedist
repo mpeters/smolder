@@ -153,21 +153,19 @@ find(
     {
         no_chdir => 1,
         wanted   => sub {
-
-            # print "Considering $_...\n";
+            #print "Considering $_\n";
             return
-              unless m!^$name/\./tmp/.!o       or    # skip tmp contents
-              m!^$name/\./bench!o              or    # skip bench
-              m!^$name/\./conf/smolder.conf$!o or    # skip smolder.conf
-              m!/CVS!                          or    # skip all CVS dirs
-              m!\.cvsignore!                   or    # skip all CVS dirs
-              m!/\.svn!                        or    # skip all SVN dirs
-              m!~$!                            or    # skip Emacs droppings
-              m!#!                             or    # skip Emacs droppings
-              m!.swp!                          or    # skip Vi droppings
-              m!.swo!                          or    # skip Vi droppings
-              m!SMOLDER-[^/]+\.tar\.gz!        or    # skip Smolder distribs
-              m!_log$!                         or    # skip log files
+              unless m!^$name/\./tmp/.!o        or    # skip tmp contents
+              m!^$name/\./conf/smolder.conf$!o  or    # skip smolder.conf
+              m!^$name/\./data/[^/]*\.sqlite$!o or    # skip .sqlite files
+              m!^$name/\./data/smoke_reports/!o or    # skip smolder.conf
+              m!/\.svn!                         or    # skip all SVN dirs
+              m!~$!                             or    # skip Emacs droppings
+              m!#!                              or    # skip Emacs droppings
+              m!.swp!                           or    # skip Vi droppings
+              m!.swo!                           or    # skip Vi droppings
+              m!SMOLDER-[^/]+\.tar\.gz!         or    # skip Smolder distribs
+              m!_log$!                          or    # skip log files
               ( not $source_dist and m!^$name/./src!o );
 
             # skip the dev modules
@@ -175,7 +173,7 @@ find(
                 return if index($_, $dev_mod) >= 0; 
             }
 
-            # print "Excluding $_.\n";
+            #print "Excluding $_\n";
             print LIST "$_\n";
           }
     },
