@@ -288,7 +288,10 @@ open( DB, '>', catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' ) )
 print DB "Platform $platform\n";
 print DB sprintf "Perl \"%d.%d.%d\"\n", ( map { ord($_) } split( "", $^V, 3 ) );
 print DB "Arch \"$Config{archname}\"\n";
-print DB "DBPlatforms " . join(', ', @db_plats) if( @db_plats );
+if( @db_plats ) {
+    print DB "DBPlatforms " . join(', ', @db_plats);
+    print DB "\n";
+}
 print DB "Dev $dev\n";
 close DB;
 
