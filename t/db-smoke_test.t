@@ -12,7 +12,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile catdir);
 use Test::LongString;
 
-plan( tests => 68 );
+plan( tests => 69 );
 
 # setup
 END { delete_developers() }
@@ -75,7 +75,6 @@ contains_string( $$html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//E
 ok( -e $html_file, 'HTML file saved to disk' );
 
 # make sure that each test file has it's own HTML file too
-my $html_dir = catdir(InstallRoot, 'data', 'html_smoke_reports', $report->id);
 for(0.. ($report->test_files -1)) {
     ok(-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ has HTML file");
 }
@@ -97,4 +96,5 @@ ok( !-e $html_file, 'HTML file removed');
 for(0.. ($report->test_files -1)) {
     ok(!-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ HTML has been removed");
 }
+ok( !-d $report->data_dir, 'data directory removed');
 

@@ -92,8 +92,7 @@ If it doesn't exist it will be created.
 
 sub data_dir {
     my $self = shift;
-    my $date = $self->added()->strftime('%Y%m');
-    my $dir  = catdir( InstallRoot, 'data', 'smoke_reports', $self->project->id, $date, $self->id );
+    my $dir  = catdir( InstallRoot, 'data', 'smoke_reports', $self->project->id, $self->id );
 
     # create it if it doesn't exist
     mkpath($dir) if ( !-d $dir );
