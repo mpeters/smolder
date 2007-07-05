@@ -373,7 +373,7 @@ sub apply_upgrades {
         my $package = $module;
         $package =~ s/\.pm$//;
 
-        my $upgrade_cmd = "SMOLDER_ROOT=$InstallRoot PERL5LIB=$perl5lib $PERL_BIN";
+        my $upgrade_cmd = "SMOLDER_CONF_NOCHECK=1 SMOLDER_ROOT=$InstallRoot PERL5LIB=$perl5lib $PERL_BIN";
         $upgrade_cmd .= " -M$package -e 'my \$ug = $package->new(); \$ug->upgrade()'";
         system($upgrade_cmd) && die("Error using upgrade module '$module'");
     }
