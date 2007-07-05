@@ -246,8 +246,7 @@ sub create_tap_archive {
         my $destination = catfile($temp_dir, "$basename.tap");
         my $cmd = "$^X $f 2>&1 > $destination";
         print "Capturing output of $f into $basename.tap\n" if $verbose;
-        system($cmd) == 0
-            or warn "Could not run command $cmd: $!";
+        system($cmd);
     }
 
     # create the meta.yml file
