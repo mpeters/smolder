@@ -2,7 +2,7 @@ package Smolder::Upgrade;
 use warnings;
 use strict;
 
-use Smolder::Conf qw(DBName DBUser DBHost DBPass);
+use Smolder::Conf qw(DBName DBUser DBHost DBPass DBPlatform);
 use File::Spec::Functions qw(catfile catdir);
 use Smolder::DB;
 use Carp qw(croak);
@@ -64,15 +64,15 @@ sub upgrade {
     $self->pre_db_upgrade($platform);
 
     # find and run the SQL file
-    my $file = catfile( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', 'mysql', ref($self) . '.sql' );
+    my $file = catfile( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', lc DBPlatform, ref($self) . '.sql' );
     if ( -e $file ) {
         print "    Upgrading DB with file '$file'.\n";
         my $db_platform = Smolder::DBPlatform->load();
         $db_platform->run_sql_file(
-            file => $file,
-            user => DBUser,
-            passwd => DBPass,
-            host => DBHost,
+            file   => $file,
+            user   => ( DBUser || '' ),
+            passwd => ( DBPass || '' ),
+            host   => ( DBHost || '' ),
         );
     } else {
         print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
