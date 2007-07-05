@@ -12,45 +12,32 @@ source of this data. If your project is in Perl, then it's
 as simple as using C<Test::More> and friends in your testing
 scripts. Other languages also have libraries to output TAP.
 
-But at the time of this writing there are no good TAP parsers
-in Perl that are also not test harnesses too. To get around this
-we use the C<Test::TAP::Model> family of modules to run the tests
-and then serialize the resulting data with either XML or YAML
+A TAP stream correlates to a single test file, so we need to collect
+multiple TAP streams together to represent a single test run.  We do
+this by using a TAP Archive file (more details in 
+L<Smolder's Test Report File Format|docs/upload_file_format.pod>) which
+is basically a F<.tar.gz> file containing multiple F<.tap> files.
 
 =head2 Running
 
+=head3 smolder_prove
+
 The easiest way to run your tests for Smolder is to use 
 L<smolder_prove|bin/smolder_prove>. It works just like the normal
-C<prove> that comes with L<Test::Harness> except that it will either
-output XML or YAML
+C<prove> that comes with L<Test::Harness> except that it will also
+create a TAP Archive file of the test run.
 
-    $ smolder_prove --xml
+    $ smolder_prove --tap-archive
 
-    $ smolder_prove --yaml
+=head3 SmokeRunner::Multi
 
-If you can't use L<smolder_prove|bin/smolder_prove> for your project
-then you can use the underlying L<Test::TAP::Model> classes to accomplish
-the same thing. L<Test::TAP::Model> is a subclass as L<Test::Harness::Straps>
-which is what C<prove> uses under the hood.
+Sometimes you have many different projects or different branches of the
+same project that you would like to test from an SVN source checkout.
+L<SmokeRunner::Multi> was designed for just this purpose.
 
-To get XML output, you can do something like this:
-
-    use Test::TAP::XML;
-    my @test_files = qw(t/foo.t t/bar.t);
-
-    my $harness = Test::TAP::XML->new();
-    $harness->run_tests(@test_files);
-    print $harness->xml();
-
-To get it into YAML, you can do the following:
-
-    use YAML;
-    use Test::TAP::Model;
-    my @test_files = qw(t/foo.t t/bar.t);
-
-    my $harness = Test::TAP::Model->new();
-    $harness->run_tests(@test_files);
-    print YAML::Dump( $harness->structure );
+It can be used simply to run tests and output them to your screen, or
+create TAP archive and even automatically upload it to a running Smolder
+server.
 
 =head2 Uploading to Smolder
 
@@ -69,9 +56,9 @@ Typically, your automated test/upload code can be a bash script as simple
 as this:
 
     !#/bin/bash
-    smolder_prove --xml > test_report.xml
+    smolder_prove --tap-archive
     smolder_smoke_signal --server smolder.foo.com \
-       --username myself --password s3cr3t --file test_report.xml \
+       --username myself --password s3cr3t --file test_run.tar.gz \
        --project MyProject
 
 Pretty easy.
