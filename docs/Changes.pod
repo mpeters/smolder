@@ -16,6 +16,12 @@
 
 =item * Added "Show All Details" link to test reports. Will suck browser resources if used on large test reports, but should be find on smaller ones - M. Peters
 
+=item * Fixed upgrades to now use appropriate sql file depending on the running DBPlatform. - M. Peters
+
+=item * Updated various images. - M. Peters
+
+=item * Added F<bin/smolder_update_smoke_html> so that you can regenerate the HTML of the smoke reports after a template change. - M. Peters
+
 =back
 
 =head2 1.02
