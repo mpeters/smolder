@@ -4,6 +4,18 @@
 
 =over
 
+=item * 
+
+Tracking of individual tests. This would provide a view that let's
+the user see when each test was added and maybe how it has faired 
+over time. MediaWiki has an example of this:
+
+    * HTML nested bullet list, open tags (bug 5497)    [Has never passed]
+    * HTML nested ordered list, open tags (bug 5497)   [Has never passed]
+    * Fuzz testing: image with bogus manual thumbnail  [Introduced
+      between 08-Apr-2007 07:15:22, 1.10alpha (r21099) and 25-Apr-2007
+      07:15:46, 1.10alpha]
+
 =item *
 
 Make it easier for custom installation on existing Apache
