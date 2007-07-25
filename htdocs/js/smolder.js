@@ -1,25 +1,90 @@
+var Smolder = {};
+
+Smolder.load = function(target) {
+    // apply our registered behaviours
+    Behaviour.apply(target);
+
+    // run any code from Smolder.onload()
+    var size = Smolder.onload_code.length;
+    for(var i=0; i< size; i++) {
+        var code = Smolder.onload_code.pop();
+        if( code ) code();
+    }
+
+    // show messages that have been added
+    Smolder.show_messages();
+};
+
+/*
+    Smolder.onload()
+    Add some code that will get executed after the DOM is loaded
+    (but without having to wait on images, etc to load).
+    Multiple calls will not overwrite previous calls and all code
+    given will be executed in the order give.
+*/
+Smolder.onload_code = [];
+Smolder.onload = function(code) {
+    Smolder.onload_code.push(code);
+};
+
+/*
+    Smolder.Cookie.get(name)
+    Returns the value of a specific cookie.
+*/
+Smolder.Cookie = {};
+Smolder.Cookie.get = function(name) {
+    var value  = null;
+    var cookie = document.cookie;
+    var start, end;
+
+    if ( cookie.length > 0 ) {
+        start = cookie.indexOf( name + '=' );
+
+        // if the cookie exists
+        if ( start != -1 )  {
+          start += name.length + 1; // need to account for the '='
+
+          // set index of beginning of value
+          end = cookie.indexOf( ';', start );
+
+          if ( end == -1 ) end = cookie.length;
+
+          value = unescape( cookie.substring( start, end ) );
+        }
+    }
+    return value;
+};
+
+/*
+    Smolder.Cookie.set(name, value)
+    Sets a cookie to a particular value.
+*/
+Smolder.Cookie.set = function(name, value) {
+    document.cookie = name + '=' + value;
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function update_nav() {
-    ajax_submit({
+Smolder.update_nav = function(){
+    Smolder.ajax_submit({
         url : '/app/public/nav',
         div : 'nav'
     });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTION: ajax_form_submit
+// FUNCTION: Smolder.ajax_form_submit
 // takes the following named args
 // form      : the form object (required)
 // 
-// All other arguments are passed to the underlying ajax_submit() call
+// All other arguments are passed to the underlying Smolder.ajax_submit() call
 //
-//  ajax_form_submit({
+//  Smolder.ajax_form_submit({
 //      form: formObj,
 //      div : 'div_name'
 //  });
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function ajax_form_submit(args) {
+Smolder.ajax_form_submit = function(args) {
     var form = args['form'];
     var url = form.action;
     var queryParams = Form.serialize(form);
@@ -40,11 +105,11 @@ function ajax_form_submit(args) {
 
 
     // now submit this normally
-    ajax_submit(args);
+    Smolder.ajax_submit(args);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTION: ajax_submit
+// FUNCTION: Smolder.ajax_submit
 // takes the following named args
 // url       : the full url of the request (required)
 // div       : the id of the div receiving the contents (optional defaults to 'content')
@@ -52,7 +117,7 @@ function ajax_form_submit(args) {
 // onComplete: a call back function to be executed after the normal processing (optional)
 //              Receives as arguments, the same args passed into ajax_submit
 //
-//  ajax_submit({
+//  Smolder.ajax_submit({
 //      url        : '/app/some_mod/something',
 //      div        : 'div_name',
 //      indicator  : 'add_indicator',
@@ -61,14 +126,14 @@ function ajax_form_submit(args) {
 //      }
 //  });
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function ajax_submit (args) {
+Smolder.ajax_submit = function(args) {
     var url       = args['url'];
     var div       = args['div'];
     var indicator = args['indicator'];
     var complete  = args['onComplete'] || Prototype.emptyFunction;;
 
     // tell the user that we're doing something
-    show_indicator(indicator);
+    Smolder.show_indicator(indicator);
 
     // add the ajax=1 flag to the existing query params
     var url_parts = url.split("?");
@@ -93,13 +158,13 @@ function ajax_submit (args) {
             onComplete : function(request, json) {
                 if(! json) json = {};
                 // show any messages we got
-                show_messages(json);
+                Smolder.show_messages(json);
 
                 // update the navigation if we need to
-                if( json.update_nav ) update_nav();
+                if( json.update_nav ) Smolder.update_nav();
 
                 // reapply any dynamic bits
-                Behaviour.apply();
+                Behaviour.apply(div);
 
                 // reset which forms are open
                 shownPopupForm = '';
@@ -118,7 +183,7 @@ function ajax_submit (args) {
                 }
 
                 // hide the indicator
-                hide_indicator(indicator);
+                Smolder.hide_indicator(indicator);
 
                 // do whatever else the user wants
                 args.request = request;
@@ -126,14 +191,14 @@ function ajax_submit (args) {
                 complete(args);
             },
             //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
-            onFailure: function(request) { show_error() }
+            onFailure: function(request) { Smolder.show_error() }
         }
     );
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function show_error() {
+Smolder.show_error = function() {
     new Notify.Alert(
         $('ajax_error_container').innerHTML,
         {
@@ -145,7 +210,7 @@ function show_error() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function new_accordion (element_name, height) {
+Smolder.new_accordion = function(element_name, height) {
     new Rico.Accordion(
         $(element_name),
         {
@@ -163,27 +228,26 @@ function new_accordion (element_name, height) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-var shownPopupForm = '';
-function togglePopupForm(formId) {
+Smolder.shownPopupForm = '';
+Smolder.togglePopupForm = function(formId) {
 
     // first turn off any other forms showing of this type
-    if( shownPopupForm != '' && $(shownPopupForm) != null ) {
-        new Effect.SlideUp( shownPopupForm, { duration: .5 } );
+    if( Smolder.shownPopupForm != '' && $(Smolder.shownPopupForm) != null ) {
+        new Effect.SlideUp( Smolder.shownPopupForm, { duration: .5 } );
     }
 
-    if( shownPopupForm == formId ) {
-        shownPopupForm = '';
+    if( Smolder.shownPopupForm == formId ) {
+        Smolder.shownPopupForm = '';
     } else {
-
         new Effect.SlideDown(formId, { duration: .5 });
-        shownPopupForm = formId;
+        Smolder.shownPopupForm = formId;
     }
     return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function changeSmokeGraph(form) {
+Smolder.changeSmokeGraph = function(form) {
     var type      = form.elements['type'].value;
     var url       = form.action + "/" + escape(type) + "?change=1&";
 
@@ -223,7 +287,7 @@ function changeSmokeGraph(form) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function toggleSmokeValid(form) {
+Smolder.toggleSmokeValid = function(form) {
     // TODO - replace with one regex
     var trigger = form.id.replace(/_trigger$/, '');
     var smokeId = trigger.replace(/^(in)?valid_form_/, '');
@@ -233,7 +297,7 @@ function toggleSmokeValid(form) {
     // XXX - this is a global... probably not the best way to do this
     shownForm = '';
     
-    ajax_form_submit({
+    Smolder.ajax_form_submit({
         form      : form, 
         div       : divId, 
         indicator : trigger + "_indicator"
@@ -242,7 +306,7 @@ function toggleSmokeValid(form) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function newSmokeReportWindow(url) {
+Smolder.newSmokeReportWindow = function(url) {
     window.open(
         url,
         'report_details',
@@ -252,7 +316,7 @@ function newSmokeReportWindow(url) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function makeFormAjaxable(element) {
+Smolder.makeFormAjaxable = function(element) {
     // find which div it targets
     var divId;
     var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
@@ -266,7 +330,7 @@ function makeFormAjaxable(element) {
         indicatorId = matches[2];
 
     element.onsubmit = function(event) {
-        ajax_form_submit({
+        Smolder.ajax_form_submit({
             form      : element, 
             div       : divId, 
             indicator : indicatorId
@@ -277,7 +341,7 @@ function makeFormAjaxable(element) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function makeLinkAjaxable(element) {
+Smolder.makeLinkAjaxable = function(element) {
     var divId;
 
     // find which div it targets
@@ -292,7 +356,7 @@ function makeLinkAjaxable(element) {
         indicatorId = matches[2];
 
     element.onclick = function(event) {
-        ajax_submit({
+        Smolder.ajax_submit({
             url       : element.href, 
             div       : divId, 
             indicator : indicatorId
@@ -303,21 +367,21 @@ function makeLinkAjaxable(element) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function show_indicator(indicator) {
+Smolder.show_indicator = function(indicator) {
     indicator = $(indicator);
     if( indicator ) Element.show(indicator);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function hide_indicator(indicator) {
+Smolder.hide_indicator = function(indicator) {
     indicator = $(indicator);
     if( indicator ) Element.hide(indicator);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function highlight(el) {
+Smolder.highlight = function(el) {
     new Effect.Highlight(
         el,
         {
@@ -330,7 +394,7 @@ function highlight(el) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function unHighlight(el) {
+Smolder.unHighlight = function(el) {
     new Effect.Highlight(
         el,
         {
@@ -343,7 +407,7 @@ function unHighlight(el) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function flash(el) {
+Smolder.flash = function(el) {
     new Effect.Highlight(
         el,
         {
@@ -356,27 +420,27 @@ function flash(el) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function show_messages(json) {
+Smolder.show_messages = function(json) {
     if( json ) {
         var msgs = json.messages || [];
-        msgs.each( function(msg) { show_message(msg.type, msg.msg) } );
+        msgs.each( function(msg) { Smolder.show_message(msg.type, msg.msg) } );
     }
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-var __message_count = 0;
-function show_message(type, text) {
-    __message_count++;
+Smolder.__message_count = 0;
+Smolder.show_message = function(type, text) {
+    Smolder.__message_count++;
     // insert it at the top of the messages
     new Insertion.Top(
         $('message_container'),
-        '<div class="' + type + '" id="message_' + __message_count + '">' + text + '</div>'
+        '<div class="' + type + '" id="message_' + Smolder.__message_count + '">' + text + '</div>'
     );
 
     // fade it out after 10 secs, or onclick
-    var el = $('message_' + __message_count);
+    var el = $('message_' + Smolder.__message_count);
     var fade = function() { new Effect.Fade(el, { duration: .4 } ); };
     el.onclick = fade;
     setTimeout(fade, 10000);
@@ -385,22 +449,7 @@ function show_message(type, text) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function shadowify(el) {
-    // don't add them if we already have a 'boxed_right' div after us
-    if( el.nextSibling && el.nextSibling.className != 'boxed_right' ) {
-        // create a new div to the right and bottom
-        var dim = Element.getDimensions(el);
-        // only if it's visible
-        if( dim.width && dim.height ) {
-            new Insertion.After(el, '<div class="boxed_bottom" style="width:' + (dim.width + 5) + 'px;"></div><br style="clear: both" />');
-            new Insertion.After(el, '<div class="boxed_right" style="height:' + dim.height + 'px;"></div>');
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-function setup_tooltip(trigger, target) {
+Smolder.setup_tooltip = function(trigger, target) {
     trigger.onclick = function() {
        new Effect.toggle(target, 'appear', { duration: .4 });
     };

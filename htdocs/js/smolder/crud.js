@@ -1,15 +1,15 @@
 // CRUD abstraction for Smolder
-var __known_CRUDS = { };
-CRUD = Class.create();
+Smolder.__known_CRUDS = { };
+Smolder.CRUD = Class.create();
 
 /* Class methods */
-CRUD.exists   = function(id)   { return __known_CRUDS[id] ? true : false; };
-CRUD.find     = function(id)   { return __known_CRUDS[id] };
-CRUD.remember = function(crud) { __known_CRUDS[crud.div.id] = crud; };
-CRUD.forget   = function(crud) { __known_CRUDS[crud.div.id] = false; };
+Smolder.CRUD.exists   = function(id)   { return Smolder.__known_CRUDS[id] ? true : false; };
+Smolder.CRUD.find     = function(id)   { return Smolder.__known_CRUDS[id] };
+Smolder.CRUD.remember = function(crud) { Smolder.__known_CRUDS[crud.div.id] = crud; };
+Smolder.CRUD.forget   = function(crud) { Smolder.__known_CRUDS[crud.div.id] = false; };
 
 /* Object methods */
-Object.extend(CRUD.prototype, {
+Object.extend(Smolder.CRUD.prototype, {
     initialize: function(id, url) {
         this.div      = $(id);
         this.url      = url;
@@ -33,7 +33,7 @@ Object.extend(CRUD.prototype, {
         this.refresh();
 
         // the fact that we've created this CRUD
-        CRUD.remember(this);
+        Smolder.CRUD.remember(this);
     },
     refresh: function() {
         this.edit_triggers   = document.getElementsByClassName('edit_trigger', this.list_container);
@@ -71,7 +71,7 @@ Object.extend(CRUD.prototype, {
         this.add_shown  = false;
     },
     show_add: function() {
-        ajax_submit({
+        Smolder.ajax_submit({
             url        : this.add_trigger.href,
             div        : this.add_container.id,
             indicator  : this.indicator,
@@ -102,7 +102,7 @@ Object.extend(CRUD.prototype, {
         if( itemId == null ) 
             return;
 
-        ajax_submit({
+        Smolder.ajax_submit({
             url        : trigger.href,
             div        : this.add_container.id,
             indicator  : this.indicator,
@@ -129,7 +129,7 @@ Object.extend(CRUD.prototype, {
         // set the onsubmit handler for the form in this popup
         var form = $('delete_form_' + itemId);
         form.onsubmit = function() {
-            ajax_submit({
+            Smolder.ajax_submit({
                 url: form.action,
                 div: this.list_container.id,
                 indicator: 'delete_indicator_' + itemId,
@@ -148,7 +148,7 @@ Object.extend(CRUD.prototype, {
 
         // find the add_inidicator
         var indicator = document.getElementsByClassName('add_indicator', this.add_container)[0].id;
-        ajax_form_submit({
+        Smolder.ajax_form_submit({
             form       : form,
             div        : this.add_container.id,
             indicator  : indicator,
@@ -170,7 +170,7 @@ Object.extend(CRUD.prototype, {
         });
     },
     update_list: function () {
-        ajax_submit({
+        Smolder.ajax_submit({
             url       : this.list_url,
             div       : this.list_container.id,
             indicator : this.indicator,
