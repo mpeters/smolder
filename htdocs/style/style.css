@@ -52,6 +52,74 @@ a:visited {
     color: #C47147;
 }
 
+/* Navigation */
+#top_nav a.menu {
+    background: url('/images/arrow-desc.gif') bottom right no-repeat;
+    padding-right: 6px;
+}
+
+#top_nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+#top_nav > ul {
+    display: inline;
+}
+
+#top_nav > ul > li {
+    position: relative;
+    display: inline;    
+    border: 0;
+    padding-left: 5px;
+    background: url('/images/nav-left-bg.gif') center left no-repeat;
+}
+
+#top_nav > ul > li.first {
+    background-image: none;
+    padding-left: 0;
+}
+
+#top_nav ul ul {
+    height: auto;
+    width: auto;
+    border:1px solid #555555;
+    border-bottom-width: 1px;
+    border-right-width: 2px;
+    line-height: 18px;
+    background-color: #DDDDDD;
+    position: absolute;
+    top: 18px;
+    left: 0;
+    z-index: 200;
+    display:none;
+}
+
+#top_nav ul a {
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0;
+}
+
+#top_nav ul a:hover {
+    color: #555555;
+}
+
+#top_nav ul ul a {
+    border-bottom: 1px solid #555555;
+    padding: 1px 5px;
+    display: block;
+}
+
+#top_nav ul ul a:hover {
+    background-color: #FFFFFF;
+    color: #333333;
+}
+
+#top_nav ul li:hover ul {
+    display: block;
+}
+
 /* Form elements */
 button, input[type="submit"], input[type="button"] {
     color: #C47147;
@@ -162,34 +230,6 @@ tr.header2, td.header2 {
 
 .warn {
     color: #C47147;
-}
-
-.nav_menu_link {
-    visibility: hidden;
-    position: absolute;
-    border:1px solid #555555;
-    border-bottom-width: 1px;
-    border-right-width: 2px;
-    line-height: 18px;
-    z-index: 100;
-    width: 205px;
-    background-color: #DDDDDD;
-}
-
-.nav_menu_link a {
-    width: 100%;
-    display: block;
-    text-indent: 3px;
-    border-bottom: 1px solid #555555;
-    padding: 1px 0;
-    text-decoration: none;
-    font-weight: bold;
-    text-indent: 5px;
-}
-
-.nav_menu_link a:hover { 
-    background-color: #FFFFFF;
-    color: #333333;
 }
 
 .pass {

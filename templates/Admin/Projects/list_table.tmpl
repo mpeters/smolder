@@ -1,19 +1,35 @@
 [% IF projects %]
 <table class="boxed crud" id="project_list">
+
+<colgroup>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+</colgroup>
+
 <tr>
-  <th>Project Name</th>
+  <th>Name</th>
   <th>Start Date</th>
+  <th>Data Feed?</th>
   <th>Public?</th>
   <th>Edit</th>
   <th>Delete</th>
 </tr>
 [% FOREACH project IN projects %]
   <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
-    <td width="150px">[% project.name | html %]</td>
-    <td width="100px">[% project.start_date.strftime('%d/%m/%Y') %]</td>
-    <td width="50px">[% IF project.public %]Yes[% ELSE %]No[% END %]</td>
-    <td width="50px"><a href="/app/admin_projects/edit/[% project.id %]" class="edit_trigger for_item_[% project.id %]" id="crud_edit_[% project.id %]">[Edit]</a></td>
-    <td width="60px">
+    <td>[% project.name | html %]</td>
+    <td style="text-align: center">[% project.start_date.strftime('%d/%m/%Y') %]</td>
+    <td style="text-align: center">[% IF project.enable_feed %]Yes[% ELSE %]No[% END %]</td>
+    <td style="text-align: center">[% IF project.public %]Yes[% ELSE %]No[% END %]</td>
+    <td style="text-align: center">
+      <a href="/app/admin_projects/edit/[% project.id %]" class="edit_trigger for_item_[% project.id %]" id="crud_edit_[% project.id %]">
+        [Edit]
+      </a>
+    </td>
+    <td style="text-align: center">
       <a href="#" class="delete_trigger for_item_[% project.id %]">[Delete]</a>
       <div class="popup_form" id="delete_[% project.id %]" style="display:none; position: absolute; width: 240px; right: 100px">
       <form id="delete_form_[% project.id %]" name="delete_[% project.id %]" action="/app/admin_projects/delete/[% project.id %]" method="post">

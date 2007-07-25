@@ -3,47 +3,49 @@
 [% SET username = c.developer.guest ? '' : c.developer.username %]
 
 <div id="top_nav">[ 
+  <ul>
 [% IF username %]
-    [% username %] |
-    <a href="/app/developer_projects"[% IF projects %] id="my_projects_menu_trigger" class="dropdownmenu"[% END %]>my projects</a> |
-    <a href="/app/developer_prefs">prefs</a> |
+    <li class="first">[% username %]</li>
+    <li>
+      <a href="/app/developer_projects"[% IF projects %] class="menu"[% END %]>my projects</a>
+      [% IF projects %]
+      <ul>
+      [% FOREACH proj = projects %]
+        <li><a href="/app/developer_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a></li>
+      [% END %]
+      </ul>
+      [% END %]
+    </li>
+    <li><a href="/app/developer_prefs">prefs</a></li>
 [% END %]
-
 
 [% IF c.developer.admin %]
-    <a href="/app/admin" id="admin_menu_trigger" class="dropdownmenu">admin</a> |
+    <li>
+      <a href="/app/admin" class="menu">admin</a>
+      <ul>
+        <li><a href="/app/admin_developers">developers</a></li>
+        <li><a href="/app/admin_projects">projects</a></li>
+      </ul>
+    </li>
 [% END %]
 
 [% IF public_projects.size %]
-    <a href="/app/public_projects" id="public_projects_menu_trigger" class="dropdownmenu">public projects</a> |
+    <li[% UNLESS username %] class="first"[% END %]>
+      <a href="/app/public_projects"[% IF public_projects.size %] class="menu"[% END %]>public projects</a>
+      <ul>
+      [% FOREACH proj = c.public_projects %]
+        <li><a href="/app/public_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a></li>
+      [% END %]
+      </ul>
+    </li>
 [% END %]
 
 [% IF username %]
-    <a href="/app/public_auth/logout">logout</a>
+    <li><a href="/app/public_auth/logout">logout</a></li>
 [% ELSE %]
-    <a href="/app/public_auth/login">login</a>
+    <li><a href="/app/public_auth/login">login</a></li>
 [% END %]
 ]
+  </ul>
 </div>
-
-<!-- EXTRA MENU OPTIONS -->
-<div id="admin_menu" class="nav_menu_link">
-  <a href="/app/admin_developers">developers</a>
-  <a href="/app/admin_projects">projects</a>
-</div>
-[% IF projects %]
-<div id="my_projects_menu" class="nav_menu_link">
-[% FOREACH proj = projects %]
-  <a href="/app/developer_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a>
-[% END %]
-</div>
-[% END %]
-[% IF public_projects.size %]
-<div id="public_projects_menu" class="nav_menu_link">
-[% FOREACH proj = c.public_projects %]
-  <a href="/app/public_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a>
-[% END %]
-</div>
-[% END %]
-<!-- END EXTRA MENU OPTIONS -->
 

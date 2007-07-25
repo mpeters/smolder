@@ -1,11 +1,4 @@
 var myrules = {
-    '#top_nav a.dropdownmenu' : function(element) {
-        var menuId = element.id.replace(/_trigger$/, '');
-        element.onmouseover = function(event) {
-            dropdownmenu(element, event, menuId);
-        };
-    },
-
     'a.calendar_trigger'  : function(element) {
         // remove a possible previous calendar
         if( element.calendar != null )
