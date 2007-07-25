@@ -69,7 +69,7 @@ body {
 }
 
 #message_container {
-    width: 250px;
+    width: 350px;
     position: fixed;
     right: 180px;
     top: 60px;
@@ -80,10 +80,10 @@ body {
     border: 1px dotted #e1b856;
     border-bottom: 2px solid #777777;
     border-right: 2px solid #777777;
-    padding: 5px;
+    padding: 10px;
     padding-left: 30px;
     margin-bottom: 10px;
-    font-size: 10pt;
+    font-size: 11pt;
 }
 
 #message_container div.info {

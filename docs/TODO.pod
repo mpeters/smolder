@@ -4,6 +4,11 @@
 
 =over
 
+=item *
+
+Graphing of execution times over time. When combined with a graph of the
+number of tests run it can show when performance regressions have entered.
+
 =item * 
 
 Tracking of individual tests. This would provide a view that let's

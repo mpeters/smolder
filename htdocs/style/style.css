@@ -119,51 +119,33 @@ p.pushdown {
     color: #555555;
 }
 
-.boxed, .boxed_simple {
+.boxed {
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
     border-right: 1px solid #555555;
     border-bottom: 1px solid #555555;
     background: #FFFFFF;
     padding: 3px;
-    float:left;
     width: 720px;
     margin-bottom: 0px;
-}
-
-.boxed_simple {
-    border-right: 1px solid #555555;
-    border-bottom: 1px solid #555555;
 }
 
 table.short, div.short {
     width: 400px;
 }
 
-div.boxed_right {
-    background: transparent url('/images/boxed-bg-right.png') repeat-y; 
-    float:left; 
-    width:5px; 
-    margin-bottom: 0px;
-}
-
-div.boxed_bottom {
-    background: transparent url('/images/boxed-bg-bottom.png') repeat-x right; 
-    float:left; 
-    height:5px; 
-    margin-bottom: 8px;
-}
 
 th, td {
     vertical-align: top;
 }
 
-tr.header, td.header {
+th { 
     background-color: #C47147;
     background-image: url('/images/h3_bg.gif');
     background-repeat: repeat-x;
     color: #FFFFFF;
     font-weight: bold;
+    text-align: center;
 }
 
 tr.header2, td.header2 {
@@ -462,14 +444,14 @@ table.crud {
     width: 720px;
 }
 
-div.crud_header {
+div.crud .header {
     width: 710px;
     padding-bottom: 3px;
     text-align: right;
     vertical-align: middle;
 }
 
-div.crud_header a {
+div.crud .header a {
     background-image: url('/images/new.png');
     background-position: right;
     background-repeat: no-repeat;
@@ -477,6 +459,11 @@ div.crud_header a {
     text-decoration: none;
     font-weight: bold;
 }
+
+div.crud .add_container {
+    margin: 10px 0;
+}
+
 
 /* Notify styles */
 #NotifyAlertWrap{

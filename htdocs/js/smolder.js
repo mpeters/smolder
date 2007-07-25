@@ -101,12 +101,40 @@ Smolder.ajax_form_submit = function(args) {
             }
         }
     );
-    args['form_disabled_inputs'] = disabled;
+    args['form_disabled_inputs'] = Smolder.disable_form(form);
 
 
     // now submit this normally
     Smolder.ajax_submit(args);
 };
+
+Smolder.disable_form = function(form) {
+    // disable all of the inputs of this form that
+    // aren't already and remember which ones we disabled
+    var disabled = [];
+    $A(form.elements).each(
+        function(input, i) { 
+            if( !input.disabled ) {
+                disabled.push(input.name);
+                input.disabled = true;
+            }
+        }
+    );
+    return disabled;
+};
+
+Smolder.reenable_form = function(form, inputs) {
+    // if we have a form, enable all of the inputs
+    // that we disabled
+    if( form && inputs.length > 0 ) {
+        $A(inputs).each(
+            function(name, i) {
+                if( name && form.elements[name] )
+                    form.elements[name].disabled = false;
+            }
+        );
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION: Smolder.ajax_submit
@@ -172,15 +200,7 @@ Smolder.ajax_submit = function(args) {
 
                 // if we have a form, enable all of the inputs
                 // that we disabled
-                if( args['form'] && args['form_disabled_inputs'].length > 0 ) {
-                    var form = args['form'];
-                    $A(args['form_disabled_inputs']).each(
-                        function(name, i) {
-                            if( name && form.elements[name] )
-                                form.elements[name].disabled = false;
-                        }
-                    );
-                }
+                Smolder.reenable_form(args.form, args.form_disabled_inputs);
 
                 // hide the indicator
                 Smolder.hide_indicator(indicator);

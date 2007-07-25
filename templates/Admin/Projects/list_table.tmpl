@@ -1,11 +1,11 @@
 [% IF projects %]
 <table class="boxed crud" id="project_list">
-<tr class="header">
-  <td>Project Name</td>
-  <td>Start Date</td>
-  <td>Public?</td>
-  <td>Edit</td>
-  <td>Delete</td>
+<tr>
+  <th>Project Name</th>
+  <th>Start Date</th>
+  <th>Public?</th>
+  <th>Edit</th>
+  <th>Delete</th>
 </tr>
 [% FOREACH project IN projects %]
   <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">

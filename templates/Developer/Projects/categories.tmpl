@@ -4,9 +4,9 @@
 [% IF c.dfv_msgs.any_errors || err_duplicate_category %]
 <script type="text/javascript">
   [% IF c.dfv_msgs.invalid_category %]
-    show_message('warning', 'Category name must be under 255 characters.');
+    Smolder.show_message('warning', 'Category name must be under 255 characters.');
   [% ELSIF err_duplicate_category %]
-    show_message('warning', 'A category with that name already exists for this project.');
+    Smolder.show_message('warning', 'A category with that name already exists for this project.');
   [% END %]
 </script>
 [% END %]

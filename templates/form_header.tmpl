@@ -4,7 +4,7 @@
 </p>
     [% IF c.dfv_msgs.any_errors && c.dfv_msgs.has_missing %]
     <script type="text/javascript">
-        show_message('warning', 'Please fill in the missing required fields.');
+        Smolder.show_message('warning', 'Please fill in the missing required fields.');
     </script>
     [% END %]
 [% END %]

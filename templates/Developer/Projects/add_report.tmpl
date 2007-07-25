@@ -18,24 +18,24 @@
 [% IF c.dfv_msgs.any_errors %]
 <script type="text/javascript">
   [% IF c.dfv_msgs.err_architecture %]
-    show_message('warning', 'Architecture must be less than 255 characters.');
+    Smolder.show_message('warning', 'Architecture must be less than 255 characters.');
   [% END %]
   [% IF c.dfv_msgs.err_platform %]
-    show_message('warning', 'Platform must be less than 255 characters.');
+    Smolder.show_message('warning', 'Platform must be less than 255 characters.');
   [% END %]
   [% IF err_valid_file || c.dfv_msgs.err_report_file %] 
     [% IF error_valid_xml %]
-        show_message('warning', 'Was not a valid XML smoke test report.');
+        Smolder.show_message('warning', 'Was not a valid XML smoke test report.');
     [% ELSIF error_valid_yaml %]
-        show_message('warning', 'Was not a valid YAML smoke test report.');
+        Smolder.show_message('warning', 'Was not a valid YAML smoke test report.');
     [% ELSIF c.dfv_msgs.missing_report_file %]
-        show_message('warning', 'You must upload a smoke test report.');
+        Smolder.show_message('warning', 'You must upload a smoke test report.');
     [% ELSIF c.dfv_msgs.invalid_report_file %]
-        show_message('warning', 'Uploaded file was not the correct content type.');
+        Smolder.show_message('warning', 'Uploaded file was not the correct content type.');
     [% END %]
   [% END %]
   [% IF c.dfv_msgs.err_comments %]
-    show_message('warning', 'Comments must be less than 1000 characters.');
+    Smolder.show_message('warning', 'Comments must be less than 1000 characters.');
   [% END %]
 </script>
 [% END %]

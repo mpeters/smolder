@@ -7,13 +7,13 @@
 [% IF c.dfv_msgs.any_errors %]
 <script type="text/javascript">
   [% IF c.dfv_msgs.invalid_current_pw %]
-    show_message('warning', 'Your Current Password does not match what we have on file.');
+    Smolder.show_message('warning', 'Your Current Password does not match what we have on file.');
   [% END %]
   [% IF c.dfv_msgs.invalid_new_pw %]
-    show_message('warning', 'Your New Password must be at least 4 characters long.');
+    Smolder.show_message('warning', 'Your New Password must be at least 4 characters long.');
   [% END %]
   [% IF c.dfv_msgs.invalid_new_pw_retyped %]
-    show_message('warning', 'Your 2nd New Password does not match the 1st'); 
+    Smolder.show_message('warning', 'Your 2nd New Password does not match the 1st'); 
   [% END %]
 </script>
 [% END %]
