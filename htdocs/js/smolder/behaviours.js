@@ -114,54 +114,6 @@ var myrules = {
         Smolder.makeFormAjaxable(element);
     },
 
-    'div.draggable_developer' : function(element) {
-        new Draggable(element.id, {revert:true, ghosting: true})
-    },
-
-    'div.draggable_project_developer' : function(element) {
-        new Draggable(element.id, {revert:true})
-    },
-
-    'div.droppable_project' : function(element) {
-        Droppables.add(
-            element.id,
-            {
-                accept      : 'draggable_developer',
-                hoverclass  : 'droppable_project_active',
-                onDrop      : function(developer) {
-                    var dev_id = developer.id.replace(/^developer_/, '');
-                    var proj_id = element.id.replace(/^project_/, '');
-                    var url = "/app/admin_projects/add_developer?ajax=1&project=" 
-                        + proj_id + "&developer=" + dev_id;
-                    Smolder.Ajax.update({
-                        url    : url,
-                        target : "project_container_" + proj_id
-                    });
-                }
-            }
-        );
-    },
-
-    '#droppable_trash_can' : function(element) {
-        Droppables.add(
-            element.id,
-            {
-                accept      : 'draggable_project_developer',
-                hoverclass  : 'active',
-                onDrop      : function(project_developer) {
-                    var matches = project_developer.id.match(/project_(\d+)_developer_(\d+)/);
-                    var url = "/app/admin_projects/remove_developer?ajax=1&project=" 
-                        + matches[1] + "&developer=" + matches[2];
-                    Smolder.Ajax.update({
-                        url    : url,
-                        target : "project_container_" + matches[1] 
-                    });
-                    Element.hide(project_developer);
-                }
-            }
-        );
-    },
-
     'div.accordion' : function(element) {
         // determine the height for each panel
         // this is taken from a class whose name is "at_$height"
