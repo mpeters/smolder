@@ -500,8 +500,8 @@ div.crud .header a {
     font-weight: bold;
 }
 
-div.crud .add_container {
-    margin: 10px 0;
+div.crud .list_container {
+    margin-top: 10px;
 }
 
 

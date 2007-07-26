@@ -13,11 +13,11 @@ var myrules = {
                 Effect.BlindUp(targetId, { duration: .5 });
             } else {
                 $(indicator).style.visibility = 'visible';
-                ajax_submit({
-                    url: el.href,
-                    div: targetId,
-                    indicator: 'none',
-                    onComplete: function() {
+                Smolder.Ajax.update({
+                    url        : el.href,
+                    target     : targetId,
+                    indicator  : 'none',
+                    onComplete : function() {
                         window.setTimeout(function() { $(indicator).style.visibility = 'hidden'}, 200);
                         Effect.BlindDown(
                             targetId,
@@ -61,9 +61,9 @@ var myrules = {
                     var div = $('testfile_details_' + index);
                     indicator.style.visibility = 'visible';
                     
-                    ajax_submit({
+                    Smolder.Ajax.update({
                         url        : $('for_testfile_details_' + index).href,
-                        div        : div,
+                        target     : div,
                         indicator  : 'none',
                         onComplete : function() {
                             Element.show(div);

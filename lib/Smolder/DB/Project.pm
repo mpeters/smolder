@@ -169,14 +169,21 @@ Removes the 'admin' flag from any Developers associated with this Project.
 =cut
 
 sub clear_admins {
-    my $self = shift;
-    my $sth  = $self->db_Main->prepare_cached(
-        qq(
-        UPDATE project_developer SET admin = 0
-        WHERE project_developer.project = ?
-    )
-    );
-    $sth->execute( $self->id );
+    my ($self, @admins) = @_;
+    my $sth;
+    if( @admins ) {
+        my $place_holders = join( ', ', ('?') x scalar @admins );
+        $sth = $self->db_Main->prepare_cached(qq(
+            UPDATE project_developer SET admin = 0
+            WHERE project = ? AND developer IN ($place_holders)
+        ));
+    } else {
+        $sth  = $self->db_Main->prepare_cached(qq(
+            UPDATE project_developer SET admin = 0
+            WHERE project_developer.project = ?
+        ));
+    }
+    $sth->execute($self->id, @admins);
 }
 
 =head3 set_admins
@@ -187,7 +194,7 @@ to be an admin of the Project.
 =cut
 
 sub set_admins {
-    my ( $self, @admins ) = @_;
+    my ($self, @admins) = @_;
     my $place_holders = join( ', ', ('?') x scalar @admins );
     my $sql           = qq(
         UPDATE project_developer SET admin = 1

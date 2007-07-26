@@ -32,7 +32,7 @@ var myrules = {
             if( matches != null )
                 offset = matches[2];
             $('smoke_reports').elements['offset'].value = offset;
-            Smolder.ajax_form_submit({
+            Smolder.Ajax.form_update({
                 form      : $('smoke_reports'),
                 indicator : 'paging_indicator'
             });
@@ -133,9 +133,9 @@ var myrules = {
                     var proj_id = element.id.replace(/^project_/, '');
                     var url = "/app/admin_projects/add_developer?ajax=1&project=" 
                         + proj_id + "&developer=" + dev_id;
-                    Smolder.ajax_submit({
-                        url : url,
-                        div : "project_container_" + proj_id
+                    Smolder.Ajax.update({
+                        url    : url,
+                        target : "project_container_" + proj_id
                     });
                 }
             }
@@ -152,9 +152,9 @@ var myrules = {
                     var matches = project_developer.id.match(/project_(\d+)_developer_(\d+)/);
                     var url = "/app/admin_projects/remove_developer?ajax=1&project=" 
                         + matches[1] + "&developer=" + matches[2];
-                    Smolder.ajax_submit({
-                        url : url,
-                        div : "project_container_" + matches[1] 
+                    Smolder.Ajax.update({
+                        url    : url,
+                        target : "project_container_" + matches[1] 
                     });
                     Element.hide(project_developer);
                 }
@@ -246,9 +246,9 @@ var myrules = {
         element.onclick = function() {
             var form = $('update_pref');
             form.elements['sync'].value = 1;
-            Smolder.ajax_form_submit({ 
-                form : form,
-                div  : 'developer_prefs'
+            Smolder.Ajax.form_update({ 
+                form   : form,
+                target : 'developer_prefs'
             });
         };
     },

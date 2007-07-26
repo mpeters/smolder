@@ -71,9 +71,9 @@ Object.extend(Smolder.CRUD.prototype, {
         this.add_shown  = false;
     },
     show_add: function() {
-        Smolder.ajax_submit({
+        Smolder.Ajax.update({
             url        : this.add_trigger.href,
-            div        : this.add_container.id,
+            target     : this.add_container.id,
             indicator  : this.indicator,
             onComplete : function(args) {
                 if( !this.add_shown ) {
@@ -102,9 +102,9 @@ Object.extend(Smolder.CRUD.prototype, {
         if( itemId == null ) 
             return;
 
-        Smolder.ajax_submit({
+        Smolder.Ajax.update({
             url        : trigger.href,
-            div        : this.add_container.id,
+            target     : this.add_container.id,
             indicator  : this.indicator,
             onComplete : function() {
                 if( !this.add_shown ) {
@@ -129,10 +129,10 @@ Object.extend(Smolder.CRUD.prototype, {
         // set the onsubmit handler for the form in this popup
         var form = $('delete_form_' + itemId);
         form.onsubmit = function() {
-            Smolder.ajax_submit({
-                url: form.action,
-                div: this.list_container.id,
-                indicator: 'delete_indicator_' + itemId,
+            Smolder.Ajax.update({
+                url        : form.action,
+                target     : this.list_container.id,
+                indicator  : 'delete_indicator_' + itemId,
                 onComplete : function() {
                     this.refresh();
                 }.bindAsEventListener(this)
@@ -148,9 +148,9 @@ Object.extend(Smolder.CRUD.prototype, {
 
         // find the add_inidicator
         var indicator = document.getElementsByClassName('add_indicator', this.add_container)[0].id;
-        Smolder.ajax_form_submit({
+        Smolder.Ajax.form_update({
             form       : form,
-            div        : this.add_container.id,
+            target     : this.add_container.id,
             indicator  : indicator,
             onComplete : function(args) {
                 // if the submission changed the list
@@ -170,9 +170,9 @@ Object.extend(Smolder.CRUD.prototype, {
         });
     },
     update_list: function () {
-        Smolder.ajax_submit({
+        Smolder.Ajax.update({
             url       : this.list_url,
-            div       : this.list_container.id,
+            target    : this.list_container.id,
             indicator : this.indicator,
             onComplete: function () {
                 // refresh this CRUD since we know have new content

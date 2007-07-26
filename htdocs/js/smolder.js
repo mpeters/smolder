@@ -1,6 +1,10 @@
 var Smolder = {};
 
-Smolder.load = function(target) {
+Smolder.load = function(target, json) {
+    if(! json) json = {};
+    // update the navigation if we need to
+    if( json.update_nav ) Smolder.update_nav();
+
     // apply our registered behaviours
     Behaviour.apply(target);
 
@@ -11,8 +15,8 @@ Smolder.load = function(target) {
         if( code ) code();
     }
 
-    // show messages that have been added
-    Smolder.show_messages();
+    // show any messages we got
+    Smolder.show_messages(json);
 };
 
 /*
@@ -66,29 +70,143 @@ Smolder.Cookie.set = function(name, value) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 Smolder.update_nav = function(){
-    Smolder.ajax_submit({
-        url : '/app/public/nav',
-        div : 'nav'
+    Smolder.Ajax.update({
+        url    : '/app/public/nav',
+        target : 'nav'
     });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTION: Smolder.ajax_form_submit
+// FUNCTION: Smolder.Ajax.request
+// takes the following named args
+// url       : the full url of the request (required)
+// parmas    : an object of query params to send along
+// indicator : the id of the image to use as an indicator (optional defaults to 'indicator')
+// onComplete: a call back function to be executed after the normal processing (optional)
+//              Receives as arguments, the same args passed into Smolder.Ajax.update
+//
+//  Smolder.Ajax.request({
+//      url        : '/app/some_mod/something',
+//      params     : { foo: 1, bar: 2 },
+//      indicator  : 'add_indicator',
+//      onComplete : function(args) {
+//          // do something
+//      }
+//  });
+///////////////////////////////////////////////////////////////////////////////////////////////////
+Smolder.Ajax = {};
+Smolder.Ajax.request = function(args) {
+    var url       = args.url;
+    var params    = args.params || {};
+    var indicator = args.indicator;
+    var complete  = args.onComplete || Prototype.emptyFunction;;
+
+    // tell the user that we're doing something
+    Smolder.show_indicator(indicator);
+
+    // add the ajax=1 flag to the existing query params
+    params.ajax = 1;
+
+    new Ajax.Request(
+        url,
+        {
+            parameters  : params,
+            asynchronous: true,
+            evalScripts : true,
+            onComplete : function(request, json) {
+                Smolder.show_messages(json);
+
+                // hide the indicator
+                Smolder.hide_indicator(indicator);
+
+                // do whatever else the caller wants
+                args.request = request;
+                args.json    = json;
+                complete(args);
+            },
+            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            onFailure: function(request) { Smolder.show_error() }
+        }
+    );
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FUNCTION: Smolder.Ajax.update
+// takes the following named args
+// url       : the full url of the request (required)
+// parmas    : an object of query params to send along
+// target    : the id of the element receiving the contents (optional defaults to 'content')
+// indicator : the id of the image to use as an indicator (optional defaults to 'indicator')
+// onComplete: a call back function to be executed after the normal processing (optional)
+//              Receives as arguments, the same args passed into Smolder.Ajax.update
+//
+//  Smolder.Ajax.update({
+//      url        : '/app/some_mod/something',
+//      params     : { foo: 1, bar: 2 },
+//      target     : 'div_id',
+//      indicator  : 'add_indicator',
+//      onComplete : function(args) {
+//          // do something
+//      }
+//  });
+///////////////////////////////////////////////////////////////////////////////////////////////////
+Smolder.Ajax.update = function(args) {
+    var url       = args.url;
+    var params    = args.params || {};
+    var target    = args.target;
+    var indicator = args.indicator;
+    var complete  = args.onComplete || Prototype.emptyFunction;;
+
+    // tell the user that we're doing something
+    Smolder.show_indicator(indicator);
+
+    // add the ajax=1 flag to the existing query params
+    params.ajax = 1;
+
+    // the default target
+    if( target == null || target == '' )
+        target = 'content';
+
+    new Ajax.Updater(
+        { success : target },
+        url,
+        {
+            parameters  : params,
+            asynchronous: true,
+            evalScripts : true,
+            onComplete : function(request, json) {
+                Smolder.load(target, json);
+
+                // hide the indicator
+                Smolder.hide_indicator(indicator);
+
+                // do whatever else the caller wants
+                args.request = request;
+                args.json    = json;
+                complete(args);
+            },
+            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            onFailure: function(request) { Smolder.show_error() }
+        }
+    );
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FUNCTION: Smolder.Ajax.form_update
 // takes the following named args
 // form      : the form object (required)
 // 
-// All other arguments are passed to the underlying Smolder.ajax_submit() call
+// All other arguments are passed to the underlying Smolder.Ajax.update() call
 //
-//  Smolder.ajax_form_submit({
-//      form: formObj,
-//      div : 'div_name'
+//  Smolder.Ajax.form_update({
+//      form   : formObj,
+//      target : 'div_id'
 //  });
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-Smolder.ajax_form_submit = function(args) {
-    var form = args['form'];
-    var url = form.action;
-    var queryParams = Form.serialize(form);
-    args['url'] = url + "?" + queryParams;
+Smolder.Ajax.form_update = function(args) {
+    var form    = args.form;
+    args.url    = form.action;
+    args.params = Form.serialize(form, true);
 
     // disable all of the inputs of this form that
     // aren't already and remember which ones we disabled
@@ -101,11 +219,19 @@ Smolder.ajax_form_submit = function(args) {
             }
         }
     );
-    args['form_disabled_inputs'] = Smolder.disable_form(form);
+    form_disabled_inputs = Smolder.disable_form(form);
+    args.onComplete = function() {
+        // reset which forms are open
+        Smolder._shownPopupForm = '';
+        Smolder._shownForm = '';
 
+        // if we have a form, enable all of the inputs
+        // that we disabled
+        Smolder.reenable_form(form, form_disabled_inputs);
+    };
 
     // now submit this normally
-    Smolder.ajax_submit(args);
+    Smolder.Ajax.update(args);
 };
 
 Smolder.disable_form = function(form) {
@@ -135,86 +261,6 @@ Smolder.reenable_form = function(form, inputs) {
         );
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTION: Smolder.ajax_submit
-// takes the following named args
-// url       : the full url of the request (required)
-// div       : the id of the div receiving the contents (optional defaults to 'content')
-// indicator : the id of the image to use as an indicator (optional defaults to 'indicator')
-// onComplete: a call back function to be executed after the normal processing (optional)
-//              Receives as arguments, the same args passed into ajax_submit
-//
-//  Smolder.ajax_submit({
-//      url        : '/app/some_mod/something',
-//      div        : 'div_name',
-//      indicator  : 'add_indicator',
-//      onComplete : function(args) {
-//          // do something
-//      }
-//  });
-///////////////////////////////////////////////////////////////////////////////////////////////////
-Smolder.ajax_submit = function(args) {
-    var url       = args['url'];
-    var div       = args['div'];
-    var indicator = args['indicator'];
-    var complete  = args['onComplete'] || Prototype.emptyFunction;;
-
-    // tell the user that we're doing something
-    Smolder.show_indicator(indicator);
-
-    // add the ajax=1 flag to the existing query params
-    var url_parts = url.split("?");
-    var query_params;
-    if( url_parts[1] == null || url_parts == '' ) {
-        query_params = 'ajax=1'
-    } else {
-        query_params = url_parts[1] + '&ajax=1'
-    }
-
-    // the default div
-    if( div == null || div == '' )
-        div = 'content';
-
-    new Ajax.Updater(
-        { success : div },
-        url_parts[0],
-        {
-            parameters  : query_params,
-            asynchronous: true,
-            evalScripts : true,
-            onComplete : function(request, json) {
-                if(! json) json = {};
-                // show any messages we got
-                Smolder.show_messages(json);
-
-                // update the navigation if we need to
-                if( json.update_nav ) Smolder.update_nav();
-
-                // reapply any dynamic bits
-                Behaviour.apply(div);
-
-                // reset which forms are open
-                shownPopupForm = '';
-                shownForm = '';
-
-                // if we have a form, enable all of the inputs
-                // that we disabled
-                Smolder.reenable_form(args.form, args.form_disabled_inputs);
-
-                // hide the indicator
-                Smolder.hide_indicator(indicator);
-
-                // do whatever else the user wants
-                args.request = request;
-                args.json    = json;
-                complete(args);
-            },
-            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
-            onFailure: function(request) { Smolder.show_error() }
-        }
-    );
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,19 +294,20 @@ Smolder.new_accordion = function(element_name, height) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-Smolder.shownPopupForm = '';
+Smolder._shownPopupForm = '';
+Smolder._shownForm = '';
 Smolder.togglePopupForm = function(formId) {
 
     // first turn off any other forms showing of this type
-    if( Smolder.shownPopupForm != '' && $(Smolder.shownPopupForm) != null ) {
-        new Effect.SlideUp( Smolder.shownPopupForm, { duration: .5 } );
+    if( Smolder._shownPopupForm != '' && $(Smolder._shownPopupForm) != null ) {
+        new Effect.SlideUp( Smolder._shownPopupForm, { duration: .5 } );
     }
 
-    if( Smolder.shownPopupForm == formId ) {
-        Smolder.shownPopupForm = '';
+    if( Smolder._shownPopupForm == formId ) {
+        Smolder._shownPopupForm = '';
     } else {
         new Effect.SlideDown(formId, { duration: .5 });
-        Smolder.shownPopupForm = formId;
+        Smolder._shownPopupForm = formId;
     }
     return false;
 }
@@ -314,12 +361,11 @@ Smolder.toggleSmokeValid = function(form) {
     var divId = "smoke_test_" + smokeId;
     
     // we are currently not showing any other forms
-    // XXX - this is a global... probably not the best way to do this
-    shownForm = '';
+    Smolder._shownForm = '';
     
-    Smolder.ajax_form_submit({
+    Smolder.Ajax.form_update({
         form      : form, 
-        div       : divId, 
+        target    : divId, 
         indicator : trigger + "_indicator"
     });
 }
@@ -337,11 +383,11 @@ Smolder.newSmokeReportWindow = function(url) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 Smolder.makeFormAjaxable = function(element) {
-    // find which div it targets
-    var divId;
+    // find which element it targets
+    var target;
     var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
     if( matches != null )
-        divId = matches[2];
+        target = matches[2];
 
     // find which indicator it uses
     var indicatorId;
@@ -350,9 +396,9 @@ Smolder.makeFormAjaxable = function(element) {
         indicatorId = matches[2];
 
     element.onsubmit = function(event) {
-        Smolder.ajax_form_submit({
+        Smolder.Ajax.form_update({
             form      : element, 
-            div       : divId, 
+            target    : target, 
             indicator : indicatorId
         });
         return false;
@@ -362,12 +408,12 @@ Smolder.makeFormAjaxable = function(element) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 Smolder.makeLinkAjaxable = function(element) {
-    var divId;
+    var target;
 
-    // find which div it targets
+    // find which target it targets
     var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
     if( matches != null )
-        divId = matches[2];
+        target = matches[2];
 
     // find which indicator it uses
     var indicatorId;
@@ -376,9 +422,9 @@ Smolder.makeLinkAjaxable = function(element) {
         indicatorId = matches[2];
 
     element.onclick = function(event) {
-        Smolder.ajax_submit({
+        Smolder.Ajax.update({
             url       : element.href, 
-            div       : divId, 
+            target    : target, 
             indicator : indicatorId
         });
         return false;

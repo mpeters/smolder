@@ -1078,7 +1078,7 @@ sub build_params {
         } elsif (/^\s*dbplatforms\s+["']?([^'"]+)/i) {
             @db_plats = split( /,\s*/, $1 );
         } elsif (/^\s*dev\s+["']?([^'"]+)/i) {
-            $dev = 1;
+            $dev = $1;
         }
     }
     close DB;

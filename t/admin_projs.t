@@ -16,15 +16,15 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 89 );
+    plan( tests => 87 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $mech  = Smolder::Mech->new();
-my $url   = base_url() . '/admin_projects';
-my $pw    = 's3cr3t';
-my $admin = create_developer( admin => 1, password => $pw );
+my $mech     = Smolder::Mech->new();
+my $BASE_URL = base_url() . '/admin_projects';
+my $pw       = 's3cr3t';
+my $admin    = create_developer( admin => 1, password => $pw );
 END { delete_developers() }
 my %data = (
     project_name => "Im A Test Project",
@@ -40,7 +40,7 @@ use_ok('Smolder::Control::Admin::Projects');
 # 2..5
 $mech->login( username => $admin->username, password => $pw );
 ok( $mech->success );
-$mech->get_ok($url);
+$mech->get_ok($BASE_URL);
 $mech->content_contains('Admin');
 $mech->content_contains('Projects');
 
@@ -98,7 +98,7 @@ $mech->content_contains('Projects');
 # 22..26
 # details
 {
-    $mech->get_ok("$url/details/$proj");
+    $mech->get_ok("$BASE_URL/details/$proj");
     $mech->content_contains( $proj->name );
     $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*No\s*|);
@@ -119,9 +119,9 @@ $mech->content_contains('Projects');
 
     # invalid form
     my $other_proj = create_project();
-    my $uri        = base_url() . '/admin_projects/process_add/' . $proj->id;
+    my $url        = "$BASE_URL/process_add/$proj";
     my $request    = HTTP::Request::Common::POST(
-        $uri,
+        $url,
         {
             project_name => $other_proj->name,
             start_date   => '01/01/06',
@@ -148,38 +148,38 @@ $mech->content_contains('Projects');
     $mech->submit();
     ok( $mech->success );
     $mech->contains_message("Project '$new_data{project_name}' successfully updated");
-    $mech->get_ok("$url/details/$proj");
+    $mech->get_ok("$BASE_URL/details/$proj");
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*Yes\s*|);
     $mech->content_like(qr|Data Feeds[^<]*</label>\s*</td>\s*<td>\s*Yes\s*|);
 }
 
-# 44..48
+# 44..47
 # list
 {
     $mech->follow_link_ok( { text => 'All Projects' } );
     $mech->content_contains( $proj->name );
-    $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
     $mech->content_contains('Yes');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 49..84
-# add_developer, change_admins and remove_developer
+# 48..82
+# devs, add_dev, change_admin and remove_dev
 {
 
-    # first 'add_developer'
-    $mech->get_ok("$url/list");
-    $mech->follow_link_ok( { text => 'Add Developers to Projects' } );
+    # first 'devs'
+    $mech->get_ok("$BASE_URL/devs/$proj");
+    $mech->content_contains('No developers are currently assigned to this project');
+
     my $dev1 = create_developer();
     my $dev2 = create_developer();
     my $dev3 = create_developer();
-    my $uri  = base_url() . '/admin_projects/add_developer';
+    my $url  = "$BASE_URL/add_dev";
 
     # add admin, dev1, dev2 and dev3 to proj
     # and try to add dev1 twice to make sure it doesn't cause an error
     foreach my $developer ( $admin, $dev1, $dev2, $dev3, $dev1 ) {
         my $request = HTTP::Request::Common::POST(
-            $uri,
+            $url,
             {
                 project   => $proj->id,
                 developer => $developer->id,
@@ -197,49 +197,43 @@ $mech->content_contains('Projects');
     }
 
     # make sure that all are listed under this proj's details
-    $mech->follow_link_ok( { text => $proj->name, url_regex => qr/admin_projects\/details/ } );
+    $mech->get_ok("$BASE_URL/details/$proj");
     $mech->content_contains( $proj->name );
     $mech->content_contains( $dev1->username );
     $mech->content_contains( $dev2->username );
     $mech->content_contains( $dev3->username );
     $mech->follow_link_ok( { text => $dev1->username } );
 
-    # change admins
-    # set an initial admin
-    my $proj_dev1 = Smolder::DB::ProjectDeveloper->retrieve(
-        project   => $proj,
-        developer => $dev1,
-    );
-    $proj_dev1->admin(1);
-    $proj_dev1->update();
-    Smolder::DB->dbi_commit();
+    # get the admins for this project
+    my @admins = $proj->admins();
+    is(scalar @admins, 0, 'no admins currently');
 
     # set dev2 as the admin
-    $mech->get_ok( base_url() . "/admin_projects/change_admins/$proj?admin=$dev2" );
-    my $name = $dev1->username;
-    $mech->content_unlike(qr/$name\s+<span[^>]+>\(admin\)</m);
-    $name = $dev2->username;
-    $mech->content_like(qr/$name\s+<span[^>]+>\(admin\)</m);
-    $name = $dev3->username;
-    $mech->content_unlike(qr/$name\s+<span[^>]+>\(admin\)</m);
+    $mech->get_ok("$BASE_URL/change_admin?project=$proj&developer=$dev2");
+    @admins = $proj->admins();
+    is(scalar @admins, 1, 'now with 1 admin');
+    is($admins[0]->id, $dev2->id, 'dev2 is now an admin');
 
-    # set dev1 and dev3 as admins
-    $mech->get_ok( base_url() . "/admin_projects/change_admins/$proj?admin=$dev1&admin=$dev3" );
-    $name = $dev1->username;
-    $mech->content_like(qr/$name\s+<span[^>]+>\(admin\)</m);
-    $name = $dev2->username;
-    $mech->content_unlike(qr/$name\s+<span[^>]+>\(admin\)</m);
-    $name = $dev3->username;
-    $mech->content_like(qr/$name\s+<span[^>]+>\(admin\)</m);
-    my @admins = $proj->admins();
-    is( scalar @admins, 2 );
-    is( $admins[0]->id, $dev1->id );
-    is( $admins[1]->id, $dev3->id );
+    # set dev1 as an admin
+    $mech->get_ok("$BASE_URL/change_admin?project=$proj&developer=$dev1");
+    @admins = $proj->admins();
+    is(scalar @admins, 2, 'now with 2 admin');
+    is_deeply(
+        [ sort { $a->id <=> $b->id } @admins ],
+        [$dev1, $dev2],
+        '2 correct devs are now admins',
+    );
 
+    # now unset dev2 as an admin
+    $mech->get_ok("$BASE_URL/change_admin?project=$proj&developer=$dev2&remove=1");
+    @admins = $proj->admins();
+    is(scalar @admins, 1, 'now with 1 admin');
+    is($admins[0]->id, $dev1->id, 'dev1 is now the only admin');
+        
     # now remove_developer for $dev2
-    $uri = base_url() . '/admin_projects/remove_developer';
+    $url = "$BASE_URL/remove_dev";
     my $request = HTTP::Request::Common::POST(
-        $uri,
+        $url,
         {
             project   => $proj->id,
             developer => $dev2->id,
@@ -256,14 +250,14 @@ $mech->content_contains('Projects');
     ok( !defined $proj_dev );
 
     # make sure that dev2 is not listed under this proj's details
-    $mech->follow_link_ok( { text => $proj->name, url_regex => qr/admin_projects\/details/ } );
+    $mech->get_ok("$BASE_URL/details/$proj");
     $mech->content_contains( $proj->name );
     $mech->content_contains( $dev1->username );
     $mech->content_lacks( $dev2->username );
     $mech->content_contains( $dev3->username );
 }
 
-# 85..89
+# 83..87
 # delete
 {
     $mech->follow_link_ok( { text => 'All Projects' } );

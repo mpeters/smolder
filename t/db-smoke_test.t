@@ -90,11 +90,13 @@ is($report->total,      454, 'correct # of tests');
 is($report->duration,   208, 'correct duration');
 
 # now delete the leftover files
+my $data_dir = $report->data_dir;
+my $file = $report->file;
 $report->delete_files();
-ok( !-e $report->file, 'TAP tarball removed');
+ok( !-e $file, 'TAP tarball removed');
 ok( !-e $html_file, 'HTML file removed');
 for(0.. ($report->test_files -1)) {
-    ok(!-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ HTML has been removed");
+    ok(!-e catfile($data_dir, 'html', "$_.html"), "Test $_ HTML has been removed");
 }
-ok( !-d $report->data_dir, 'data directory removed');
+ok( !-d $data_dir, 'data directory removed');
 

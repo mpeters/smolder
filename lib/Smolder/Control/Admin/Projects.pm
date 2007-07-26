@@ -38,10 +38,10 @@ sub setup {
               list
               details
               delete
-              developers
-              add_developer
-              remove_developer
-              change_admins
+              devs
+              add_dev
+              remove_dev
+              change_admin
               )
         ]
     );
@@ -49,71 +49,90 @@ sub setup {
 
 =head1 RUN MODES
 
-=head2 change_admins 
+=head2 change_admin
 
-Change who is considered an C<admin> for a project. Clears out all
-of the old admins for a project and sets up new ones. Uses the
-F<Admin/Projects/project_container.tmpl> template.
+Change the project admin status for a developer within a project.
 
 =cut
 
-sub change_admins {
+sub change_admin {
     my $self    = shift;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
-    return $self->error_message("Project does not exist!")
-      unless ($project);
-    my @admins = $self->query->param('admin');
+    my $query   = $self->query;
+    my $project = Smolder::DB::Project->retrieve( $query->param('project') );
+    return $self->error_message("Project does not exist!") unless $project;
+
+    my $dev = Smolder::DB::Developer->retrieve( $query->param('developer') );
+    return $self->error_message("Project does not exist!") unless $dev;
 
     # clear out the old admins
-    $project->clear_admins();
-    $project->set_admins(@admins) if (@admins);
-    Smolder::DB->dbi_commit();
-    $self->add_message(
-        msg => "Successfully changed admins for project '" . $project->name . "'."
-    );
-
-    return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project }, );
+    if( $query->param('remove') ) {
+        $project->clear_admins($dev->id);
+        Smolder::DB->dbi_commit();
+        $self->add_message(
+            msg => "Successfully removed developer '" . $dev->username 
+                . "' as an admin of '" . $project->name . "'."
+        );
+    } else {
+        $project->set_admins($dev->id);
+        Smolder::DB->dbi_commit();
+        $self->add_message(
+            msg => "Successfully made developer '" . $dev->username 
+                . "' an admin of '" . $project->name . "'."
+        );
+    }
+    return;
 }
 
-=head2 developers
+=head2 devs
 
-Shows a list of developers and projects. Using drag-and-drop containers
-a developer is added to or removed from a project.
-Uses the F<Admin/Projects/developers.tmpl> template.
+Shows a list of developers that can be assigned to this
+project and any developers currently assigned to this project
+for editing.
+
+Uses the F<Admin/Projects/devs.tmpl> template.
 
 =cut
 
-sub developers {
-    my ( $self, $tt_params ) = @_;
-    $tt_params ||= {};
-    my @developers = Smolder::DB::Developer->search(guest => 0);
-    my @projects   = Smolder::DB::Project->retrieve_all();
+sub devs {
+    my ( $self, $tt_params, $proj ) = @_;
+    $tt_params  ||= {};
+    $proj       ||= Smolder::DB::Project->retrieve(
+        $self->param('id') || $self->query->param('project')
+    );
+    my @devs      = Smolder::DB::Developer->search(guest => 0);
+    my @proj_devs = $proj->developers;
 
-    $tt_params->{developers} = \@developers if (@developers);
-    $tt_params->{projects}   = \@projects   if (@projects);
+    # only show developers that aren't in this project
+    my %devs_in_project = map { $_->id => 1 } @proj_devs; 
+    @devs = grep { !$devs_in_project{$_->id} } @devs;
+    
+    $tt_params = {
+        developers         => \@devs,
+        project            => $proj,
+        project_developers => \@proj_devs,
+        %$tt_params,
+    };
     return $self->tt_process($tt_params);
 }
 
-=head2 add_developer
+=head2 add_dev
 
-Add a developer to a project (triggerred by dropping a developer into 
-a project container). Uses the F<Admin/Projects/project_container.tmpl>
-template.
+Add a developer to a project. Returns the C<dev> run mode when done.
 
 =cut
 
-sub add_developer {
-    my $self      = shift;
-    my $query     = $self->query;
-    my $project   = Smolder::DB::Project->retrieve( $query->param('project') );
-    my $developer = Smolder::DB::Developer->retrieve( $query->param('developer') );
+sub add_dev {
+    my $self  = shift;
+    my $query = $self->query;
+    my $proj  = Smolder::DB::Project->retrieve( $query->param('project') );
+    my $dev   = Smolder::DB::Developer->retrieve( $query->param('developer') );
 
-    if ( $developer && $project ) {
+    if ( $dev && $proj ) {
         eval {
             Smolder::DB::ProjectDeveloper->create(
                 {
-                    project   => $project,
-                    developer => $developer,
+                    project   => $proj,
+                    developer => $dev,
                 }
             );
         };
@@ -122,45 +141,44 @@ sub add_developer {
         } else {
             Smolder::DB->dbi_commit();
             $self->add_message(
-                msg => "Developer '" . $developer->username 
-                    . "' has been added to project '" . $project->name . "'."
+                msg => "Developer '" . $dev->username 
+                    . "' has been added to project '" . $proj->name . "'."
             );
         }
     }
 
-    $self->add_json_header(update_nav => 1);
-    return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
+    $self->add_json_header(update_nav => 1) if $dev->id == $self->developer->id;
+    return $self->devs({}, $proj);
 }
 
-=head2 remove_developer
+=head2 remove_dev
 
-Remove a developer from a project (triggerred by dragging a developer from
-a project container to the trash can). Uses the F<Admin/Projects/project_container.tmpl>
-template.
+Remove a developer from a project. Returns the C<dev> run mode
+when done.
 
 =cut
 
-sub remove_developer {
-    my $self      = shift;
-    my $query     = $self->query;
-    my $project   = Smolder::DB::Project->retrieve( $query->param('project') );
-    my $developer = Smolder::DB::Developer->retrieve( $query->param('developer') );
+sub remove_dev {
+    my $self   = shift;
+    my $query  = $self->query;
+    my $proj   = Smolder::DB::Project->retrieve( $query->param('project') );
+    my $dev    = Smolder::DB::Developer->retrieve( $query->param('developer') );
 
-    if ( $developer && $project ) {
+    if ( $dev && $proj ) {
         Smolder::DB::ProjectDeveloper->retrieve(
-            developer => $developer,
-            project   => $project,
+            developer => $dev,
+            project   => $proj,
         )->delete();
         Smolder::DB->dbi_commit();
 
         $self->add_message(
-            msg => "Developer '" . $developer->username 
-                . "' has been removed from project '" . $project->name . "'."
+            msg => "Developer '" . $dev->username 
+                . "' has been removed from project '" . $proj->name . "'."
         );
     }
 
-    $self->add_json_header(update_nav => 1);
-    return $self->tt_process( 'Admin/Projects/project_container.tmpl', { project => $project } );
+    $self->add_json_header(update_nav => 1) if $dev->id == $self->developer->id;
+    return $self->devs({}, $proj);
 }
 
 =head2 edit

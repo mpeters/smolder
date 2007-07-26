@@ -232,6 +232,8 @@ files can't be deleted for some reason. Returns true if all is good.
 sub delete_files {
     my $self = shift;
     rmtree($self->data_dir);
+    system("rm -rf " . $self->data_dir) == 0
+        or die "$!";
     $self->update();
     Smolder::DB->dbi_commit();
     return 1;
