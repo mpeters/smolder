@@ -1,5 +1,11 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.2
+
+=item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers
+
+=item *
+
 =head2 1.1
 
 =over
