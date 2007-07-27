@@ -62,6 +62,6 @@ foreach my $report (@reports) {
     }
 }
 
-print "Done.";
+print "Done.\n";
 
 
