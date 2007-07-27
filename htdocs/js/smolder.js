@@ -207,6 +207,7 @@ Smolder.Ajax.form_update = function(args) {
     var form    = args.form;
     args.url    = form.action;
     args.params = Form.serialize(form, true);
+    if(! args.onComplete ) args.onComplete = Prototype.emptyFunction;;
 
     // disable all of the inputs of this form that
     // aren't already and remember which ones we disabled
@@ -220,7 +221,9 @@ Smolder.Ajax.form_update = function(args) {
         }
     );
     form_disabled_inputs = Smolder.disable_form(form);
-    args.onComplete = function() {
+    var oldOnComplete = args.onComplete;
+    args.onComplete = function(request, json) {
+        oldOnComplete(request, json);
         // reset which forms are open
         Smolder._shownPopupForm = '';
         Smolder._shownForm = '';

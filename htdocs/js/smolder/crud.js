@@ -142,7 +142,7 @@ Object.extend(Smolder.CRUD.prototype, {
         
         // show the popup form
         var popup = 'delete_' + itemId;
-        togglePopupForm(popup);
+        Smolder.togglePopupForm(popup);
     },
     submit_change: function(form) {
 
