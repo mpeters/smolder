@@ -208,7 +208,7 @@ th, td {
     vertical-align: top;
 }
 
-th { 
+thead th { 
     background-color: #C47147;
     background-image: url('/images/h3_bg.gif');
     background-repeat: repeat-x;
@@ -431,7 +431,7 @@ div.accordion form a:hover, div.fake_accordion form a:hover {
     color: #000000;
 }
 
-div.accordion div.panel div.attention_header, div.fake_accordion div.panel div.attention_header {
+div.accordion div.panel div.attention, div.fake_accordion div.panel div.attention {
     background-color: #C47147;
 }
 

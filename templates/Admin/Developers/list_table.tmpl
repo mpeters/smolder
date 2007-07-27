@@ -11,7 +11,7 @@
   <col></col>
 </colgroup>
 
-<tr>
+<thead>
   <th>Username</th>
   <th>Name</th>
   <th>Email</th>
@@ -19,7 +19,9 @@
   <th>Edit</th>
   <th>Password</th>
   <th>Delete</th>
-</tr>
+</thead>
+
+<tbody>
 [% FOREACH developer IN developers %]
   <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
     <td>[% developer.username | html %]</td>
@@ -53,6 +55,7 @@
     </td>
   </tr>
 [% END %]
+</tbody>
 </table>
 [% ELSE %]
   <p class="pushdown">No Developers currently exist</p>

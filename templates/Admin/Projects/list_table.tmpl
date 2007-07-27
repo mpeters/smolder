@@ -11,14 +11,16 @@
   <col></col>
 </colgroup>
 
-<tr>
+<thead>
   <th>Name</th>
   <th>Data Feed?</th>
   <th>Public?</th>
   <th>Devs</th>
   <th>Edit</th>
   <th>Delete</th>
-</tr>
+</thead>
+
+<tbody>
 [% FOREACH project IN projects %]
   <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
     <td>[% project.name | html %]</td>
@@ -45,6 +47,7 @@
     </td>
   </tr>
 [% END %]
+</tbody>
 </table>
 [% ELSE %]
   <p class="pushdown">No Projects currently exist.</p>

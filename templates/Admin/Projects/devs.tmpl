@@ -60,12 +60,13 @@ change_admin = function(input) {
   <col></col>
 </colgroup>
 
-<tr>
+<thead>
   <th>Developer</th>
   <th>Admin?</th>
   <th>Remove</th>
-</tr>
+</thead>
 
+<tbody>
 [% FOREACH dev IN project_developers %]
   <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
     <td>
@@ -84,6 +85,7 @@ change_admin = function(input) {
     </td>
   </tr>
 [% END %]
+</tbody>
 </table>
 [% ELSE %]
   <p class="pushdown">No developers are currently assigned to this project.</p>

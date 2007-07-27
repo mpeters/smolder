@@ -1,7 +1,7 @@
 [% USE Number.Format %]
 [% UNLESS email %]
 
-<div class="header[% IF report.failed %] attention_header[% END %]">
+<div class="header[% IF report.failed %] attention[% END %]">
   [% UNLESS email %]
     <div style="float: right">
     [% IF report.purged %]
