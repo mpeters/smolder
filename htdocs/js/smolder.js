@@ -83,7 +83,7 @@ Smolder.update_nav = function(){
 // parmas    : an object of query params to send along
 // indicator : the id of the image to use as an indicator (optional defaults to 'indicator')
 // onComplete: a call back function to be executed after the normal processing (optional)
-//              Receives as arguments, the same args passed into Smolder.Ajax.update
+//              Receives as arguments, the same args passed into Smolder.Ajax.request
 //
 //  Smolder.Ajax.request({
 //      url        : '/app/some_mod/something',
@@ -124,7 +124,7 @@ Smolder.Ajax.request = function(args) {
                 args.json    = json;
                 complete(args);
             },
-            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
             onFailure: function(request) { Smolder.show_error() }
         }
     );
@@ -185,7 +185,7 @@ Smolder.Ajax.update = function(args) {
                 args.json    = json;
                 complete(args);
             },
-            //onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
+            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
             onFailure: function(request) { Smolder.show_error() }
         }
     );

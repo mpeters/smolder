@@ -3,28 +3,35 @@ var myrules = {
     'a.testfile_details_trigger' : function(el) {
         // get the id of the target div
         var matches = el.id.match(/^for_(.*)$/);
-        var targetId = matches[1];
+        var target = matches[1];
         // get the id of the indicator image
         matches = el.className.match(/(^|\s)show_(\S*)($|\s)/);
         var indicator = matches[2];
 
         el.onclick = function() {
-            if( Element.visible(targetId) ) {
-                Effect.BlindUp(targetId, { duration: .5 });
+console.log('clicking');
+            if( Element.visible(target) ) {
+console.log('  is ivisible');
+                Effect.BlindUp(target, { duration: .5 });
             } else {
+console.log('  not visibile');
                 $(indicator).style.visibility = 'visible';
+console.log('  making ajax request for target: ' + target);
                 Smolder.Ajax.update({
                     url        : el.href,
-                    target     : targetId,
+                    target     : target,
                     indicator  : 'none',
                     onComplete : function() {
+console.log('    in onComplete');
                         window.setTimeout(function() { $(indicator).style.visibility = 'hidden'}, 200);
+console.log('    BlindDown');
                         Effect.BlindDown(
-                            targetId,
+                            target,
                             // reapply any dynamic bits
                             { 
                                 afterFinish : function() { 
-                                    Behaviour.apply(); 
+console.log('      in afterFinish()');
+                                    Behaviour.apply(target); 
                                 },
                                 duration    : .5
                             }
@@ -32,15 +39,16 @@ var myrules = {
                     }
                 });
             }
+console.log('returning false');
             return false;
         };
     },
     'div.diag': function(el) {
-        setup_tooltip(el, el);
+        Smolder.setup_tooltip(el, el);
     },
     'td.tooltip_trigger' : function(el) {
         var diag = document.getElementsByClassName('tooltip', el)[0];
-        setup_tooltip(el, diag);
+        Smolder.setup_tooltip(el, diag);
     },
     'a.show_all' : function(el) {
         Event.observe(el, 'click', function() {
@@ -48,8 +56,11 @@ var myrules = {
             // panel is opened so that it opens the next one
             var show_details = function(index) {
                 var el = $('testfile_details_' + index);
-                // return if we're the last one
-                if( ! el ) return;
+                // apply the behaviours if we're the last one
+                if( ! el ) {
+                    Behaviour.apply();
+                    return;
+                } 
 
                 // we only need to fetch it if we're not already visible
                 if( Element.visible(el) ) {
@@ -74,7 +85,6 @@ var myrules = {
                 }
             };
             show_details(0);
-            Behaviour.apply();
         });
     }
 };
