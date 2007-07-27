@@ -52,7 +52,7 @@ a:visited {
     color: #C47147;
 }
 
-/* Navigation */
+/* Top Navigation */
 #top_nav a.menu {
     background: url('/images/arrow-desc.gif') bottom right no-repeat;
     padding-right: 6px;
@@ -83,6 +83,7 @@ a:visited {
 #top_nav ul ul {
     height: auto;
     width: auto;
+    min-width: 120px;
     border:1px solid #555555;
     border-bottom-width: 1px;
     border-right-width: 2px;
