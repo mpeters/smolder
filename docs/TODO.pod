@@ -33,10 +33,6 @@ Make it easier for custom installation on existing Apache
 
 =back
 
-=item *
-
-Upgrade Prototype.js and Scriptaculous to latest versions
-
 =item * 
 
 Use Archive::Extract to support more than just tar
@@ -108,39 +104,11 @@ Make sure it builds/runs/installs on as many *nix platforms as possible
 
 =item *
 
-Optional logging of critical problems to email?
-
-=item *
-
-Add some benchmarks so we can see how things perform as changes are made
-
-=item *
-
-Add CSV download option for tests (for projects?)    
-
-=item *
-
-Drop XML and just use YAML?
-
-=item *
-
 Add coverage reports (related to smoke tests?)
 
 =item *
 
 Add benchmark gathering?
-
-=item *
-
-Add RSS feeds per project
-
-=item *
-
-Look at making skinning easier so that organizations can brand it
-
-=item *
-
-Verify support for non AJAX browsers
 
 =item *
 
