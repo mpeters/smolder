@@ -9,28 +9,21 @@ var myrules = {
         var indicator = matches[2];
 
         el.onclick = function() {
-console.log('clicking');
             if( Element.visible(target) ) {
-console.log('  is ivisible');
                 Effect.BlindUp(target, { duration: .5 });
             } else {
-console.log('  not visibile');
                 $(indicator).style.visibility = 'visible';
-console.log('  making ajax request for target: ' + target);
                 Smolder.Ajax.update({
                     url        : el.href,
                     target     : target,
                     indicator  : 'none',
                     onComplete : function() {
-console.log('    in onComplete');
                         window.setTimeout(function() { $(indicator).style.visibility = 'hidden'}, 200);
-console.log('    BlindDown');
                         Effect.BlindDown(
                             target,
                             // reapply any dynamic bits
                             { 
                                 afterFinish : function() { 
-console.log('      in afterFinish()');
                                     Behaviour.apply(target); 
                                 },
                                 duration    : .5
@@ -39,7 +32,6 @@ console.log('      in afterFinish()');
                     }
                 });
             }
-console.log('returning false');
             return false;
         };
     },
