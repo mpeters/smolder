@@ -211,16 +211,7 @@ Smolder.Ajax.form_update = function(args) {
 
     // disable all of the inputs of this form that
     // aren't already and remember which ones we disabled
-    var disabled = [];
-    $A(form.elements).each(
-        function(input, i) { 
-            if( !input.disabled ) {
-                disabled.push(input.name);
-                input.disabled = true;
-            }
-        }
-    );
-    form_disabled_inputs = Smolder.disable_form(form);
+    var form_disabled_inputs = Smolder.disable_form(form);
     var oldOnComplete = args.onComplete;
     args.onComplete = function(request, json) {
         oldOnComplete(request, json);
