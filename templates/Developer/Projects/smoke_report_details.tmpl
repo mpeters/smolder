@@ -102,7 +102,7 @@
     </div>
   [% END %]
   [% IF report.purged %]
-    <a class="button dead" title="Details have been purged">HTML</a>
+    <a class="button dead" title="Details have been purged">Details</a>
   [% ELSE %]
     <a class="button invert smoke_report_window" title="HTML test report"
         href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">Details</a>
