@@ -55,6 +55,12 @@ var myrules = {
         };
     },
 
+    'input.cancel_popup' : function(element) {
+        element.onclick = function() {
+            Smolder.hidePopupForm();
+        };
+    },
+
     'a.smoke_report_window' : function(element) {
         element.onclick = function() {
             Smolder.newSmokeReportWindow(element.href);

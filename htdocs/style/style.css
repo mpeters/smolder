@@ -250,14 +250,16 @@ tr.header2, td.header2 {
 }
 
 div.pass_fail_ratio {
-    width: 70px;
-    height: 50px;
+    width: 60px;
+    height: 25px;
     border: 1px solid #555555;
+    vertical-align: middle;
     text-align: center;
     -moz-border-radius: 5px;
     font-weight: bold;
-    margin-right: 6px;
-    margin-top: 6px;
+    margin-right: 4px;
+    margin-top: 4px;
+    padding-top: 10px;
 }
 
 div.popup_form {
@@ -270,7 +272,7 @@ div.popup_form {
     max-width: 300px;
 }
 
-div.popup_form input[type="submit"], div.popup_form a.button {
+div.popup_form input[type="submit"], div.popup_form a.button, div.popup_form input[type="button"] {
     margin-bottom: 5px;
 }
 
@@ -439,7 +441,7 @@ div.accordion div.panel div.content, div.fake_accordion div.panel div.content {
     background-color: #FFFFFF;
 }
 
-div.fake_accordion div.panel div.invalid_content {
+div.fake_accordion div.panel div.invalid.content {
     background-color: #CCCCCC;
 }
 

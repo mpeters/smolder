@@ -303,7 +303,7 @@ Smolder.togglePopupForm = function(formId) {
 
     // first turn off any other forms showing of this type
     if( Smolder._shownPopupForm != '' && $(Smolder._shownPopupForm) != null ) {
-        new Effect.SlideUp( Smolder._shownPopupForm, { duration: .5 } );
+        Smolder.hidePopupForm();
     }
 
     if( Smolder._shownPopupForm == formId ) {
@@ -313,6 +313,10 @@ Smolder.togglePopupForm = function(formId) {
         Smolder._shownPopupForm = formId;
     }
     return false;
+}
+Smolder.hidePopupForm = function() {
+    new Effect.SlideUp( Smolder._shownPopupForm, { duration: .5 } );
+    Smolder._shownPopupForm = '';
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
