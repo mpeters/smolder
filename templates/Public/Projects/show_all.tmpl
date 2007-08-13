@@ -1,10 +1,10 @@
 [% SET page_title = 'Public Projects' %]
 
 [% IF projects.size() %]
-<div class="accordion at_100" id="accordion_projects">
+<div class="fake_accordion" id="accordion_projects">
   [% FOREACH project IN projects %]
   <div class="panel">
-    <div class="header">[% project.name | html %]<!--[% project.id %]--></div>
+    <div class="header">[% project.name | html %]</div>
     <div class="content">
       <ul>
         <li><a href="/app/public_projects/details/[% project.id %]">Project Details</a></li>

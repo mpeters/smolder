@@ -1,10 +1,10 @@
 [% SET page_title = 'My Projects' %]
 
 [% IF c.developer.projects %]
-<div class="accordion at_100" id="accordion_projects">
+<div class="fake_accordion" id="accordion_projects">
   [% FOREACH project IN c.developer.projects %]
   <div class="panel">
-    <div class="header">[% project.name | html %]<!--[% project.id %]--></div>
+    <div class="header">[% project.name | html %]</div>
     <div class="content">
       <ul>
         <li><a href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a></li>
