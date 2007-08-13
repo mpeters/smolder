@@ -120,19 +120,6 @@ var myrules = {
         Smolder.makeFormAjaxable(element);
     },
 
-    'div.accordion' : function(element) {
-        // determine the height for each panel
-        // this is taken from a class whose name is "at_$height"
-        var matches = element.className.match(/(^|\s)at_(\d+)($|\s)/);
-        var height;
-        if( matches != null )
-            height = matches[2];
-        else
-            height = 100;
-            
-        
-        //Smolder.new_accordion(element.id, height);
-    },
     'div.crud' : function(element) {
         var matches = element.className.match(/(^|\s)for_(\w+)($|\s)/);
         var url     = "/app/" + matches[2];
