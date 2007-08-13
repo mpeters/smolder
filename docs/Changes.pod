@@ -2,11 +2,13 @@
 
 =head2 1.2
 
-=item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers
+=item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers - M. Peters
 
-=item * Upgraded 3rd party JavaScript libraries (prototype, scriptaculous) and remove unnecssary JS and CSS files
+=item * Upgraded 3rd party JavaScript libraries (prototype, scriptaculous) and remove unnecssary JS and CSS files - M. Peters
 
-=item * Fixed bug where emails weren't being sent out.
+=item * Fixed bug where emails weren't being sent out. - M. Peters
+
+=item * SMTPHost config directive is now optional and Smolder will use the local sendmail program if it's not provided. - M. Peters
 
 =head2 1.1
 

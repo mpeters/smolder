@@ -37,7 +37,6 @@ BEGIN {
       HostName
       LogLevel
       Secret
-      SMTPHost
       User
     );
 }

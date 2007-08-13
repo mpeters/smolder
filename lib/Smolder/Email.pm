@@ -103,7 +103,9 @@ sub send_mime_mail {
     );
 
     # set the SMTP host
-    MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 );
+    if( SMTPHost() ) {
+        MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 );
+    }
     eval { $mime->send() };
     return $@;
 }

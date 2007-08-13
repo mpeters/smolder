@@ -23,7 +23,8 @@ over time. MediaWiki has an example of this:
 
 =item *
 
-Make it easier for custom installation on existing Apache
+Make it easier for custom installation on existing Apache or maybe even
+make a lite version that uses HTTP::Server::Simple?
 
 =over
 
@@ -36,10 +37,6 @@ Make it easier for custom installation on existing Apache
 =item * 
 
 Use Archive::Extract to support more than just tar
-
-=item *
-
-Add ability to not use SMTPServer but straight sendmail
 
 =item *
 
