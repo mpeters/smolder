@@ -175,7 +175,7 @@ if ( $mech->status ne '200' || $content !~ /Welcome \Q$user\E/ ) {
 print "Retrieving project listing for user '$user'.\n" if ($verbose);
 $mech->get( $base_url . '/developer_projects' );
 $content = $mech->content;
-$content =~ />\Q$project\E<!--(\d+)-->/;
+$content =~ />\Q$project\E<!--ID:(\d+)-->/;
 my $project_id = $1;
 if ( $mech->status ne '200' || !$project_id ) {
     warn
