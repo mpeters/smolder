@@ -169,9 +169,14 @@ sub _send_emails {
 
     # setup some stuff for the emails that we only need to do once
     my $subject = "Smolder - new " . ( $self->failed ? "failed " : '' ) . "smoke report";
+    my $matrix = Smolder::TAPHTMLMatrix->new( 
+        smoke_report => $self, 
+        test_results => $results, 
+    );
     my $tt_params = { 
-        report => $self, 
-        matrix => Smolder::TAPHTMLMatrix->new( $results ),
+        report  => $self, 
+        matrix  => $matrix,
+        results => $results,
     };
 
     # get all the developers of this project
@@ -367,10 +372,10 @@ sub upload_report {
         }
     );
 
-    $report->update_from_tap_archive($file);
+    my $results = $report->update_from_tap_archive($file);
 
     # send an email to all the user's who want this report
-    $report->_send_emails(\@test_results);
+    $report->_send_emails($results);
 
     # move the tmp file to it's real destination 
     my $dest   = $report->file;
@@ -482,6 +487,7 @@ sub update_from_tap_archive {
     $matrix->generate_html();
     $self->update();
     Smolder::DB->dbi_commit();
+    return \@test_results;
 }
 
 sub parse_tap_file {

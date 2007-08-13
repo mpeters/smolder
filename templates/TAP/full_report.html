@@ -3,17 +3,12 @@
 <head>
   <title>Test Details #[% report.id %]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="stylesheet" href="[% IF email %]http://[% host_name %][% END %]/style/tapmatrix.css" type="text/css" />
-  [% IF email %]
-  <link rel="stylesheet" href="http://[% host_name %]/style/email.css" type="text/css" />
-  [% ELSE %]
-  <link rel="stylesheet" href="http://[% host_name %]/style/tooltip.css" type="text/css" />
+  <link rel="stylesheet" href="/style/tapmatrix.css" type="text/css" />
   <script type="text/javascript" src="/js/prototype.js"></script>
   <script type="text/javascript" src="/js/scriptaculous/effects.js"></script>
   <script type="text/javascript" src="/js/behaviour.js"></script>
   <script type="text/javascript" src="/js/smolder.js"></script>
   <script type="text/javascript" src="/js/tap_behaviours.js"></script>
-  [% END %]
 </head>
 
 <body>
@@ -61,7 +56,7 @@
     </table>
 
     <div class="">
-      [% IF report.failed && ! email %]
+      [% IF report.failed %]
         <a href="#first_failure">Goto First Failure</a> | 
       [% END %]
       <a href="#" class="show_all">Show All Details</a>
@@ -82,19 +77,15 @@
         <tr>
           <td>[% loop.count %]</td>
           <td class="filename">
-            [% UNLESS email %]
-              <span style="float: right">
-              <img src="/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
-              <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
-                  id="for_testfile_details_[% loop.index %]" 
-                  class="testfile_details_trigger show_indicator_[% loop.index %][% IF test.failed %] failed[% END %]">
-                Details?
-              </a>
-              </span>
-              [% IF !found_first_failure && test.failed %]
-                <a name="first_failure"></a>
-                [% found_first_failure = 1 %]
-              [% END %]
+            <span style="float: right">
+            <img src="/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
+            <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+                id="for_testfile_details_[% loop.index %]" 
+                class="testfile_details_trigger show_indicator_[% loop.index %][% IF test.failed %] failed[% END %]">
+              Details?
+            </a>
+            </span>
+            [% IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 %]
             [% END %]
             <!-- we'll make this a link when we can link to individual tests 
             <a href="[% test.link %]"[% IF test.failed %] class="failed"[% END %] title="[% test.file | html %]">
@@ -108,7 +99,9 @@
           <td class="x sum" style="[% test.percent | pass_fail_color %]">[% test.percent %]%</td>
         </tr>
         <tr>
-          <td colspan="3"><div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div></td>
+          <td colspan="3">
+            <div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div>
+          </td>
         </tr>
       </tbody>
       [% END %]

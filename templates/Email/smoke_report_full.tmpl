@@ -1,3 +1,102 @@
 [% SET no_wrapper = 1 %]
-[% SET email = 1 %]
-[% PROCESS TAP/full_report.html %]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Test Details #[% report.id %]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="http://[% host_name %]/style/tapmatrix.css" type="text/css" />
+  <link rel="stylesheet" href="http://[% host_name %]/style/email.css" type="text/css" />
+</head>
+
+<body>
+
+<div id="container">
+    <div id="header">
+        <div id="logo"></div>
+        <div id="title"></div>
+    </div>
+    <div id="content">
+    <div id="page_title"><h1>Test Details #[% report.id %]</h1></div>
+
+    <table id="details">
+    <thead>
+      <tr><th colspan="2">Details</th></tr>
+    </thead>
+    <tbody>
+    <tr>
+      <th>Project</th>
+      <td>[% report.project.name | html %]</td>
+    </tr>
+    [% IF report.duration %]
+    <tr>
+      <th>Duration</th>
+      <td>[% report.duration %] secs</td>
+    </tr>
+    [% END %]
+    [% FOREACH label IN ['platform', 'architecture', 'category', 'comments'] %]
+      [% IF report.$label %]
+      <tr>
+        <th[% IF loop.last %] class="last"[% END %]>[% label | ucfirst %]</th>
+        <td[% IF loop.last %] class="last"[% END %]>[% report.$label | html | html_line_break %]</td>
+      </tr>
+      [% END %]
+    [% END %]
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2">
+          Uploaded [% report.added.strftime('%B %e %Y, %l:%M %p') %] 
+          by [% report.developer.username | html %]
+        </th>
+      </tr>
+    </tfoot>
+    </table>
+
+    <table id="matrix" summary="[% report.summary | html %]">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Test file</th>
+          <th>Results</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      [% SET found_first_failure = 0 %]
+      [% FOREACH test IN results %]
+      <tbody id="test_[% loop.index %]" class="results[% IF test.failed %] failed[% END %]">
+        <tr>
+          <td>[% loop.count %]</td>
+          <td class="filename">
+            <span class="filename[% IF test.failed %] failed[% END %]">[% test.label | html %]</span>
+          </td>
+          <td class="x [% IF test.failed %]failed[% ELSE %]ok[% END %]">
+            [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
+          </td>
+          <td class="x sum" style="[% test.percent | pass_fail_color %]">[% test.percent %]%</td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div id="testfile_details_[% loop.index %]" class="testfile_details">
+              [% tests = test.tests %]
+              [% PROCESS TAP/individual_test.html %]
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      [% END %]
+      <tfoot>
+        <tr>
+          <td colspan="2">[% report.summary %]</td>
+          <td>[% report.test_files %] files</td>
+          <td class="sum" style="[% report.total_percentage | pass_fail_color %]">[% report.total_percentage %]%</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    </div>
+</div>
+    
+</body>
+
+</html>
+
