@@ -6,6 +6,12 @@ p, ol, ul {
     margin-top: 0px;
 }
 
+ol, ul {
+    margin-bottom: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .small {
     font-size: 10pt;
 }
@@ -411,15 +417,16 @@ div.accordion, div.fake_accordion {
 
 div.accordion > div.panel, div.fake_accordion > div.panel {
     border-bottom: 1px solid #000000;
+background-color: blue;
 }
 
 div.accordion > div.panel > div.header, div.fake_accordion > div.panel > div.header {
     font-size: 11pt;
-    padding: 2px 6px 2px 6px;
+    padding: 2px 6px;
     border-style: solid none solid none;
     border-top-color: #CCCCCC;
     border-bottom-color: #333333;
-    border-width: 1px 0px 1px 0px;
+    border-width: 1px 0px;
     background-color: #555555;
     color: #FFFFFF;
 }
