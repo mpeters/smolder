@@ -370,7 +370,7 @@ sub upload_report {
     $report->update_from_tap_archive($file);
 
     # send an email to all the user's who want this report
-    #$report->_send_emails(\@test_results);
+    $report->_send_emails(\@test_results);
 
     # move the tmp file to it's real destination 
     my $dest   = $report->file;
