@@ -4,7 +4,9 @@
 
 =item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers
 
-=item *
+=item * Upgraded 3rd party JavaScript libraries (prototype, scriptaculous) and remove unnecssary JS and CSS files
+
+=item * Fixed bug where emails weren't being sent out.
 
 =head2 1.1
 
