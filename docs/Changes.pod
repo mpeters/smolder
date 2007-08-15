@@ -10,6 +10,8 @@
 
 =item * SMTPHost config directive is now optional and Smolder will use the local sendmail program if it's not provided. - M. Peters
 
+=item * Now using L<TAP::Harness::Archive> as the suggested method of creating the TAP archive. Also use it for manipulating them. - M. Peters
+
 =head2 1.1
 
 =over
