@@ -445,11 +445,15 @@ sub update_from_tap_archive {
     }
 
     # if we don't have the file names yet, just traverse the archive
-    # and use all .tap files
+    # and use all files that aren't .yml
     if(! @tap_files ) {
         find(
             {
-                wanted => sub { push(@tap_files, $_) if $_ =~ /\.tap$/ },
+                wanted => sub { 
+                    return if /^\./;
+                    return if -d;
+                    push(@tap_files, $_) if $_ !~ /\.yml$/ 
+                },
                 no_chdir => 1,
             },
             $temp_dir
@@ -461,7 +465,6 @@ sub update_from_tap_archive {
     my @test_results;
     foreach my $tap_file (@tap_files) {
         my $label = abs2rel($tap_file, $temp_dir);
-        $label =~ s/\.tap$//;
         push(@test_results, $self->parse_tap_file($tap_file, $aggregate, $label));
     }
 
