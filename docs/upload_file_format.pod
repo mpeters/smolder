@@ -22,10 +22,11 @@ The full documentation for TAP can be found at
 http://search.cpan.org/perldoc?TAP with more information available at
 http://testanything.org.
 
-The basic idea is that a single file of TAP output is equivalent to a
-single test script or module. These files are collected together in a tar
-archive file (optionally compressed with gzip). This archive file can
-have an arbitrary number of these TAP files (with a F<.tap> extension)
+The basic idea is that a single file of TAP output is equivalent to
+a single test script or module. These files are collected together in
+a tar (optionally compressed with gzip) or a zip archive. This archive
+file can have an arbitrary number of these TAP files (the file extension
+doesn't matter, but you can user F<.tap> if you need to use something)
 in an arbitrary number of directories (nice for grouping and organizing
 your tests).
 
@@ -88,39 +89,17 @@ seconds (seconds since 01/01/1970).
 
 Here's a slightly more complicated example (written in Perl) that
 demonstates not only saving the TAP output to files, but also generating
-a F<meta.yml> file to go along with it.
+a F<meta.yml> file to go along with it. We do this with the L<TAP::Harness::Archive>
+module which does most of the work for us:
 
     #!/usr/bin/perl
     use warnings;
     use strict;
-    use YAML;
-    use File::Basename;
+    use TAP::Harness::Archive;
 
-    # get the start time
-    my $start = time();
-
-    # get every .t file in the t/ directory and run in it
     my @files = glob('t/*.t');
-    my @tap_files;
-    foreach my $file (@files) {
-        my $tap_file = basename($file, '.t') . '.tap';
-        system("perl $file > $tap_file");
-        push(@tap_files, $tap_file);
-    }
-
-    my $stop = time();
-
-    my %meta = (
-        file_order => \@tap_files,
-        start_time => $start,
-        stop_time  => $stop,
-    );
-
-    open(my $meta_fh, '>', 'meta.yml')
-        or die "Could not open meta.yml for writing: $!";
-    print $meta_fh YAML::Dump(\%meta);
-    close($meta_fh);
-
-    system('tar -zc *.tap meta.yml > test_run.tar.gz') == 0
-        or die "Could not use tar to create test run file: $!";
+    my $harness = TAP::Harness::Archive->new({
+        archive => 'my_test_run.tar.gz',
+    });
+    $harness->run_tests(@files);
 
