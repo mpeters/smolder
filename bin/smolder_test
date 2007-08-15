@@ -69,7 +69,9 @@ END
 
 use Smolder::Script;
 use Smolder::Conf qw(InstallRoot);
-use Test::Harness;
+use lib '/home/mpeters/development/TAP-Harness-Archive/lib';
+use TAP::Harness::Archive;
+use TAP::Harness;
 use IO::Scalar;
 use Pod::Usage;
 use File::Find;
@@ -150,12 +152,6 @@ if ($help) {
 my $junk     = '';
 my $junk_err = '';
 
-# if we want to be quite then surpress printing to STDOUT
-if ($quiet) {
-    tie( *STDOUT, 'IO::Scalar', \$junk );
-    tie( *STDERR, 'IO::Scalar', \$junk_err );
-}
-
 my $root = InstallRoot();
 
 # go the the Smolder root
@@ -198,18 +194,22 @@ unshift @testfiles, $file if $file;
 push @testfiles, $file if $file;
 
 # if we want the TAP archive
+my $harness;
 if ($archive) {
-    create_tap_archive(\@testfiles);
+    $harness = TAP::Harness::Archive->new({
+        verbose      => $verbose,
+        quiet        => $quiet,
+        really_quiet => $quiet,
+        archive      => 'smolder_test_run.tar.gz',
+    });
 } else {
-    # else we just want to run normal Test::Harness tests
-    $Test::Harness::Verbose = $verbose;
-    eval { runtests(@testfiles) };
+    $harness = TAP::Harness->new({
+        verbose      => $verbose,
+        quiet        => $quiet,
+        really_quiet => $quiet,
+    });
 }
-
-if ($quiet) {
-    untie(*STDOUT);
-    untie(*STDERR);
-}
+eval { $harness->runtests(@testfiles) };
 
 sub print_header {
     my $header = shift;
@@ -223,48 +223,5 @@ sub print_header {
         print '#' x 60;
         print "\n\n";
     }
-}
-
-sub create_tap_archive {
-    my $files = shift;
-    require Archive::Tar;
-    require YAML;
-    require File::Temp;
-    require File::Basename;
-    require Cwd;
-
-    # create a an archive to put the TAP files into
-    my $temp_dir = File::Temp::tempdir();
-    my $archive = Archive::Tar->new();
-
-    my %meta_info = (
-        file_order => $files,
-        start_time => time(),
-    );
-    foreach my $f (@$files) {
-        my $basename = File::Basename::basename($f, '.t');
-        my $destination = catfile($temp_dir, "$basename.tap");
-        my $cmd = "$^X $f 2>&1 > $destination";
-        print "Capturing output of $f into $basename.tap\n" if $verbose;
-        system($cmd);
-    }
-
-    # create the meta.yml file
-    $meta_info{stop_time} = time();
-    open(my $meta_fh, '>', catfile($temp_dir, 'meta.yml'))
-       or die "Could not open meta.yml for writing: $!";
-    print $meta_fh YAML::Dump(\%meta_info);
-    close($meta_fh);
-
-
-    # now tar up the archive
-    my $cwd = Cwd::getcwd();
-    chdir($temp_dir) or die "Could not change to directory $temp_dir: $!";
-    $archive->add_files(glob('*'));
-    chdir($cwd) or die "Could not change to directory $temp_dir: $!";
-
-    my $output_file = 'smolder_test_run.tar.gz';
-    $archive->write($output_file, 1);
-    print "Test run complete. Archive file - $output_file\n" unless $quiet;
 }
 
