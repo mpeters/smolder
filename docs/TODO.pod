@@ -34,10 +34,6 @@ make a lite version that uses HTTP::Server::Simple?
 
 =back
 
-=item * 
-
-Use Archive::Extract to support more than just tar
-
 =item *
 
 Add preference to just get plain-text emails
