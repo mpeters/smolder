@@ -209,7 +209,7 @@ if ($archive) {
         really_quiet => $quiet,
     });
 }
-eval { $harness->runtests(@testfiles) };
+$harness->runtests(@testfiles);
 
 sub print_header {
     my $header = shift;
