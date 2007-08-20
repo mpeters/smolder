@@ -13,9 +13,10 @@ use Cwd qw(fastcwd);
 use DateTime;
 use DateTime::Format::MySQL;
 use Smolder::TAPHTMLMatrix;
-use TAP::Parser;
-use TAP::Parser::Aggregator;
 use Carp qw(croak);
+use lib '/home/mpeters/development/TAP-Harness-Archive/lib';
+use lib '/home/mpeters/development/tap-parser/lib';
+use TAP::Harness::Archive;
 use IO::Zlib;
 
 __PACKAGE__->set_up_table('smoke_report');
@@ -380,7 +381,7 @@ sub upload_report {
     # move the tmp file to it's real destination 
     my $dest   = $report->file;
     my $out_fh;
-    if( $file =~ /\.gz$/ ) {
+    if( $file =~ /\.gz$/ or $file =~ /\.zip$/ ) {
         open($out_fh, '>', $dest)
             or die "Could not open file $dest for writing:$!";
     } else {
@@ -413,71 +414,76 @@ sub update_from_tap_archive {
     # create a temp directory to hold in-progress archive
     my $temp_dir = tempdir( DIR => catdir(InstallRoot, 'tmp'));
 
-    # open up the .tar.gz file so we can examine the files
-    my $z = "";
-    $z = "z" if $file =~ /\.gz$/;
-    my $cmd = "tar -x${z}f $file";
-    my $old_dir = fastcwd();
-    chdir($temp_dir) or die "Could not chdir to $temp_dir - $!";
-    system($cmd) == 0 or Smolder::Exception::InvalidArchive->throw(error => $@);
+    # our data structures for holding the info about the TAP parsing
+    my ($duration, @suite_results, @tests, $label);
+    my ($total, $failed, $skipped) = (0,0,0);
 
-    my ($duration, @tap_files);
-
-    # do we have a .yml file in the archive?
-    my ($yaml_file) = glob("$temp_dir/*.yml");
-    if( $yaml_file ) {
-        # parse it into a structure
-        require YAML::Tiny;
-        my $meta = YAML::Tiny->new()->read($yaml_file);
-        die "Could not read YAML $yaml_file: " . YAML::Tiny->errstr if YAML::Tiny->errstr;
-        $meta = $meta->[0];
-
-        if( $meta->{start_time} && $meta->{stop_time} ) {
-            $duration = $meta->{stop_time} - $meta->{start_time};
-        }
-
-        if( $meta->{file_order} && ref $meta->{file_order} eq 'ARRAY' ) {
-            foreach my $file (@{$meta->{file_order}}) {
-                $file = catfile($temp_dir, $file);
-                push(@tap_files, $file) if -e $file;
-            }
-        }
-    }
-
-    # if we don't have the file names yet, just traverse the archive
-    # and use all files that aren't .yml
-    if(! @tap_files ) {
-        find(
-            {
-                wanted => sub { 
-                    return if /^\./;
-                    return if -d;
-                    push(@tap_files, $_) if $_ !~ /\.yml$/ 
-                },
-                no_chdir => 1,
+    my $aggregator = TAP::Harness::Archive->aggregator_from_archive({
+        archive => $file,
+        made_parser_callback => sub {
+            my ($parser, $file) = @_;
+            $label = $file;
+            # clear them out for a new run
+            @tests = (); 
+            ($total, $failed, $skipped) = (0,0,0);
+        },
+        meta_yaml_callback => sub {
+            my $yaml = shift;
+            $duration = $yaml->[0]->{stop_time} - $yaml->[0]->{start_time};
+        },
+        parser_callbacks => {
+            ALL => sub {
+                my $line = shift;
+                if( $line->type eq 'test' ) {
+                    my %details = (
+                        ok      => $line->is_ok,
+                        skip    => $line->has_skip,
+                        todo    => $line->has_todo,
+                        comment => $line->as_string,
+                    );
+                    $total++;
+                    $failed++ if !$line->is_ok;
+                    $skipped++ if $line->has_skip;
+                    push(@tests, \%details);
+                } elsif( $line->type eq 'comment' || $line->type eq 'unknown' ) {
+                    my $slot = $line->type eq 'comment' ? 'comment' : 'uknonwn';
+                    # TAP doesn't have an explicit way to associate a comment
+                    # with a test (yet) so we'll assume it goes with the last
+                    # test. Look backwards through the stack for the last test
+                    my $last_test = $tests[-1];
+                    if( $last_test ) {
+                        $last_test->{$slot} ||= '';
+                        $last_test->{$slot} .= ("\n" . $line->as_string);
+                    }
+                }
             },
-            $temp_dir
-        );
-    }
-
-    # parse the TAP files into a results structure
-    my $aggregate = TAP::Parser::Aggregator->new();
-    my @test_results;
-    foreach my $tap_file (@tap_files) {
-        my $label = abs2rel($tap_file, $temp_dir);
-        push(@test_results, $self->parse_tap_file($tap_file, $aggregate, $label));
-    }
+            EOF => sub {
+                my $percent = $total ? sprintf('%i', (($total - $failed) / $total) * 100 ) : 100;
+                push(
+                    @suite_results,
+                    {
+                        label       => $label,
+                        tests       => [@tests],
+                        total       => $total,
+                        failed      => $failed,
+                        percent     => $percent,
+                        all_skipped => ( $skipped == $total ),
+                    }
+                );
+            }
+        },
+    });
 
     # update
     $self->set(
-        pass       => scalar $aggregate->passed,
-        fail       => scalar $aggregate->failed,
-        skip       => scalar $aggregate->skipped,
-        todo       => scalar $aggregate->todo,
-        todo_pass  => scalar $aggregate->todo_passed,
-        total      => $aggregate->total,
-        test_files => scalar @test_results,
-        failed     => ! !$aggregate->failed,
+        pass       => scalar $aggregator->passed,
+        fail       => scalar $aggregator->failed,
+        skip       => scalar $aggregator->skipped,
+        todo       => scalar $aggregator->todo,
+        todo_pass  => scalar $aggregator->todo_passed,
+        total      => $aggregator->total,
+        test_files => scalar @suite_results,
+        failed     => ! !$aggregator->failed,
         duration   => $duration,
     );
     Smolder::DB->dbi_commit();
@@ -485,61 +491,12 @@ sub update_from_tap_archive {
     # generate the HTML reports
     my $matrix = Smolder::TAPHTMLMatrix->new( 
         smoke_report => $self, 
-        test_results => \@test_results, 
+        test_results => \@suite_results, 
     );
     $matrix->generate_html();
     $self->update();
     Smolder::DB->dbi_commit();
-    return \@test_results;
-}
-
-sub parse_tap_file {
-    my ($class, $file_name, $aggregate, $label) = @_;
-    my $fh;
-    open($fh, $file_name) or die "Could not open $file_name for reading: $!";
-
-    my @tests;
-    my $parser = TAP::Parser->new({source => $fh});
-
-    my $total   = 0;
-    my $failed  = 0;
-    my $skipped = 0;
-    while(my $line = $parser->next) {
-        if( $line->type eq 'test' ) {
-            my %details = (
-                ok      => $line->is_ok,
-                skip    => $line->has_skip,
-                todo    => $line->has_todo,
-                comment => $line->as_string,
-            );
-            $total++;
-            $failed++ if !$line->is_ok;
-            $skipped++ if $line->has_skip;
-            push(@tests, \%details);
-        } elsif( $line->type eq 'comment' || $line->type eq 'unknown' ) {
-            my $slot = $line->type eq 'comment' ? 'comment' : 'uknonwn';
-            # TAP doesn't have an explicit way to associate a comment
-            # with a test (yet) so we'll assume it goes with the last
-            # test. Look backwards through the stack for the last test
-            my $last_test = $tests[-1];
-            if( $last_test ) {
-                $last_test->{$slot} ||= '';
-                $last_test->{$slot} .= ("\n" . $line->as_string);
-            }
-        }
-    }
-
-    # add this to the aggregator
-    $aggregate->add($label, $parser) if $aggregate;
-    my $percent = $total ? sprintf('%i', (($total - $failed) / $total) * 100 ) : 100;
-    return {
-        label       => $label,
-        tests       => \@tests,
-        total       => $total,
-        failed      => $failed,
-        percent     => $percent,
-        all_skipped => ( $skipped == $total ),
-    }
+    return \@suite_results;
 }
 
 1;
