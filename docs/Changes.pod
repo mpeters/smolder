@@ -2,6 +2,8 @@
 
 =head2 1.2
 
+=item * Removed F<smolder_prove>. You can now get the new TAP archive format by using L<TAP::Parser>'s C<runtests --archive>.
+
 =item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers - M. Peters
 
 =item * Upgraded 3rd party JavaScript libraries (prototype, scriptaculous) and remove unnecssary JS and CSS files - M. Peters
