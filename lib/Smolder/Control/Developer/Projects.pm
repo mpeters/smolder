@@ -196,8 +196,16 @@ sub process_add_report {
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
-            report_file  => file_mtype(qw(application/x-gzip multipart/x-gzip application/x-gtar application/x-tar)),
-            category     => existing_project_category($project),
+            report_file  => file_mtype(qw(
+                application/x-gzip 
+                application/x-gtar 
+                application/x-tar 
+                application/zip 
+                application/x-zip 
+                multipart/x-gzip 
+                multipart/x-zip
+            )),
+            category => existing_project_category($project),
         },
     };
 
