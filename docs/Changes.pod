@@ -2,6 +2,8 @@
 
 =head2 1.2
 
+=over
+
 =item * Removed F<smolder_prove>. You can now get the new TAP archive format by using L<TAP::Parser>'s C<runtests --archive>.
 
 =item * Change the UI for assigning developers to projects to allow for larger lists of groups and developers - M. Peters
@@ -13,6 +15,8 @@
 =item * SMTPHost config directive is now optional and Smolder will use the local sendmail program if it's not provided. - M. Peters
 
 =item * Now using L<TAP::Harness::Archive> as the suggested method of creating the TAP archive. Also use it for manipulating them. - M. Peters
+
+=back
 
 =head2 1.1
 
