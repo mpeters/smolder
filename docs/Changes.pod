@@ -1,5 +1,13 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.3
+
+=over
+
+=item * Fixed test of MySQL isolation level to accept C<READ-COMMITTED> or stricter - Sam Villain
+
+=back
+
 =head2 1.2
 
 =over
