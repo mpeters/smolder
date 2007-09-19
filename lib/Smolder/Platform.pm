@@ -634,7 +634,7 @@ sub build_perl_module {
     my ( $cmd, $make_cmd );
     if ( -e 'Build.PL' ) {
         $cmd =
-            "$^X Build.PL $EXTRA_ARGS "
+            "PERL_MM_USE_DEFAULT=1 $^X Build.PL $EXTRA_ARGS "
           . " --install_path lib=$dest_dir"
           . " --install_path libdoc=$trash_dir"
           . " --install_path script=$trash_dir"
@@ -645,7 +645,7 @@ sub build_perl_module {
         $make_cmd = './Build';
     } else {
         $cmd =
-            "$^X Makefile.PL $EXTRA_ARGS "
+            "PERL_MM_USE_DEFAULT=1 $^X Makefile.PL $EXTRA_ARGS "
           . "LIB=$dest_dir "
           . "PREFIX=$trash_dir "
           . "INSTALLMAN3DIR=' ' "
