@@ -1,8 +1,12 @@
 =head1 SMOLDER CHANGES
 
-=head2 1.3
+=head2 1.21
 
 =over
+
+=item * Fixed build issue where Carp::Clan was hanging - M. Peters
+
+=item * Fixed build issue on Mac OSX where we were looking for F<.so> files instead of F<.dynlib> - Michael Schwern, M. Peters
 
 =item * Fixed test of MySQL isolation level to accept C<READ-COMMITTED> or stricter - Sam Villain
 
