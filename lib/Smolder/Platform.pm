@@ -251,7 +251,7 @@ sub check_libgd {
         %args,
         h      => 'gd.h',
         name   => 'libgd',
-        so     => 'libgd.so',
+        so     => 'libgd',
         module => 'GD',
     );
 }
@@ -275,6 +275,8 @@ be searched for if C<mode> is 'install'. Optional.
 =item so
 
 The name of the shared object (.so) file to look for. Optional.
+This is minus the F<.so> extension since it's different on different
+platforms.
 
 =item name
 
@@ -303,7 +305,7 @@ Optional.
 
     $pkg->check_libs(
         h      => 'gd.h',
-        so     => 'libgd.so',
+        so     => 'libgd',
         name   => 'libgd',
         module => 'GD',
     );
@@ -315,7 +317,7 @@ sub check_libs {
     my $mode = $args{mode};
 
     my $name = $args{name};
-    my $so   = $args{so};
+    my $so   = $args{so} . '.' . $Config{so};
     my $h    = $args{h};
     my $mod  = $args{module};
 
