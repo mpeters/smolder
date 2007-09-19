@@ -4,6 +4,8 @@
 
 =over
 
+=item * Added F<docs/porting.pod> and fixed bad link in F<docs/ops_install.pod> - M. Peters
+
 =item * Fixed build issue where Carp::Clan was hanging - M. Peters
 
 =item * Fixed build issue on Mac OSX where we were looking for F<.so> files instead of F<.dynlib> - Michael Schwern, M. Peters
