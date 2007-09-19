@@ -7,17 +7,17 @@ This document describes how to install Smolder on your system.
 
 =head2 Supported Platforms
 
-Smolder supports the following operating system platforms for
-binary distributions:
+Smolder has been built and used on the following platforms:
 
-TODO - Add more binary distributions as we get more users willing
-to create them.
+=over
 
-=over 4
+=item * Fedora Core 3
 
-=item *
+=item * Fedora Core 4
 
-Fedora Core 3
+=item * Fedora Core 5
+
+=item * Fedora Core 6
 
 =back
 
@@ -97,7 +97,7 @@ platform and proceed to the next step:
 If not, you'll have to do some porting work to get Smolder working on
 your system.  To learn more about porting Smolder, read this:
 
-  http://smolder.sourceforge.net/docs/porting.html
+  docs/porting.pod
 
 =head2 Installation
 
