@@ -569,7 +569,7 @@ sub create_database {
         print "Creating Database and loading schema\n";
         my $AdminDBPass = $options{'AdminDBPass'};
         my $DBHost      = $options{'DBHost'};
-        my $createdb    = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin/smolder_createdb ";
+        my $createdb    = "SMOLDER_ROOT='' PERL5LIB='' $InstallPath/bin/smolder_createdb --destroy";
         $createdb .= " --AdminDBPass $options{AdminDBPass}"       if ( length($options{AdminDBPass}) );
         $createdb .= " --DBHost $options{'DBHost'}" if ( defined($DBHost) );
         system($createdb) == 0
