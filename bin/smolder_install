@@ -335,7 +335,7 @@ sub check_prereqs {
                 local $ENV{SMOLDER_ROOT} = $InstallPath;
                 my $cmd =
                   catfile( $InstallPath, 'bin', 'smolder_uninstall' ) . ' --no_prompt --verbose';
-                $cmd .= ' --admin_db_password=' . $options{AdminDBPass}
+                $cmd .= ' --admin_db_pass=' . $options{AdminDBPass}
                   if length( $options{AdminDBPass} );
                 system($cmd)
                   && die(

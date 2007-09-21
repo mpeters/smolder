@@ -4,6 +4,10 @@
 
 =over
 
+=item * When re-installing, smolder_install calls smolder_unistall with invalid params - Reported by Andy Lester, fixed by M. Peters
+
+=item * When re-installing we need to remove any old database that might be laying around - Reported by Andy Lester, fixed by M. Peters
+
 =item * Added F<docs/porting.pod> and fixed bad link in F<docs/ops_install.pod> - M. Peters
 
 =item * Fixed build issue where Carp::Clan was hanging - M. Peters
