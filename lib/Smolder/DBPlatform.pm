@@ -9,7 +9,9 @@ use File::Spec::Functions qw(catdir catfile canonpath);
 our %CONNECT_OPTIONS = (
     RaiseError         => 1,
     PrintError         => 0,
-    AutoCommit         => 0,
+    Warn               => 0,
+    PrintWarn          => 0,
+    AutoCommit         => 1,
     FetchHashKeyName   => 'NAME_lc',
     ShowErrorStatement => 1,
     ChopBlanks         => 1,

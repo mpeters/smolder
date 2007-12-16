@@ -243,6 +243,5 @@ my $dbh = $db_platform->dbh(
 );
 eval { 
   $dbh->do("UPDATE db_version set db_version=$version");
-  $dbh->commit();
 };
 die "Could not update db_version! $@" if( $@ );

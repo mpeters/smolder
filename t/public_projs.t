@@ -29,8 +29,6 @@ my $dev      = create_developer();
 my $proj1_id = create_project( public => 1, allow_anon => 1 )->id();
 my $proj2_id = create_project( public => 0 )->id();
 
-Smolder::DB->dbi_commit();
-
 END {
     delete_projects();
     delete_developers();

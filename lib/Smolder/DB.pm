@@ -14,12 +14,14 @@ use DBI;
 use Class::DBI::Plugin::RetrieveAll;
 use Smolder::DBPlatform;
 
-# these are needed for Class::DBI to recognize the db handle properly
-
-# override default to avoid using Ima::DBI closure
-sub db_Main {
-    __PACKAGE__->connect();
-}
+__PACKAGE__->connection(
+    $DB_PLATFORM->connection_options(
+        user    => DBUser,
+        passwd  => DBPass,
+        host    => (DBHost || ''),
+        db_name => DBName,
+    )
+);
 
 =head1 NAME
 
@@ -47,42 +49,34 @@ It also provides a connect() method for getting a DBI connection from non Class:
 
 =head1 INTERFACE
 
-=head2 dbi_commit
+=head2 commit
 
 Commit the current transaction
 
 =cut
 
-sub dbi_commit {
-    my ( $self, @db_names ) = @_;
-    $self->connect()->commit();
+sub commit {
+    shift->db_Main->commit();
 }
 
-=head2 dbi_rollback
+=head2 rollback
 
-Rollback to the last C<dbi_commit>
+Rollback to the last C<commit>
 
 =cut
 
 sub dbi_rollback {
-    my ( $self, @db_names ) = @_;
-    $self->connect()->rollback();
+    shift->db_Main->rollback();
 }
 
-=head2 connect
+=head2 disconnect
 
-Returns a DBI database handle.
+Disconnects the current database handle stored in db_Main.
 
 =cut
 
-sub connect {
-    my $db_platform = Smolder::DBPlatform->load(DBPlatform);
-    return $db_platform->dbh(
-        user    => DBUser,
-        passwd  => DBPass,
-        host    => ( DBHost || ''),
-        db_name => DBName,
-    );
+sub disconnect {
+    return shift->db_Main->disconnect;
 }
 
 =head2 vars

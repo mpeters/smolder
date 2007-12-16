@@ -104,7 +104,6 @@ sub process_login {
             my $url = $self->query->param('back') || $HOME_PAGE_URL;
             $self->header_type('redirect');
             $self->header_add( -uri => $url );
-            Smolder::DB->dbi_commit();
             return "Redirecting...";
         }
     }
@@ -141,7 +140,6 @@ sub process_forgot_pw {
         my $email    = $dev->email;
         my $username = $dev->username;
         my $new_pw   = $dev->reset_password();
-        Smolder::DB->dbi_commit();
 
         if ( $self->log->would_log('debug') ) {
             $self->log->debug(

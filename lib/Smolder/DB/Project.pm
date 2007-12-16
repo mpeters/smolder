@@ -544,7 +544,6 @@ sub purge_old_reports {
             $report->delete_files();
             $report->purged(1);
             $report->update();
-            Smolder::DB->dbi_commit();
         }
     }
 }

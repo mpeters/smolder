@@ -1,22 +1,9 @@
 # load our Perl Modules
-use Apache::DBI;
-#$Apache::DBI::DEBUG=1;
 use DBI;
 
 use Carp;
 #$SIG{__DIE__} = \*Carp::confess;
 #$SIG{__WARN__} = \*Carp::cluck;
-
-BEGIN{ $DBI::connect_via = 'connect_cached'; };
-# The above line requires a little explanation.  We need to connect to the
-# database during startup to get table information for the Class::DBI
-# objects.  Apache::DBI will skip the connection cache during startup to
-# avoid forking problems, but this causes errors from Class::DBI about
-# the database handle being DESTROY'd without an explicit disconnect.
-# This is because Class::DBI expects the handles to be persistent.  To fix
-# this, we use a cheat to make DBI do a connect_cached during startup
-# (as opposed to using Apache::DBI) and then explicitly disconnect that
-# at the end of this file and tell it to use Apache::DBI after that.  Phew.
 
 use Smolder::DB;
 use Smolder::Dispatch;
@@ -40,9 +27,8 @@ $Apache::SizeLimit::MAX_PROCESS_SIZE  = 40000;  # 40MB
 #$Apache::SizeLimit::MIN_SHARE_SIZE    = 1500;   # 1.5MB
 $Apache::SizeLimit::CHECK_EVERY_N_REQUESTS = 3;
 
-# Disconnect before fork and then switch to using Apache::DBI
+# Disconnect before fork
 Smolder::DB->db_Main()->disconnect();
-$DBI::connect_via = 'Apache::DBI::connect';
 
 ##################################################################
 #  Use this to check share modules

@@ -84,9 +84,18 @@ sub run_sql_file {
 sub dbh {
     my ( $class, %args ) = @_;
     my $db_name = $args{db_name};
-    my $dsn     = "dbi:SQLite:dbname=" . $class->_get_db_file($db_name);
     require DBI;
-    return DBI->connect_cached( $dsn, '', '', \%Smolder::DBPlatform::CONNECT_OPTIONS, );
+    return DBI->connect_cached($class->connection_options(%args));
+}
+
+=head2 connection_options
+
+=cut
+
+sub connection_options {
+    my ($class, %args) = @_;
+    my $dsn     = "dbi:SQLite:dbname=" . $class->_get_db_file($args{db_name});
+    return ($dsn, '', '', \%Smolder::DBPlatform::CONNECT_OPTIONS);
 }
 
 =head2 dbi_driver
@@ -285,7 +294,7 @@ sub get_enum_values {
 
 sub unique_failure_msg {
     my ( $class, $msg ) = @_;
-    return $msg =~ /not unique\(1\)/i;
+    return $msg =~ /not unique\(/i;
 }
 
 sub _get_db_file {

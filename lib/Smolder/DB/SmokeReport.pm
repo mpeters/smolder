@@ -199,7 +199,6 @@ sub _send_emails {
             $pref->email_sent_timestamp($now);
             $pref->email_sent(0);
             $pref->update;
-            Smolder::DB->dbi_commit();
         }
 
         # now check to see if we've passed their limit
@@ -220,7 +219,6 @@ sub _send_emails {
         # now increment their sent count
         $pref->email_sent( $pref->email_sent + 1 );
         $pref->update();
-        Smolder::DB->dbi_commit();
     }
 }
 
@@ -238,7 +236,6 @@ sub delete_files {
     system("rm -rf " . $self->data_dir) == 0
         or die "$!";
     $self->update();
-    Smolder::DB->dbi_commit();
     return 1;
 }
 
@@ -483,7 +480,6 @@ sub update_from_tap_archive {
         failed     => ! !$aggregator->failed,
         duration   => $duration,
     );
-    Smolder::DB->dbi_commit();
 
     # generate the HTML reports
     my $matrix = Smolder::TAPHTMLMatrix->new( 
@@ -492,7 +488,6 @@ sub update_from_tap_archive {
     );
     $matrix->generate_html();
     $self->update();
-    Smolder::DB->dbi_commit();
     return \@suite_results;
 }
 

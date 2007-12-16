@@ -98,10 +98,19 @@ sub run_sql_file {
 =cut
 
 sub dbh {
-    my ( $class, %args ) = @_;
-    my ( $user, $pw, $host, $db_name ) = @args{qw(user passwd host db_name)};
-    my $dsn = "dbi:mysql:database=" . ($db_name || '') . ";host=" . ( $host || 'localhost' );
-    return DBI->connect_cached( $dsn, $user, $pw, \%Smolder::DBPlatform::CONNECT_OPTIONS, );
+    my ($class, %args) = @_;
+    return DBI->connect_cached($self->connection_options(%args));
+}
+
+=head2 connection_options
+
+=cut
+
+sub connection_options {
+    my ($class, %args) = @_;
+    my ($user, $pw, $host, $db_name) = @args{qw(user passwd host db_name)};
+    my $dsn = "dbi:mysql:database=" . ($db_name || '') . ";host=" . ($host || 'localhost');
+    return ($dsn, $user, $pw, \%Smolder::DBPlatform::CONNECT_OPTIONS);
 }
 
 =head2 dbi_driver
@@ -162,7 +171,6 @@ sub drop_database {
     );
 
     $dbh->do("DROP DATABASE IF EXISTS $db_name");
-    $dbh->commit();
 }
 
 =head2 create_database
@@ -180,7 +188,6 @@ sub create_database {
     );
 
     $dbh->do("CREATE DATABASE IF NOT EXISTS $db_name");
-    $dbh->commit();
 }
 
 =head2 create_user
@@ -195,7 +202,6 @@ sub create_user {
         user    => 'root',
         passwd  => $admin_pw,
         host    => $host,
-#        db_name => $db_name,
     );
 
     my $sql = "GRANT ALL ON $db_name\.* to $user";
@@ -206,7 +212,6 @@ sub create_user {
     }
     $sql .= " identified by '$pw'";
     $dbh->do($sql);
-    $dbh->commit();
 }
 
 =head2 sql_create_dir

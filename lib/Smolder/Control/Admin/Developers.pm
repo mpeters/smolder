@@ -59,7 +59,6 @@ sub reset_pw {
     my $email  = $dev->email;
     my $user   = $dev->username;
     my $new_pw = $dev->reset_password();
-    Smolder::DB->dbi_commit();
 
     # send the email
     my $error = Smolder::Email->send_mime_mail(
@@ -163,7 +162,6 @@ sub process_edit {
             die $@;
         }
     }
-    Smolder::DB->dbi_commit();
 
     # now show the successful message
     $self->add_message( msg => "Developer '" . $developer->username . "' has been successfully updated.");
@@ -250,7 +248,6 @@ sub process_add {
             die $@;
         }
     }
-    Smolder::DB->dbi_commit();
 
     # now show the successful message
     $self->add_message(msg => "New developer '" . $developer->username . "' successfully created.");
@@ -278,7 +275,6 @@ sub delete {
 
         my $username = $developer->username;
         $developer->delete();
-        Smolder::DB->dbi_commit();
         $self->add_message(msg => "Developer '$username' has been successfully deleted.");
     }
 

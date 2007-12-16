@@ -37,7 +37,6 @@ my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
         admin     => 1,
     }
 );
-Smolder::DB->dbi_commit();
 
 END {
     delete_developers();
@@ -71,7 +70,6 @@ $mech->content_contains('My Projects');
     $proj1->default_arch('Bar');
     $proj1->allow_anon(1);
     $proj1->update();
-    Smolder::DB->dbi_commit();
 
     # is form pre-filled
     $mech->get_ok("$url/$proj1");
@@ -90,7 +88,6 @@ $mech->content_contains('My Projects');
     ok( $mech->success );
     $mech->content_contains('Default Platform must be under 255 characters');
     $mech->content_contains('Default Architecture must be under 255 characters.');
-    Smolder::DB->dbi_commit();
 
     # valid form
     ok( $mech->form_name('admin_settings_form') );
@@ -98,7 +95,6 @@ $mech->content_contains('My Projects');
     $mech->submit();
     ok( $mech->success );
     $mech->contains_message('successfully updated');
-    Smolder::DB->dbi_commit();
 
     my $proj_id = $proj1->id;
     $proj1 = undef;
@@ -138,7 +134,6 @@ $mech->content_contains('My Projects');
     ok( $mech->success );
     $mech->contains_message('successfully added');
     $mech->content_contains( $categories[0] );
-    Smolder::DB->dbi_commit();
 
     # try to add it again
     $mech->form_name('project_categories_form');
@@ -155,7 +150,6 @@ $mech->content_contains('My Projects');
     $mech->contains_message('successfully added');
     $mech->content_contains( $categories[0] );
     $mech->content_contains( $categories[1] );
-    Smolder::DB->dbi_commit();
 
     # make sure they're all there
     foreach my $cat ( $proj1->categories ) {

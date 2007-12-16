@@ -35,7 +35,6 @@ my $proj1_dev =
   Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1_id } );
 my $proj2_dev =
   Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2_id } );
-Smolder::DB->dbi_commit();
 
 END {
     delete_developers();
@@ -220,7 +219,6 @@ $mech->content_contains('My Projects');
     # now make me an admin
     $proj1_dev->admin(1);
     $proj1_dev->update();
-    Smolder::DB->dbi_commit();
 
     # don't give all the necessary data
     $mech->get_ok("$url/$report_id");

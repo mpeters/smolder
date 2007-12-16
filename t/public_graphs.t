@@ -25,7 +25,6 @@ my $url   = base_url() . '/public_graphs';
 my $dev   = create_developer();
 my $proj1 = create_project();
 my $proj2 = create_project();
-Smolder::DB->dbi_commit();
 
 END {
     delete_developers();

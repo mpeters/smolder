@@ -87,8 +87,7 @@ SKIP: {
             preference => create_preference(),
         }
     );
-    Smolder::DB->dbi_commit();
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # successful tar.gz upload
     $out =
@@ -100,7 +99,7 @@ SKIP: {
     my $report_id = $1;
     my $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     isa_ok( $report, 'Smolder::DB::SmokeReport', 'report obj from .tar.gz');
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # succesful tar upload
     $out =
@@ -112,7 +111,7 @@ SKIP: {
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     isa_ok( $report, 'Smolder::DB::SmokeReport', 'report obj from .tar');
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # test optional options
     # comments
@@ -124,7 +123,7 @@ SKIP: {
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     is( $report->comments, $comments );
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # platform
     my $platform = "my platform";
@@ -136,7 +135,7 @@ SKIP: {
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
     is( $report->comments, $comments );
     is( $report->platform, $platform );
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # architecture
     my $arch = "128 bit something";
@@ -149,13 +148,12 @@ SKIP: {
     is( $report->comments,     $comments );
     is( $report->platform,     $platform );
     is( $report->architecture, $arch );
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 
     # category
     my $cat = 'fake category';
     $project->add_category($cat);
-    Smolder::DB->dbi_commit();
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
     $out =
 `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" --platform "$platform" --architecture "$arch" --category '$cat' 2>&1`;
     like( $out, qr/successfully uploaded/i );
@@ -166,5 +164,5 @@ SKIP: {
     is( $report->platform,     $platform );
     is( $report->architecture, $arch );
     is( $report->category,     $cat );
-    Smolder::DB->db_Main->disconnect();
+    Smolder::DB->disconnect();
 }

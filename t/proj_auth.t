@@ -28,7 +28,6 @@ my $url     = base_url() . '/developer_projects';
 my $pw      = 's3cr3t';
 my $dev     = create_developer( password => $pw );
 my $proj_id = create_project( public => 0 )->id();
-Smolder::DB->dbi_commit();
 
 END {
     delete_developers();

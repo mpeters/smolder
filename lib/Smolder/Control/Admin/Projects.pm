@@ -67,14 +67,12 @@ sub change_admin {
     # clear out the old admins
     if( $query->param('remove') ) {
         $project->clear_admins($dev->id);
-        Smolder::DB->dbi_commit();
         $self->add_message(
             msg => "Successfully removed developer '" . $dev->username 
                 . "' as an admin of '" . $project->name . "'."
         );
     } else {
         $project->set_admins($dev->id);
-        Smolder::DB->dbi_commit();
         $self->add_message(
             msg => "Successfully made developer '" . $dev->username 
                 . "' an admin of '" . $project->name . "'."
@@ -139,7 +137,6 @@ sub add_dev {
         if ($@) {
             die $@ unless $DB_PLATFORM->unique_failure_msg($@);
         } else {
-            Smolder::DB->dbi_commit();
             $self->add_message(
                 msg => "Developer '" . $dev->username 
                     . "' has been added to project '" . $proj->name . "'."
@@ -169,7 +166,6 @@ sub remove_dev {
             developer => $dev,
             project   => $proj,
         )->delete();
-        Smolder::DB->dbi_commit();
 
         $self->add_message(
             msg => "Developer '" . $dev->username 
@@ -313,7 +309,6 @@ sub process_add {
             die $@;
         }
     }
-    Smolder::DB->dbi_commit();
 
     # now show the project's success message
     my $msg = $id ?  "Project '" . $project->name . "' successfully updated."
@@ -369,7 +364,6 @@ sub delete {
 
         my $project_name = $project->name;
         $project->delete();
-        Smolder::DB->dbi_commit();
         $self->add_message(msg => "Project '$project_name' successfully deleted.");
     }
 

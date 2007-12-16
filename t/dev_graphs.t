@@ -30,7 +30,6 @@ my $proj2 = create_project();
 # add this $dev to $proj1 and $proj2
 my $proj_dev1 = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1 } );
 my $proj_dev2 = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2 } );
-Smolder::DB->dbi_commit();
 
 END {
     delete_developers();

@@ -85,7 +85,7 @@ SQLite to avoid locking the database
 sub get {
     my $self = shift;
     if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->db_Main->disconnect();
+        Smolder::DB->disconnect();
     }
     return $self->SUPER::get(@_);
 }
@@ -101,7 +101,7 @@ SQLite to avoid locking the database
 sub submit {
     my $self = shift;
     if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->db_Main->disconnect();
+        Smolder::DB->disconnect();
     }
     return $self->SUPER::submit(@_);
 }
@@ -117,7 +117,7 @@ SQLite to avoid locking the database
 sub request {
     my $self = shift;
     if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->db_Main->disconnect();
+        Smolder::DB->disconnect();
     }
     return $self->SUPER::request(@_);
 }

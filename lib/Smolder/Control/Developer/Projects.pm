@@ -98,7 +98,6 @@ sub smoke_test_validity {
     $report->invalid( $valid->{invalid} );
     $report->invalid_reason( $valid->{invalid_reason} );
     $report->update();
-    Smolder::DB->dbi_commit();
 
     # notify the user
     $self->add_message( 
@@ -457,7 +456,6 @@ sub process_admin_settings {
         $project->$field( $valid->{$field} );
     }
     $project->update();
-    Smolder::DB->dbi_commit();
 
     $self->add_message(
         msg => "Project settings successfully updated.",
@@ -519,7 +517,6 @@ sub add_category {
             die $@;
         }
     }
-    Smolder::DB->dbi_commit();
     $self->add_message(
         msg => "Category '$valid->{category}' successfully added to project '" 
             . $project->name . "'."
@@ -569,7 +566,6 @@ sub delete_category {
 
     # delete the old category
     $project->delete_category($cat);
-    Smolder::DB->dbi_commit();
 
     $self->add_message(
         msg => "Category '$cat' successfully delete from project '" 

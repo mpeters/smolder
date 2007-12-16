@@ -75,7 +75,6 @@ my $count = 0;
         );
         my $proj = Smolder::DB::Project->create( \%args );
         push( @projects, $proj );
-        Smolder::DB->dbi_commit();
         return $proj;
     }
 
@@ -85,7 +84,6 @@ my $count = 0;
                 $proj->delete();
             }
         }
-        Smolder::DB->dbi_commit();
     }
 }
 
@@ -123,7 +121,6 @@ Will delete all developers that were created by L<create_developer>.
         );
         my $dev = Smolder::DB::Developer->create( \%args );
         push( @developers, $dev );
-        Smolder::DB->dbi_commit();
         return $dev;
     }
 
@@ -133,7 +130,6 @@ Will delete all developers that were created by L<create_developer>.
                 $dev->delete();
             }
         }
-        Smolder::DB->dbi_commit();
     }
 
 }
@@ -167,7 +163,6 @@ Will delete all preferences that were created by L<create_preference>.
         );
         my $pref = Smolder::DB::Preference->create( \%args );
         push( @preferences, $pref );
-        Smolder::DB->dbi_commit();
         return $pref;
     }
 
@@ -177,7 +172,6 @@ Will delete all preferences that were created by L<create_preference>.
                 $pref->delete();
             }
         }
-        Smolder::DB->dbi_commit();
     }
 
 }
@@ -220,7 +214,6 @@ Will delete all test reports create by L<create_smoke_report>.
         );
         my $report = Smolder::DB::SmokeReport->upload_report( %args );
 
-        Smolder::DB->dbi_commit();
         return $report;
     }
 
@@ -230,7 +223,6 @@ Will delete all test reports create by L<create_smoke_report>.
                 $report->delete();
             }
         }
-        Smolder::DB->dbi_commit();
     }
 }
 
