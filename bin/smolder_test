@@ -69,7 +69,6 @@ END
 
 use Smolder::Script;
 use Smolder::Conf qw(InstallRoot);
-use lib '/home/mpeters/development/TAP-Harness-Archive/lib';
 use TAP::Harness::Archive;
 use TAP::Harness;
 use IO::Scalar;
@@ -94,7 +93,8 @@ tests. By default this option is false.
 
 Surpress any normal output from the different scripts that it uses, or
 any normal output it may emit itself. This will not silence fatal errors.
-By default this option is false.
+By default this option is false. If true, it will nullify the value
+of C<verbose>.
 
     ./bin/smolder_test --quiet
 
@@ -193,20 +193,22 @@ unshift @testfiles, $file if $file;
 @testfiles = grep( !/zzz_dbcount/, @testfiles );
 push @testfiles, $file if $file;
 
+# quiet cancels verbose
+if( $quiet ) {
+    $verbose = -2;
+}
+
 # if we want the TAP archive
 my $harness;
 if ($archive) {
     $harness = TAP::Harness::Archive->new({
-        verbose      => $verbose,
-        quiet        => $quiet,
-        really_quiet => $quiet,
-        archive      => 'smolder_test_run.tar.gz',
+        verbosity => $verbose,
+        archive   => 'smolder_test_run.tar.gz',
+        merge     => 1,
     });
 } else {
     $harness = TAP::Harness->new({
-        verbose      => $verbose,
-        quiet        => $quiet,
-        really_quiet => $quiet,
+        verbosity => $verbose,
     });
 }
 $harness->runtests(@testfiles);
