@@ -151,7 +151,8 @@ sub verify_dependencies {
     # check the database
     $pkg->check_databases( mode => $mode, no_mysql => $arg{no_mysql}, no_sqlite => $arg{no_sqlite} );
 
-    # look for libgd
+    # look for necessary libs
+    $pkg->check_libperl( mode => $mode );
     $pkg->check_libgd( mode => $mode );
 }
 
@@ -241,7 +242,7 @@ END
 
 Checks for the existance of the libgd shared object and header files.
 
-    check_libgd( mode  => 'install' );
+    check_libgd(mode  => 'install');
 
 =cut
 
@@ -253,6 +254,26 @@ sub check_libgd {
         name   => 'libgd',
         so     => 'libgd',
         module => 'GD',
+    );
+}
+
+=head2 check_libperl
+
+Checks for the existance of the libperl shared object and header files.
+
+    check_libperl(mode  => 'install');
+
+=cut
+
+sub check_libperl {
+    my ($pkg, %args) = @_;
+    $pkg->check_libs(
+        %args,
+        h        => 'perl.h',
+        name     => 'libperl',
+        so       => 'libperl',
+        includes => [catdir($Config{archlib}, 'CORE')],
+        libs     => [catdir($Config{archlib}, 'CORE')],
     );
 }
 
@@ -298,7 +319,7 @@ Optional.
 
 An array ref of directories to search for the .so files. 
 By default it will look in your directories in your Perl's 
-C<$Config{libpath}>.
+C<$Config{libpth}>.
 Optional.
 
 =back
@@ -322,16 +343,14 @@ sub check_libs {
     my $mod  = $args{module};
 
     # build lib/includes for following searches.
-    unless ( $args{libs} ) {
-        my @libs = split( " ", $Config{libpth} );
-        my @lib_files;
-        foreach my $lib (@libs) {
-            opendir( DIR, $lib ) or die $!;
-            push( @lib_files, grep { not -d $_ } readdir(DIR) );
-            closedir(DIR);
-        }
-        $args{libs} = \@lib_files;
+    my @libs = $args{libs} ? @{$args{libs}} : split(" ", $Config{libpth});
+    my @lib_files;
+    foreach my $lib (@libs) {
+        opendir( DIR, $lib ) or die $!;
+        push( @lib_files, grep { not -d $_ } readdir(DIR) );
+        closedir(DIR);
     }
+
     unless ( $args{includes} ) {
         my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
         $args{includes} = \@incs;
@@ -339,9 +358,8 @@ sub check_libs {
 
     if ($so) {
         my $re = qr/^$so/;
-
         die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
-          unless grep { /^$re/ } @{ $args{libs} };
+          unless grep { /^$re/ } @lib_files;
     }
 
     if ($h) {
