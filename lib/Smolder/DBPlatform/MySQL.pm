@@ -99,7 +99,7 @@ sub run_sql_file {
 
 sub dbh {
     my ($class, %args) = @_;
-    return DBI->connect_cached($self->connection_options(%args));
+    return DBI->connect_cached($class->connection_options(%args));
 }
 
 =head2 connection_options
