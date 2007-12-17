@@ -106,7 +106,7 @@ sub send_mime_mail {
     if( SMTPHost() ) {
         MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 );
     }
-    eval { $mime->send() };
+    eval { $mime->send() } unless $ENV{HARNESS_ACTIVE};
     return $@;
 }
 
