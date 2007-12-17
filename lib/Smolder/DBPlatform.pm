@@ -15,7 +15,7 @@ our %CONNECT_OPTIONS = (
     FetchHashKeyName   => 'NAME_lc',
     ShowErrorStatement => 1,
     ChopBlanks         => 1,
-    RootClass          => 'DBIx::ContextualFetch'
+    RootClass          => 'DBIx::ContextualFetch',
 );
 
 =head1 NAME
