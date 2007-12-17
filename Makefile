@@ -52,6 +52,9 @@ clean_db:
 test:
 	bin/smolder_test
 
+test_pollute:
+	for i in t/*.t; do ./bin/smolder_test --files "t/aaa_dbcount.t $$i t/zzz_dbcount.t" || break; done;
+
 db:
 	bin/smolder_createdb --destroy
 
