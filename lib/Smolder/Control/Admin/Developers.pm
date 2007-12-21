@@ -230,7 +230,7 @@ sub process_add {
     my $valid = $results->valid();
 
     # create a new preference for this developer;
-    my $pref = Smolder::DB::Preference->create( { email_type => 'full', email_freq => 'on_new' } );
+    my $pref = Smolder::DB::Preference->create();
     $valid->{preference} = $pref;
     my $developer;
 

@@ -12,6 +12,15 @@ __PACKAGE__->has_a(
     deflate              => sub { DateTime::Format::MySQL->format_datetime(shift) },
 );
 
+sub create {
+    my ($class, $args) = @_;
+    $args ||= {
+        email_type => 'full',
+        email_freq => 'on_new',
+    };
+    return $class->SUPER::create($args);
+}
+
 =head1 NAME
 
 Smolder::DB::Preference
