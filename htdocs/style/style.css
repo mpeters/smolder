@@ -674,3 +674,10 @@ div.crud .list_container {
     /* filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/images/error_overlay.png", sizingMethod="scale"); */
 }
 
+/* Graphs */
+img.graph {
+    border: 1px solid #BBBBBB;
+    border-right-color: #555555;
+    border-bottom-color: #555555;
+}
+
