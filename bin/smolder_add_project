@@ -1,0 +1,187 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+=head1 NAME
+
+smolder_add_project - add a new project to Smolder
+
+=head1 SYNOPSIS
+
+  bin/smolder_add_project --name Foo --public
+
+=head1 DESCRIPTION
+
+This script will create a new Smolder project.
+
+=head1 OPTIONS
+
+=head2 Required
+
+=over
+
+=item name
+
+The project's name.
+
+=back
+
+=head2 Optional
+
+=item start_date
+
+The starting date for the project. Must be in C<YYYY-MM-DD> format.
+Defaults to today.
+
+=item public
+
+A boolean indicating whether or not this project is public or not.
+Default is true.
+
+=item enable_feed
+
+A boolean indicating whether or not this project should have Atom feeds.
+Default is true.
+
+=item allow_anon
+
+A boolean indicating whether or not this project should allow anonymous reports
+from non-logged-in users.
+Default is false.
+
+=item default_arch
+
+The default architecture for this project.
+
+=item default_platform
+
+The default platform for this project.
+
+=item category
+
+A category by which you can organize your reports for this project.
+This can be specified multiple times to add multiple categories.
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # load Smolder::Conf
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::DB::Project;
+use Smolder::DBPlatform;
+use DateTime;
+use Getopt::Long;
+use Pod::Usage;
+use Data::Dumper;
+
+my ($v, $h, $man, $name, $start_date, $public, $enable_feed, $platform, $arch, $anon, @cats);
+
+GetOptions(
+    'verbose!'           => \$v,
+    'help!'              => \$h,
+    'man!'               => \$man,
+    'name=s'             => \$name,
+    'public!'            => \$public,
+    'enable_feed!'       => \$enable_feed,
+    'allow_anon!'        => \$anon,
+    'start_date=s'       => \$start_date,
+    'default_platform=s' => \$platform,
+    'default_arch=s'     => \$arch,
+    'category=s'         => \@cats,
+) || pod2usage();
+
+if ($h) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 1,
+    );
+} elsif ($man) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 2,
+    );
+}
+
+# check for the required stuff
+whine("You must provide a name.") unless $name;
+
+my $DB_PLATFORM = Smolder::DBPlatform->load();
+my %create_data = (
+    name => $name,
+);
+$create_data{default_platform} = $platform if $platform;
+$create_data{default_arch} = $arch if $arch;
+$create_data{public} = 1 if $public;
+$create_data{enable_feed} = 1 if $enable_feed;
+$create_data{allow_anon} = 1 if $anon;
+
+if( $start_date ) {
+    my $format = new DateTime::Format::Strptime(
+        pattern   => '%F',
+        time_zone => 'local',
+    );
+    eval { $start_date = $format->parse_datetime($start_date) };
+    whine("--start-date must be in the YYYY-MM-DD format.") unless $start_date;
+    $create_data{start_date} = $start_date;
+} else {
+    $create_data{start_date} = DateTime->now();
+}
+
+if( $v ) {
+    $Data::Dumper::Maxdepth = 1;
+    print "Creating project with data " . Dumper(\%create_data) . "\n";
+}
+
+my $proj;
+eval { 
+    $proj = Smolder::DB::Project->create(\%create_data);
+};
+if( $@ ) {
+    if( $DB_PLATFORM->unique_failure_msg($@) ) {
+        print "Name $name is already in use by another project.\n";
+    } else {
+        print "Could not create project! $@\n";
+    }
+    exit(0);
+} else {
+    print "Project #$proj successfully created.\n";
+}
+
+
+sub whine {
+    print "$_[0]\n";
+    exit(0);
+}
+
+
