@@ -213,7 +213,8 @@ database if validation passes. Uses the F<Admin/Developers/add_success.tmpl>.
 sub process_add {
     my $self = shift;
     my $form = {
-        required           => [qw(username fname lname email password admin)],
+        required           => [qw(username email password admin)],
+        optional           => [qw(fname lname)],
         constraint_methods => {
             username => [ length_max(255), unique_field_value( 'developer', 'username' ), ],
             fname    => length_max(255),
