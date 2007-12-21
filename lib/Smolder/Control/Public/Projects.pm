@@ -66,7 +66,7 @@ Shows a list of all the public projects.
 
 sub show_all {
     my $self  = shift;
-    my @projs = Smolder::DB::Project->search( public => 1 );
+    my @projs = Smolder::DB::Project->search(public => 1, {order_by => 'name'});
 
     return $self->tt_process( { projects => \@projs } );
 }

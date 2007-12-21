@@ -226,7 +226,7 @@ template.
 
 sub list {
     my $self     = shift;
-    my @projects = Smolder::DB::Project->retrieve_all();
+    my @projects = Smolder::DB::Project->retrieve_all_sorted_by('name');
     my %tt_params;
     $tt_params{projects} = \@projects if (@projects);
 

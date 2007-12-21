@@ -32,11 +32,13 @@
 [% IF public_projects.size %]
     <li[% UNLESS username %] class="first"[% END %]>
       <a href="/app/public_projects"[% IF public_projects.size %] class="menu"[% END %]>public projects</a>
+    [% IF public_projects.size < 20 %]
       <ul>
       [% FOREACH proj = c.public_projects %]
         <li><a href="/app/public_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a></li>
       [% END %]
       </ul>
+    [% END %]
     </li>
 [% END %]
 

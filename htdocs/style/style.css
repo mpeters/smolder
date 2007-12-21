@@ -90,9 +90,10 @@ a:visited {
     height: auto;
     width: auto;
     min-width: 120px;
-    border:1px solid #555555;
-    border-bottom-width: 1px;
-    border-right-width: 2px;
+    max-width: none;
+    border: 1px solid #BBBBBB;
+    border-right-color: #555555;
+    border-bottom-color: #555555;
     line-height: 18px;
     background-color: #DDDDDD;
     position: absolute;
@@ -116,6 +117,7 @@ a:visited {
     border-bottom: 1px solid #555555;
     padding: 1px 5px;
     display: block;
+    height: 1.3em;
 }
 
 #top_nav ul ul a:hover {

@@ -99,7 +99,7 @@ This method will return the L<Smolder::DB::Projects> that are marked as 'public'
 
 sub public_projects {
     my $self = shift;
-    my @projs = Smolder::DB::Project->search( public => 1 );
+    my @projs = Smolder::DB::Project->search( public => 1, { order_by => 'name' });
     return \@projs;
 }
 
