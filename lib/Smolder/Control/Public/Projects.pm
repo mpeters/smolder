@@ -134,6 +134,7 @@ sub feed {
         WHERE p.enable_feed = 1 AND p.id = ?
     /;
     my $id = $self->param('id');
+    my $project = Smolder::DB::Project->retrieve($id);
     my $type = $self->param('type');
     push(@binds, $id);
 
@@ -150,7 +151,7 @@ sub feed {
     $self->header_props(-type => 'text/xml');
 
     my $feed = XML::Atom::SimpleFeed->new(
-        title   => 'Smolder - ' . HostName,
+        title   => '[' . $project->name . '] Smolder - ' . HostName,
         link    => $self->url_base,
         id      => $self->url_base,
         updated => $reports[0]->added->strftime('%FT%TZ'),
