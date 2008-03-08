@@ -4,6 +4,8 @@
 
 =over
 
+=item * Fixed problems with documentation - Slaven Rezic, M. Peters
+
 =item * The default C<DBPlatform> is now SQLite instead of MySQL - M. Peters
 
 =item * When re-installing, smolder_install calls smolder_unistall with invalid params - Reported by Andy Lester, fixed by M. Peters
