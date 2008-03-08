@@ -663,7 +663,7 @@ sub set_param_defaults {
         DBName      => 'smolder',
         DBUser      => 'smolder',
         DBPass      => 'smolder',
-        DBPlatform  => 'MySQL',
+        DBPlatform  => 'SQLite',
     );
 
     # Set up defaults if value is not otherwise set
