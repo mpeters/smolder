@@ -80,7 +80,7 @@ change_admin = function(input) {
       <form name="remove_dev_[% dev.id %]" action="/app/admin_projects/remove_dev" type="post" class="ajaxable">
         <input type="hidden" name="project" value="[% project.id %]" />
         <input type="hidden" name="developer" value="[% dev.id %]" />
-        <input type="submit" value="Remove" />
+        <input type="button" value="Remove" onclick="remove_developer([% dev.id %])"/>
       </form>
     </td>
   </tr>
@@ -90,4 +90,17 @@ change_admin = function(input) {
 [% ELSE %]
   <p class="pushdown">No developers are currently assigned to this project.</p>
 [% END %]
+</form>
 </div>
+
+<form name="remove_dev" id="remove_dev_form" action="/app/admin_projects/remove_dev" type="post" class="ajaxable">
+  <input type="hidden" name="project" value="[% project.id %]" />
+  <input type="hidden" name="developer" value="" />
+</form>
+<script type="text/javascript">
+remove_developer = function (id) {
+    var form = $('remove_dev_form');
+    form.elements['developer'].value = id;
+    form.onsubmit();
+}
+</script>

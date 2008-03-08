@@ -18,10 +18,10 @@ Object.extend(Smolder.CRUD.prototype, {
         // initialize these if we don't already have a crud
         this.add_shown = false;
         // find the containers, triggers and indicator that won't change
-        this.list_container = document.getElementsByClassName('list_container', this.div)[0];
-        this.add_container  = document.getElementsByClassName('add_container', this.div)[0];
-        this.indicator      = document.getElementsByClassName('indicator', this.div)[0].id;
-        this.add_trigger    = document.getElementsByClassName('add_trigger', this.div)[0];
+        this.list_container = this.div.select('.list_container')[0];
+        this.add_container  = this.div.select('.add_container')[0];
+        this.indicator      = this.div.select('.indicator')[0].id;
+        this.add_trigger    = this.div.select('.add_trigger')[0];
         // add the handlers for the triggers
         this.add_trigger.onclick = function() {
             this.toggle_add();
@@ -36,8 +36,8 @@ Object.extend(Smolder.CRUD.prototype, {
         Smolder.CRUD.remember(this);
     },
     refresh: function() {
-        this.edit_triggers   = document.getElementsByClassName('edit_trigger', this.list_container);
-        this.delete_triggers = document.getElementsByClassName('delete_trigger', this.list_container);
+        this.edit_triggers   = $(this.list_container).select('.edit_trigger');
+        this.delete_triggers = $(this.list_container).select('.delete_trigger');
 
         this.edit_triggers.each( 
             function(trigger) {
@@ -88,7 +88,7 @@ Object.extend(Smolder.CRUD.prototype, {
         });
     },
     _handle_form_submit: function(name) {
-        var form = document.getElementsByClassName(name, this.add_container)[0];
+        var form = $(this.add_container).select('.' + name)[0];
         if( form ) {
             form.onsubmit = function() {
                 this.submit_change(form);
@@ -113,7 +113,7 @@ Object.extend(Smolder.CRUD.prototype, {
                 this.add_shown = true;
 
                 // setup the 'cancel' button
-                var cancel = document.getElementsByClassName('edit_cancel', this.add_container)[0];
+                var cancel = $(this.add_container).select('.edit_cancel')[0];
                 cancel.onclick = function() { this.hide_add(); }.bindAsEventListener(this);
 
                 // make sure we submit the add changes correctly
@@ -147,7 +147,7 @@ Object.extend(Smolder.CRUD.prototype, {
     submit_change: function(form) {
 
         // find the add_inidicator
-        var indicator = document.getElementsByClassName('add_indicator', this.add_container)[0].id;
+        var indicator = $(this.add_container).select('.add_indicator')[0].id;
         Smolder.Ajax.form_update({
             form       : form,
             target     : this.add_container.id,

@@ -1,27 +1,20 @@
 var myrules = {
     'a.calendar_trigger'  : function(element) {
-        // remove a possible previous calendar
-        if( element.calendar != null )
-            Element.remove(element.calendar);
-
         // now find the id's of the calendar div and input based on the id of the trigger
         // triggers are named $inputId_calendar_trigger, and calendar divs are named 
         // $inputId_calendar
-        var calId = element.id.replace(/_trigger$/, '');
         var inputId = element.id.replace(/_calendar_trigger/, '');
+        var input = $(inputId);
 
-        // remove anything that might be attached to the calendar div
-        // this prevents multiple calendars from being created for the same
-        // trigger if Behaviour.apply() is called
-        $(calId).innerHTML = '';
-        new DatePicker(
-            calId, 
-            inputId, 
-            element.id, 
-            { 
-                format: DateUtil.simpleFormat('MM/dd/yyyy') 
-            }
-        );
+        Calendar.setup({
+            inputField  : input.name,
+            ifFormat    : "%m/%d/%Y",
+            button      : element.id,
+            weekNumbers : false,
+            showOthers  : true,
+            align       : 'CL',
+            cache       : true
+        });
     },
     
     'a.smoke_reports_nav' : function(element) {

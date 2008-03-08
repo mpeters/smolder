@@ -20,6 +20,10 @@
 
 =item * Added Fedora 7 & 8 as a build target - M. Peters
 
+=item * Changed the Javascript calendar library we're using - M. Peters
+
+=item * Upgraded Prototype and Scriptaculous JS libraries - M. Peters
+
 =back
 
 =head2 1.2

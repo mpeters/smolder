@@ -4,6 +4,8 @@
 
 =over
 
+=item * Allow anonymous uploads via smolder_smoke_signal
+
 =item *
 
 Graphing of execution times over time. When combined with a graph of the

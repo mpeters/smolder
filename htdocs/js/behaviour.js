@@ -10,7 +10,7 @@
 var Behaviour = {
     rules : $H({}),
     register : function(new_rules) {
-        Behaviour.rules.merge(new_rules);
+        Behaviour.rules = Behaviour.rules.merge(new_rules);
     },
     apply : function(el) {
         Behaviour.rules.each(function(pair) {
@@ -19,11 +19,11 @@ var Behaviour = {
 //var start_time = new Date().valueOf();
 //console.log('applying: ' + rule);
             var behaviour = pair.value;
-            // if we have an element, use Element.getElementsBySelector()
+            // if we have an element, use Element.select()
             // else use $$() to find the targets
             var targets;
             if( el ) {
-                targets = $(el).getElementsBySelector(rule);
+                targets = $(el).select(rule);
             } else {
                 targets = $$(rule);
             }

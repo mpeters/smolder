@@ -77,9 +77,9 @@ body {
 }
 
 #message_container div.info, #message_container div.warning {
-    border: 1px dotted #e1b856;
-    border-bottom: 2px solid #777777;
-    border-right: 2px solid #777777;
+    border: 1px dotted #E1B856;
+    border-bottom: 1px dotted #555;
+    border-right: 1px dotted #555;
     padding: 10px;
     padding-left: 30px;
     margin-bottom: 10px;
@@ -292,17 +292,6 @@ a.sub_menu:hover {
     background: #C47147 url('/images/sub_menu_bg-over.gif') no-repeat bottom right;
 }
 
-a.calendar_trigger {
-    text-decoration: none;
-    background: url('/images/calendar.gif');
-    padding-right: 20px;
-    background-repeat: no-repeat;
-}
-
-div.calendar_container {
-    position: absolute;
-}
-
 div.sub_menu {
     padding-bottom: 12px;
 }
@@ -435,109 +424,47 @@ a.button.invert:hover {
 }
 
 
-/* Calendar DatePicker Styles */
-.datepicker {
-  border: 1px solid gray;
-  font-size: 13px;
-  width: 175px;
-  height: 140px;
-  background-color: #FFFFFF;
-  color: #000000;
-}
-
-/* header */
-.datepicker_header {
-  padding-top: 3px;
-  width: 100%;
-  height: 20px;
-  background-color: #E6E6FA;
-  border-bottom: 1px solid #808080;
-  color: #808080;
-  font-weight: bold;
-}
-
-.datepicker_preYears {
-  position: relative;
-  left: 5px;
-  float: left;
-}
-
-.datepicker_mark {
-  float: left;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.datepicker_markHover {
-  float: left;
-  margin-right: 5px;
-  cursor: pointer;
-  color: #FF8080;
-  background-color: #E6E6FA;
-}
-
-.datepicker_nextYears {
-  position: relative;
-  left: 25px;
-  float: left;
-}
-
-.datepicker_years {
-  position: relative;
-  left: 5px;
-  width: 80px;
-  float: left;
-}
-
-.datepicker_ym {
-  margin-left: 10px;
-}
-
-
-/* calendar */
-.datepicker_calendar {
-  padding-top: 5px;
-  color: #000000;
-  background-color: #FFFFFF;
-}
-
-.datepicker_table {
-  font-size: 11px;
-  text-align: center;
-}
-
-.datepicker_tableTh {
-  color: #778899;
-  background-color: #FFFFFF;
-}
-
-.datepicker_date {
-  cursor: pointer;
-  color: #000000;
-  background-color: #FFFFFF;
-}
-
-.datepicker_holiday {
-  cursor: pointer;
-  background-color: #FFFFFF;
-  font-weight: bold;
-  color: #FF8080;
-}
-
-.datepicker_dateHover {
-  cursor: pointer;
-  background-color: #E6E6FA;
-  font-weight: bold;
-  color: #FF8080;
-}
-
-.datepicker_holidayHover {
-  cursor: pointer;
-  background-color: #E6E6FA;
-  font-weight: bold;
-  color: #FF8080;
-}
-
+/* Calendar styles */
+a.calendar_trigger { text-decoration: none; background: url('/images/calendar.gif'); padding-right: 20px; background-repeat: no-repeat; }
+a.calendar_trigger:hover { cursor: pointer; }
+div.calendar_container { position: absolute }
+div.calendar               { position: relative; }
+.calendar, .calendar table { background: #666; color: #FFF; cursor: default; }
+/* navigation buttons */
+.calendar .button { height: 15px; font-weight: bold; text-align: center; }
+/* 'Month Year' labeling */
+.calendar thead .title { background: #555; color: #FFF; font-size: 11px; font-weight: bold; text-align: center; }/*:FIX(db2)*/
+/* TR containing navigation buttons */
+.calendar thead .headrow { background: #778; color: #FFF; }
+/* TR containing day names */
+.calendar thead .daynames { background: #FF8080; }
+/* TDs containing the day names */
+.calendar thead .name { background-color: #C47147; color: #FFF; font-size: 12px; font-weight: bold; text-align: center; }
+/* button :hover state */
+.calendar thead .hilite { color: #000; }
+/* button :active state */
+.calendar thead .active { color: #666; }
+/* TDs containing particular days */
+.calendar tbody .day { color: #666; width: 1.5em; padding: 2px 4px 2px 2px; text-align: center; font-size: .8em; }
+.calendar tbody .day.othermonth { font-weight: normal; }
+.calendar tbody td   { background-color: #FFF; font-weight: bold; }
+/* TD :hover state */
+.calendar tbody td.hilite { background-color: #C47147; color: #EEEEEE; }
+/* TD :active state */
+.calendar tbody td.active { background: #666; }
+/* selected day */
+.calendar tbody td.selected { background-color: #C47147;; color: #EEEEEE; }
+/* weekends */
+.calendar tbody td.weekend, .calendar tbody td.oweekend { background-color: #E1B856; }
+.calendar tbody td.weekend.hilite, .calendar tbody td.oweekend.hilite { background-color: #C47147; color: #EEEEEE; }
+.calendar tbody td.weekend.selected, .calendar tbody td.oweekend.selected { background-color: #C47147;; color: #EEEEEE; }
+/* today, etc. */
+.calendar tbody td.today   { color: #000; }
+.calendar tbody .disabled  { color: #666; }
+.calendar tbody .emptycell { visibility: hidden; }
+/* some months need fewer than six rows */
+.calendar tbody .emptyrow { display: none; }
+.calendar tfoot { display: none; }
 
 /* accordion styles */
 div.accordion, div.fake_accordion {
@@ -548,7 +475,7 @@ div.accordion, div.fake_accordion {
 
 div.accordion > div.panel, div.fake_accordion > div.panel {
     border-bottom: 1px solid #000000;
-background-color: blue;
+    background-color: blue;
 }
 
 div.accordion > div.panel > div.header, div.fake_accordion > div.panel > div.header {

@@ -39,7 +39,7 @@ var myrules = {
         Smolder.setup_tooltip(el, el);
     },
     'td.tooltip_trigger' : function(el) {
-        var diag = document.getElementsByClassName('tooltip', el)[0];
+        var diag = $(el).select('.tooltip')[0];
         Smolder.setup_tooltip(el, diag);
     },
     'a.show_all' : function(el) {

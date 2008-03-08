@@ -270,24 +270,6 @@ Smolder.show_error = function() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-Smolder.new_accordion = function(element_name, height) {
-    new Rico.Accordion(
-        $(element_name),
-        {
-            panelHeight         : height,
-            expandedBg          : '#C47147',
-            expandedTextColor   : '#FFFFFF',
-            collapsedBg         : '#555555',
-            collapsedTextColor  : '#FFFFFF',
-            hoverBg             : '#BBBBBB',
-            hoverTextColor      : '#555555',
-            borderColor         : '#DDDDDD'
-        }
-    );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 Smolder._shownPopupForm = '';
 Smolder._shownForm = '';
 Smolder.togglePopupForm = function(formId) {
@@ -495,19 +477,23 @@ Smolder.show_messages = function(json) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 Smolder.__message_count = 0;
+Smolder.message_template = new Template('<div class="#{type}" id="message_#{count}">#{text}</div>');
 Smolder.show_message = function(type, text) {
     Smolder.__message_count++;
     // insert it at the top of the messages
-    new Insertion.Top(
-        $('message_container'),
-        '<div class="' + type + '" id="message_' + Smolder.__message_count + '">' + text + '</div>'
-    );
+    $('message_container').insert({ 
+        top: Smolder.message_template.evaluate({
+            type  : type, 
+            count : Smolder.__message_count, 
+            text  : text
+        }) 
+    });
 
     // fade it out after 10 secs, or onclick
     var el = $('message_' + Smolder.__message_count);
     var fade = function() { new Effect.Fade(el, { duration: .4 } ); };
     el.onclick = fade;
-    setTimeout(fade, 10000);
+    setTimeout(fade, 70000);
 }
 
 
