@@ -18,7 +18,7 @@
 
 =item * Upgraded some CPAN components and removed a lot dependencies that were no longer necessary - M. Peters
 
-=item * Added Fedora 7 as a build target - M. Peters
+=item * Added Fedora 7 & 8 as a build target - M. Peters
 
 =back
 
