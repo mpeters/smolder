@@ -11,13 +11,9 @@ Smolder has been built and used on the following platforms:
 
 =over
 
-=item * Fedora Core 3
+=item * Fedora 3-8
 
-=item * Fedora Core 4
-
-=item * Fedora Core 5
-
-=item * Fedora Core 6
+=item * FreeBSD 7.0
 
 =back
 
@@ -139,17 +135,6 @@ must choose different HostNames for each.
 IP address used for the Smolder Apache server and FTP server.  You'll
 need to arrange DNS to point this IPAddress at HostName.
 
-=item DBUser
-
-Name of MySQL user which is used by this CMS installation (e.g.,
-"smolderdb").  This user will be created if it does not exist.
-
-=item DBPass
-
-MySQL user password which is used by this Smolder installation (e.g.,
-"xyzzy").  If the MySQL user already exists this must be the correct
-password for the user.
-
 =back
 
 =head2 Optional Variables
@@ -158,25 +143,45 @@ Other variables may be required, depending on your installation needs:
 
 =over 4
 
+=item DBPlatform
+
+This specifies which database platform this install of Smolder will use.
+Smolder currently supports the following databases: MySQL and SQLite.
+The default is SQLite.
+
+=item DBUser
+
+Name of MySQL database user which is used by this installation (e.g.,
+"smolderdb").  This user will be created if it does not exist. 
+This option is only needed if your C<DBPlatform> is set to "MySQL"
+
+=item DBPass
+
+MySQL user password which is used by this Smolder installation (e.g.,
+"xyzzy").  If the MySQL user already exists this must be the correct
+password for the user.
+This option is only needed if your C<DBPlatform> is set to "MySQL"
+
 =item AdminDBPass
 
 Defaults to "" (none).  The password for the MySQL user "root" who is
 assumed to exist, and to have full access to MySQL.  If the "root"
 user doesn't exist or has restricted access you must change your MySQL
 configuration before installing Smolder.
+This option is only needed if your C<DBPlatform> is set to "MySQL"
 
 =item InstallPath
 
 Defaults to "/usr/local/smolder".  Directory into which Smolder should be
 installed.
 
-=item SmolderUser
+=item User
 
 Defaults to "smolder".  UNIX user for process ownership (Apache, etc.),
 file ownership and install location.  This user will be created if it
 does not exist.
 
-=item SmolderGroup
+=item Group
 
 Defaults to "smolder".  UNIX group for process ownership (Apache, etc.),
 file ownership and install location.  This group will be created if it
@@ -194,6 +199,11 @@ by Smolder for sending email alerts.
 =item FromAddress
 
 Email address used as the 'From' address on all outgoing emails
+
+=item FromBackup
+
+If you are installing Smolder from a previous backup, then specify that
+here. Data and settings from the backup will be preserved in the new install.
 
 =back
 
