@@ -20,4 +20,7 @@ sub guess_platform() {
 	}
 }
 
+# Debian puts their include files in a different spot
+sub include_dirs { ('/usr/lib') }
+
 1;

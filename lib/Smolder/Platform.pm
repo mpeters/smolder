@@ -342,30 +342,29 @@ sub check_libs {
     my $h    = $args{h};
     my $mod  = $args{module};
 
-    # build lib/includes for following searches.
-    my @libs = $args{libs} ? @{$args{libs}} : split(" ", $Config{libpth});
-    my @lib_files;
-    foreach my $lib (@libs) {
-        opendir( DIR, $lib ) or die $!;
-        push( @lib_files, grep { not -d $_ } readdir(DIR) );
-        closedir(DIR);
-    }
-
-    unless ( $args{includes} ) {
-        my @incs = ( $Config{usrinc}, '/include', '/usr/local/include' );
-        $args{includes} = \@incs;
-    }
-
     if ($so) {
-        my $re = qr/^$so/;
-        die "\n\n$name is missing from your system.\n" . "This library is required by Smolder.\n\n"
+        # build lib/includes for following searches.
+        my @libs = split(" ", $Config{libpth});     # what Perl knows about
+        push(@libs, $pkg->header_dirs);             # platform specific dirs
+        push(@libs, @{$args{libs}}) if $args{libs}; # extra dirs supplied when called
+        my @lib_files;
+        foreach my $lib (@libs) {
+            opendir( DIR, $lib ) or die $!;
+            push( @lib_files, grep { not -d $_ } readdir(DIR) );
+            closedir(DIR);
+        }
+
+        my $re = qr/^\Q$so\E/;
+        die "\n\n$name is missing from your system.\nThis library is required by Smolder.\n\n"
           unless grep { /^$re/ } @lib_files;
     }
 
     if ($h) {
-        unless ( $mode eq 'install'
-            or grep { -e catfile( $_, $h ) } @{ $args{includes} } )
-        {
+        my @incs = split(" ", $Config{usrinc});             # what Perl knows about
+        push(@incs, $pkg->include_dirs);                    # platform specific dirs
+        push(@incs, @{$args{includes}}) if $args{includes}; # extra dirs supplied when called
+        
+        unless ( $mode eq 'install' or grep { -e catfile( $_, $h ) } @incs ) {
             my $msg = "The header file for $name, '$h', is missing from your system.";
             $msg .= "This file is needed to compile the $mod module which uses $name." if ($name);
             die $msg;
@@ -1120,6 +1119,24 @@ This method let's us know if this plaform has the C<sudo> command.
 =cut
 
 sub has_sudo { 1 };
+
+=head2 header_dirs
+
+This method will return a list of platform specific directory paths to
+use when searching for header files.
+
+=cut
+
+sub header_dirs { }
+
+=head2 include_dirs
+
+This method will return a list of platform specific directory paths to
+use when searching for included library files.
+
+=cut
+
+sub include_dirs { ('/include', '/usr/local/include') }
 
 sub _load_expect {
 
