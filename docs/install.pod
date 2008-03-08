@@ -12,7 +12,7 @@ has a basic understanding of what Smolder does and how it looks when it
 is working.
 
 Note: this probably won't work unless you're running on a supported
-platform.  See F<pod/ops_install.pod> for the list of supported
+platform.  See F<docs/ops_install.pod> for the list of supported
 platforms.
 
 =head2 Smolder Install Steps
