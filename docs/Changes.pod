@@ -4,6 +4,8 @@
 
 =over
 
+=item * Fixed some various platform install problems because we weren't detecting missing libraries, or we couldn't find libraries that were already installed. Devel::CheckLib to the rescure - Slaven Rezic, M. Peters
+
 =item * Fixed problems with documentation - Slaven Rezic, M. Peters
 
 =item * The default C<DBPlatform> is now SQLite instead of MySQL - M. Peters
