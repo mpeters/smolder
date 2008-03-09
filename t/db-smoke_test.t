@@ -12,7 +12,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile catdir);
 use Test::LongString;
 
-plan( tests => 69 );
+plan( tests => 80 );
 
 # setup
 END { delete_developers() }
@@ -99,4 +99,27 @@ for(0.. ($report->test_files -1)) {
     ok(!-e catfile($data_dir, 'html', "$_.html"), "Test $_ HTML has been removed");
 }
 ok( !-d $data_dir, 'data directory removed');
+
+# add_tag, tags and delete_tag
+$report->add_tag('foo');
+$report->add_tag('bar');
+my @tags = $report->tags();
+is(scalar @tags, 2, 'correct tag count');
+is($tags[0], 'bar', 'correct 1st tag');
+is($tags[1], 'foo', 'correct 2nd tag');
+$report->add_tag('apple');
+@tags = $report->tags();
+is(scalar @tags, 3, 'correct tag count');
+is($tags[0], 'apple', 'correct 1st tag');
+is($tags[1], 'bar', 'correct 2nd tag');
+is($tags[2], 'foo', 'correct 3rd tag');
+$report->delete_tag('bar');
+@tags = $report->tags();
+is(scalar @tags, 2, 'correct tag count');
+is($tags[0], 'apple', 'correct 1st tag');
+is($tags[1], 'foo', 'correct 2nd tag');
+$report->delete_tag('foo');
+$report->delete_tag('apple');
+@tags = $report->tags();
+is(scalar @tags, 0, 'no tags left');
 

@@ -33,13 +33,29 @@
       <td>[% report.duration %] secs</td>
     </tr>
     [% END %]
-    [% FOREACH label IN ['platform', 'architecture', 'category', 'comments'] %]
-      [% IF report.$label %]
-      <tr>
-        <th[% IF loop.last %] class="last"[% END %]>[% label | ucfirst %]</th>
-        <td[% IF loop.last %] class="last"[% END %]>[% report.$label | html | html_line_break %]</td>
-      </tr>
-      [% END %]
+    [% IF report.platform %]
+    <tr>
+      <th>Platform</th>
+      <td>[% report.platform | html | html_line_break %]</td>
+    </tr>
+    [% END %]
+    [% IF report.architecture %]
+    <tr>
+      <th>Architecture</th>
+      <td>[% report.architecture | html | html_line_break %]</td>
+    </tr>
+    [% END %]
+    [% IF report.tags %]
+    <tr>
+      <th>Tags</th>
+      <td>[% report.tags.join(', ') | html | html_line_break %]</td>
+    </tr>
+    [% END %]
+    [% IF report.comments %]
+    <tr>
+      <th class="last">Comments</th>
+      <td class="last">[% report.comments | html | html_line_break %]</td>
+    </tr>
     [% END %]
     </tbody>
     <tfoot>

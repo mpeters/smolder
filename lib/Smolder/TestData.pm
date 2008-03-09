@@ -205,6 +205,8 @@ Will delete all test reports create by L<create_smoke_report>.
         my %args = @_;
         require Smolder::DB::SmokeReport;
 
+        my $tags = delete $args{tags} || [];
+
         # set some defaults
         %args = (
             file => catfile( $config->get('InstallRoot'), 't', 'data', 'test_run_bad.tar.gz' ),
@@ -213,6 +215,9 @@ Will delete all test reports create by L<create_smoke_report>.
             %args,
         );
         my $report = Smolder::DB::SmokeReport->upload_report( %args );
+
+        # now add any tags
+        $report->add_tag($_) foreach (@$tags);
 
         return $report;
     }

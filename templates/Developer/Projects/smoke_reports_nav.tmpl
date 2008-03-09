@@ -2,25 +2,25 @@
   <form class="ajaxable show_paging_indicator" name="smoke_reports" id="smoke_reports" action="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]" method="get">
     <input type="hidden" name="offset" value="" />
     <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="paging_indicator" alt="loading" />
-    [% SET cats = project.categories %]
-    [% IF cats %]
+    [% SET tags = project.tags %]
+    [% IF tags %]
     <span>
-    <select name="category" class="auto_submit">
-      <option value="">--Category--</option>
-      [% FOREACH cat IN cats %]
-        <option value="[% cat | html %]"[% IF category == cat %]selected="selected"[% END %]>[% cat | html %]</option>
+    <select name="tag" class="auto_submit">
+      <option value="">--Tag--</option>
+      [% FOREACH t IN tags %]
+        <option value="[% t | html %]"[% IF t == tag %]selected="selected"[% END %]>[% t | html %]</option>
       [% END %]
     </select>
     </span>
     [% END %]
     [% IF limit && (offset - limit >= 0) %]
-      <a class="smoke_reports_nav offset_[% offset - limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset - limit %];limit=[% limit %];category=[% category %]" style="text-decoration: none">&lArr;</a>
+      <a class="smoke_reports_nav offset_[% offset - limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset - limit %];limit=[% limit %];tag=[% tag %]" style="text-decoration: none">&lArr;</a>
     [% ELSE %]
       &lArr;
     [% END %]
     |
-    [% IF limit && ((offset + limit) < project.report_count(category)) %]
-      <a class="smoke_reports_nav offset_[% offset + limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset + limit %];limit=[% limit %];category=[% category %]" style="text-decoration: none">&rArr;</a>
+    [% IF limit && ((offset + limit) < project.report_count(tag)) %]
+      <a class="smoke_reports_nav offset_[% offset + limit %]" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]?offset=[% offset + limit %];limit=[% limit %];tag=[% tag %]" style="text-decoration: none">&rArr;</a>
     [% ELSE %]
       &rArr;
     [% END %]

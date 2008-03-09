@@ -38,20 +38,11 @@ __PACKAGE__->has_a(
 );
 
 # make sure we delete any test_report directories associated with us
-# also delete any categories too
 __PACKAGE__->add_trigger(
     before_delete => sub {
         my $self = shift;
         my $dir = catdir( InstallRoot, 'data', 'smoke_reports', $self->id );
         rmtree($dir) if ( -d $dir );
-        foreach my $cat ( $self->categories ) {
-            my $sth = $self->db_Main->prepare_cached(
-                qq(
-                DELETE FROM project_category WHERE project = ? AND category = ?
-            )
-            );
-            $sth->execute( $self->id, $cat );
-        }
     }
 );
 
@@ -232,8 +223,6 @@ are returned.
         direction   => 'ASC',
     );
 
-
-
 =cut
 
 sub all_reports {
@@ -241,20 +230,23 @@ sub all_reports {
     my $limit     = $args{limit}     || 0;
     my $offset    = $args{offset}    || 0;
     my $direction = $args{direction} || 'DESC';
-    my $category  = $args{category};
+    my $tag       = $args{tag};
     my @bind_vars = ( $self->id );
 
-    my $sql = q(
-        SELECT smoke_report.* FROM smoke_report, project
-        WHERE smoke_report.project = project.id 
-        AND project.id = ?
-    );
-    if ($category) {
-        push( @bind_vars, $category );
-        $sql .= " AND smoke_report.category = ? ";
+    my $sql;
+    if( $tag ) {
+        $sql = q/SELECT sr.* FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        JOIN smoke_report_tag srt ON (srt.smoke_report = sr.id)
+        WHERE p.id = ? AND srt.tag = ?/;
+        push(@bind_vars, $tag);
+    } else {
+        $sql = q/SELECT sr.* FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        WHERE p.id = ?/;
     }
 
-    $sql .= " ORDER BY added $direction, smoke_report.id DESC";
+    $sql .= " ORDER BY added $direction, sr.id DESC";
     $sql .= " LIMIT $offset, $limit " if ($limit);
 
     my $sth = $self->db_Main->prepare_cached($sql);
@@ -265,27 +257,29 @@ sub all_reports {
 =head3 report_count
 
 The number of reports associated with this Project. Can also provide an
-optional category to use as well
+optional tag to use as well
 
 =cut
 
 sub report_count {
-    my ($self, $cat) = @_;
-    my $sql  = q(
-        SELECT COUNT(*) FROM smoke_report, project
-        WHERE smoke_report.project = project.id
-        AND project.id = ?
-    );
-    my @params = ($self->id);
-    
-    # add the optional category as well
-    if( $cat ) {
-        $sql .= ' AND category = ?';
-        push(@params, $cat);
+    my ($self, $tag) = @_;
+    my @bind_vars = ($self->id);
+
+    my $sql;
+    if ($tag) {
+        $sql = q/SELECT COUNT(*) FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        JOIN smoke_report_tag srt ON (srt.smoke_report = sr.id)
+        WHERE p.id = ? AND srt.tag = ?/;
+        push(@bind_vars, $tag);
+    } else {
+        $sql = q/SELECT COUNT(*) FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        WHERE p.id = ?/;
     }
 
     my $sth = $self->db_Main->prepare_cached($sql);
-    $sth->execute( @params );
+    $sth->execute(@bind_vars);
     my $row = $sth->fetchrow_arrayref();
     $sth->finish();
     return $row->[0];
@@ -311,36 +305,48 @@ sub report_graph_data {
     my $fields   = $args{fields};
     my $start    = $args{start};
     my $stop     = $args{stop};
-    my $category = $args{category};
+    my $tag      = $args{tag};
     my @data;
     my @bind_cols = ( $self->id );
 
     # we need the date before anything else
-    my $sql = "SELECT "
-      . join( ', ', "added", @$fields )
-      . " FROM smoke_report "
-      . " WHERE project = ? AND invalid = 0 ";
+    my $sql;
+    if ($tag) {
+        $sql =
+            "SELECT "
+          . join(', ', "added", @$fields)
+          . " FROM smoke_report sr"
+          . " JOIN smoke_report_tag srt ON (sr.id = srt.smoke_report)"
+          . " WHERE sr.project = ? AND sr.invalid = 0 AND srt.tag = ?";
+        push(@bind_cols, $tag);
+    } else {
+        $sql =
+            "SELECT "
+          . join(', ', "added", @$fields)
+          . " FROM smoke_report sr"
+          . " WHERE sr.project = ? AND sr.invalid = 0 ";
+    }
 
     # if we need to limit by date
     if ($start) {
-        $sql .= " AND DATE(smoke_report.added) >= ? ";
+        $sql .= " AND DATE(sr.added) >= ? ";
         push( @bind_cols, $start->strftime('%Y-%m-%d') );
     }
     if ($stop) {
-        $sql .= " AND DATE(smoke_report.added) <= ? ";
+        $sql .= " AND DATE(sr.added) <= ? ";
         push( @bind_cols, $stop->strftime('%Y-%m-%d') );
     }
 
     # add optional args
-    foreach my $extra_param qw(category architecture platform) {
+    foreach my $extra_param qw(architecture platform) {
         if ( $args{$extra_param} ) {
-            $sql .= " AND $extra_param = ? ";
+            $sql .= " AND sr.$extra_param = ? ";
             push( @bind_cols, $args{$extra_param} );
         }
     }
 
     # add the ORDER BY
-    $sql .= " ORDER BY smoke_report.added ";
+    $sql .= " ORDER BY sr.added ";
 
     my $sth = $self->db_Main->prepare_cached($sql);
     $sth->execute(@bind_cols);
@@ -404,65 +410,96 @@ sub architectures {
     return \@archs;
 }
 
-=head3 categories
+=head3 tags
 
-Returns a list of all of categories that have been added to this project
-(in the project_category table).
+Returns a list of all of tags that have been added to smoke reports for
+this project (in the smoke_report_tag table).
 
-    my @categories = $project->categories();
+    # returns a simple list of scalars
+    my @tags = $project->tags();
+
+    # returns a hash of the tag value and count, ie { tag => 'foo', count => 20 }
+    my @tags = $project->tags(with_counts => 1);
 
 =cut
 
-sub categories {
-    my $self = shift;
-    my $sth  = $self->db_Main->prepare_cached(
-        qq(
-        SELECT category FROM project_category WHERE project = ?
-        ORDER BY category
-    )
-    );
-    $sth->execute( $self->id );
-    my @cats;
-    while ( my $row = $sth->fetchrow_arrayref() ) {
-        push( @cats, $row->[0] );
+sub tags {
+    my ($self, %args) = @_;
+    my @tags;
+    if( $args{with_counts} ) {
+        my $sth  = $self->db_Main->prepare_cached(q/
+            SELECT srt.tag, COUNT(*) FROM smoke_report_tag srt
+            JOIN smoke_report sr ON (sr.id = srt.smoke_report)
+            WHERE sr.project = ? GROUP BY srt.tag ORDER BY srt.tag/
+        );
+        $sth->execute( $self->id );
+        while ( my $row = $sth->fetchrow_arrayref() ) {
+            push( @tags, { tag => $row->[0], count => $row->[1] } );
+        }
+    } else {
+        my $sth  = $self->db_Main->prepare_cached(q/
+            SELECT DISTINCT(srt.tag) FROM smoke_report_tag srt
+            JOIN smoke_report sr ON (sr.id = srt.smoke_report)
+            WHERE sr.project = ? ORDER BY srt.tag/
+        );
+        $sth->execute( $self->id );
+        while ( my $row = $sth->fetchrow_arrayref() ) {
+            push( @tags, $row->[0] );
+        }
     }
-    return @cats;
+    return @tags;
+
 }
 
-=head3 add_category
+=head3 delete_tag
 
-Adds the given category to this project.
+Deletes a tag in the smoke_report_tag table for Smoke Reports associated with this Project.
 
-    $project->add_category("Something New");
+    $project->delete_tag("Something Old");
 
 =cut
 
-sub add_category {
-    my ( $self, $cat ) = @_;
-    my $sth = $self->db_Main->prepare_cached(
-        qq(
-        INSERT INTO project_category (project, category) VALUES (?,?)
-    )
-    );
-    $sth->execute( $self->id, $cat );
+sub delete_tag {
+    my ( $self, $tag ) = @_;
+    # because SQL doesn't support multi-table deletes (with a USING clause)
+    # we need to resort to doing this in 2 steps
+    my $sth = $self->db_Main->prepare_cached(q/
+        SELECT id FROM smoke_report_tag WHERE tag = ?
+    /);
+    $sth->execute($tag);
+    my $tag_ids = $sth->fetchall_arrayref([0]);
+
+    my $placeholders = join(', ', ('?') x scalar(@$tag_ids));
+    $sth = $self->db_Main->prepare_cached(qq/
+        DELETE FROM smoke_report_tag WHERE id IN ($placeholders)
+    /);
+    $sth->execute(map { $_->[0] } @$tag_ids);
 }
 
-=head3 delete_category
+=head3 change_tag
 
-Deletes a category in the project_category table associated with this Project.
+This method will change a tag of project's smoke reports into some other tag
 
-    $project->delete_category("Something Old");
+    $project->change_tag('Something', 'Something Else');
 
 =cut
 
-sub delete_category {
-    my ( $self, $cat ) = @_;
+sub change_tag {
+    my ($self, $tag, $repl) = @_;
+
+    # because SQL doesn't support multi-table updates (with a USING clause)
+    # we need to resort to doing this in 2 steps
     my $sth = $self->db_Main->prepare_cached(
-        qq(
-        DELETE FROM project_category WHERE project = ? AND category = ?
-    )
+        'SELECT id FROM smoke_report_tag WHERE tag = ?'
     );
-    $sth->execute( $self->id, $cat );
+    $sth->execute($tag);
+    my $tag_ids = $sth->fetchall_arrayref([0]);
+
+    my $placeholders = join(', ', ('?') x scalar(@$tag_ids));
+    $sth = $self->db_Main->prepare_cached(
+        "UPDATE smoke_report_tag SET tag = ? WHERE id IN ($placeholders)"
+    );
+    $sth->execute($repl, map { $_->[0] } @$tag_ids);
 }
 
 =head3 graph_start_datetime

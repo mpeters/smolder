@@ -1,4 +1,4 @@
-aackage Smolder::Script;
+package Smolder::Script;
 use strict;
 use warnings;
 

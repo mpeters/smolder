@@ -81,6 +81,60 @@ The L<Smolder::DB::Project> object that this report is about
 
 =head2 OBJECT METHODS
 
+=head3 add_tag
+
+This method will add a tag to a given smoke report
+
+    $report->add_tag('foo');
+
+=cut
+
+sub add_tag {
+    my ($self, $tag) = @_;
+    my $sth = $self->db_Main->prepare_cached(q/
+        INSERT INTO smoke_report_tag (smoke_report, tag) VALUES (?,?)
+    /);
+    $sth->execute($self->id, $tag);
+}
+
+=head3 delete_tag
+
+This method will remove a tag from a given smoke report
+
+    $report->delete_tag('foo');
+
+=cut
+
+sub delete_tag {
+    my ($self, $tag) = @_;
+    my $sth = $self->db_Main->prepare_cached(q/
+        DELETE FROM smoke_report_tag WHERE smoke_report = ? AND tag = ?
+    /);
+    $sth->execute($self->id, $tag);
+}
+
+=head3 tags
+
+Returns a list of all of tags that have been added to this smoke report.
+(in the smoke_report_tag table).
+
+    # returns a simple list of scalars
+    my @tags = $report->tags();
+
+=cut
+
+sub tags {
+    my ($self, %args) = @_;
+    my @tags;
+    my $sth  = $self->db_Main->prepare_cached(q/
+        SELECT DISTINCT(srt.tag) FROM smoke_report_tag srt
+        WHERE srt.smoke_report = ? ORDER BY srt.tag/
+    );
+    $sth->execute( $self->id );
+    my $tags = $sth->fetchall_arrayref([0]);
+    return map { $_->[0] } @$tags;
+}
+
 =head3 data_dir
 
 The directory in which the data files for this report reside.
@@ -275,30 +329,6 @@ sub total_percentage {
 
 =head2 CLASS METHODS
 
-=head3 change_category
-
-This method will change a group of smoke reports that are in one Project's
-category into another.
-
-    Smolder::DB::SmokeReport->change_category(
-        project     => $project,
-        category    => 'Something',
-        replacement => 'Something Else',
-    );
-
-=cut
-
-sub change_category {
-    my ( $self, %args ) = @_;
-
-    # TODO - use Params::Validate to validate these args
-    my $sth = $self->db_Main->prepare_cached(q(
-        UPDATE smoke_report SET category = ?
-        WHERE project = ? AND category = ?
-    ));
-    $sth->execute( $args{replacement}, $args{project}->id, $args{category} );
-}
-
 =head3 upload_report
 
 This method will take the name of the uploaded file and the project it's being
@@ -363,9 +393,11 @@ sub upload_report {
             architecture => ( $args{architecture} || '' ),
             platform     => ( $args{platform}     || '' ),
             comments     => ( $args{comments}     || '' ),
-            category     => ( $args{category}     || undef ),
         }
     );
+
+    my $tags = $args{tags} || [];
+    $report->add_tag($_) foreach (@$tags);
 
     my $results = $report->update_from_tap_archive($file);
 

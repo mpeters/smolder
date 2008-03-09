@@ -77,6 +77,21 @@ sub process_login {
 
     my ( $user, $pw ) = ( $results->valid('username'), $results->valid('password') );
 
+    if ($self->do_login($user, $pw)) {
+
+        # url of where to go next
+        my $url = $self->query->param('back') || $HOME_PAGE_URL;
+        $self->header_type('redirect');
+        $self->header_add(-uri => $url);
+        return "Redirecting...";
+    } else {
+        return $self->login({validation_failed => 1});
+    }
+}
+
+sub do_login {
+    my ( $self, $user, $pw ) = @_;
+
     # see if we have a user with this password
     my ($dev) = Smolder::DB::Developer->search( username => $user, guest => 0 );
     if ($dev) {
@@ -99,17 +114,11 @@ sub process_login {
                 -expires => '+96h',
             );
             $self->header_add(cookie => [$cookie]);
-
-            # url of where to go next
-            my $url = $self->query->param('back') || $HOME_PAGE_URL;
-            $self->header_type('redirect');
-            $self->header_add( -uri => $url );
-            return "Redirecting...";
+            $ENV{REMOTE_USER} = $dev->id;
+            return 1;
         }
     }
-
-    # if we got here then something failed
-    return $self->login( { validation_failed => 1 } );
+    return 0;
 }
 
 =head2 forgot_pw

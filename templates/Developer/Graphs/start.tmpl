@@ -76,13 +76,13 @@
       <option value="points">Points</option>
     </select>
   </td>
-  [% IF project.categories.size %]
-  <td><label>Category</label></td>
+  [% IF project.tags.size %]
+  <td><label>Tags</label></td>
   <td>
-    <select name="category" id="category">
+    <select name="tag" id="tag">
     <option value="">--none--</option>
-    [% FOREACH cat IN project.categories %]
-    <option value="[% cat | html %]">[% cat | html %]</option>
+    [% FOREACH tag IN project.tags %]
+    <option value="[% tag | html %]">[% tag | html %]</option>
     [% END %]
     </select>
   </td>

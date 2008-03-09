@@ -184,6 +184,11 @@ a {
     color: #C47147;
 }
 
+.tag_cloud a:hover {
+    background-color: #C47147;
+    color: #FFF;
+}
+
 a:visited {
     color: #C47147;
 }

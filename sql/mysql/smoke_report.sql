@@ -23,15 +23,20 @@ CREATE TABLE smoke_report  (
     invalid         BOOL NOT NULL DEFAULT 0,
     invalid_reason  BLOB NOT NULL DEFAULT '',
     duration        INT UNSIGNED NOT NULL DEFAULT 0,
-    category        VARCHAR(255) DEFAULT NULL,
     purged          BOOLEAN NOT NULL DEFAULT 0,
     failed          BOOLEAN NOT NULL DEFAULT 0,
     INDEX i_project (project),
     INDEX i_developer (developer),
-    INDEX i_category (category),
-    INDEX i_project_category (project, category),
     CONSTRAINT `fk_smoke_report_project` FOREIGN KEY (`project`) REFERENCES `project` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_smoke_report_developer` FOREIGN KEY (`developer`) REFERENCES `developer` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_smoke_report_project_category` FOREIGN KEY (`project`, `category`) REFERENCES `project_category` (`project`, `category`) ON DELETE NO ACTION
+    CONSTRAINT `fk_smoke_report_developer` FOREIGN KEY (`developer`) REFERENCES `developer` (`id`) ON DELETE CASCADE
 ) TYPE=InnoDB;
+
+CREATE TABLE smoke_report_tag  (
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    smoke_report    INT UNSIGNED NOT NULL,
+    tag             VARCHAR(255) DEFAULT '',
+    INDEX i_project_smoke_tag_tag (tag),
+    CONSTRAINT `fk_smoke_report_tag_smoke_report` FOREIGN KEY (`smoke_report`) REFERENCES `smoke_report` (`id`) ON DELETE CASCADE
+);
+
 

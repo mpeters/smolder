@@ -56,20 +56,13 @@
     <div class="auto_complete" id="platform_auto_complete" />
   </td>
 </tr>
-[% SET categories = project.categories %]
-[% IF categories %]
 <tr>
-  <td><label [% IF c.dfv_msgs.err_category %]class="warn"[% END %]>Category</label></td>
+  <td><label [% IF c.dfv_msgs.err_tags %]class="warn"[% END %]>Tags</label></td>
   <td>
-    <select name="category" id="category">
-      <option value="">--none--</option>
-      [% FOREACH category IN categories %]
-        <option value="[% category | html %]">[% category | html %]</option>
-      [% END %]
-    </select>
+    <input name="tags" id="tags">
+    <em>Comma separated list of tags</em>
   </td>
 </tr>
-[% END %]
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_report_file || err_valid_file %] warn[% END %]">Smoke Report File</label></td>
   <td><input type="file" name="report_file" id="report_file" /></td>

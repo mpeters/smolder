@@ -309,7 +309,7 @@ Smolder.changeSmokeGraph = function(form) {
     );
 
     // add any extra args that we might want to search by
-    var extraArgs = ['start', 'stop', 'category', 'platform', 'architecture', 'category'];
+    var extraArgs = ['start', 'stop', 'tag', 'platform', 'architecture'];
     for(var i = 0; i < extraArgs.length; i++) {
         var arg = extraArgs[i];
         if( form.elements[arg] != null && form.elements[arg].value != '') {

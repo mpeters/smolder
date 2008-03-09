@@ -20,12 +20,13 @@ use Smolder::Constraints qw(
   length_max
   unsigned_int
   bool
-  existing_project_category
   file_mtype
+  smoke_report_tags
 );
 use Smolder::Conf qw(InstallRoot);
 use Smolder::DBPlatform;
 use Exception::Class;
+use HTML::TagCloud;
 
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
@@ -51,8 +52,7 @@ sub setup {
               smoke_test_validity
               admin_settings
               process_admin_settings
-              add_category
-              delete_category
+              delete_tag
               details
               )
         ]
@@ -150,6 +150,9 @@ sub add_report {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
 
+    # support logging in for this run mode by passing in a username/pw directly
+    $self->_optional_login();
+
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
     return $self->error_message('Project does not exist')
       unless $project;
@@ -161,6 +164,15 @@ sub add_report {
 
     $tt_params->{project} = $project;
     return $self->tt_process($tt_params);
+}
+
+sub _optional_login {
+    my $self = shift;
+    my $q = $self->query;
+    if( $q->param('username') and $q->param('password') ) {
+        require Arcos::Control::Public::Auth;
+        Arcos::Control::Public::Auth::do_login($self, $q->param('username'), $q->param('password'));
+    }
 }
 
 =head2 process_add_report
@@ -190,7 +202,7 @@ sub process_add_report {
     }
     my $form = {
         required           => [qw(report_file)],
-        optional           => [qw(architecture platform comments category)],
+        optional           => [qw(architecture platform comments tags)],
         constraint_methods => {
             architecture => length_max(255),
             platform     => length_max(255),
@@ -204,7 +216,7 @@ sub process_add_report {
                 multipart/x-gzip 
                 multipart/x-zip
             )),
-            category => existing_project_category($project),
+            tags => smoke_report_tags(),
         },
     };
 
@@ -220,7 +232,6 @@ sub process_add_report {
             project      => $project,
             architecture => $valid->{architecture},
             platform     => $valid->{platform},
-            category     => $valid->{category},
             comments     => $valid->{comments},
         );
     };
@@ -238,6 +249,14 @@ sub process_add_report {
         if( $e ) {
             ref $e && $e->isa('Exception::Class') ? $e->rethrow : die $e;
         }
+    }
+
+use Data::Dumper;
+warn Dumper $valid;
+
+    # add the tags if present
+    if( $valid->{tags} ) {
+        $report->add_tag($_) foreach @{$valid->{tags}};
     }
 
     # redirect to our recent reports
@@ -275,7 +294,7 @@ sub smoke_report {
 =head2 smoke_reports
 
 Shows a list of smoke reports for a given project based on the limit, offset
-and category parameters. Uses the F<Developer/Projects/smoke_reports.tmpl>
+and tag parameters. Uses the F<Developer/Projects/smoke_reports.tmpl>
 template.
 
 =cut
@@ -296,11 +315,10 @@ sub smoke_reports {
 
     # prevent malicious limit and offset values
     my $form = {
-        optional           => [qw(limit offset category)],
+        optional           => [qw(limit offset tag)],
         constraint_methods => {
             limit    => unsigned_int(),
             offset   => unsigned_int(),
-            category => existing_project_category($project),
         },
     };
     return $self->error_message('Something fishy')
@@ -309,7 +327,7 @@ sub smoke_reports {
     $tt_params->{project}  = $project;
     $tt_params->{limit}    = defined $query->param('limit') ? $query->param('limit') : 5;
     $tt_params->{offset}   = $query->param('offset') || 0;
-    $tt_params->{category} = $query->param('category') || undef;
+    $tt_params->{tag}      = $query->param('tag') || undef;
 
     return $self->tt_process($tt_params);
 }
@@ -394,15 +412,19 @@ sub admin_settings {
     my $out;
     if ($tt_params) {
         $tt_params->{project} = $project;
+        $tt_params->{tag_cloud} = $self->_project_tag_cloud($project);
         $out = HTML::FillInForm->new()->fill(
             scalarref =>
               $self->tt_process( 'Developer/Projects/admin_settings_form.tmpl', $tt_params ),
             fobject => $self->query(),
         );
 
+    } else {
         # else we weren't passed anything, then we need to fill in the form
         # from the DB
-    } else {
+        $tt_params = {};
+        $tt_params->{project} = $project;
+        $tt_params->{tag_cloud} = $self->_project_tag_cloud($project);
         my $fill_data = {
             default_platform => $project->default_platform,
             default_arch     => $project->default_arch,
@@ -410,11 +432,23 @@ sub admin_settings {
             graph_start      => $project->graph_start,
         };
         $out = HTML::FillInForm->new()->fill(
-            scalarref => $self->tt_process( { project => $project } ),
+            scalarref => $self->tt_process($tt_params),
             fdat      => $fill_data,
         );
     }
     return $out;
+}
+
+sub _project_tag_cloud {
+    my ($self, $project) = @_;
+    my @tags = $project->tags(with_counts => 1);
+    if( @tags ) {
+        my $cloud = HTML::TagCloud->new();
+        $cloud->add($_->{tag}, '', $_->{count}) foreach (@tags);
+        return $cloud->html_and_css(100);
+    } else {
+        return '';
+    }  
 }
 
 =head2 process_admin_settings 
@@ -463,14 +497,14 @@ sub process_admin_settings {
     return $self->admin_settings({ success => 1});
 }
 
-=head2 categories
+=head2 tags
 
-Display the list of categories that are associated with this project.
-Uses the F<Developer/Projects/categories.tmpl> template.
+Display the tag cloud that are associated with this project.
+Uses the F<Developer/Projects/admin_settings_tags.tmpl> template.
 
 =cut
 
-sub categories {
+sub tags {
     my ( $self, $tt_params, $project ) = @_;
 
     $project ||= Smolder::DB::Project->retrieve( $self->param('id') );
@@ -481,98 +515,43 @@ sub categories {
     return $self->tt_process($tt_params);
 }
 
-=head2 add_category
+=head2 delete_tag
 
-Add a category to a project for organizing Smoke Reports. If validation
-passes the infomation is added to the database and we return to the 
-C<categories> mode.
-
-=cut
-
-sub add_category {
-    my $self    = shift;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
-    return $self->error_message('Project does not exist')
-      unless $project;
-
-    # only process if this developer is an admin of this project
-    unless ( $project->is_admin( $self->developer ) ) {
-        return $self->error_message('You are not an admin of this Project!');
-    }
-
-    my $form = {
-        required           => [qw(category)],
-        constraint_methods => { category => length_max(255), }
-    };
-    my $results = $self->check_rm( 'categories', $form )
-      || return $self->check_rm_error_page;
-    my $valid = $results->valid();
-
-    # try to insert
-    eval { $project->add_category( $valid->{category} ) };
-    if ($@) {
-        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
-            return $self->categories( { err_duplicate_category => 1 } );
-        } else {
-            die $@;
-        }
-    }
-    $self->add_message(
-        msg => "Category '$valid->{category}' successfully added to project '" 
-            . $project->name . "'."
-    );
-
-    # now return to that page again
-    return $self->categories( {}, $project );
-}
-
-=head2 delete_category
-
-Deletes a category that is associated with a given Project. If validation
+Deletes a tag that is associated with a given Project. If validation
 passes the database is updated and all smoke reports that were associated
-with this category are either re-assigned or simply not associated with a
-category (depending on what the project admin chooses). Returns to the
-C<categories> mode if successful.
+with this tag are either re-assigned or simply not associated with a
+tag (depending on what the project admin chooses). Returns to the
+C<tags> mode if successful.
 
 =cut
 
-sub delete_category {
+sub delete_tag {
     my $self    = shift;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
     # only process if this developer is an admin of this project
-    unless ( $project->is_admin( $self->developer ) ) {
+    unless ($project->is_admin($self->developer)) {
         return $self->error_message('You are not an admin of this Project!');
     }
 
     my $query = $self->query();
-    my ( $cat, $replacement ) = map { $query->param($_) } qw(category replacement);
+    my ($tag, $replacement) = map { $query->param($_) } qw(tag replacement);
 
     if ($replacement) {
-
-        # change categories
-        Smolder::DB::SmokeReport->change_category(
-            project     => $project,
-            category    => $cat,
-            replacement => $replacement,
-        );
-
-        $self->add_message(
-            msg => "Category '$cat' was successfully replaced by '$replacement'." 
-        );
+        # change the tag
+        $project->change_tag($tag, $replacement);
+        $self->add_message(msg => "Tag '$tag' was successfully replaced by '$replacement'.");
+    } else {
+        # delete the old tag
+        $project->delete_tag($tag);
     }
 
-    # delete the old category
-    $project->delete_category($cat);
-
     $self->add_message(
-        msg => "Category '$cat' successfully delete from project '" 
-            . $project->name . "'."
-    );
+        msg => "Tag '$tag' successfully deleted from project '" . $project->name . "'.");
 
-    return $self->categories( {}, $project );
+    return $self->tags({}, $project);
 }
 
 =head2 details

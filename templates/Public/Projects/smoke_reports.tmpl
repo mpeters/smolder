@@ -1,5 +1,5 @@
 [% SET page_title = 'Recent Smoke Reports' %]
-[% SET reports = project.all_reports('limit', limit, 'offset', offset, 'category', category) %]
+[% SET reports = project.all_reports('limit', limit, 'offset', offset, 'tag', tag) %]
 
 <h2>[% project.name | html %]</h2>
 

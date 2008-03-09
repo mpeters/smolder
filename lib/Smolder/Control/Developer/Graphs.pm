@@ -112,8 +112,6 @@ sub image {
     return $self->error_message('Project does not exist')
       unless $project;
 
-    my $category = $query->param('category');
-
     my ( $start, $stop );
     my $dt_format = DateTime::Format::Strptime->new( pattern => '%m/%d/%Y', );
     if ( $query->param('start') ) {
@@ -144,11 +142,13 @@ sub image {
         start => $start,
         stop  => $stop,
     );
-    foreach my $extra_param qw(category architecture platform) {
+    foreach my $extra_param qw(tag architecture platform) {
         $search_params{$extra_param} = $query->param($extra_param)
           if ( $query->param($extra_param) );
     }
 
+use Data::Dumper;
+warn Dumper \%search_params;
     my $data = $project->report_graph_data(
         fields => \@fields,
         %search_params,

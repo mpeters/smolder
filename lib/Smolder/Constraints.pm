@@ -22,8 +22,8 @@ our @EXPORT_OK = qw(
   enum_value
   unique_field_value
   existing_field_value
-  existing_project_category
   file_mtype
+  smoke_report_tags
 );
 
 =head1 NAME
@@ -217,36 +217,6 @@ sub existing_field_value {
       }
 }
 
-=head2 existing_project_category
-
-Returns a sub that verifies that a given project has the value
-as an existing category.
-
-    existing_project_category($project_id)
-
-=cut
-
-sub existing_project_category {
-    my $project = shift;
-    return sub {
-        my ( $dfv, $value ) = @_;
-        my $sth = Smolder::DB->db_Main->prepare_cached(
-            q(
-            SELECT category FROM project_category
-            WHERE project = ? AND category = ?
-        )
-        );
-        $sth->execute( $project, $value );
-        my $row = $sth->fetchrow_arrayref();
-        $sth->finish();
-        if ( defined $row->[0] ) {
-            return $value;
-        } else {
-            return;
-        }
-    };
-}
-
 =head2 file_mtype
 
 Returns a sub that will validate that the file is one of the given MIME types.
@@ -290,6 +260,29 @@ sub file_mtype {
         unlink( $tmp->filename ) or die "Could not remove file '$tmp': $!";
         return;
       }
+}
+
+
+=head2 smoke_report_tags
+
+Returns a sub that will verifiy that a value is a comma separated list
+of tags that are no more than 255 characters each. If they are valid,
+then an array ref of the tags will be returned.
+
+    smoke_report_tags()
+
+=cut 
+
+sub smoke_report_tags {
+    return sub {
+        my ( $dfv, $value ) = @_;
+
+        my @words = split(/\s*,\s*/, $value);
+        foreach my $word (@words) {
+            return if length $word > 255;
+        }
+        return \@words;
+    }
 }
 
 1;
