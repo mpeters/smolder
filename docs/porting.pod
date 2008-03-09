@@ -26,21 +26,21 @@ At this point you I<might> be done, particularly if your platform is
 very similar to Fedora Linux (Smolder's home platform).  To find out,
 try to build Smolder:
 
-  bin/krang_build PLATFORM_NAME
+  bin/smolder_build PLATFORM_NAME
 
 If that worked, build a distribution:
 
-  bin/krang_makedist
+  bin/smolder_makedist
 
 Now you can take that distribution and install it as usual:
 
-  tar zxvf krang-...tar.gz
-  cd krang-...
-  bin/krang_install ...
+  tar zxvf smolder-...tar.gz
+  cd smolder-...
+  bin/smolder_install ...
 
 If that worked, try running the test suite:
 
-  cd /path/to/krang
+  cd /path/to/smolder
   make test
 
 If all tests pass, you're done!

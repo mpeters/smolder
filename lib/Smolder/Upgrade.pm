@@ -83,8 +83,9 @@ sub upgrade {
     my $new_config_stuff = $self->add_to_config();
     if( $new_config_stuff ) {
         # write out the new lines
-        open(CONF, '>>', catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf'))
-          or die "Unable to open conf/krang.conf: $!";
+        my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
+        open(CONF, '>>', $conf_file)
+          or die "Unable to open $conf_file: $!";
         print CONF $new_config_stuff;
         close(CONF);
     }

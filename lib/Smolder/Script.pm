@@ -1,4 +1,4 @@
-package Smolder::Script;
+aackage Smolder::Script;
 use strict;
 use warnings;
 
@@ -40,15 +40,15 @@ BEGIN {
     my @uid_data = getpwnam(User);
     warn( "Unable to find user for User '" . User . "'." ), exit(1)
       unless @uid_data;
-    my $krang_uid = $uid_data[2];
+    my $smolder_uid = $uid_data[2];
     my @gid_data  = getgrnam(Group);
     warn( "Unable to find user for Group '" . Group . "'." ), exit(1)
       unless @gid_data;
-    my $krang_gid = $gid_data[2];
+    my $smolder_gid = $gid_data[2];
 
     # become User/Group if necessary
-    if ( $gid{$krang_gid} ) {
-        eval { $) = $krang_gid; };
+    if ( $gid{$smolder_gid} ) {
+        eval { $) = $smolder_gid; };
         warn(   "Unable to become Group '" . Group
               . "' : $@\n"
               . "Maybe you need to start this process as root.\n" )
@@ -58,11 +58,11 @@ BEGIN {
               . "' : $!.\n"
               . "Maybe you need to start this process as root.\n" )
           and exit(1)
-          unless $) == $krang_gid;
+          unless $) == $smolder_gid;
     }
 
-    if ( $uid != $krang_uid ) {
-        eval { $> = $krang_uid; };
+    if ( $uid != $smolder_uid ) {
+        eval { $> = $smolder_uid; };
         warn(   "Unable to become User '" . User
               . "' : $@\n"
               . "Maybe you need to start this process as root.\n" )
@@ -72,7 +72,7 @@ BEGIN {
               . "' : $!\n"
               . "Maybe you need to start this process as root.\n" )
           and exit(1)
-          unless $> == $krang_uid;
+          unless $> == $smolder_uid;
     }
 }
 
