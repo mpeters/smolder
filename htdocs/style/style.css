@@ -64,8 +64,9 @@ body {
     width: 750px;
     height: 15px;
     position: relative;
-    top: -10px;
+    top: -5px;
     font-weight: bold;
+    font-size: 10pt;
 }
 
 #message_container {
@@ -226,7 +227,7 @@ a:visited {
     line-height: 18px;
     background-color: #DDDDDD;
     position: absolute;
-    top: 18px;
+    top: 16px;
     left: 0;
     z-index: 200;
     display:none;
