@@ -6,6 +6,7 @@ use File::Spec::Functions qw(catdir catfile canonpath);
 use Cwd qw(cwd);
 use Config;
 use File::Basename;
+use Devel::CheckLib qw(assert_lib);
 
 # find out which subclasses we support
 my $PLATFORM_DIR = catdir( $ENV{SMOLDER_ROOT}, 'platform' );
@@ -154,6 +155,7 @@ sub verify_dependencies {
     # look for necessary libs
     $pkg->check_libperl( mode => $mode );
     $pkg->check_libgd( mode => $mode );
+    $pkg->check_libssl( mode => $mode );
 }
 
 =head2 check_databases 
@@ -257,6 +259,24 @@ sub check_libgd {
     );
 }
 
+=head2 check_libssl
+
+Checks for the existance of the SSL shared object and header files.
+
+    check_libssl(mode  => 'install');
+
+=cut
+
+sub check_libssl {
+    my ( $pkg, %args ) = @_;
+    $pkg->check_libs(
+        %args,
+        name   => 'libssl',
+        so     => 'libssl',
+        module => 'Net::SSLeay',
+    );
+}
+
 =head2 check_libperl
 
 Checks for the existance of the libperl shared object and header files.
@@ -269,7 +289,6 @@ sub check_libperl {
     my ($pkg, %args) = @_;
     $pkg->check_libs(
         %args,
-        h        => 'perl.h',
         name     => 'libperl',
         so       => 'libperl',
         includes => [catdir($Config{archlib}, 'CORE')],
@@ -335,40 +354,31 @@ Optional.
 
 sub check_libs {
     my ( $pkg, %args ) = @_;
-    my $mode = $args{mode};
 
+    my $mode = $args{mode};
     my $name = $args{name};
-    my $so   = $args{so} . '.' . $Config{so};
+    my $so   = $args{so};
     my $h    = $args{h};
     my $mod  = $args{module};
 
-    if ($so) {
-        # build lib/includes for following searches.
-        my @libs = split(" ", $Config{libpth});     # what Perl knows about
-        push(@libs, $pkg->header_dirs);             # platform specific dirs
+    if ($so && $mode eq 'build') {
+        my $lib = $so;
+        $lib =~ s/^lib//;
+        my @libs;
         push(@libs, @{$args{libs}}) if $args{libs}; # extra dirs supplied when called
-        my @lib_files;
-        foreach my $lib (@libs) {
-            opendir( DIR, $lib ) or die $!;
-            push( @lib_files, grep { not -d $_ } readdir(DIR) );
-            closedir(DIR);
-        }
-
-        my $re = qr/^\Q$so\E/;
-        die "\n\n$name is missing from your system.\nThis library is required by Smolder.\n\n"
-          unless grep { /^$re/ } @lib_files;
+        eval { assert_lib(lib => $lib, libpath => \@libs) };
+        die "\n\n$name is missing from your system.\nThis library is required by Smolder.\n\n" 
+            if $@;
     }
 
-    if ($h) {
-        my @incs = split(" ", $Config{usrinc});             # what Perl knows about
-        push(@incs, $pkg->include_dirs);                    # platform specific dirs
+    if ($h && $mode eq 'build') {
+        my @incs;
         push(@incs, @{$args{includes}}) if $args{includes}; # extra dirs supplied when called
-        
-        unless ( $mode eq 'install' or grep { -e catfile( $_, $h ) } @incs ) {
-            my $msg = "The header file for $name, '$h', is missing from your system.";
-            $msg .= "This file is needed to compile the $mod module which uses $name." if ($name);
-            die $msg;
-        }
+        my $msg = "The header file for $name, '$h', is missing from your system "
+         . "or Smolder can't find it.";
+        $msg .= "\nThis file is needed to compile the $mod module which uses $name." if ($mod && $name);
+        eval { assert_lib(header => $h, incpath => \@incs, debug => 1) };
+        die "$msg\n" if $@;
     }
 }
 
