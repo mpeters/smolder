@@ -1130,24 +1130,6 @@ This method let's us know if this plaform has the C<sudo> command.
 
 sub has_sudo { 1 };
 
-=head2 header_dirs
-
-This method will return a list of platform specific directory paths to
-use when searching for header files.
-
-=cut
-
-sub header_dirs { }
-
-=head2 include_dirs
-
-This method will return a list of platform specific directory paths to
-use when searching for included library files.
-
-=cut
-
-sub include_dirs { ('/include', '/usr/local/include') }
-
 sub _load_expect {
 
     # load Expect - don't load at compile time because this module is
