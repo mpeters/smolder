@@ -30,6 +30,8 @@
 
 =item * Upgraded Prototype and Scriptaculous JS libraries - M. Peters
 
+=item * Abort build if we detect a broken L<ExtUtils::Install> - Michael Schwern, M. Peters
+
 =back
 
 =head2 1.2

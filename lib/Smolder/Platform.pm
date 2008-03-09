@@ -156,6 +156,12 @@ sub verify_dependencies {
     $pkg->check_libperl( mode => $mode );
     $pkg->check_libgd( mode => $mode );
     $pkg->check_libssl( mode => $mode );
+
+    # make sure we don't have a broken ExtUtils::Install (!1.42 or 1.43)
+    require ExtUtils::Install;
+    if($ExtUtils::Install::VERSION == 1.42 or $ExtUtils::Install::VERSION == 1.43) {
+        die "You have a broken version of ExtUtils::Install! Please upgrade to 1.44 or greater.\n";
+    }
 }
 
 =head2 check_databases 
