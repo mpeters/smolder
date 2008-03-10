@@ -147,8 +147,6 @@ sub image {
           if ( $query->param($extra_param) );
     }
 
-use Data::Dumper;
-warn Dumper \%search_params;
     my $data = $project->report_graph_data(
         fields => \@fields,
         %search_params,

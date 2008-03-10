@@ -251,9 +251,6 @@ sub process_add_report {
         }
     }
 
-use Data::Dumper;
-warn Dumper $valid;
-
     # add the tags if present
     if( $valid->{tags} ) {
         $report->add_tag($_) foreach @{$valid->{tags}};
