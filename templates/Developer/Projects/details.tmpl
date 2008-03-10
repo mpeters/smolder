@@ -1,6 +1,6 @@
-[% SET page_title = "Project Details" %]
+[% SET page_title = project.name %]
 
-<h2>[% project.name %]</h2>
+<h2>Details</h2>
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
@@ -15,6 +15,7 @@
     [% END %]
 </div>
 
+<div>
 <table class="boxed">
 <tr class="even">
   <td><label>Start Date</label></td>
@@ -71,4 +72,20 @@
 </tr>
 [% END %]
 </table>
+</div>
+
+<br />
+
+<h2>Tags</h2>
+
+<div id="project_tags">
+  <div class="boxed tag_cloud" id="tag_cloud_container">
+  [% IF project.tags.size %]
+    [% tag_cloud %]
+  [% ELSE %]
+    <em>No tags exist for smoke reports in this project.</em>
+  [% END %]
+  </div>
+</div>
+
 

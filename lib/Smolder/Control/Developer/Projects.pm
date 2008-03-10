@@ -27,6 +27,7 @@ use Smolder::Conf qw(InstallRoot);
 use Smolder::DBPlatform;
 use Exception::Class;
 use HTML::TagCloud;
+use URI::Escape qw(uri_escape);
 
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
@@ -408,19 +409,20 @@ sub admin_settings {
     # form from the CGI params
     my $out;
     if ($tt_params) {
-        $tt_params->{project} = $project;
+        $tt_params->{project}   = $project;
         $tt_params->{tag_cloud} = $self->_project_tag_cloud($project);
-        $out = HTML::FillInForm->new()->fill(
+        $out                    = HTML::FillInForm->new()->fill(
             scalarref =>
-              $self->tt_process( 'Developer/Projects/admin_settings_form.tmpl', $tt_params ),
+              $self->tt_process('Developer/Projects/admin_settings_form.tmpl', $tt_params),
             fobject => $self->query(),
         );
 
     } else {
+
         # else we weren't passed anything, then we need to fill in the form
         # from the DB
-        $tt_params = {};
-        $tt_params->{project} = $project;
+        $tt_params              = {};
+        $tt_params->{project}   = $project;
         $tt_params->{tag_cloud} = $self->_project_tag_cloud($project);
         my $fill_data = {
             default_platform => $project->default_platform,
@@ -437,11 +439,14 @@ sub admin_settings {
 }
 
 sub _project_tag_cloud {
-    my ($self, $project) = @_;
+    my ($self, $project, $url) = @_;
     my @tags = $project->tags(with_counts => 1);
     if( @tags ) {
         my $cloud = HTML::TagCloud->new();
-        $cloud->add($_->{tag}, '', $_->{count}) foreach (@tags);
+        foreach (@tags) {
+            my $tag_url = $url ? "$url?tag=" . uri_escape($_->{tag}) : 'javascript:void(0)';
+            $cloud->add($_->{tag}, $tag_url, $_->{count});
+        }
         return $cloud->html_and_css(100);
     } else {
         return '';
@@ -494,31 +499,13 @@ sub process_admin_settings {
     return $self->admin_settings({ success => 1});
 }
 
-=head2 tags
-
-Display the tag cloud that are associated with this project.
-Uses the F<Developer/Projects/admin_settings_tags.tmpl> template.
-
-=cut
-
-sub tags {
-    my ( $self, $tt_params, $project ) = @_;
-
-    $project ||= Smolder::DB::Project->retrieve( $self->param('id') );
-    return $self->error_message('Project does not exist')
-      unless $project;
-
-    $tt_params->{project} = $project;
-    return $self->tt_process($tt_params);
-}
-
 =head2 delete_tag
 
 Deletes a tag that is associated with a given Project. If validation
 passes the database is updated and all smoke reports that were associated
 with this tag are either re-assigned or simply not associated with a
 tag (depending on what the project admin chooses). Returns to the
-C<tags> mode if successful.
+C<admin_settings> mode if successful.
 
 =cut
 
@@ -543,12 +530,12 @@ sub delete_tag {
     } else {
         # delete the old tag
         $project->delete_tag($tag);
+        $self->add_message(
+            msg => "Tag '$tag' successfully deleted from project '" . $project->name . "'."
+        );
     }
 
-    $self->add_message(
-        msg => "Tag '$tag' successfully deleted from project '" . $project->name . "'.");
-
-    return $self->tags({}, $project);
+    return $self->admin_settings();
 }
 
 =head2 details
@@ -567,7 +554,9 @@ sub details {
     }
 
     if ($proj) {
-        return $self->tt_process( { project => $proj } );
+        my $tag_cloud =
+          $self->_project_tag_cloud($proj, "/app/developer_projects/smoke_reports/$proj");
+        return $self->tt_process( { project => $proj, tag_cloud => $tag_cloud } );
     } else {
         return $self->error_message('That project does not exist!');
     }

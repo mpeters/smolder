@@ -184,8 +184,14 @@ a {
     color: #C47147;
 }
 
+.tag_cloud a {
+    border: 1px solid transparent;
+    padding: 2px;
+}
+
 .tag_cloud a:hover {
     background-color: #C47147;
+    border: 1px solid #555;
     color: #FFF;
 }
 

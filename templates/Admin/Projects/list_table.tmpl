@@ -39,6 +39,7 @@
         <p>
         Upon deletion, all information about this project will be removed.
         <strong>Are you sure this is what you want?</strong>
+        <input type="button" value="No" onclick="Smolder.PopupForm.toggle('delete_[% project.id %]')" />
         <input type="submit" value="Yes" />
         <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="delete_indicator_[% project.id %]" alt="loading" />
         </p>
