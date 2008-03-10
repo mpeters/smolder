@@ -216,8 +216,7 @@ Smolder.Ajax.form_update = function(args) {
     args.onComplete = function(request, json) {
         oldOnComplete(request, json);
         // reset which forms are open
-        Smolder._shownPopupForm = '';
-        Smolder._shownForm = '';
+        Smolder.PopupForm.shown_popup_id = '';
 
         // if we have a form, enable all of the inputs
         // that we disabled
@@ -270,27 +269,33 @@ Smolder.show_error = function() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-Smolder._shownPopupForm = '';
-Smolder._shownForm = '';
-Smolder.togglePopupForm = function(formId) {
+Smolder.PopupForm = {
+    shown_popup_id: '',
+    toggle: function(popup_id) {
+        // first turn off any other forms showing of this type
+        var old_popup_id = Smolder.PopupForm.shown_popup_id;
+        if( old_popup_id != '' && $(old_popup_id) != null ) {
+            Smolder.PopupForm.hide();
+        }
 
-    // first turn off any other forms showing of this type
-    if( Smolder._shownPopupForm != '' && $(Smolder._shownPopupForm) != null ) {
-        Smolder.hidePopupForm();
+        if( old_popup_id == popup_id ) {
+            Smolder.PopupForm.shown_popup_id = '';
+        } else {
+            new Effect.SlideDown(popup_id, { duration: .5 });
+            Smolder.PopupForm.shown_popup_id = popup_id;
+        }
+        return false;
+    },
+    show: function(popup_id) {
+        if( Smolder.PopupForm.shown_popup_id != popup_id ) {
+            Smolder.PopupForm.toggle(popup_id);
+        }
+    },
+    hide: function() {
+        new Effect.SlideUp( Smolder.PopupForm.shown_popup_id, { duration: .5 } );
+        Smolder.PopupForm.shown_popup_id = '';
     }
-
-    if( Smolder._shownPopupForm == formId ) {
-        Smolder._shownPopupForm = '';
-    } else {
-        new Effect.SlideDown(formId, { duration: .5 });
-        Smolder._shownPopupForm = formId;
-    }
-    return false;
-}
-Smolder.hidePopupForm = function() {
-    new Effect.SlideUp( Smolder._shownPopupForm, { duration: .5 } );
-    Smolder._shownPopupForm = '';
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +346,7 @@ Smolder.toggleSmokeValid = function(form) {
     var divId = "smoke_test_" + smokeId;
     
     // we are currently not showing any other forms
-    Smolder._shownForm = '';
+    Smolder.PopupForm.shown_form_id = '';
     
     Smolder.Ajax.form_update({
         form      : form, 
@@ -504,3 +509,412 @@ Smolder.setup_tooltip = function(trigger, target) {
        new Effect.toggle(target, 'appear', { duration: .4 });
     };
 }
+
+// CRUD abstraction for Smolder
+Smolder.__known_CRUDS = { };
+Smolder.CRUD = Class.create();
+
+/* Class methods */
+Smolder.CRUD.exists   = function(id)   { return Smolder.__known_CRUDS[id] ? true : false; };
+Smolder.CRUD.find     = function(id)   { return Smolder.__known_CRUDS[id] };
+Smolder.CRUD.remember = function(crud) { Smolder.__known_CRUDS[crud.div.id] = crud; };
+Smolder.CRUD.forget   = function(crud) { Smolder.__known_CRUDS[crud.div.id] = false; };
+
+/* Object methods */
+Object.extend(Smolder.CRUD.prototype, {
+    initialize: function(id, url) {
+        this.div      = $(id);
+        this.url      = url;
+        this.list_url = url + '/list?table_only=1';
+
+        // initialize these if we don't already have a crud
+        this.add_shown = false;
+        // find the containers, triggers and indicator that won't change
+        this.list_container = this.div.select('.list_container')[0];
+        this.add_container  = this.div.select('.add_container')[0];
+        this.indicator      = this.div.select('.indicator')[0].id;
+        this.add_trigger    = this.div.select('.add_trigger')[0];
+        // add the handlers for the triggers
+        this.add_trigger.onclick = function() {
+            this.toggle_add();
+            // prevent submission of the link
+            return false;
+        }.bindAsEventListener(this);
+
+        // find our triggers that might change (edit and delete)
+        this.refresh();
+
+        // the fact that we've created this CRUD
+        Smolder.CRUD.remember(this);
+    },
+    refresh: function() {
+        this.edit_triggers   = $(this.list_container).select('.edit_trigger');
+        this.delete_triggers = $(this.list_container).select('.delete_trigger');
+
+        this.edit_triggers.each( 
+            function(trigger) {
+                trigger.onclick = function() {
+                    this.show_edit(trigger);
+                    // prevent submission of the link
+                    return false;
+                }.bindAsEventListener(this);
+            }.bindAsEventListener(this)
+        );
+
+        this.delete_triggers.each(
+            function(trigger) {
+                trigger.onclick = function() {
+                    this.show_delete(trigger);
+                    // prevent submission of the link
+                    return false;
+                }.bindAsEventListener(this);
+            }.bindAsEventListener(this)
+        );
+    },
+    toggle_add: function() {
+        if( this.add_shown ) {
+            this.hide_add();
+        } else {
+            this.show_add();
+        }
+    },
+    hide_add: function() {
+        new Effect.SlideUp(this.add_container);
+        this.add_shown  = false;
+    },
+    show_add: function() {
+        Smolder.Ajax.update({
+            url        : this.add_trigger.href,
+            target     : this.add_container.id,
+            indicator  : this.indicator,
+            onComplete : function(args) {
+                if( !this.add_shown ) {
+                    new Effect.SlideDown(this.add_container)
+                }
+                this.add_shown  = true;
+
+                // make sure we submit the add changes correctly
+                this._handle_form_submit('add_form');
+
+            }.bindAsEventListener(this)
+        });
+    },
+    _handle_form_submit: function(name) {
+        var form = $(this.add_container).select('.' + name)[0];
+        if( form ) {
+            form.onsubmit = function() {
+                this.submit_change(form);
+                return false;
+            }.bindAsEventListener(this);
+        }
+    },
+    show_edit: function(trigger) {
+        var matches = trigger.className.match(/(^|\s)for_item_(\d+)($|\s)/);
+        var itemId  = matches[2];
+        if( itemId == null ) 
+            return;
+
+        Smolder.Ajax.update({
+            url        : trigger.href,
+            target     : this.add_container.id,
+            indicator  : this.indicator,
+            onComplete : function() {
+                if( !this.add_shown ) {
+                    Effect.SlideDown(this.add_container);
+                }
+                this.add_shown = true;
+
+                // setup the 'cancel' button
+                var cancel = $(this.add_container).select('.edit_cancel')[0];
+                cancel.onclick = function() { this.hide_add(); }.bindAsEventListener(this);
+
+                // make sure we submit the add changes correctly
+                this._handle_form_submit('edit_form');
+
+            }.bindAsEventListener(this)
+        });
+    },
+    show_delete: function(trigger) {
+        var matches = trigger.className.match(/(^|\s)for_item_(\d+)($|\s)/);
+        var itemId  = matches[2];
+
+        // set the onsubmit handler for the form in this popup
+        var form = $('delete_form_' + itemId);
+        form.onsubmit = function() {
+            Smolder.Ajax.update({
+                url        : form.action,
+                target     : this.list_container.id,
+                indicator  : 'delete_indicator_' + itemId,
+                onComplete : function() {
+                    this.refresh();
+                }.bindAsEventListener(this)
+            });
+            return false;
+        }.bindAsEventListener(this);
+        
+        // show the popup form
+        var popup = 'delete_' + itemId;
+        Smolder.PopupForm.toggle(popup);
+    },
+    submit_change: function(form) {
+
+        // find the add_inidicator
+        var indicator = $(this.add_container).select('.add_indicator')[0].id;
+        Smolder.Ajax.form_update({
+            form       : form,
+            target     : this.add_container.id,
+            indicator  : indicator,
+            onComplete : function(args) {
+                // if the submission changed the list
+                if( args.json.list_changed ) {
+                    this.add_shown = false;
+                    Element.hide(this.add_container);
+                    this.update_list();
+                }
+
+                // since the add/edit forms may exist still
+                // (ie, their submission was incorrect so it reappears with error msgs)
+                // we need to make sure they're submitted correctly the 2nd time
+                this._handle_form_submit('add_form');
+                this._handle_form_submit('edit_form');
+        
+            }.bindAsEventListener(this)
+        });
+    },
+    update_list: function () {
+        Smolder.Ajax.update({
+            url       : this.list_url,
+            target    : this.list_container.id,
+            indicator : this.indicator,
+            onComplete: function () {
+                // refresh this CRUD since we know have new content
+                this.refresh();
+            }.bindAsEventListener(this)
+        });
+    }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// These are our JS behaviors that are applied externally to HTML elements just like CSS
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+var myrules = {
+    'a.calendar_trigger'  : function(element) {
+        // now find the id's of the calendar div and input based on the id of the trigger
+        // triggers are named $inputId_calendar_trigger, and calendar divs are named 
+        // $inputId_calendar
+        var inputId = element.id.replace(/_calendar_trigger/, '');
+        var input = $(inputId);
+
+        Calendar.setup({
+            inputField  : input.name,
+            ifFormat    : "%m/%d/%Y",
+            button      : element.id,
+            weekNumbers : false,
+            showOthers  : true,
+            align       : 'CL',
+            cache       : true
+        });
+    },
+    
+    'a.smoke_reports_nav' : function(element) {
+        // set the limit and then do an ajax request for the form
+        element.onclick = function() {
+            var offset = 0;
+            var matches = element.className.match(/(^|\s)offset_([^\s]+)($|\s)/);
+            if( matches != null )
+                offset = matches[2];
+            $('smoke_reports').elements['offset'].value = offset;
+            Smolder.Ajax.form_update({
+                form      : $('smoke_reports'),
+                indicator : 'paging_indicator'
+            });
+            return false;
+        };
+    },
+
+    'form.change_smoke_graph'  : function(element) {
+        element.onsubmit = function() {
+            Smolder.changeSmokeGraph(element);
+            return false;
+        }
+    },
+
+    'a.popup_form' : function(element) {
+        var popupId = element.id.replace(/_trigger$/, '');
+        element.onclick = function() {
+            Smolder.PopupForm.toggle(popupId);
+            return false;
+        };
+    },
+
+    'input.cancel_popup' : function(element) {
+        element.onclick = function() {
+            Smolder.PopupForm.hide();
+        };
+    },
+
+    'a.smoke_report_window' : function(element) {
+        element.onclick = function() {
+            Smolder.newSmokeReportWindow(element.href);
+            return false;
+        }
+    },
+
+    'form.toggle_smoke_valid' : function(element) {
+        element.onsubmit = function() {
+            Smolder.toggleSmokeValid(element);
+            return false;
+        }
+    },
+
+    '#platform_auto_complete' : function(element) {
+        new Ajax.Autocompleter(
+            'platform',
+            'platform_auto_complete',
+            '/app/developer_projects/platform_options'
+        );
+    },
+
+    '#architecture_auto_complete' : function(element) {
+        new Ajax.Autocompleter(
+            'architecture', 
+            'architecture_auto_complete', 
+            '/app/developer_projects/architecture_options'
+        );
+    },
+
+    'input.auto_submit' : function(element) {
+        element.onchange = function(event) {
+            element.form.onsubmit();
+            return false;
+        }
+    },
+
+    'select.auto_submit' : function(element) {
+        element.onchange = function(event) {
+            element.form.onsubmit();
+            return false;
+        }
+    },
+    
+    // for ajaxable forms and anchors the taget div for updating is determined
+    // as follows:
+    // Specify a the target div's id by adding a 'for_$id' class to the elements
+    // class list:
+    //      <a class="ajaxable for_some_div" ... >
+    // This will make the target a div named "some_div"
+    // If no target is specified, then it will default to "content"
+    'a.ajaxable' : function(element) {
+        Smolder.makeLinkAjaxable(element);
+    },
+
+    'form.ajaxable' : function(element) {
+        Smolder.makeFormAjaxable(element);
+    },
+
+    'div.crud' : function(element) {
+        var matches = element.className.match(/(^|\s)for_(\w+)($|\s)/);
+        var url     = "/app/" + matches[2];
+        if( ! Smolder.CRUD.exists(element.id) ) {
+            new Smolder.CRUD(element.id, url);
+        }
+    },
+    'form.resetpw_form': function(element) {
+        Smolder.makeFormAjaxable(element);
+        // extend the onsubmit handler to turn off the popup
+        var popupId = element.id.replace(/_form$/, '');
+        var oldOnSubmit = element.onsubmit;
+        element.onsubmit = function() {
+            oldOnSubmit();
+            Smolder.PopupForm.toggle(popupId);
+            return false;
+        };
+    },
+    // on the preferences form, the project selector should update
+    // the preferences form with the selected projects preferences
+    // from the server
+    '#project_preference_selector': function(element) {
+        var form  = element.form;
+    
+        // if we start off looking at the default options
+        if( element.value == form.elements['default_pref_id'].value ) {
+            Element.show('dev_prefs_sync_button');
+            // if we want to show some info - Element.show('default_pref_info');
+        }
+
+        element.onchange = function() {
+
+            // if we are the default preference, then show the stuff
+            // that needs to be shown
+            if( element.value == form.elements['default_pref_id'].value ) {
+                Element.show('dev_prefs_sync_button');
+                // if we want to show some info - Element.show('default_pref_info');
+            } else {
+                Element.hide('dev_prefs_sync_button');
+                // if we want to show some info - Element.hide('default_pref_info');
+            }
+    
+            // get the preference details from the server
+            Smolder.show_indicator('pref_indicator');
+            new Ajax.Request(
+                '/app/developer_prefs/get_pref_details',
+                {
+                    parameters: Form.serialize(form),
+                    asynchronous: true,
+                    onComplete: function(response, json) {
+                        // for every value in our JSON response, set that
+                        // same element in the form
+                        $A(['email_type', 'email_freq', 'email_limit']).each(
+                            function(name) {
+                                var elm = form.elements[name];
+                                elm.value = json[name];
+                                Smolder.flash(elm);
+                            }
+                        );
+                        Smolder.hide_indicator('pref_indicator');
+                    },
+                    onFailure: function() { Smolder.show_error() }
+                }
+            );
+        };
+    },
+    // submit the preference form to sync the other preferences
+    '#dev_prefs_sync_button': function(element) {
+        element.onclick = function() {
+            var form = $('update_pref');
+            form.elements['sync'].value = 1;
+            Smolder.Ajax.form_update({ 
+                form   : form,
+                target : 'developer_prefs'
+            });
+        };
+    },
+    // hightlight selected text, textarea and select inputs
+    'input.hl': function(element) {
+        element.onfocus = function() { Smolder.highlight(element);   };
+        element.onblur  = function() { Smolder.unHighlight(element); };
+    },
+    'textarea.hl': function(element) {
+        element.onfocus = function() { Smolder.highlight(element);   };
+        element.onblur  = function() { Smolder.unHighlight(element); };
+    },
+    'select.hl': function(element) {
+        element.onfocus = function() { Smolder.highlight(element);   };
+        element.onblur  = function() { Smolder.unHighlight(element); };
+    },
+
+    // setup tooltips
+    '.tooltip_trigger': function(element) {
+        var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
+        var target  = matches[2];
+        if( target ) {
+            Smolder.setup_tooltip(element, $(target));
+            Smolder.setup_tooltip($(target), $(target));
+        }
+    }
+};
+
+Behaviour.register(myrules);
