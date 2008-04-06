@@ -367,7 +367,7 @@ sub check_libs {
     my $h    = $args{h};
     my $mod  = $args{module};
 
-    if ($so && $mode eq 'build') {
+    if ($so) {
         my $lib = $so;
         $lib =~ s/^lib//;
         my @libs;
@@ -383,7 +383,7 @@ sub check_libs {
         my $msg = "The header file for $name, '$h', is missing from your system "
          . "or Smolder can't find it.";
         $msg .= "\nThis file is needed to compile the $mod module which uses $name." if ($mod && $name);
-        eval { assert_lib(header => $h, incpath => \@incs, debug => 1) };
+        eval { assert_lib(header => $h, incpath => \@incs) };
         die "$msg\n" if $@;
     }
 }
