@@ -23,6 +23,8 @@ over time. MediaWiki has an example of this:
       between 08-Apr-2007 07:15:22, 1.10alpha (r21099) and 25-Apr-2007
       07:15:46, 1.10alpha]
 
+We'd need GUIDs for tests so maybe we use a custom TAP diagnostic key
+
 =item *
 
 Make it easier for custom installation on existing Apache or maybe even
@@ -57,7 +59,7 @@ status, category, etc.
 
 =item *
 
-Support TAP tags (tags made with Test::Description::Tagged)
+Support new TAP diagnostics (almost specced out in TAP)
 
 =item *
 
