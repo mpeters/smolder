@@ -11,6 +11,7 @@
   <script type="text/javascript" src="/js/tap_behaviours.js"></script>
 </head>
 
+[% USE Number.Format %]
 <body>
 
 <div id="container">
@@ -27,13 +28,13 @@
     </thead>
     <tbody>
     <tr>
-      <th>Project</th>
+      <th width="150px">Project</th>
       <td>[% report.project.name | html %]</td>
     </tr>
     [% IF report.duration %]
     <tr>
       <th>Duration</th>
-      <td>[% report.duration %] secs</td>
+      <td>[% report.duration | format_number %] secs</td>
     </tr>
     [% END %]
     [% IF report.platform %]
@@ -123,8 +124,15 @@
       [% END %]
       <tfoot>
         <tr>
-          <td colspan="2">[% report.summary %]</td>
-          <td>[% report.test_files %] files</td>
+          <td colspan="2">
+            [% report.total       | format_number %] test cases: 
+              [% report.pass      | format_number %] ok, 
+              [% report.fail      | format_number %] failed, 
+              [% report.todo      | format_number %] todo, 
+              [% report.skip      | format_number %] skipped and 
+              [% report.todo_pass | format_number %] unexpectedly succeeded
+          </td>
+          <td>[% report.test_files | format_number %] files</td>
           <td class="sum" style="[% report.total_percentage | pass_fail_color %]">[% report.total_percentage %]%</td>
         </tr>
       </tfoot>
