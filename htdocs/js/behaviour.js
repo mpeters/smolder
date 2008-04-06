@@ -13,6 +13,7 @@ var Behaviour = {
         Behaviour.rules = Behaviour.rules.merge(new_rules);
     },
     apply : function(el) {
+//console.log('START BEHAVIOUR APPLICATION');
         Behaviour.rules.each(function(pair) {
             var rule = pair.key;
 
@@ -29,6 +30,7 @@ var Behaviour = {
             }
 
             // if we got anything back then apply the behaviour
+//console.log('  found ' + targets.size() + ' elements');
             if( targets.size() > 0 ) {
                 targets.each(function(target) { behaviour(target) });
             }

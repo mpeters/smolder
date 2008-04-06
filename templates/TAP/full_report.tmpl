@@ -46,12 +46,14 @@
 </tbody>
 </table>
 
+[% UNLESS email %]
 <div class="controls">
   [% IF report.failed %]
     <a href="#first_failure">Goto First Failure</a> | 
   [% END %]
   <a href="#" class="show_all">Show All Details</a>
 </div>
+[% END %]
 
 <table summary="[% report.summary | html %]" class="boxed matrix">
   <thead>

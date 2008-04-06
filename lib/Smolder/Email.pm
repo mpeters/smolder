@@ -5,6 +5,7 @@ use Template;
 use MIME::Lite;
 use HTML::FormatText::WithLinks;
 use Smolder::Util;
+use Template::Plugin::Cycle;
 use Carp;
 use strict;
 use warnings;
@@ -79,12 +80,19 @@ sub send_mime_mail {
     $tt_params->{host_name} .= ":" . ApachePort()
       unless ApachePort == 80;
     $tt_params->{subject} = $subject;
+    $tt_params->{email} = 1;
+    $tt_params->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));
 
     # get the HTML and plain text content
     my $html;
     $TEMPLATE->process( "Email/$name.tmpl", $tt_params, \$html )
       || croak $TEMPLATE->error();
     my $text = HTML::FormatText::WithLinks->new()->parse($html);
+
+my $fh;
+open($fh, '>', '/tmp/email_full.html') or die $!;
+print $fh $html;
+close $fh;
 
     # create the multipart text and html message
     my $mime = MIME::Lite->new(
