@@ -140,7 +140,7 @@ sub contains_message {
     my $resp = $self->response();
     my $json = jsonToObj($self->response->header('X-JSON') || '{}');
     my $msgs = $json->{messages} || [];
-    my $diag = "contains message $match";
+    my $diag = "contains message $match.";
 
     # so test diagnostics are right
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -158,6 +158,9 @@ sub contains_message {
             }
         } 
     }
+
+    $diag = qq(Could not find message "$match". Existing messages are:\n)
+      . join("\n", map { $_->{msg} } @$msgs);
     ok(0, $diag);
     return 0;
 }

@@ -42,14 +42,14 @@ $mech->login( username => $admin->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);
 $mech->content_contains('Admin');
-$mech->content_contains('Developers');
+$mech->content_contains('Users');
 
 # 6..23
 # add
 {
 
     # empty form
-    $mech->follow_link_ok( { text => 'Add New Developer' } );
+    $mech->follow_link_ok( { text => 'Add New User' } );
     $mech->form_name('add');
     $mech->submit();
     ok( $mech->success );
@@ -72,7 +72,7 @@ $mech->content_contains('Developers');
     ok( $mech->success );
     $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
-    $mech->content_contains('developer with that username already');
+    $mech->content_contains('user with that username already');
     $mech->content_contains('class="required warn">Email Address');
     $mech->content_contains('Not a valid email address');
     $mech->content_contains('class="required warn">Password');
@@ -84,7 +84,7 @@ $mech->content_contains('Developers');
     $mech->set_fields(%data);
     $mech->submit();
     ok( $mech->success );
-    $mech->contains_message("New developer '$data{username}' successfully created");
+    $mech->contains_message("New user '$data{username}' successfully created");
     ($dev) = Smolder::DB::Developer->search( username => $data{username} );
     END { $dev->delete() if ($dev) }
 }
@@ -122,7 +122,7 @@ $mech->content_contains('Developers');
     $mech->submit();
     ok( $mech->success );
     $mech->content_contains('class="required warn">Username');
-    $mech->content_contains('developer with that username already');
+    $mech->content_contains('user with that username already');
     $mech->content_contains('class="required warn">First Name');
     $mech->content_contains('class="required warn">Last Name');
     $mech->content_contains('class="required warn">Email Address');
@@ -136,7 +136,7 @@ $mech->content_contains('Developers');
     $mech->set_fields(%new_data);
     $mech->submit();
     ok( $mech->success );
-    $mech->contains_message("Developer '$data{username}' has been successfully updated");
+    $mech->contains_message("User '$data{username}' has been successfully updated");
     $mech->get_ok("$url/list");
     $mech->follow_link_ok( { url => "/app/admin_developers/edit/$dev" } );
     $mech->content_contains( $new_data{fname} );

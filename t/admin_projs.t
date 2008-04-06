@@ -168,7 +168,7 @@ $mech->content_contains('Projects');
 
     # first 'devs'
     $mech->get_ok("$BASE_URL/devs/$proj");
-    $mech->content_contains('No developers are currently assigned to this project');
+    $mech->content_contains('No users are currently assigned to this project');
 
     my $dev1 = create_developer();
     my $dev2 = create_developer();

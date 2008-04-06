@@ -164,7 +164,7 @@ sub process_edit {
     }
 
     # now show the successful message
-    $self->add_message( msg => "Developer '" . $developer->username . "' has been successfully updated.");
+    $self->add_message(msg => "User '" . $developer->username . "' has been successfully updated.");
     return $self->add_json_header(list_changed => 1);
 }
 
@@ -247,7 +247,7 @@ sub process_add {
     }
 
     # now show the successful message
-    $self->add_message(msg => "New developer '" . $developer->username . "' successfully created.");
+    $self->add_message(msg => "New user '" . $developer->username . "' successfully created.");
     return $self->add_json_header(list_changed => 1);
 }
 
@@ -272,7 +272,7 @@ sub delete {
 
         my $username = $developer->username;
         $developer->delete();
-        $self->add_message(msg => "Developer '$username' has been successfully deleted.");
+        $self->add_message(msg => "User '$username' has been successfully deleted.");
     }
 
     return $self->list();
