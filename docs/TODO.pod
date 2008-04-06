@@ -40,6 +40,10 @@ make a lite version that uses HTTP::Server::Simple?
 
 =item *
 
+Allow uploading and authorization all in 1 step and 1 url.
+
+=item *
+
 Add preference to just get plain-text emails
 
 =item *
@@ -49,7 +53,7 @@ Possibly similar to the way you select data for graphing.
 
 =item *
 
-Replace image based graphs with C<< <canvas> >> ones (using Plotr?)
+Replace image based graphs with browser based (canvas? Google graphs? Plotr?)
 
 =item *
 
