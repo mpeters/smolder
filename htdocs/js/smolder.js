@@ -304,7 +304,7 @@ Smolder.changeSmokeGraph = function(form) {
     var url       = form.action + "/" + escape(type) + "?change=1&";
 
     // add each field that we want to see to the URL
-    var fields = new Array('total', 'pass', 'fail', 'skip', 'todo');
+    var fields = new Array('total', 'pass', 'fail', 'skip', 'todo', 'duration');
     fields.each(
         function(value, index) {
             if( form.elements[value].checked ) {

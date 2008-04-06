@@ -36,13 +36,13 @@ my %TYPE_MAP = (
 );
 
 # corresponding color and legend for each data type
-my @FIELD_NAMES = qw(total pass fail todo skip);
 my %FIELDS = (
-    total => [qw(lblue Total)],
-    pass  => [qw(green Pass)],
-    fail  => [qw(red Fail)],
-    todo  => [qw(lorange TODO)],
-    skip  => [qw(lyellow Skip)],
+    total    => [qw(lblue Total)],
+    pass     => [qw(green Pass)],
+    fail     => [qw(red Fail)],
+    todo     => [qw(lorange TODO)],
+    skip     => [qw(lyellow Skip)],
+    duration => [qw(lbrown Duration)],
 );
 
 sub setup {
@@ -129,12 +129,11 @@ sub image {
     # which fields do we need to show?
     my @fields;
     if ( $query->param('change') ) {
-        foreach my $field (@FIELD_NAMES) {
+        foreach my $field (keys %FIELDS) {
             push( @fields, $field ) if ( $query->param($field) );
         }
-
-        # by default, show pass vs fail
     } else {
+        # by default, show pass vs fail
         @fields = qw(pass fail);
     }
 
@@ -142,6 +141,7 @@ sub image {
         start => $start,
         stop  => $stop,
     );
+
     foreach my $extra_param qw(tag architecture platform) {
         $search_params{$extra_param} = $query->param($extra_param)
           if ( $query->param($extra_param) );
@@ -151,6 +151,9 @@ sub image {
         fields => \@fields,
         %search_params,
     );
+
+use Data::Dumper;
+warn Dumper $data;
 
     # send out our headers
     $self->header_type('none');
@@ -167,10 +170,8 @@ sub image {
         local $/ = undef;
         print $r->print(<$NO_DATA_FH>);
         close($NO_DATA_FH) or die "Could not close file '$file': $!";
-
-        # else create the graph and send it
     } else {
-
+        # else create the graph and send it
         my @colors = map { $FIELDS{$_}->[0] } @fields;
         my @legend = map { $FIELDS{$_}->[1] } @fields;
 
@@ -205,8 +206,10 @@ sub _create_progress_gd {
 
     # find the maximun value for the Y axis
     my $y_max = 0;
-    foreach my $point ( @{ $data->[1] } ) {
-        $y_max = $point if ( $point > $y_max );
+    for my $i (1..$#$data) {
+        foreach my $point (@{$data->[$i]}) {
+            $y_max = $point if ( $point > $y_max );
+        }
     }
 
     # now round up to the nearest 100
