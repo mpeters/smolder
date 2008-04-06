@@ -114,6 +114,7 @@ Smolder.Ajax.request = function(args) {
             asynchronous: true,
             evalScripts : true,
             onComplete : function(request, json) {
+                if(! json ) json = {};
                 Smolder.show_messages(json);
 
                 // hide the indicator
@@ -121,7 +122,7 @@ Smolder.Ajax.request = function(args) {
 
                 // do whatever else the caller wants
                 args.request = request;
-                args.json    = json;
+                args.json    = json || {};
                 complete(args);
             },
             onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
@@ -182,7 +183,7 @@ Smolder.Ajax.update = function(args) {
 
                 // do whatever else the caller wants
                 args.request = request;
-                args.json    = json;
+                args.json    = json || {};
                 complete(args);
             },
             onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
@@ -487,7 +488,7 @@ Smolder.show_message = function(type, text) {
     var el = $('message_' + Smolder.__message_count);
     var fade = function() { new Effect.Fade(el, { duration: .4 } ); };
     el.onclick = fade;
-    setTimeout(fade, 70000);
+    setTimeout(fade, 7000);
 }
 
 
@@ -504,7 +505,6 @@ Smolder.__known_CRUDS = { };
 Smolder.CRUD = Class.create();
 
 /* Class methods */
-Smolder.CRUD.exists   = function(id)   { return Smolder.__known_CRUDS[id] ? true : false; };
 Smolder.CRUD.find     = function(id)   { return Smolder.__known_CRUDS[id] };
 Smolder.CRUD.remember = function(crud) { Smolder.__known_CRUDS[crud.div.id] = crud; };
 Smolder.CRUD.forget   = function(crud) { Smolder.__known_CRUDS[crud.div.id] = false; };
@@ -514,7 +514,7 @@ Object.extend(Smolder.CRUD.prototype, {
     initialize: function(id, url) {
         this.div      = $(id);
         this.url      = url;
-        this.list_url = url + '/list?table_only=1';
+        this.list_url = url + '/list';
 
         // initialize these if we don't already have a crud
         this.add_shown = false;
@@ -632,11 +632,8 @@ Object.extend(Smolder.CRUD.prototype, {
         form.onsubmit = function() {
             Smolder.Ajax.update({
                 url        : form.action,
-                target     : this.list_container.id,
-                indicator  : 'delete_indicator_' + itemId,
-                onComplete : function() {
-                    this.refresh();
-                }.bindAsEventListener(this)
+                target     : this.list_container_id,
+                indicator  : 'delete_indicator_' + itemId
             });
             return false;
         }.bindAsEventListener(this);
@@ -654,6 +651,7 @@ Object.extend(Smolder.CRUD.prototype, {
             target     : this.add_container.id,
             indicator  : indicator,
             onComplete : function(args) {
+                if(! args.json ) args.json = {};
                 // if the submission changed the list
                 if( args.json.list_changed ) {
                     this.add_shown = false;
@@ -673,12 +671,8 @@ Object.extend(Smolder.CRUD.prototype, {
     update_list: function () {
         Smolder.Ajax.update({
             url       : this.list_url,
-            target    : this.list_container.id,
             indicator : this.indicator,
-            onComplete: function () {
-                // refresh this CRUD since we know have new content
-                this.refresh();
-            }.bindAsEventListener(this)
+            target    : this.list_container_id
         });
     }
 });
@@ -745,13 +739,6 @@ var myrules = {
         };
     },
 
-    'a.smoke_report_window' : function(element) {
-        element.onclick = function() {
-            Smolder.newSmokeReportWindow(element.href);
-            return false;
-        }
-    },
-
     'form.toggle_smoke_valid' : function(element) {
         element.onsubmit = function() {
             Smolder.toggleSmokeValid(element);
@@ -807,9 +794,7 @@ var myrules = {
     'div.crud' : function(element) {
         var matches = element.className.match(/(^|\s)for_(\w+)($|\s)/);
         var url     = "/app/" + matches[2];
-        if( ! Smolder.CRUD.exists(element.id) ) {
-            new Smolder.CRUD(element.id, url);
-        }
+        new Smolder.CRUD(element.id, url);
     },
     'form.resetpw_form': function(element) {
         Smolder.makeFormAjaxable(element);
@@ -898,11 +883,92 @@ var myrules = {
     // setup tooltips
     '.tooltip_trigger': function(element) {
         var matches = element.className.match(/(^|\s)for_([^\s]+)($|\s)/);
-        var target  = matches[2];
-        if( target ) {
-            Smolder.setup_tooltip(element, $(target));
-            Smolder.setup_tooltip($(target), $(target));
+        if( matches ) {
+            var target  = matches[2];
+            if( target ) {
+                Smolder.setup_tooltip(element, $(target));
+                Smolder.setup_tooltip($(target), $(target));
+            }
         }
+    },
+    // TAP Matrix triggers for more test file details
+    '.tap a.testfile_details_trigger' : function(el) {
+        // get the id of the target div
+        var matches = el.id.match(/^for_(.*)$/);
+        var target = matches[1];
+        // get the id of the indicator image
+        matches = el.className.match(/(^|\s)show_(\S*)($|\s)/);
+        var indicator = matches[2];
+
+        el.onclick = function() {
+            if( Element.visible(target) ) {
+                Effect.BlindUp(target, { duration: .5 });
+            } else {
+                $(indicator).style.visibility = 'visible';
+                Smolder.Ajax.update({
+                    url        : el.href,
+                    target     : target,
+                    indicator  : 'none',
+                    onComplete : function() {
+                        window.setTimeout(function() { $(indicator).style.visibility = 'hidden'}, 200);
+                        Effect.BlindDown(
+                            target,
+                            // reapply any dynamic bits
+                            { 
+                                afterFinish : function() { 
+                                    $$('.tooltip_trigger').each(function(el) {
+                                        var diag = $(el).select('.tooltip')[0];
+                                        Smolder.setup_tooltip(el, diag);
+                                    });
+                                },
+                                duration    : .5
+                            }
+                        );
+                    }
+                });
+            }
+            return false;
+        };
+    },
+    '.tap div.diag': function(el) {
+        Smolder.setup_tooltip(el, el);
+    },
+    '.tap a.show_all' : function(el) {
+        Event.observe(el, 'click', function() {
+            // an anonymous function that we use as a callback after each
+            // panel is opened so that it opens the next one
+            var show_details = function(index) {
+                var el = $('testfile_details_' + index);
+                // apply the behaviours if we're the last one
+                if( ! el ) {
+                    Behaviour.apply();
+                    return;
+                } 
+
+                // we only need to fetch it if we're not already visible
+                if( Element.visible(el) ) {
+                    show_details(++index);
+                } else {
+                    matches = el.id.match(/^testfile_details_(\d+)$/);
+                    var index = matches[1];
+                    var indicator = $('indicator_' + index);
+                    var div = $('testfile_details_' + index);
+                    indicator.style.visibility = 'visible';
+                    
+                    Smolder.Ajax.update({
+                        url        : $('for_testfile_details_' + index).href,
+                        target     : div,
+                        indicator  : 'none',
+                        onComplete : function() {
+                            Element.show(div);
+                            indicator.style.visibility = 'hidden';
+                            show_details(++index);
+                        }
+                    });
+                }
+            };
+            show_details(0);
+        });
     }
 };
 

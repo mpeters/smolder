@@ -6,6 +6,7 @@ use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
+use Template::Plugin::Cycle;
 #use CGI::Application::Plugin::DebugScreen;
 
 use Smolder;
@@ -308,6 +309,7 @@ __PACKAGE__->add_callback(
             $vars->{ajax}       = 1;
         }
         $vars->{smolder_version} = $Smolder::VERSION;
+        $vars->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));
         return;
     }
 );

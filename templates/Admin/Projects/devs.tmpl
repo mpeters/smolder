@@ -1,6 +1,6 @@
 [% SET page_title = "Admin" %]
 
-<h2>Project Developers</h2>
+<h2>Project Users</h2>
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/admin_projects/list">Project List</a>
@@ -26,7 +26,7 @@
     [% END %]
     </select>
   </td>
-  <td><input type="submit" value="Add Developer to Project" /></td>
+  <td><input type="submit" value="Add User to Project" /></td>
 </tr>
 
 </table>
@@ -61,7 +61,7 @@ change_admin = function(input) {
 </colgroup>
 
 <thead>
-  <th>Developer</th>
+  <th>User</th>
   <th>Admin?</th>
   <th>Remove</th>
 </thead>
@@ -88,7 +88,7 @@ change_admin = function(input) {
 </tbody>
 </table>
 [% ELSE %]
-  <p class="pushdown">No developers are currently assigned to this project.</p>
+  <p class="pushdown">No users are currently assigned to this project.</p>
 [% END %]
 </form>
 </div>

@@ -620,3 +620,132 @@ img.graph {
     border-bottom-color: #555555;
 }
 
+
+/* TAP Matrix formatting */
+.tap pre {
+    font-size: 10pt;
+}
+
+.tap table {
+	background-color: #fff;
+}
+
+.tap .properties, .tap .controls {
+    margin-bottom: 10px;
+}
+
+.tap .matrix th {
+    text-align: left;
+}
+
+.tap .matrix tfoot {
+    font-weight: bold;
+}
+
+.tap .matrix tfoot td.last {
+    text-align: center;
+    background-color: #555;
+    color: #fff;
+}
+
+.tap td {
+    padding: 0px;
+    margin: 0px;
+}
+
+.tap .sum {
+    width: 1em;  
+	border: 1px solid #505050;
+	text-align: center;
+	font-weight: bold;
+	font-size: 0.85em;
+}
+
+.tap table.subtests td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.tap a.testfile_details_trigger {
+	font-size: 0.85em;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    color: #000;
+    width: 4.8em;
+    border: 1px solid #555;
+    display: block;
+    height: 1.5em;
+}
+
+.tap a.testfile_details_trigger.fail {
+    color: #fff;
+}
+
+.tap .exp {
+	display: block;
+}
+
+.tap .x { 
+    color: black; 
+    border: 1px solid #505050; 
+}
+
+.tap .fail    { background-color: #C47147; color: #000; }
+.tap .ok      { background-color: #00ff00; }
+.tap .skip    { background-color: #ddffdd; }
+.tap .todo_ok { background-color: #ffdd20; color: #000; }
+.tap .todo    { background-color: #007f00; color: #000; }
+.tap .nottest { background-color: #7f7f7f; color: #000; }
+.tap span.fail { background-color: transparent; color: #C47147 }
+
+/* TAP Matrix tooltip styling */
+.tap .tooltip {
+    min-width: 200px;
+    padding: 5px;
+    background: #ffffff;
+    text-align: left;
+    border: 1px solid #CCCCCC;
+    border-right: 1px solid #555555;
+    border-bottom: 1px solid #555555;
+    font-weight: bold;
+    z-index: 100;
+    color: #000000;
+}
+
+.tap .tooltip > .header {
+    background-color: #C47147;
+    font-weight: bold;
+    font-size: 11pt;
+    color: #FFFFFF;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-bottom: 1px solid #555555;
+    border-right: 1px solid #555555;
+}
+
+.tap .tooltip:hover, .tooltip_trigger:hover {
+    cursor: pointer;
+}
+
+.tap div.tooltip {
+    background-color: #ffffff;
+    border: 1px solid #999999;
+    border-bottom: 1px solid #333333;
+    border-right: 1px solid #333333;
+    padding: 5px;
+    text-align: left;
+}
+
+.tap div.tooltip > pre {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.tap div.tooltip > pre.unknown {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border: 1px solid #cccccc;
+    background: #dddddd;
+}
+

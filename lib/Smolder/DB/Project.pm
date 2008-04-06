@@ -327,8 +327,6 @@ sub report_graph_data {
           . " WHERE sr.project = ? AND sr.invalid = 0 ";
     }
 
-warn "\n$sql\n";
-
     # if we need to limit by date
     if ($start) {
         $sql .= " AND DATE(sr.added) >= ? ";

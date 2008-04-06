@@ -28,7 +28,7 @@
           [% SET pass_ratio = (report.pass / report.total) %]
           [% SET pass_percent = pass_ratio * 100 %]
           [% SET fail_percent = (report.fail / report.total) * 100 %]
-          <div class="pass_fail_ratio" style="background-color: #[% pass_ratio FILTER pass_fail_color %];">
+          <div class="pass_fail_ratio" style="background-color: #[% pass_ratio | pass_fail_color %];">
             [% pass_percent | round %]%
           </div>
         [% END %]
@@ -105,7 +105,7 @@
   [% IF report.purged %]
     <a class="button dead" title="Details have been purged">Details</a>
   [% ELSE %]
-    <a class="button invert smoke_report_window" title="HTML test report"
+    <a class="button invert ajax" title="HTML test report"
         href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">Details</a>
   [% END %]
   </div>

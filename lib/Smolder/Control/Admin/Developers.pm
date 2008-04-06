@@ -183,11 +183,7 @@ sub list {
     my %tt_params;
     $tt_params{developers} = \@developers if (@developers);
 
-    if ( $cgi->param('table_only') ) {
-        return $self->tt_process( 'Admin/Developers/list_table.tmpl', \%tt_params, );
-    } else {
-        return $self->tt_process( \%tt_params );
-    }
+    return $self->tt_process( \%tt_params );
 }
 
 =head2 add
@@ -279,7 +275,6 @@ sub delete {
         $self->add_message(msg => "Developer '$username' has been successfully deleted.");
     }
 
-    $self->query->param(table_only => 1);
     return $self->list();
 }
 

@@ -350,20 +350,13 @@ sub report_details {
         return $self->error_message('Unauthorized for this project');
     }
 
-    return $report->html;
-}
+    my $tt_params = {
+        tap     => ${$report->html},
+        project => $report->project,
+        report  => $report,
+    };
 
-=head2 archive
-
-=cut
-
-sub archive {
-    my $self   = shift;
-    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
-    return $self->error_message('Test Report does not exist')
-      unless $report;
-
-    return $self->stream_file($report->file);
+    return $self->tt_process('Developer/Projects/tap.tmpl', $tt_params),
 }
 
 =head2 test_file_report_details
@@ -384,9 +377,22 @@ sub test_file_report_details {
     unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
         return $self->error_message('Unauthorized for this project');
     }
-
     return $report->html_test_detail($num);
 }
+
+=head2 archive
+
+=cut
+
+sub archive {
+    my $self   = shift;
+    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    return $self->error_message('Test Report does not exist')
+      unless $report;
+
+    return $self->stream_file($report->file);
+}
+
 
 =head2 show_all
 

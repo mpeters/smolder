@@ -1,72 +1,63 @@
-body {
-	font-family: Helvetica, Arial;
-	font-size: small;
-}
+.tap a { color: #000066; text-decoration: none; }
 
-a { color: #000066; text-decoration: none; }
-
-pre {
+.tap pre {
     font-size: 10pt;
 }
 
-th, tfoot td {
-	border: 1px solid #444444;
-	font-weight: bold;
-	font-size: 1em;
-	color: black;
-   	text-align: center;
-	vertical-align: middle;
+.tap th, .tap tfoot td {
 	background-color: #efefef;
-}
-
-tfoot td, th {
-    color: black; 
     border: 1px solid #505050; 
-	text-align: center;
-	font-weight: bold;
+	color: black;
 	font-size: 0.85em;
+	font-weight: bold;
 	padding: 0.1em;
+	text-align: center;
+	vertical-align: middle;
 }
 
-td.filename {
+.tap td, .tap th {
+    vertical-align: top;
+}
+
+.tap td.filename {
 	vertical-align: top;
     padding-right: 8px;
 }
 
-tbody.results {
+.tap tbody.results {
     border-bottom: 1px solid #cccccc;
 }
 
-#details {
+.tap #details {
 	border-collapse: collapse;
     border: 1px solid #505050;
     width: 650px;
     margin-bottom: 15px;
 }
 
-#details thead th, #details tfoot th {
+.tap #details thead th, #details tfoot th {
     text-align: center;
     border-bottom: 1px solid #505050;
 }
 
-#details th, #details td {
+.tap #details th, #details td {
     text-align: left;
     border-bottom: 1px solid #cccccc;
 }
 
-#details th.last, #details td.last {
+.tap #details th.last, #details td.last {
     text-align: left;
     border-bottom: none;
 }
 
-#matrix {
+.tap #matrix {
 	border-collapse: collapse;
 	border: 1px solid #444444;
 	background-color: #fbfbfb;
     width: 650px;
 }
 
-.sum {
+.tap .sum {
     width: 1em;  
 	border: 1px solid #505050;
 	padding: 0px;
@@ -76,16 +67,12 @@ tbody.results {
 	padding: 0.1em;
 }
 
-table.subtests td {
+.tap table.subtests td {
     vertical-align: middle;
     text-align: center;
 }
 
-td, th {
-    vertical-align: top;
-}
-
-td.ok, td.failed { 
+.tap td.ok, .tap td.failed { 
     width: 1em;  
 	text-align: center;
 	font-weight: bold;
@@ -93,90 +80,29 @@ td.ok, td.failed {
 	padding: 0.1em;
 }
 
-td.failed, a.failed, span.failed {
+.tap td.failed, .tap a.failed, .tap span.failed {
     color: #e76423;
     font-weight: bold;
 }
 
-.exp {
+.tap .exp {
 	display: block;
 }
 
-.x { 
+.tap .x { 
     color: black; 
     border: 1px solid #505050; 
 }
 
-.fail    { background-color: #ff3020; }
-.ok      { background-color: #00ff00; }
-.skip    { background-color: #ddffdd; }
-.todo_ok { background-color: #ffdd20; color: white; }
-.todo    { background-color: #007f00; color: white; }
-.nottest { background-color: #7f7f7f; color: white ; }
-
-/* layout styles */
-#container {
-    text-align: left;
-    width: 600px;
-    height: 100px;
-    background-color: #EEEEEE;
-    margin-bottom: 20px;
-    border-width: 1px;
-    border-color: #666666;
-    border-style: solid;
-    padding: 3px;
-    -moz-border-radius: 10px;
-}
-
-#header {
-    margin: 0 auto;
-    width: 100%;
-    height: 100%;
-    border-width: 0px;
-    border-bottom-width: 1px;
-    border-right-width: 1px;
-    border-color: #CCCCCC;
-    border-style: solid;
-    -moz-border-radius: 10px;
-    position: relative;
-    background-image: url(/images/grid.png);
-}
-
-#logo {
-    background-image: url(/images/smolder_small_no_text.png);
-    background-repeat: no-repeat;
-    width: 100px;
-    height: 100px;
-}
-
-#title {
-    background-image: url(/images/smolder_text.png);
-    background-repeat: no-repeat;
-    width: 298px;
-    height: 86px;
-    position: absolute;
-    right: 0px;
-    top: 84px;
-}
-
-#content {
-    padding-top: 0px;
-}
-
-h1 {
-    margin-top: 0px;
-}
-
-div.f {
-    color: #a91509;
-}
-
-div.p {
-    color: #2d852d;
-}
+.tap .fail    { background-color: #ff3020; }
+.tap .ok      { background-color: #00ff00; }
+.tap .skip    { background-color: #ddffdd; }
+.tap .todo_ok { background-color: #ffdd20; color: white; }
+.tap .todo    { background-color: #007f00; color: white; }
+.tap .nottest { background-color: #7f7f7f; color: white ; }
 
 /* Tooltip styling */
-.tooltip {
+.tap .tooltip {
     min-width: 200px;
     padding: 5px;
     background: #ffffff;
@@ -189,7 +115,7 @@ div.p {
     color: #000000;
 }
 
-.tooltip > .header {
+.tap .tooltip > .header {
     background-color: #C47147;
     font-weight: bold;
     font-size: 11pt;
@@ -200,11 +126,11 @@ div.p {
     border-right: 1px solid #555555;
 }
 
-.tooltip:hover, .tooltip_trigger:hover {
+.tap .tooltip:hover, .tooltip_trigger:hover {
     cursor: pointer;
 }
 
-div.tooltip {
+.tap div.tooltip {
     background-color: #ffffff;
     border: 1px solid #999999;
     border-bottom: 1px solid #333333;
@@ -213,12 +139,12 @@ div.tooltip {
     text-align: left;
 }
 
-div.tooltip > pre {
+.tap div.tooltip > pre {
     margin-top: 0px;
     margin-bottom: 0px;
 }
 
-div.tooltip > pre.unknown {
+.tap div.tooltip > pre.unknown {
     margin-top: 0px;
     margin-bottom: 0px;
     border: 1px solid #cccccc;

@@ -9,6 +9,7 @@ use URI::file;
 use Template;
 use Smolder::Conf qw(InstallRoot);
 use Smolder::Control;
+use Template::Plugin::Cycle;
 
 our $TMPL = Template->new(
     COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
@@ -35,27 +36,37 @@ sub generate_html {
 	my $self = shift;
 
     # where are we saving the results
-    my $dir = catdir( $self->report->data_dir, 'html' );
-    unless ( -d $dir ) {
+    my $dir = catdir($self->report->data_dir, 'html');
+    unless (-d $dir) {
         mkpath($dir) or croak "Could not create directory '$dir'! $!";
     }
     my $file = catfile($dir, 'report.html');
 
     # process the full report
-    $TMPL->process( 
-        'TAP/full_report.html', 
-        { report => $self->report, results => $self->results },
-        $file, 
+    my $odd_even = Template::Plugin::Cycle->new(qw(odd even));
+    $TMPL->process(
+        'TAP/full_report.tmpl',
+        {
+            report   => $self->report,
+            results  => $self->results,
+            odd_even => $odd_even,
+        },
+        $file,
     ) or croak $TMPL->error;
 
     # now generate the HTML for each individual file
     my $count = 0;
     foreach my $test (@{$self->results}) {
         my $save_file = catfile($dir, $count . '.html');
-        $TMPL->process( 
-            'TAP/individual_test.html', 
-            { report => $self->report, test_file => $test->{label}, tests => $test->{tests} },
-            $save_file, 
+        $TMPL->process(
+            'TAP/individual_test.tmpl',
+            {
+                report    => $self->report,
+                test_file => $test->{label},
+                tests     => $test->{tests},
+                odd_even  => $odd_even,
+            },
+            $save_file,
         ) or croak "Problem processing template file '$file': ", $TMPL->error;
         $count++;
     }
