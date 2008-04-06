@@ -101,6 +101,7 @@
       </form>
     </div>
   [% END %]
+    <a class="button invert" title="TAP Archive" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/archive/[% report.id %]">TAP</a>
   [% IF report.purged %]
     <a class="button dead" title="Details have been purged">Details</a>
   [% ELSE %]

@@ -18,7 +18,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 20 );
+    plan( tests => 16 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -58,12 +58,6 @@ $mech->content_contains('My Projects');
     $mech->content_contains('Unauthorized');
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj_id");
     $mech->content_contains('Unauthorized');
-
-    # check the add_category, delete_category
-    $mech->get_ok("/app/developer_projects/add_category/$proj_id");
-    $mech->content_contains('You are not an admin');
-    $mech->get_ok("/app/developer_projects/delete_category/$proj_id");
-    $mech->content_contains('You are not an admin');
 
     # check project_settings and project_project_settings
     $mech->get_ok("/app/developer_projects/admin_settings/$proj_id");

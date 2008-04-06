@@ -18,7 +18,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 39 );
+    plan( tests => 21 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -101,59 +101,6 @@ $mech->content_contains('My Projects');
     $proj1 = Smolder::DB::Project->retrieve($proj_id);
     foreach ( keys %settings ) {
         is( $proj1->$_, $settings{$_} );
-    }
-}
-
-# 21..39
-# add_category, delete_category
-{
-    my $proj1      = _get_proj($proj1_id);
-    my $url        = "/app/developer_projects/admin_settings";
-    my @categories = ( "Stuff", "More Stuff", );
-    $mech->get_ok("$url/$proj1");
-    $mech->content_contains('Settings');
-    $mech->content_contains('none');
-
-    # empty form
-    $mech->form_name('project_categories_form');
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('missing required fields');
-
-    # invalid form
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => ( 'x' x 300 ) );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('Category name must be under 255 characters.');
-
-    # successful
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[0] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->contains_message('successfully added');
-    $mech->content_contains( $categories[0] );
-
-    # try to add it again
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[0] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains('already exists');
-
-    # add the next one
-    $mech->form_name('project_categories_form');
-    $mech->set_fields( category => $categories[1] );
-    $mech->submit();
-    ok( $mech->success );
-    $mech->contains_message('successfully added');
-    $mech->content_contains( $categories[0] );
-    $mech->content_contains( $categories[1] );
-
-    # make sure they're all there
-    foreach my $cat ( $proj1->categories ) {
-        ok( grep { $_ eq $cat } @categories );
     }
 }
 

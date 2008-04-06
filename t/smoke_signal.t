@@ -15,10 +15,11 @@ use Smolder::TestData qw(
   delete_developers
   create_preference
   delete_preferences
+  delete_tags
 );
 
 if( is_apache_running ) {
-    plan(tests => 28);
+    plan(tests => 30);
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -150,12 +151,11 @@ SKIP: {
     is( $report->architecture, $arch );
     Smolder::DB->disconnect();
 
-    # category
-    my $cat = 'fake category';
-    $project->add_category($cat);
+    # tags
+    my @tags = ("Foo", "My Bar");
     Smolder::DB->disconnect();
-    $out =
-`$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" --platform "$platform" --architecture "$arch" --category '$cat' 2>&1`;
+    my $cmd = qq($bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" --platform "$platform" --architecture "$arch" --tags ") . join(', ', @tags) . qq(" 2>&1);
+    $out = `$cmd`;
     like( $out, qr/successfully uploaded/i );
     $out =~ /as #(\d+)/;
     $report_id = $1;
@@ -163,6 +163,11 @@ SKIP: {
     is( $report->comments,     $comments );
     is( $report->platform,     $platform );
     is( $report->architecture, $arch );
-    is( $report->category,     $cat );
+    my @assigned_tags = $report->tags;
+    cmp_ok(@tags, '==', 2, 'correct number of tags');
+    foreach my $t (@tags) {
+        ok(grep { $_ eq $t } @assigned_tags, qq(tag "$t" correctly appears in report));
+    }
+    delete_tags(@tags);
     Smolder::DB->disconnect();
 }

@@ -18,6 +18,7 @@ our @EXPORT_OK = qw(
   delete_preferences
   create_smoke_report
   delete_smoke_reports
+  delete_tags
   logout
   is_apache_running
   base_url
@@ -228,6 +229,22 @@ Will delete all test reports create by L<create_smoke_report>.
                 $report->delete();
             }
         }
+    }
+}
+
+=head2 delete_tags
+
+Delete the tags with the given names
+
+  delete_tags('foo', 'bar');
+
+=cut
+
+sub delete_tags {
+    my @tags = @_;
+    my $sth = Smolder::DB->db_Main->prepare_cached('DELETE FROM smoke_report_tag WHERE tag = ?');
+    foreach my $t (@tags) {
+        $sth->execute($t);
     }
 }
 

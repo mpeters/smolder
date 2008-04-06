@@ -56,7 +56,7 @@ use_ok('Smolder::Control::Public::Projects');
     # a public project
     $mech->get_ok( $url . "/details/$proj1_id" );
     $mech->content_lacks('not a public project');
-    $mech->content_contains('Project Details');
+    $mech->content_contains('Details');
 }
 
 # 10..45

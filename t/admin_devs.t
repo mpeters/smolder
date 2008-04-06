@@ -13,7 +13,7 @@ use Smolder::TestData qw(
 use Smolder::Mech;
 
 if (is_apache_running) {
-    plan( tests => 64 );
+    plan( tests => 60 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -44,7 +44,7 @@ $mech->get_ok($url);
 $mech->content_contains('Admin');
 $mech->content_contains('Developers');
 
-# 6..27
+# 6..23
 # add
 {
 
@@ -55,8 +55,6 @@ $mech->content_contains('Developers');
     ok( $mech->success );
     $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
-    $mech->content_contains('class="required warn">First Name');
-    $mech->content_contains('class="required warn">Last Name');
     $mech->content_contains('class="required warn">Email Address');
     $mech->content_contains('class="required warn">Password');
     $mech->content_contains('class="required warn">Site Admin?');
@@ -75,8 +73,6 @@ $mech->content_contains('Developers');
     $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Username');
     $mech->content_contains('developer with that username already');
-    $mech->content_contains('class="required warn">First Name');
-    $mech->content_contains('class="required warn">Last Name');
     $mech->content_contains('class="required warn">Email Address');
     $mech->content_contains('Not a valid email address');
     $mech->content_contains('class="required warn">Password');
@@ -93,7 +89,7 @@ $mech->content_contains('Developers');
     END { $dev->delete() if ($dev) }
 }
 
-# 28..31
+# 24..25
 # details
 {
     $mech->get_ok( $url . "/details/$dev" );
@@ -102,7 +98,7 @@ $mech->content_contains('Developers');
     $mech->content_contains( $dev->email );
 }
 
-# 32..51
+# 28..47
 # edit
 {
     $mech->get_ok("$url/list");
@@ -147,7 +143,7 @@ $mech->content_contains('Developers');
     $mech->content_lacks( $data{fname} );
 }
 
-# 52..54
+# 48..50
 # reset_pw
 {
     $mech->get_ok("$url/list");
@@ -157,7 +153,7 @@ $mech->content_contains('Developers');
     isnt( $dev->password, db_field_value( 'developer', 'password', $dev->id ) );
 }
 
-# 55..59
+# 51..55
 # list
 {
     $mech->get_ok("$url/list");
@@ -167,7 +163,7 @@ $mech->content_contains('Developers');
     $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
 }
 
-# 60..64
+# 56..60
 # delete
 {
     $mech->get_ok("$url/list");
