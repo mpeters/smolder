@@ -33,5 +33,3 @@ CREATE TABLE smoke_report_tag  (
 );
 
 CREATE INDEX i_project_smoke_tag_tag ON smoke_report_tag (tag);
-
-

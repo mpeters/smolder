@@ -78,9 +78,13 @@ it will use the default architecture for the project.
 The platform for the given smoke test run. If none is given
 it will use the default platform for the project.
 
-=item category
+=item tags
 
-The category of the given smoke test run.
+A comma separated list of tags that are given for this smoke report run.
+
+    ./bin/smolder_smoke_signal --server smolder.foo.com \
+        --username myself --password s3cr3t --file test_report.xml \
+        --project MyProject --tags "Foo, My Bar"
 
 =item comments
 
@@ -93,7 +97,7 @@ Print verbose output of our actions to STDOUT.
 =cut
 
 # default options
-my ( $server, $project, $user, $pw, $file, $arch, $platform, $category, $comments, $verbose );
+my ( $server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose );
 my ( $help, $man );
 
 GetOptions(
@@ -104,7 +108,7 @@ GetOptions(
     'file=s'         => \$file,
     'architecture=s' => \$arch,
     'platform=s'     => \$platform,
-    'category=s'     => \$category,
+    'tags=s'         => \$tags,
     'comments=s'     => \$comments,
     'verbose!'       => \$verbose,
     'help'           => \$help,
@@ -195,7 +199,7 @@ $mech->form_name('add_report');
 my %fields = (report_file => $file);
 $fields{platform}     = $platform if ($platform);
 $fields{architecture} = $arch     if ($arch);
-$fields{category}     = $category if ($category);
+$fields{tags}         = $tags     if ($tags);
 $fields{comments}     = $comments if ($comments);
 $mech->set_fields(%fields);
 $mech->submit();
