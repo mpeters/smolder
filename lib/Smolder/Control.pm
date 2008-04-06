@@ -2,7 +2,6 @@ package Smolder::Control;
 use strict;
 use warnings;
 use base 'CGI::Application';
-use CGI::Application::Plugin::Apache qw(:all);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;

@@ -231,7 +231,7 @@ sub file_mtype {
     my @types = @_;
     return sub {
         my ( $dfv, $filename ) = @_;
-        my $fh = $dfv->get_input_data()->upload( $dfv->get_current_constraint_field() )->fh;
+        my $fh = $dfv->get_input_data()->upload( $dfv->get_current_constraint_field );
         my ($suffix) = ( basename($filename) =~ /(\..*)$/ );
 
         # save the file to a temp location
