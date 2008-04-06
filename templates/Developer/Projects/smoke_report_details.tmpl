@@ -19,10 +19,10 @@
 [% END %]
   <table width="100%" cellspacing="0" cellpadding="0">
     <tr>
-      <th>Platform</th>
-      <td>[% (report.platform OR 'Unknown') | html %] </td>
-      <th>Architecture</th>
-      <td>[% (report.architecture OR 'Unknown') | html %]</td>
+      <th width="160px">Platform</th>
+      <td width="160px">[% (report.platform OR 'Unknown') | html %] </td>
+      <th width="160px">Architecture</th>
+      <td width="160px">[% (report.architecture OR 'Unknown') | html %]</td>
       <td rowspan="4" align="right">
         [% IF report.total %]
           [% SET pass_ratio = (report.pass / report.total) %]
@@ -43,26 +43,26 @@
     <tr>
       <th><span class="pass"># Passed</span></th>
       <td>
-        <span class="pass">[% report.pass %] 
+        <span class="pass">[% report.pass | format_number %] 
         [% IF report.total %]
         <em>([% pass_percent | round %]%)</em>
         [% END %]
         </span>
       </td>
+      <th><span[% IF report.skip %] class="skip"[% END %]># Skipped</span></th>
+      <td><span[% IF report.skip %] class="skip"[% END %]>[% report.skip | format_number %]</span></td>
+    </tr>
+    <tr>
       <th><span[% IF report.fail %] class="fail"[% END %]># Failed</span></th>
       <td>
-        <span[% IF report.fail %] class="fail"[% END %]>[% report.fail %] 
+        <span[% IF report.fail %] class="fail"[% END %]>[% report.fail | format_number %] 
         [% IF report.total %]
         <em>([% fail_percent | round %]%)</em>
         [% END %]
         </span>
       </td>
-    </tr>
-    <tr>
-      <th><span[% IF report.skip %] class="skip"[% END %]># Skipped</span></th>
-      <td><span[% IF report.skip %] class="skip"[% END %]>[% report.skip %]</span></td>
       <th><span[% IF report.todo %] class="todo"[% END %]># TODO</span></th>
-      <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo %]</span></td>
+      <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo | format_number %]</span></td>
     </tr>
   </table>
 [% UNLESS email %]
