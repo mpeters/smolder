@@ -36,22 +36,11 @@ __PACKAGE__->has_a(
 
 # make sure we delete any preferences that are attached to us
 __PACKAGE__->add_trigger( 
-    before_delete => sub { 
-        my $pref = shift->preference;
+    after_delete => sub { 
+        my $self = shift;
+        my $pref = $self->preference;
         $pref->delete if $pref;
     }
-);
-
-# create a new preference based on our developer's preference
-__PACKAGE__->add_trigger(
-    after_create => sub {
-        my $self = shift;
-        unless( $self->_attribute_exists('preference') ) {
-            my $dev = Smolder::DB::Developer->retrieve($self->developer);
-            $self->_attribute_set(preference => $dev->preference->copy) if $dev;
-        }
-        $self->update();
-    },
 );
 
 # make sure added is set to NOW

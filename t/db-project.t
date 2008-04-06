@@ -9,6 +9,8 @@ use Smolder::TestData qw(
   delete_developers
   create_smoke_report
   delete_smoke_reports
+  create_preference
+  delete_preferences
 );
 use Smolder::DB::ProjectDeveloper;
 
@@ -27,12 +29,16 @@ my $dev1 = create_developer();
 my $dev2 = create_developer();
 my $dev3 = create_developer();
 
-END { delete_developers }
+END { 
+    delete_developers;
+    delete_preferences;
+}
 Smolder::DB::ProjectDeveloper->create(
     {
         developer => $dev1,
         project   => $project,
         admin     => 1,
+        preference => create_preference(),
     }
 );
 Smolder::DB::ProjectDeveloper->create(
@@ -40,12 +46,14 @@ Smolder::DB::ProjectDeveloper->create(
         developer => $dev2,
         project   => $project,
         admin     => 1,
+        preference => create_preference(),
     }
 );
 Smolder::DB::ProjectDeveloper->create(
     {
         developer => $dev3,
         project   => $project,
+        preference => create_preference(),
     }
 );
 

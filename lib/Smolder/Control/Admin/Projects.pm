@@ -126,16 +126,20 @@ sub add_dev {
     my $dev   = Smolder::DB::Developer->retrieve( $query->param('developer') );
 
     if ( $dev && $proj ) {
+        my $proj_pref = $dev->preference->copy;
         eval {
-            Smolder::DB::ProjectDeveloper->create(
+            my $proj_dev = Smolder::DB::ProjectDeveloper->create(
                 {
-                    project   => $proj,
-                    developer => $dev,
+                    project    => $proj,
+                    developer  => $dev,
+                    preference => $proj_pref,
                 }
             );
         };
         if ($@) {
-            die $@ unless $DB_PLATFORM->unique_failure_msg($@);
+            my $err = $@;
+            $proj_pref->delete if $proj_pref;
+            die $err unless $DB_PLATFORM->unique_failure_msg($err);
         } else {
             $self->add_message(
                 msg => "Developer '" . $dev->username 

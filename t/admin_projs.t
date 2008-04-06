@@ -11,6 +11,8 @@ use Smolder::TestData qw(
   create_project
   delete_projects
   db_field_value
+  create_preference
+  delete_preferences
 );
 use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
@@ -25,7 +27,10 @@ my $mech     = Smolder::Mech->new();
 my $BASE_URL = base_url() . '/admin_projects';
 my $pw       = 's3cr3t';
 my $admin    = create_developer( admin => 1, password => $pw );
-END { delete_developers() }
+END { 
+    delete_developers();
+    delete_preferences();
+}
 my %data = (
     project_name => "Im A Test Project",
     start_date   => '01/01/2006',
@@ -47,7 +52,6 @@ $mech->content_contains('Projects');
 # 6..21
 # add
 {
-
     # empty form
     $mech->follow_link_ok( { text => 'Add New Project' } );
     $mech->form_name('add');

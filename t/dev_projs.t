@@ -11,6 +11,8 @@ use Smolder::TestData qw(
   delete_projects
   create_smoke_report
   delete_smoke_reports
+  create_preference
+  delete_preferences
 );
 use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
@@ -31,14 +33,15 @@ my $proj1_id = create_project()->id();
 my $proj2_id = create_project( public => 0 )->id();
 
 # add this $dev to $proj1 and $proj2
-my $proj1_dev =
-  Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1_id } );
-my $proj2_dev =
-  Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2_id } );
+my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
+    {developer => $dev, project => $proj1_id, preference => create_preference()});
+my $proj2_dev = Smolder::DB::ProjectDeveloper->create(
+    {developer => $dev, project => $proj2_id, preference => create_preference()});
 
 END {
     delete_developers();
     delete_projects();
+    delete_preferences();
 }
 
 # 1

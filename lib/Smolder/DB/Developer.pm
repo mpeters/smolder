@@ -33,7 +33,12 @@ __PACKAGE__->add_trigger(
 );
 
 # make sure we delete a preference when we are deleted
-__PACKAGE__->add_trigger( after_delete => sub { shift->preference->delete() }, );
+__PACKAGE__->add_trigger(
+    after_delete => sub {
+        my $self = shift;
+        $self->preference->delete() if $self->preference;
+    },
+);
 
 =over
 

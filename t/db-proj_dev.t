@@ -8,6 +8,8 @@ use Smolder::TestData qw(
   delete_projects
   create_developer
   delete_developers
+  create_preference
+  delete_preferences
 );
 
 plan( tests => 7 );
@@ -18,6 +20,7 @@ use_ok('Smolder::DB::ProjectDeveloper');
 END {
     delete_projects();
     delete_developers();
+    delete_preferences();
 }
 
 # 2..6
@@ -26,6 +29,7 @@ my $proj_dev = Smolder::DB::ProjectDeveloper->create(
     {
         project   => create_project(),
         developer => create_developer(),
+        preference => create_preference(),
     }
 );
 isa_ok( $proj_dev,             'Smolder::DB::ProjectDeveloper' );

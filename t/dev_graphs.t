@@ -10,6 +10,8 @@ use Smolder::TestData qw(
   create_project
   delete_projects
   db_field_value
+  create_preference
+  delete_preferences
 );
 use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
@@ -28,12 +30,15 @@ my $proj1 = create_project();
 my $proj2 = create_project();
 
 # add this $dev to $proj1 and $proj2
-my $proj_dev1 = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj1 } );
-my $proj_dev2 = Smolder::DB::ProjectDeveloper->create( { developer => $dev, project => $proj2 } );
+my $proj_dev1 = Smolder::DB::ProjectDeveloper->create(
+    {developer => $dev, project => $proj1, preference => create_preference()});
+my $proj_dev2 = Smolder::DB::ProjectDeveloper->create(
+    {developer => $dev, project => $proj2, preference => create_preference()});
 
 END {
     delete_developers();
     delete_projects();
+    delete_preferences();
 }
 
 # 1

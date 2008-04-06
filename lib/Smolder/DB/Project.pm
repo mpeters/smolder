@@ -39,7 +39,7 @@ __PACKAGE__->has_a(
 
 # make sure we delete any test_report directories associated with us
 __PACKAGE__->add_trigger(
-    before_delete => sub {
+    after_delete => sub {
         my $self = shift;
         my $dir = catdir( InstallRoot, 'data', 'smoke_reports', $self->id );
         rmtree($dir) if ( -d $dir );
