@@ -13,6 +13,7 @@ Controller module that deals with developer actions associated with projects.
 
 =cut
 
+use CGI::Application::Plugin::Stream qw(stream_file);
 use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
 use Smolder::Constraints qw(
@@ -55,6 +56,7 @@ sub setup {
               process_admin_settings
               delete_tag
               details
+              archive
               )
         ]
     );
@@ -349,6 +351,19 @@ sub report_details {
     }
 
     return $report->html;
+}
+
+=head2 archive
+
+=cut
+
+sub archive {
+    my $self   = shift;
+    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    return $self->error_message('Test Report does not exist')
+      unless $report;
+
+    return $self->stream_file($report->file);
 }
 
 =head2 test_file_report_details

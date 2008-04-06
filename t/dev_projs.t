@@ -18,7 +18,7 @@ use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
 if (is_apache_running) {
-    plan( tests => 80 );
+    plan( tests => 83 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -256,6 +256,24 @@ $mech->content_contains('My Projects');
     $mech->title_like(qr/\Q$title\E/);
     $mech->content_contains( '(' . $proj1->name . ')' );
     $mech->content_contains( $dev->username );
+}
+
+# 81..83
+# download TAP
+{
+    my $proj = _get_proj($proj1_id);
+
+    # not an admin of the project
+    my $report = create_smoke_report(
+        project   => $proj,
+        developer => $dev,
+    );
+    $mech->get_ok("/app/developer_projects/archive/$report");
+    is($mech->ct, 'application/x-gzip', 'correct content-type');
+    my $tmp = File::Temp->new();
+    $tmp->close();
+    $mech->save_content($tmp);
+    cmp_ok( -s "$tmp", '==', -s $report->file, 'same size as original file'); 
 }
 
 sub _get_proj {
