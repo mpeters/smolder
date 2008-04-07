@@ -141,6 +141,7 @@ my $uniqueness    = time();
 my $OLD_CONF;
 my $BACKUP_FILENAME = "";
 my $OLD_VERSION;
+my $OLD_DB_PLATFORM;
 
 my ( $help, $man );
 
@@ -166,7 +167,9 @@ sub do_upgrade {
 
     # Do upgrade
     make_backups() unless $options{'no-backup'};
+    dump_database();
     install_new_smolder();
+    upgrade_sqlite_data();
     apply_upgrades();
     update_version();
     update_db_version();
@@ -228,9 +231,8 @@ sub check_prereqs {
       unless $OLD_CONF;
 
     # set the DB_PLATFORM
-    $DB_PLATFORM = Smolder::DBPlatform->load(
-        ($OLD_CONF->get('DBPlatform') || 'MySQL')
-    );
+    $OLD_DB_PLATFORM = $OLD_CONF->get('DBPlatform') || 'MySQL';
+    $DB_PLATFORM = Smolder::DBPlatform->load($OLD_DB_PLATFORM);
 
     # get Smolder version
     $OLD_VERSION = get_version($root);
@@ -310,6 +312,33 @@ sub make_backups {
 
     system("mv /tmp/$BACKUP_FILENAME ./$BACKUP_FILENAME")
       && exit_error("Unable to move backup from /tmp/$BACKUP_FILENAME to ./$BACKUP_FILENAME");
+}
+
+sub dump_database {
+    return unless $OLD_DB_PLATFORM eq 'SQLite';
+    my $root = $options{InstallRoot};
+    local $ENV{SMOLDER_ROOT} = $root;
+    # make sure we have a good version of smolder_dumpdb and lib/Smolder/DBPlatform/SQLite.pm
+    system("cp lib/Smolder/DBPlatform/SQLite.pm $root/lib/Smolder/DBPlatform") == 0
+      or die "Could not copy Smolder::DBPlatform::SQLite";
+    my $dump_file = catfile( $options{InstallRoot}, 'data', 'dump.sql' );
+    eval { $DB_PLATFORM->dump_database($dump_file) };
+    if( $@ ) {
+        print STDERR "Dump of the database failed with error $@. \n"
+        . "Please correct the error and try your upgrade again.\n";
+        exit(1);
+    }
+}
+
+sub upgrade_sqlite_data {
+    return unless $OLD_DB_PLATFORM eq 'SQLite';
+    local $ENV{SMOLDER_ROOT} = $options{InstallRoot};
+    # drop, create and restore using the new files that now exist
+    my $cmd = catfile($options{InstallRoot}, 'bin', 'smolder_createdb') 
+        . ' --destroy --no_prompt --file "' 
+        . catfile($options{InstallRoot}, 'data', 'dump.sql')
+        . '"'; 
+    system($cmd) == 0 or die "Could not reload the sqlite data!";
 }
 
 sub install_new_smolder {
