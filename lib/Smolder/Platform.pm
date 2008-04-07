@@ -373,8 +373,8 @@ sub check_libs {
         my @libs;
         push(@libs, @{$args{libs}}) if $args{libs}; # extra dirs supplied when called
         eval { assert_lib(lib => $lib, libpath => \@libs) };
-        die "\n\n$name is missing from your system.\nThis library is required by Smolder.\n\n" 
-            if $@;
+        die "\n\n$name is missing from your system or Smolder could not find it."
+            . "\nThis library is required by Smolder.\n\n" if $@;
     }
 
     if ($h && $mode eq 'build') {
