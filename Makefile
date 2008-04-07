@@ -37,7 +37,7 @@ dist:
 	bin/smolder_makedist
 
 clean:
-	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | xargs rm -rf
+	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | grep -v '^lib/Devel/CheckLib.pm' | grep -v '^lib/Devel' | xargs rm -rf
 	- find apache/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- find docs/html -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
 	- rm -rf data/build.db data/smoke_reports/* 
