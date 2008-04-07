@@ -8,6 +8,8 @@ use Config;
 use File::Basename;
 use Devel::CheckLib qw(assert_lib);
 
+my $DEBUG = 0;
+
 # find out which subclasses we support
 my $PLATFORM_DIR = catdir( $ENV{SMOLDER_ROOT}, 'platform' );
 opendir( DIR, $PLATFORM_DIR ) or die $!;
@@ -372,7 +374,7 @@ sub check_libs {
         $lib =~ s/^lib//;
         my @libs;
         push(@libs, @{$args{libs}}) if $args{libs}; # extra dirs supplied when called
-        eval { assert_lib(lib => $lib, libpath => \@libs) };
+        eval { assert_lib(lib => $lib, libpath => \@libs, debug => $DEBUG) };
         die "\n\n$name is missing from your system or Smolder could not find it."
             . "\nThis library is required by Smolder.\n\n" if $@;
     }
@@ -383,7 +385,7 @@ sub check_libs {
         my $msg = "The header file for $name, '$h', is missing from your system "
          . "or Smolder can't find it.";
         $msg .= "\nThis file is needed to compile the $mod module which uses $name." if ($mod && $name);
-        eval { assert_lib(header => $h, incpath => \@incs) };
+        eval { assert_lib(header => $h, incpath => \@incs, debug => $DEBUG) };
         die "$msg\n" if $@;
     }
 }
