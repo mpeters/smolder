@@ -580,8 +580,8 @@ sub details {
     }
 
     if ($proj) {
-        my $tag_cloud =
-          $self->_project_tag_cloud($proj, "/app/developer_projects/smoke_reports/$proj");
+        my $url = "/app/" . ($self->public ? 'public' : 'developer') . '_projects/smoke_reports/' . $proj->id;
+        my $tag_cloud = $self->_project_tag_cloud($proj, $url);
         return $self->tt_process( { project => $proj, tag_cloud => $tag_cloud } );
     } else {
         return $self->error_message('That project does not exist!');
