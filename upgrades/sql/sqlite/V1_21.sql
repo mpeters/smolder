@@ -8,3 +8,4 @@ CREATE TABLE smoke_report_tag  (
 );
 CREATE INDEX i_project_smoke_tag_tag ON smoke_report_tag (tag);
 INSERT INTO smoke_report_tag (smoke_report, tag) SELECT id, category FROM smoke_report;
+DELETE FROM smoke_report_tag WHERE tag IS NULL;

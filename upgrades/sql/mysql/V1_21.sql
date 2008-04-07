@@ -9,3 +9,4 @@ CREATE TABLE smoke_report_tag  (
     CONSTRAINT `fk_smoke_report_tag_smoke_report` FOREIGN KEY (`smoke_report`) REFERENCES `smoke_report` (`id`) ON DELETE CASCADE
 );
 INSERT INTO smoke_report_tag (smoke_report, tag) SELECT id, category FROM smoke_report;
+DELETE FROM smoke_report_tag WHERE tag IS NULL;
