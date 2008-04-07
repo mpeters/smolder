@@ -82,7 +82,7 @@
       <td style="margin: 0px; padding: 0px">
         <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
             id="for_testfile_details_[% loop.index %]" 
-            class="testfile_details_trigger show_indicator_[% loop.index %] [% IF test.failed %]fail[% ELSE %]ok[% END %]">
+            class="testfile_details_trigger show_indicator_[% loop.index %] [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
           [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
         </a>
       </td>
