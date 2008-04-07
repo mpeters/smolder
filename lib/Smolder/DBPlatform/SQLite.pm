@@ -158,7 +158,7 @@ sub dump_database {
         my $sql;
         $sth->bind_col( 1, \$sql );
         while ( $sth->fetch ) {
-            print $OUT "$sql\n";
+            print $OUT "$sql;\n";
         }
         $sth->finish();
 
@@ -172,7 +172,7 @@ sub dump_database {
         $sth->execute($t);
         $sth->bind_col( 1, \$sql );
         while ( $sth->fetch ) {
-            print $OUT "$sql\n" if ($sql);
+            print $OUT "$sql;\n" if ($sql);
         }
         $sth->finish();
         print $OUT "\n\n";
@@ -199,7 +199,7 @@ sub dump_database {
             }
 
             # create the SQL
-            my $sql = "INSERT INTO $t VALUES (" . join( ', ', @values ) . ")\n";
+            my $sql = "INSERT INTO $t VALUES (" . join( ', ', @values ) . ");\n";
             print $OUT $sql;
         }
 
@@ -301,5 +301,6 @@ sub _get_db_file {
     my ( $class, $db_name ) = @_;
     return catfile( $ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite" );
 }
+
 
 1;
