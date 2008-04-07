@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+=head1 NAME
+
+smolder_sql_exec - exec SQL for Smolder's database
+
+=head1 SYNOPSIS
+
+  smolder_sql_exec --file stuff.sql
+
+  smolder_sql_exec --sql "SELECT * FROM project" --print
+
+=head1 DESCRIPTION
+
+This script allows you to interact with Smolder's database using
+SQL. This can be really useful when you're machine doesn't have the same
+version of SQLite that Smolder has built-in.
+
+=head1 OPTIONS
+
+=over
+
+=item file
+
+A file of SQL to execute.
+
+=item sql
+
+A string of SQL to execute
+
+=item print
+
+Print out the results of the query, if any.
+It doesn't make sense to combine this option with the C<--file> option.
+
+=back
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # load Smolder::Conf
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Smolder::DB;
+use Smolder::DBPlatform;
+use Getopt::Long;
+use Pod::Usage;
+use Data::Dumper;
+
+my ($v, $h, $man, $sql, $file, $print);
+
+GetOptions(
+    'verbose!'           => \$v,
+    'help!'              => \$h,
+    'man!'               => \$man,
+    'sql=s'              => \$sql,
+    'file=s'             => \$file,
+    'print!'             => \$print,
+) || pod2usage();
+
+if ($h) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 1,
+    );
+} elsif ($man) {
+    pod2usage(
+        -exitval => 0,
+        -verbose => 2,
+    );
+}
+
+whine("You must provide either a --file or --sql argument.") unless $sql or $file;
+if( $file ) {
+    whine("File $file does not exist.") unless -e $file;
+    whine("File $file is not readable.") unless -r $file;
+}
+whine("You can't combine --file and --print.") if $file and $print;
+
+my $DB_PLATFORM = Smolder::DBPlatform->load();
+if( $file ) {
+    $DB_PLATFORM->run_sql_file($file);
+} else {
+    my $sth = Smolder::DB->db_Main->prepare($sql);
+    $sth->execute();
+    if( $print ) {
+        my $result = $sth->fetchall_arrayref({});
+        print ref $result ? Data::Dumper::Dumper($result) : $result;
+    }
+}
+
+sub whine {
+    print "$_[0]\n";
+    exit(0);
+}
+
+
