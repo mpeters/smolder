@@ -3,11 +3,11 @@
 <h2>Test Report #[% report.id %]</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
-    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
-    [% IF public && project.allow_anon %]
+    <a class="sub_menu" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF c.public && project.allow_anon %]
     <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    [% ELSIF ! public %]
+    [% ELSIF !c.public %]
     <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% END %]
     [% IF project.is_admin(c.developer) %]

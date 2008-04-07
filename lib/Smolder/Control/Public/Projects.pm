@@ -35,6 +35,7 @@ sub setup {
               process_add_report
               forbidden
               feed
+              archive
               )
         ]
     );

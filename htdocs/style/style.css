@@ -17,6 +17,8 @@ body {
     border-style: solid;
     padding: 3px;
     -moz-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
 }
 
 #header {
@@ -28,6 +30,8 @@ body {
     border-color: #CCCCCC;
     border-style: solid;
     -moz-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
     position: relative;
     background-image: url(/images/grid.png);
 }
@@ -42,6 +46,8 @@ body {
     border-style: solid;
     padding: 3px;
     -moz-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
 }
 
 #main {
@@ -52,6 +58,8 @@ body {
     border-color: #CCCCCC;
     border-style: solid;
     -moz-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
     background-image: url(/images/smolder_large_bg.png);
     background-repeat: no-repeat;
     background-position: top right;
@@ -168,6 +176,7 @@ h2 {
     padding-left: 5px;
     border: 1px solid #333333;
     font-size: 15pt;
+    width: 721px;
 }
 
 h3 {
@@ -337,6 +346,10 @@ p.pushdown {
     margin-bottom: 0px;
 }
 
+table.boxed {
+    width: 727px;
+}
+
 table.short, div.short {
     width: 400px;
 }
@@ -394,6 +407,8 @@ div.pass_fail_ratio {
     vertical-align: middle;
     text-align: center;
     -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
     font-weight: bold;
     margin-right: 4px;
     margin-top: 4px;
