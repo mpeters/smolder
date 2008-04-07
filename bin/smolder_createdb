@@ -131,6 +131,7 @@ my $destroy        = 0;
 my $no_prompt      = 0;
 my $no_create      = 0;
 my $verbose        = 0;
+my @files;
 
 GetOptions(
     'help'          => \$help,
@@ -139,6 +140,7 @@ GetOptions(
     'destroy'       => \$destroy,
     'no_prompt'     => \$no_prompt,
     'no_create'     => \$no_create,
+    'file=s'        => \@files,
     'AdminDBPass=s' => \$admin_password,
     'DBPlatform=s'  => \$db_platform,
     'DBName=s'      => \$db_name,
@@ -214,10 +216,10 @@ die "Couldn't grant access to $db_name: $@" if( $@ );
 
 # load all sql files as the DBUser
 my $create_sql_dir = $db_platform->sql_create_dir();
-my @files = ( 
+@files = ( 
     glob("$create_sql_dir/*.sql"), 
     catfile($ENV{SMOLDER_ROOT}, 'sql', 'insert.sql'), 
-);
+) unless @files;
 foreach my $file (@files) {
     print STDERR "Loading SQL for '$db_name' from $file...\n" if( $verbose );
     eval {
