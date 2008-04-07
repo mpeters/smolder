@@ -462,10 +462,10 @@ sub update_from_tap_archive {
                 my $line = shift;
                 if( $line->type eq 'test' ) {
                     my %details = (
-                        ok      => ($line->is_ok     || undef),
-                        skip    => ($line->has_skip  || undef),
-                        todo    => ($line->has_todo  || undef),
-                        comment => ($line->as_string || undef),
+                        ok      => ($line->is_ok     || 0),
+                        skip    => ($line->has_skip  || 0),
+                        todo    => ($line->has_todo  || 0),
+                        comment => ($line->as_string || 0),
                     );
                     $total++;
                     $failed++ if !$line->is_ok;
