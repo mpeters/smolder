@@ -59,7 +59,7 @@ Build Smolder
 =item 5
 
 Configure Smolder.  Edit F<conf/smolder.conf> to use the username you
-created in step one as SmolderUser and SmolderGroup.
+created in step one as C<User> and C<Group>.
 
 =item 6 
 
