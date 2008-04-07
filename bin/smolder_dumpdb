@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+=head1 NAME
+
+smolder_dumpdb - make a dump of the database to data/dump.sql
+
+=head1 SYNOPSIS
+
+    # dump the current database to an SQL file located at $SMOLDER_ROOT/data/dump.sql
+    bin/smolder_dumpdb
+
+=head1 DESCRIPTION
+
+This script creates an SQL dump of the Smolder database and places it in
+F<$SMOLDER_ROOT/data/dump.sql>.  This is useful for backups or dumping
+and reloading the database when the SQLite version has been upgraded.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help
+
+=item --man
+
+=back
+
+=cut
+
+use File::Spec::Functions qw(catdir catfile splitdir rel2abs canonpath);
+use FindBin qw($RealBin);
+use Config;
+
+BEGIN {
+
+    # Find a SMOLDER_ROOT based on path to bin
+    my @dir = splitdir( canonpath($RealBin) );
+    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+
+    # use SMOLDER_ROOT/lib for modules
+    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    $ENV{PERL5LIB} =
+      $ENV{PERL5LIB}
+      ? "$ENV{PERL5LIB}:${lib}"
+      : "${lib}";
+    unshift @INC, $lib, "$lib/" . $Config{archname};
+
+    # load Smolder::Conf
+    eval { require Smolder::Conf };
+    warn << "END" and exit(1) if $@;
+######################################################################
+
+Cannot load Smolder.
+
+Error message:
+
+$@
+
+######################################################################
+END
+}
+
+use Cwd qw(cwd);
+use Getopt::Long;
+use Pod::Usage;
+use Smolder::Conf qw(InstallRoot);
+use Smolder::DBPlatform;
+
+my $DATA_DIR   = catdir( InstallRoot, 'data' );
+my $DB_PLAT    = Smolder::DBPlatform->load();
+
+my ($help, $man);
+
+GetOptions(
+    'help' => \$help,
+    'man'  => \$man,
+) || pod2usage(2);
+pod2usage(1) if $help;
+
+# figure out filename
+my $file;
+
+# dump all database tables into BACKUP_DIR
+my $dump_file = catfile( $DATA_DIR, 'dump.sql' );
+eval { $DB_PLAT->dump_database($dump_file) };
+if( $@ ) {
+    print STDERR "Dump of the database failed with error $@. \n"
+    . "Please correct the error and try your backup again.\n";
+}
+
+print "Dump complete in $file.\n";
