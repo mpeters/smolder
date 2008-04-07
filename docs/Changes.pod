@@ -4,6 +4,12 @@
 
 =over
 
+=item * Project categories have now been replaced by the more flexible smoke report tags - M. Peters
+
+=item * TAP archives can now be downloaded through the UI for a given report - M. Peters
+
+=item * Graphs can now be done on test run duration if that info was provided in the archive - M. Peters
+
 =item * Fixed some various platform install problems because we weren't detecting missing libraries, or we couldn't find libraries that were already installed. Devel::CheckLib to the rescure - Slaven Rezic, M. Peters
 
 =item * Fixed problems with documentation - Slaven Rezic, M. Peters
@@ -31,6 +37,8 @@
 =item * Upgraded Prototype and Scriptaculous JS libraries - M. Peters
 
 =item * Abort build if we detect a broken L<ExtUtils::Install> - Michael Schwern, M. Peters
+
+=item * Added F<bin/smolder_sql_exec> helper script - M. Peters
 
 =back
 
