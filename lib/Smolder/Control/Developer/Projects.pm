@@ -390,6 +390,11 @@ sub archive {
     return $self->error_message('Test Report does not exist')
       unless $report;
 
+    # make sure ths developer is a member of this project
+    unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
+        return $self->error_message('Unauthorized for this project');
+    }
+
     return $self->stream_file($report->file);
 }
 
