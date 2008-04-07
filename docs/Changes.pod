@@ -38,7 +38,9 @@
 
 =item * Abort build if we detect a broken L<ExtUtils::Install> - Michael Schwern, M. Peters
 
-=item * Added F<bin/smolder_sql_exec> helper script - M. Peters
+=item * Auto-convert the sqlite DB to the new version when upgrading Smolder - M. Peters
+
+=item * Added F<bin/smolder_sql_exec> and F<bin/smolder_dumpdb> helper scripts - M. Peters
 
 =back
 
