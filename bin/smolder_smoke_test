@@ -119,7 +119,7 @@ if($no_update or `svn update` =~ /Updated to/i) {
 
     # gives us a clean slate to start
     unless($no_rebuild) {
-        system('bin/smolder_build --rebuild') == 0 or die "Could not build Smolder";
+        system('bin/smolder_build') == 0 or die "Could not build Smolder";
     }
     system('bin/smolder_createdb --destroy --no_prompt') == 0
       or die "Could not build DB";
@@ -167,6 +167,7 @@ sub send_results_to_smolder {
     $fields{tags} = $tags if $tags;
 
     # get the comments from svn
+print `pwd`;
     my @lines = `svn info`;
     @lines = grep { $_ =~ /URL|Revision|LastChanged/ } @lines;
     $fields{comments} = join("\n", @lines);
