@@ -83,7 +83,7 @@ sub developer {
     my $self = shift;
 
     # REMOTE_USER is set by Smolder::AuthHandler
-    if( $ENV{REMOTE_USER} eq 'anon' ) {
+    if( $ENV{REMOTE_USER} && $ENV{REMOTE_USER} eq 'anon' ) {
         return Smolder::DB::Developer->get_guest();
     } else {
         return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
