@@ -6,6 +6,7 @@ use Smolder::DB;
 use Smolder::DB::Project;
 use HTML::FillInForm;
 use XML::Atom::SimpleFeed;
+use DateTime;
 
 =head1 NAME 
 
@@ -151,11 +152,18 @@ sub feed {
 
     $self->header_props(-type => 'text/xml');
 
+    my $updated;
+    if( @reports ) {
+        $updated = $reports[0]->added;
+    } else {
+        $updated = DateTime->now();
+    }
+
     my $feed = XML::Atom::SimpleFeed->new(
         title   => '[' . $project->name . '] Smolder - ' . HostName,
         link    => $self->url_base,
         id      => $self->url_base,
-        updated => $reports[0]->added->strftime('%FT%TZ'),
+        updated => $updated->strftime('%FT%TZ'),
     );
     foreach my $report (@reports) {
         my $link = 'http://' . HostName . '/app/developer_projects/smoke_report/' . $report->id;
