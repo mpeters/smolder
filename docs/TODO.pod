@@ -4,6 +4,15 @@
 
 =over
 
+=item * Handle skip-all better in the plan.
+
+A skip-all plan will look like this:
+
+    1..0 # Skip Can't reach http://google.com
+
+We need to show more in the report than just "No tests run". We should show the
+reason.
+
 =item * Allow anonymous uploads via smolder_smoke_signal
 
 =item *
