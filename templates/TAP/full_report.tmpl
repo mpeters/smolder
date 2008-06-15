@@ -40,9 +40,18 @@
   <td>[% report.added.strftime('%B %e %Y, %l:%M %p') %]</td>
 </tr>
 <tr class="[% odd_even %]">
-  <th class="last">User</th>
-  <td class="last">[% report.developer.username | html %]</td>
+  <th[% IF email %] class="last"[% END %]>User</th>
+  <td[% IF email %] class="last"[% END %]>[% report.developer.username | html %]</td>
 </tr>
+[% UNLESS email %]
+<tr class="[% odd_even %]">
+  <th class="last">Download</th>
+  <td class="last">
+    <a href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/archive/[% report.id %]">
+        /app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/archive/[% report.id %]">
+    </a>
+</tr>
+[% END %]
 </tbody>
 </table>
 

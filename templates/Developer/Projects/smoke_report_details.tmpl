@@ -23,22 +23,31 @@
       <td width="160px">[% (report.platform OR 'Unknown') | html %] </td>
       <th width="160px">Architecture</th>
       <td width="160px">[% (report.architecture OR 'Unknown') | html %]</td>
-      <td rowspan="4" align="right">
-        [% IF report.total %]
-          [% SET pass_ratio = (report.pass / report.total) %]
-          [% SET pass_percent = pass_ratio * 100 %]
-          [% SET fail_percent = (report.fail / report.total) * 100 %]
-          <div class="pass_fail_ratio" style="background-color: #[% pass_ratio | pass_fail_color %];">
-            [% pass_percent | round %]%
-          </div>
-        [% END %]
-      </td>
+      <td>&nbsp;</td>
+    </tr>
     </tr>
     <tr>
       <th># Test Files</th>
       <td>[% report.test_files %]</td>
       <th># Total Tests</th>
       <td>[% report.total %]</td>
+      <td rowspan="3" align="center">
+        [% IF report.total %]
+          [% SET pass_ratio = (report.pass / report.total) %]
+          [% SET pass_percent = pass_ratio * 100 %]
+          [% SET fail_percent = (report.fail / report.total) * 100 %]
+          [% IF report.purged %]
+            <span class="pass_fail_ratio" style="background-color: #[% pass_ratio | pass_fail_color %];">
+            [% pass_percent | round %]%
+            </span>
+          [% ELSE %]
+            <a class="pass_fail_ratio ajax" title="HTML test report" style="background-color: #[% pass_ratio | pass_fail_color %];"
+                href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">
+                [% pass_percent | round %]%
+            </a>
+          [% END %]
+        [% END %]
+      </td>
     </tr>
     <tr>
       <th><span class="pass"># Passed</span></th>
@@ -100,13 +109,6 @@
       [% END %]
       </form>
     </div>
-  [% END %]
-    <a class="button invert" title="TAP Archive" href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/archive/[% report.id %]">TAP</a>
-  [% IF report.purged %]
-    <a class="button dead" title="Details have been purged">Details</a>
-  [% ELSE %]
-    <a class="button invert ajax" title="HTML test report"
-        href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">Details</a>
   [% END %]
   </div>
 </div>
