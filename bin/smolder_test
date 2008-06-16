@@ -209,6 +209,7 @@ if ($archive) {
 } else {
     $harness = TAP::Harness->new({
         verbosity => $verbose,
+        merge => 0,
     });
 }
 $harness->runtests(@testfiles);
