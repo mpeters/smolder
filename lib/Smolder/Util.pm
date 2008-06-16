@@ -60,9 +60,9 @@ sub format_time {
     my $min  = int(($secs %3600)/60);
     my $sec  = $secs % 60;
     if( $hour ) {
-        return sprintf('%i:%2i:%2i', $hour, $min, $sec);
+        return sprintf('%i:%02i:%02i', $hour, $min, $sec);
     } elsif( $min ) {
-        return sprintf('%i:%2i', $min, $sec);
+        return sprintf('%i:%02i', $min, $sec);
     }
 }
 
