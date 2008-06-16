@@ -270,12 +270,15 @@ of performance.
 # configuration options for CAP::TT (Template Toolkit)
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
-        COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
-        INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
+        COMPILE_DIR  => catdir(InstallRoot, 'tmp'),
+        INCLUDE_PATH => catdir(InstallRoot, 'templates'),
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,
-        FILTERS      => { pass_fail_color => \&Smolder::Util::pass_fail_color },
+        FILTERS      => {
+            pass_fail_color => \&Smolder::Util::pass_fail_color,
+            format_time     => \&Smolder::Util::format_time,
+        },
     },
     TEMPLATE_NAME_GENERATOR => sub {
         my $self = shift;
@@ -283,19 +286,20 @@ my $TT_CONFIG = {
         # the directory is based on the object's package name
         my $mod = ref $self;
         $mod =~ s/Smolder::Control:://;
-        my $dir = catdir( split( /::/, $mod ) );
+        my $dir = catdir(split(/::/, $mod));
 
         # the filename is the method name of the caller
-        ( caller(2) )[3] =~ /([^:]+)$/;
+        (caller(2))[3] =~ /([^:]+)$/;
         my $name = $1;
-        if ( $name eq 'tt_process' ) {
+        if ($name eq 'tt_process') {
 
             # we were called from tt_process, so go back once more on the caller stack
-            ( caller(3) )[3] =~ /([^:]+)$/;
+            (caller(3))[3] =~ /([^:]+)$/;
             $name = $1;
         }
-        return catfile( $dir, $name . '.tmpl' );
+        return catfile($dir, $name . '.tmpl');
     },
+
     #TEMPLATE_PRECOMPILE_DIR => catdir( InstallRoot, 'templates'),
 };
 __PACKAGE__->tt_config($TT_CONFIG);

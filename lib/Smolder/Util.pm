@@ -42,5 +42,29 @@ sub pass_fail_color {
     return sprintf('%02x%02x%02x', @color_pieces);
 }
 
+=head2 format_time
+
+Given a number of seconds, format it as string of the format
+C<HH:MM:SS> or C<MM:SS> or C<SS>.
+
+    Smolder::Util::format_time(1000); # prints 16:40
+    Smolder::Util::format_time(35);   # prints 35
+    Smolder::Util::format_time(100);  # prints 1:40
+
+=cut
+
+sub format_time {
+    my $secs = shift;
+    return $secs if $secs < 60;
+    my $hour = int($secs/3600);
+    my $min  = int(($secs %3600)/60);
+    my $sec  = $secs % 60;
+    if( $hour ) {
+        return sprintf('%i:%2i:%2i', $hour, $min, $sec);
+    } elsif( $min ) {
+        return sprintf('%i:%2i', $min, $sec);
+    }
+}
+
 1;
 

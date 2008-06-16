@@ -25,7 +25,10 @@ our $TEMPLATE = Template->new(
     INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
     COMPILE_EXT  => '.ttc',
     WRAPPER      => 'Email/wrapper.tmpl',
-    FILTERS      => { pass_fail_color    => \&Smolder::Util::pass_fail_color, },
+    FILTERS => {
+        pass_fail_color => \&Smolder::Util::pass_fail_color,
+        format_time     => \&Smolder::Util::format_time,
+    },
 );
 
 =head1 METHODS

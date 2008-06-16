@@ -15,7 +15,10 @@ our $TMPL = Template->new(
     COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
     COMPILE_EXT  => '.ttc',
     INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
-    FILTERS      => { pass_fail_color => \&Smolder::Util::pass_fail_color },
+    FILTERS => {
+        pass_fail_color => \&Smolder::Util::pass_fail_color,
+        format_time     => \&Smolder::Util::format_time,
+    },
 );
 
 # use Smolder::Control's version

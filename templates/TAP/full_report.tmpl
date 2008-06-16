@@ -8,7 +8,7 @@
 [% IF report.duration %]
 <tr class="[% odd_even %]">
   <th>Duration</th>
-  <td>[% report.duration | format_number %] secs</td>
+  <td>[% report.duration | format_time %]</td>
 </tr>
 [% END %]
 [% IF report.platform %]
