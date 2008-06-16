@@ -18,9 +18,10 @@ use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
 use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
+use HTTP::Request::Common;
 
 if (is_apache_running) {
-    plan( tests => 83 );
+    plan( tests => 94 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -131,8 +132,44 @@ $mech->content_contains('My Projects');
     is( $report->total,      454, 'correct # of tests');
 }
 
+# 44..55
+# process_add_report (w/ auth credentials)
+{
+    my $proj1 = _get_proj($proj1_id);
+    my $mech  = Smolder::Mech->new(); # new mech with no auth cookie
+    my $url      = base_url() . "/developer_projects/process_add_report/$proj1_id";
+    my $request = POST(
+        $url,
+        Content_Type => 'form-data',
+        Content      => [
+            architecture => 'x386',
+            platform     => 'Linux',
+            comments     => 'with auth credentials',
+            username     => $dev->username,
+            password     => $pw,
+            report_file  => [catfile(InstallRoot, 't', 'data', 'test_run_bad.tar.gz')],
+        ]
+    );
+    my $response = $mech->request($request);
+    $mech->_update_page($request, $response);
 
-# 44..58
+    # make sure it's in the db
+    $proj1 = _get_proj($proj1_id);
+    is( $proj1->report_count, 2 );
+    my ($report) = $proj1->all_reports();
+    is($report->comments, 'with auth credentials');
+    isa_ok( $report,            'Smolder::DB::SmokeReport' );
+    isa_ok( $report->project,   'Smolder::DB::Project' );
+    isa_ok( $report->developer, 'Smolder::DB::Developer' );
+    is($report->pass,        446, 'correct # of passed');
+    is($report->skip,        4,   'correct # of skipped');
+    is($report->fail,        8,   'correct # of failed');
+    is($report->todo,        0,   'correct # of todo');
+    is( $report->test_files, 20,  'correct # of files');
+    is( $report->total,      454, 'correct # of tests');
+}
+
+# 56..70
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
@@ -184,14 +221,14 @@ $mech->content_contains('My Projects');
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
 
-# 59..63
+# 71..75
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
 
     # first HTML
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
-    $mech->follow_link_ok( { n => 1, text => 'Details' } );
+    $mech->follow_link_ok({n => 1, url_regex => qr/report_details/});
     ok( $mech->ct, 'text/html' );
 
     # individual report files
@@ -199,7 +236,7 @@ $mech->content_contains('My Projects');
     ok( $mech->ct, 'text/html' );
 }
 
-# 64..76
+# 76..87
 # smoke_report_validity
 {
     my $proj1 = _get_proj($proj1_id);
@@ -243,7 +280,7 @@ $mech->content_contains('My Projects');
     ok( !$report->invalid );
 }
 
-# 77..80
+# 88..91
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);
@@ -261,7 +298,7 @@ $mech->content_contains('My Projects');
     $mech->content_contains( $dev->username );
 }
 
-# 81..83
+# 92..94
 # download TAP
 {
     my $proj = _get_proj($proj1_id);

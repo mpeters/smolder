@@ -29,6 +29,7 @@ use Smolder::DBPlatform;
 use Exception::Class;
 use HTML::TagCloud;
 use URI::Escape qw(uri_escape);
+use Smolder::Control::Public::Auth;
 
 my $DB_PLATFORM = Smolder::DBPlatform->load();
 
@@ -153,9 +154,6 @@ sub add_report {
     my ( $self, $tt_params ) = @_;
     $tt_params ||= {};
 
-    # support logging in for this run mode by passing in a username/pw directly
-    $self->_optional_login();
-
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
     return $self->error_message('Project does not exist')
       unless $project;
@@ -167,15 +165,6 @@ sub add_report {
 
     $tt_params->{project} = $project;
     return $self->tt_process($tt_params);
-}
-
-sub _optional_login {
-    my $self = shift;
-    my $q = $self->query;
-    if( $q->param('username') and $q->param('password') ) {
-        require Arcos::Control::Public::Auth;
-        Arcos::Control::Public::Auth::do_login($self, $q->param('username'), $q->param('password'));
-    }
 }
 
 =head2 process_add_report
@@ -193,11 +182,28 @@ details will be removed, and the reports details will no longer be accessible.
 
 =cut
 
+sub _goto_login {
+    my $self = shift;
+    my $q = $self->query;
+    $self->header_type('redirect');
+    my $url = "/app/public_auth/login";
+    $self->header_props(-url => $url, -status => '401');
+    return "Redirecting to $url";
+}
+
 sub process_add_report {
-    my $self    = shift;
+    my $self = shift;
+    my $q    = $self->query;
     my $project = Smolder::DB::Project->retrieve( $self->param('id') );
     return $self->error_message('Project does not exist')
       unless $project;
+
+    if( $q->param('username') && $q->param('password') ) {
+        Smolder::Control::Public::Auth::do_login($self, $q->param('username'), $q->param('password'));
+    }
+
+    # we need to be logged in to use this...
+    return $self->_goto_login if !$self->public && $self->developer->guest;
 
     # make sure ths developer is a member of this project
     unless ( $project->public || $project->has_developer( $self->developer ) ) {

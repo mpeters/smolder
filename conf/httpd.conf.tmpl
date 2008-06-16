@@ -154,3 +154,7 @@ RewriteRule ^/index.html?$  /app [R,L]
 <LocationMatch /app/developer*>
     Require group developer
 </LocationMatch>
+
+<LocationMatch /app/developer_projects/process_add_report>
+    Require none
+</LocationMatch>

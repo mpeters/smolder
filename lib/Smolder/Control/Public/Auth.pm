@@ -91,9 +91,11 @@ sub process_login {
 
 sub do_login {
     my ( $self, $user, $pw ) = @_;
+warn "\nUSER: $user PW: $pw\n";
 
     # see if we have a user with this password
     my ($dev) = Smolder::DB::Developer->search( username => $user, guest => 0 );
+warn "\nDEV: $dev\n";
     if ($dev) {
 
         # check to see if the password matches the encrypted one
