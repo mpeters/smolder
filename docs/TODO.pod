@@ -49,10 +49,6 @@ make a lite version that uses HTTP::Server::Simple?
 
 =item *
 
-Allow uploading and authorization all in 1 step and 1 url.
-
-=item *
-
 Add preference to just get plain-text emails
 
 =item *

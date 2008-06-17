@@ -50,6 +50,17 @@ It can be used simply to run tests and output them to your screen, or
 create TAP archive and even automatically upload it to a running Smolder
 server.
 
+=head3 Buildbot
+
+Buildbot (http://buildbot.net) is a neat Python tool that makes creating
+a build farm nice and easy. With it you can setup a master build server
+that has multiple slave build servers (running different platforms and 
+architectures). This is overkill for lots of scenarios, but is really
+nice if your project needs to run on lots of systems.
+
+Having Buildbot submit the test results is essentially the same as anything
+else. You need to create a TAP archive and have it uploaded to Smolder.
+
 =head2 Uploading to Smolder
 
 The easiest way to automate the uploading of test results to a running
@@ -60,6 +71,21 @@ choice.
     smolder_smoke_signal --server smolder.foo.com \
        --username myself --password s3cr3t --file test_report.tar.gz \
        --project MyProject
+
+Or you can use the C<LWP> Perl library directly
+
+    LWP::UserAgent->new()->post(
+        'http://smolder.project.org',
+        Content_Type => 'form-data',
+        Content      => [
+            architecture => '386',
+            platform     => 'Linux',
+            comments     => $comments,
+            username     => 'my-user',
+            password     => 's3cr3t',
+            report_file  => ['tap_archive.tar.gz'],
+        ]
+    );
 
 =head2 Altogether Now
 
