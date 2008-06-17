@@ -1,5 +1,15 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.22
+
+=over
+
+=item * Developer uploads can now be done without logging in as long as credentials are passed - M. Peters
+
+=item * Minor template and style changes
+
+=back
+
 =head2 1.21
 
 =over
