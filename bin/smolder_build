@@ -39,11 +39,11 @@ The script takes the following options:
 By default the script will build apache and mod_perl for you.  This
 option skips those steps.
 
-=item --no-mysql
+=item --mysql
 
-This will skip the building of any MySQL related Perl modules
-that are used. This is useful if you know you will never be
-using MySQL, but will use another database platform instead.
+By default Smolder will use SQLite. If for some reason this bothers
+you (or you want to use this data from other machines) then it can
+also be built to use MySQL.
 
 =item --module
 
@@ -132,13 +132,13 @@ my $APACHE_TEST  = 'Apache-Test';
 
 # options
 my $skip_apache  = 0;
-my $skip_mysql   = 0;
+my $build_mysql  = 0;
 my $skip_modules = 0;
 my $dev          = 0;
 my ( @modules, @skip_modules, $help, $man, $debug );
 GetOptions(
     'no-apache'     => \$skip_apache,
-    'no-mysql'      => \$skip_mysql,
+    'mysql'         => \$build_mysql,
     'no-modules'    => \$skip_modules,
     'module=s'      => \@modules,
     'skip-module=s' => \@skip_modules,
@@ -184,7 +184,7 @@ if (@ARGV) {
 }
 
 # verify the platform
-$pkg->verify_dependencies( mode => 'build', no_mysql => $skip_mysql );
+$pkg->verify_dependencies( mode => 'build', no_mysql => !$build_mysql );
 
 # get list of files to build, considering --module and --skip-module opts
 opendir( SRC, $SRC_DIR ) or die "Can't open $SRC_DIR for reading: $!";
@@ -197,7 +197,7 @@ unless ($skip_modules) {
     
         # don't skip the Perl modules related to the external stuff
         # if we specifically specify the module
-        $skip_mysql  = 0 if( grep { $_ =~ /mysql/i } @modules );
+        $build_mysql = 1 if( grep { $_ =~ /mysql/i } @modules );
 
     } elsif (@skip_modules) {
         @files = grep { !contains( \@skip_modules, $_ ) } @files;
@@ -239,7 +239,7 @@ unless ($skip_modules) {
 
         # skip modules that we need to skip based on skipping external libs
         # but we still need DateTime::Format::MySQL since it works under sqlite too
-        next if ($skip_mysql && $file =~ /mysql/i  && $file !~ /DateTime-Format-MySQL/i);
+        next if (!$build_mysql && $file =~ /mysql/i  && $file !~ /DateTime-Format-MySQL/i);
 
         build_module($file);
     }
@@ -279,7 +279,7 @@ unless ($skip_apache) {
 # drop a build.db file describing the build, used by smolder_makedist
 # and smolder_install
 my @db_plats;
-push(@db_plats, 'MySQL')  unless $skip_mysql;
+push(@db_plats, 'MySQL') if $build_mysql;
 push(@db_plats, 'SQLite');
 
 print "Writing data/build.db\n";
