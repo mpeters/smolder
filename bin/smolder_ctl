@@ -42,11 +42,11 @@ use Config;
 BEGIN {
 
     # Find a SMOLDER_ROOT based on path to bin
-    my @dir = splitdir( canonpath($RealBin) );
-    $ENV{SMOLDER_ROOT} ||= catdir( @dir[ 0 .. $#dir - 1 ] );
+    my @dir = splitdir(canonpath($RealBin));
+    $ENV{SMOLDER_ROOT} ||= catdir(@dir[0 .. $#dir - 1]);
 
     # use $SMOLDER_ROOT/lib for modules
-    my $lib = catdir( $ENV{SMOLDER_ROOT}, "lib" );
+    my $lib = catdir($ENV{SMOLDER_ROOT}, "lib");
     $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$ENV{PERL5LIB}:${lib}" : "${lib}";
     unshift @INC, $lib, "$lib/" . $Config{archname};
 
@@ -75,43 +75,44 @@ usage() unless @ARGV;
 my $command = shift @ARGV;
 usage()
   unless $command eq 'start'
-  or $command     eq 'stop'
-  or $command     eq 'restart';
+      or $command eq 'stop'
+      or $command eq 'restart';
 
-my @ctl = ( [ smolder_apachectl => ApachePort() ], );
+my @ctl = ([smolder_apachectl => ApachePort()],);
 
 # if we are stopping, then we want to do it in the reverse order
-if ( $command eq 'stop' ) {
+if ($command eq 'stop') {
     @ctl = reverse @ctl;
 }
 
 # call ctl scripts
 foreach (@ctl) {
-    _call_script( $_->[0], $command, $_->[1] );
+    _call_script($_->[0], $command, $_->[1]);
 }
 
 sub _call_script {
-    my ( $script, $command, $port ) = @_;
+    my ($script, $command, $port) = @_;
     $command ||= '';
-    $script = catfile( InstallRoot, 'bin', $script );
+    $script = catfile(InstallRoot, 'bin', $script);
 
     # will need sudo to run?
-    if ( ( $< != 0 or $> != 0 ) and $port <= 1024 && $platform->has_sudo ) {
+    if (($< != 0 or $> != 0) and $port <= 1024 && $platform->has_sudo) {
         $script = "sudo $script";
-    # else we might need to chown the log files since they might
-    # be owned by root if smolder was previously started on a privileged
-    # port
+
+        # else we might need to chown the log files since they might
+        # be owned by root if smolder was previously started on a privileged
+        # port
     } else {
         print STDERR "Checking permissions on log files...\n";
-        my $dir = catfile(InstallRoot, 'logs', '*');
-        my $user = User();
+        my $dir   = catfile(InstallRoot, 'logs', '*');
+        my $user  = User();
         my $group = Group();
         foreach my $log (glob($dir)) {
-            unless( -o $log ) {
+            unless (-o $log) {
                 my $cmd = "chown $user:$group $log";
                 $cmd = "sudo $cmd" if $platform->has_sudo;
                 system($cmd) == 0
-                    or die "Could not change ownership of file '$log': $?";
+                  or die "Could not change ownership of file '$log': $?";
             }
         }
     }
