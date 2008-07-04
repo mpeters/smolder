@@ -117,7 +117,7 @@ close $fh;
     if( SMTPHost() ) {
         MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 );
     }
-    eval { $mime->send() } unless $ENV{HARNESS_ACTIVE};
+    eval { $mime->send() } unless $ENV{SMOLDER_TEST_HARNESS_ACTIVE};
     return $@;
 }
 

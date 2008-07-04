@@ -75,7 +75,7 @@ use IO::Scalar;
 use Pod::Usage;
 use File::Find;
 
-$ENV{HARNESS_ACTIVE} = 1;
+$ENV{SMOLDER_TEST_HARNESS_ACTIVE} = 1;
 
 =head1 OPTIONS
 

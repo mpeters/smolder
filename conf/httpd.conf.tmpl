@@ -78,8 +78,8 @@ AddModule mod_perl.c
 PassEnv SMOLDER_ROOT
 PassEnv SMOLDER_CONF
 PassEnv SMOLDER_DEBUG
+PassEnv SMOLDER_TEST_HARNESS_ACTIVE
 PassEnv PERL5LIB
-PassEnv HARNESS_ACTIVE
 
 #
 # MOD_PERL Configuration for Smolder
@@ -87,8 +87,8 @@ PassEnv HARNESS_ACTIVE
 PerlPassEnv SMOLDER_ROOT
 PerlPassEnv SMOLDER_CONF
 PerlPassEnv SMOLDER_DEBUG
+PerlPassEnv SMOLDER_TEST_HARNESS_ACTIVE
 PerlPassEnv PERL5LIB
-PerlPassEnv HARNESS_ACTIVE
 
 PerlSendHeader Off
 PerlWarn On
