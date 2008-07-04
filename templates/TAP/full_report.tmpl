@@ -11,18 +11,6 @@
   <td>[% report.duration | format_time %]</td>
 </tr>
 [%- END -%]
-[%- IF report.platform -%]
-<tr class="[% odd_even %]">
-  <th>Platform</th>
-  <td>[% report.platform | html | html_line_break %]</td>
-</tr>
-[%- END -%]
-[%- IF report.architecture -%]
-<tr class="[% odd_even %]">
-  <th>Architecture</th>
-  <td>[% report.architecture | html | html_line_break %]</td>
-</tr>
-[%- END -%]
 [%- IF report.tags -%]
 <tr class="[% odd_even %]">
   <th>Tags</th>
@@ -40,13 +28,31 @@
   <td>[% report.added.strftime('%B %e %Y, %l:%M %p') %]</td>
 </tr>
 <tr class="[% odd_even %]">
-  <th[% IF email %] class="last"[% END %]>User</th>
-  <td[% IF email %] class="last"[% END %]>[% report.developer.username | html %]</td>
+  <th>User</th>
+  <td>[% report.developer.username | html %]</td>
 </tr>
+[%- IF report.platform -%]
+<tr class="[% odd_even %]">
+  <th>Platform</th>
+  <td>[% report.platform | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+[%- IF report.architecture -%]
+<tr class="[% odd_even %]">
+  <th>Architecture</th>
+  <td>[% report.architecture | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+[% FOREACH k IN extra_properties.keys.sort %]
+<tr class="[% odd_even %]">
+  <th>[% k | html %]</th>
+  <td>[% extra_properties.$k | html %]</td>
+</tr>
+[%- END -%]
 [%- UNLESS email -%]
 <tr class="[% odd_even %]">
-  <th class="last">Download</th>
-  <td class="last">
+  <th>Download</th>
+  <td>
     <a href="[% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
         [% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
     </a>

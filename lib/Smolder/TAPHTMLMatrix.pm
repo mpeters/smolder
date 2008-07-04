@@ -45,15 +45,19 @@ sub generate_html {
     }
     my $file = catfile($dir, 'report.html');
 
+    my $meta = $self->{meta} || {};
+    my $extra_props = $meta->{extra_properties} || {};
+
     # process the full report
     my $odd_even = Template::Plugin::Cycle->new(qw(odd even));
     $TMPL->process(
         'TAP/full_report.tmpl',
         {
-            report   => $self->report,
-            results  => $self->results,
-            odd_even => $odd_even,
-            url_base => Smolder::Util::url_base(),
+            report           => $self->report,
+            results          => $self->results,
+            odd_even         => $odd_even,
+            url_base         => Smolder::Util::url_base(),
+            extra_properties => $extra_props,
         },
         $file,
     ) or croak $TMPL->error;

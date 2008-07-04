@@ -4,7 +4,11 @@
 
 =over
 
-=item * Individual TAP streams are now viewable on the test report screen. M. Peters
+=item * Recognize the extra_properties in an TAP archive and display them on the report - M. Peters
+
+=item * Added C<--report-id> option to F<bin/smolder_update_smoke_html> - M. Peters
+
+=item * Individual TAP streams are now viewable on the test report screen - M. Peters
 
 =back
 

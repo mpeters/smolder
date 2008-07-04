@@ -172,8 +172,6 @@ A reference to the HTML text of this Test Report.
 
 sub html {
     my $self = shift;
-    # TODO - do something else if this result has been deleted
-    # TODO - stream the file instead of slurping into memory
     return $self->_slurp_file( catfile($self->data_dir, 'html', 'report.html') );
 }
 
@@ -459,6 +457,7 @@ sub update_from_tap_archive {
         mkdir($tap_dir) or die "Could not create directory $tap_dir: $!";
     }
 
+    my $meta;
     my $aggregator = TAP::Harness::Archive->aggregator_from_archive({
         archive => $file,
         made_parser_callback => sub {
@@ -475,7 +474,8 @@ sub update_from_tap_archive {
         },
         meta_yaml_callback => sub {
             my $yaml = shift;
-            $duration = $yaml->[0]->{stop_time} - $yaml->[0]->{start_time};
+            $meta = $yaml->[0];
+            $duration = $meta->{stop_time} - $meta->{start_time};
         },
         parser_callbacks => {
             ALL => sub {
@@ -534,9 +534,10 @@ sub update_from_tap_archive {
     );
 
     # generate the HTML reports
-    my $matrix = Smolder::TAPHTMLMatrix->new( 
-        smoke_report => $self, 
-        test_results => \@suite_results, 
+    my $matrix = Smolder::TAPHTMLMatrix->new(
+        smoke_report => $self,
+        test_results => \@suite_results,
+        meta         => $meta,
     );
     $matrix->generate_html();
     $self->update();
