@@ -47,8 +47,6 @@ Following is a list of the tasks the installer script will perform.
 
 =over 4
 
-=item Must be running as root.
-
 =item IP address must be configured on host.
 
 =item Check for dependencies depending on the DB Platform
@@ -197,10 +195,6 @@ exit(0);
 
 sub do_install {
     setup_getopts();
-
-    # Must be running as root, check now to avoid unpacking backup
-    # only to fail on this trivial condition
-    exit_error("Must be run as root.") unless ( $> eq "0" );
 
     # unpack backup, which contributes to options
     unpack_backup() if $options{FromBackup};

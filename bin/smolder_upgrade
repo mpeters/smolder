@@ -181,9 +181,6 @@ sub do_upgrade {
 sub check_prereqs {
     print "Checking prerequisites\n";
 
-    # Must be running as root.
-    exit_error("Must be run as root.") unless ( $> eq "0" );
-
     # make sure the platform is happy
     $PLATFORM->verify_dependencies( mode => 'install' );
 
