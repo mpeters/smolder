@@ -173,20 +173,6 @@ sub auto_complete_results {
     return $html . '</ul>';
 }
 
-=head2 url_base
-
-This method will return the base url for the installed version of
-Smolder.
-
-=cut
-
-{
-    my $_base = 'http://' . HostName 
-        . ( ApachePort == 80 ? '' : ':' . ApachePort );
-
-    sub url_base { $_base };
-}
-
 =head2 static_url
 
 This method will take the URL and add the smolder version number
@@ -314,6 +300,7 @@ __PACKAGE__->add_callback(
         }
         $vars->{smolder_version} = $Smolder::VERSION;
         $vars->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));
+        $vars->{url_base} = Smolder::Util::url_base();
         return;
     }
 );

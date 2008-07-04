@@ -1,5 +1,13 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.23
+
+=over
+
+=item * Individual TAP streams are now viewable on the test report screen. M. Peters
+
+=back
+
 =head2 1.22
 
 =over

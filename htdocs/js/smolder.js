@@ -902,6 +902,7 @@ var myrules = {
 
         el.onclick = function() {
             if( Element.visible(target) ) {
+                $(target + '_tap_stream').hide();
                 Effect.BlindUp(target, { duration: .5 });
             } else {
                 $(indicator).style.visibility = 'visible';
@@ -916,6 +917,7 @@ var myrules = {
                             // reapply any dynamic bits
                             { 
                                 afterFinish : function() { 
+                                    $(target + '_tap_stream').show();
                                     $$('.tooltip_trigger').each(function(el) {
                                         var diag = $(el).select('.tooltip')[0];
                                         Smolder.setup_tooltip(el, diag);

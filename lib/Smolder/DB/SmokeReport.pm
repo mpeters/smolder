@@ -6,7 +6,7 @@ use Smolder::Conf qw(InstallRoot);
 use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(mkpath rmtree);
-use File::Copy qw(move);
+use File::Copy qw(move copy);
 use File::Temp qw(tempdir);
 use Cwd qw(fastcwd);
 use DateTime;
@@ -192,12 +192,23 @@ sub html_test_detail {
     my ($self, $num) = @_;
     my $file = catfile($self->data_dir, 'html', "$num.html");
 
-    # just return the file
-    # TODO - do something else if the file no longer exists
-    # TODO - stream the file instead of slurping into memory
     return $self->_slurp_file( $file );
 }
 
+=head3 tap_stream
+
+This method will return the file name that holds the recorded TAP stream
+given the index of that stream.
+
+=cut
+
+sub tap_stream {
+    my ($self, $index) = @_;
+    return $self->_slurp_file(catfile($self->data_dir, 'tap', "$index.tap"));
+}
+
+# just return the file
+# TODO - do something else if the file no longer exists
 sub _slurp_file {
     my ( $self, $file_name ) = @_;
     my $text;
@@ -437,21 +448,30 @@ sub update_from_tap_archive {
     my ($self, $file) = @_;
     $file ||= $self->file;
 
-    # create a temp directory to hold in-progress archive
-    my $temp_dir = tempdir( DIR => catdir(InstallRoot, 'tmp'));
-
     # our data structures for holding the info about the TAP parsing
     my ($duration, @suite_results, @tests, $label);
     my ($total, $failed, $skipped) = (0,0,0);
+    my $file_index = 0;
+
+    # make our tap directory if it doesn't already exist
+    my $tap_dir = catdir($self->data_dir, 'tap');
+    unless(-d $tap_dir) {
+        mkdir($tap_dir) or die "Could not create directory $tap_dir: $!";
+    }
 
     my $aggregator = TAP::Harness::Archive->aggregator_from_archive({
         archive => $file,
         made_parser_callback => sub {
-            my ($parser, $file) = @_;
+            my ($parser, $file, $full_path) = @_;
             $label = $file;
             # clear them out for a new run
             @tests = (); 
             ($total, $failed, $skipped) = (0,0,0);
+
+            # save the raw TAP stream somewhere we can use it later
+            my $new_file = catfile($self->data_dir, 'tap', "$file_index.tap");
+            copy($full_path, $new_file) or die "Could not copy $full_path to $new_file. $!\n";
+            $file_index++;
         },
         meta_yaml_callback => sub {
             my $yaml = shift;
@@ -520,6 +540,7 @@ sub update_from_tap_archive {
     );
     $matrix->generate_html();
     $self->update();
+
     return \@suite_results;
 }
 

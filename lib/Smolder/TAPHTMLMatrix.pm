@@ -53,6 +53,7 @@ sub generate_html {
             report   => $self->report,
             results  => $self->results,
             odd_even => $odd_even,
+            url_base => Smolder::Util::url_base(),
         },
         $file,
     ) or croak $TMPL->error;
@@ -68,6 +69,7 @@ sub generate_html {
                 test_file => $test->{label},
                 tests     => $test->{tests},
                 odd_even  => $odd_even,
+                url_base  => Smolder::Util::url_base(),
             },
             $save_file,
         ) or croak "Problem processing template file '$file': ", $TMPL->error;

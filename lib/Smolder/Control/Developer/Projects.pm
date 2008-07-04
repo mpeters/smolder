@@ -57,7 +57,8 @@ sub setup {
               process_admin_settings
               delete_tag
               details
-              archive
+              tap_archive
+              tap_stream
               )
         ]
     );
@@ -386,11 +387,13 @@ sub test_file_report_details {
     return $report->html_test_detail($num);
 }
 
-=head2 archive
+=head2 tap_archive
+
+Return the TAP archive for a given report to the browser
 
 =cut
 
-sub archive {
+sub tap_archive {
     my $self   = shift;
     my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
     return $self->error_message('Test Report does not exist')
@@ -404,6 +407,28 @@ sub archive {
     return $self->stream_file($report->file);
 }
 
+=head2 tap_stream
+
+Return the TAP stream for a given report and given stream index number to the browser.
+
+=cut
+
+sub tap_stream {
+    my $self      = shift;
+    my $report_id = $self->param('id');
+    my $tap_index = $self->param('stream_index');
+    my $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    return $self->error_message("Test Report $report_id does not exist")
+      unless $report;
+
+    # make sure ths developer is a member of this project
+    unless ($report->project->public || $report->project->has_developer($self->developer)) {
+        return $self->error_message('Unauthorized for this project');
+    }
+    my $output = $report->tap_stream($tap_index);
+    $$output = '<pre>' . $$output . '</pre>';
+    return $output;
+}
 
 =head2 show_all
 

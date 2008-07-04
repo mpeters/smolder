@@ -1,4 +1,5 @@
 package Smolder::Util;
+use Smolder::Conf qw(HostName ApachePort);
 use strict;
 use warnings;
 
@@ -64,6 +65,20 @@ sub format_time {
     } elsif( $min ) {
         return sprintf('%i:%02i', $min, $sec);
     }
+}
+
+=head2 url_base
+
+This method will return the base url for the installed version of
+Smolder.
+
+=cut
+
+{
+    my $_base = 'http://' . HostName
+        . ( ApachePort == 80 ? '' : ':' . ApachePort );
+
+    sub url_base { $_base };
 }
 
 1;

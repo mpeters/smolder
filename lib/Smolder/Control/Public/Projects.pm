@@ -37,6 +37,7 @@ sub setup {
               forbidden
               feed
               archive
+              tap_stream
               )
         ]
     );
