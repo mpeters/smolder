@@ -47,8 +47,22 @@ END
 }
 
 use Smolder::DB::SmokeReport;
+use Getopt::Long;
+use Pod::Usage;
 
-my @reports = Smolder::DB::SmokeReport->search(purged => 0);
+my (@ids);
+
+GetOptions(
+    'report-id|report_id=i' => \@ids,
+) || pod2usage();
+
+my @reports;
+if(@ids) {
+    @reports = map { Smolder::DB::SmokeReport->retrieve($_) } @ids;
+} else {
+    @reports = Smolder::DB::SmokeReport->search(purged => 0);
+}
+
 unless( @reports ) {
     print "No non-purged reports to recreate.\n";
     exit(0);
