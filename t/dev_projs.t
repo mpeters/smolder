@@ -308,7 +308,7 @@ $mech->content_contains('My Projects');
         project   => $proj,
         developer => $dev,
     );
-    $mech->get_ok("/app/developer_projects/archive/$report");
+    $mech->get_ok("/app/developer_projects/tap_archive/$report");
     is($mech->ct, 'application/x-gzip', 'correct content-type');
     my $tmp = File::Temp->new();
     $tmp->close();
