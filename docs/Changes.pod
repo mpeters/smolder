@@ -20,6 +20,8 @@
 
 =item * Improved build and error messages on Ubuntu - Elizabeth Cortell
 
+=item * Joined Prototype/Scriptaculous files with protoaculous to improve initial browser load time - M. Peters
+
 =back
 
 =head2 1.22
