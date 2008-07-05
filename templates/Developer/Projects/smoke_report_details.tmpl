@@ -72,6 +72,14 @@
       <th><span[% IF report.todo %] class="todo"[% END %]># TODO</span></th>
       <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo | format_number %]</span></td>
     </tr>
+    [% IF report.tags.size %]
+    <tr>
+      <th>Tags</th>
+      <td colspan="3">
+        <em>([% report.tags.join(', ') | html %])</em>
+      </td>
+    </tr>
+    [% END %]
   </table>
 [% UNLESS email %]
   <div style="position: absolute; right: 0px; bottom: 5px;">
