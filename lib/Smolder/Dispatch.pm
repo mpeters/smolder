@@ -12,6 +12,10 @@ sub dispatch_args {
                 app => 'Public::Projects',
                 rm  => 'tap_stream',
             },
+            'developer_projects/tap_stream/:id/:stream_index' => {
+                app => 'Developer::Projects',
+                rm  => 'tap_stream',
+            },
             ':app/:rm?/:id?/:type?' => {},
         ],
     };

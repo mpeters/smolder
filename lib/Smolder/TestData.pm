@@ -210,7 +210,7 @@ Will delete all test reports create by L<create_smoke_report>.
 
         # set some defaults
         %args = (
-            file => catfile( $config->get('InstallRoot'), 't', 'data', 'test_run_bad.tar.gz' ),
+            file => catfile( $config->get('InstallRoot'), 't', 'data', 'test_run_bad_yml.tar.gz' ),
             architecture => 'x386',
             platform     => 'Linux',
             %args,

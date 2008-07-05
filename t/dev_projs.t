@@ -21,7 +21,7 @@ use File::Spec::Functions qw(catfile);
 use HTTP::Request::Common;
 
 if (is_apache_running) {
-    plan( tests => 94 );
+    plan( tests => 104 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -221,7 +221,7 @@ $mech->content_contains('My Projects');
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
 
-# 71..75
+# 71..81
 # report_details
 {
     my $proj1 = _get_proj($proj1_id);
@@ -231,12 +231,20 @@ $mech->content_contains('My Projects');
     $mech->follow_link_ok({n => 1, url_regex => qr/report_details/});
     ok( $mech->ct, 'text/html' );
 
+    # make sure our extra properties made it into the report
+    $mech->content_contains('GCC Version');
+    $mech->content_contains('gcc version 4.1.2');
+    $mech->content_contains('Perl version');
+    $mech->content_contains('This is perl, v5.8.8');
+    $mech->content_contains('uname');
+    $mech->content_contains('Linux localhost.localdomain 2.6.20-1.2952.fc6');
+
     # individual report files
     $mech->get_ok("/app/developer_projects/test_file_report_details/$proj1/0");
     ok( $mech->ct, 'text/html' );
 }
 
-# 76..87
+# 82..93
 # smoke_report_validity
 {
     my $proj1 = _get_proj($proj1_id);
@@ -280,7 +288,7 @@ $mech->content_contains('My Projects');
     ok( !$report->invalid );
 }
 
-# 88..91
+# 94..97
 # single smoke_report
 {
     my $proj1 = _get_proj($proj1_id);
@@ -298,7 +306,7 @@ $mech->content_contains('My Projects');
     $mech->content_contains( $dev->username );
 }
 
-# 92..94
+# 98..100
 # download TAP
 {
     my $proj = _get_proj($proj1_id);
@@ -314,6 +322,22 @@ $mech->content_contains('My Projects');
     $tmp->close();
     $mech->save_content($tmp);
     cmp_ok( -s "$tmp", '==', -s $report->file, 'same size as original file'); 
+}
+
+# 101..104
+# download TAP stream
+{
+    my $proj = _get_proj($proj1_id);
+
+    # not an admin of the project
+    my $report = create_smoke_report(
+        project   => $proj,
+        developer => $dev,
+    );
+    $mech->get_ok("/app/public_projects/tap_stream/$report/1");
+    $mech->content_contains('ok 2');
+    $mech->content_contains('ok 3 # skip');
+    $mech->content_contains('1..7');
 }
 
 sub _get_proj {
