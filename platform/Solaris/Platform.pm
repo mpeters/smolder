@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 use base 'Smolder::Platform';
-use Cwd qw(cwd);
 
 sub guess_platform {
     my $release = `uname -a`;
@@ -118,37 +117,6 @@ sub usermod {
 
     system($usermod) && die("Can't add user $User to group $Group: $!");
     print "  User added to group.\n";
-}
-
-# setup init script in /etc/rc.d.
-sub finish_installation {
-    my ($pkg, %arg) = @_;
-    my %options = %{$arg{options}};
-
-    my $init_script = "smolder-". $options{HostName};
-    print "Installing Smolder init script '$init_script'\n";
-
-    my $old = cwd;
-    chdir("/etc/rc.d");
-
-    my $InstallPath = $options{InstallPath};
-    unlink $init_script if -e $init_script;
-    my $link_init = "ln -s $InstallPath/bin/smolder_ctl $init_script";
-    system($link_init) && die ("Can't link init script: $!");
-
-    chdir $old;
-}
-
-sub post_install_message {
-    my ($pkg, %arg) = @_;
-    my %options = %{$arg{options}};
-
-    $pkg->SUPER::post_install_message(%arg);
-
-    my $init_script = "smolder-" . $options{HostName};
-
-    # return a note about setting up smolder_ctl on boot.
-    print "   Smolder has installed a control script in: /etc/rc.d/$init_script\n\n";
 }
 
 1;

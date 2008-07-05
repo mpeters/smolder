@@ -4,21 +4,9 @@ use warnings;
 
 use base 'Smolder::Platform';
 
-sub release_string { '' }
-sub centos_release_string { '' };
-
 sub guess_platform {
     my $class = shift;
-    return 0 unless -e '/etc/redhat-release';
-    open(RELEASE, '/etc/redhat-release') or return 0;
-    my $release = <RELEASE>;
-    close RELEASE;
-    my $release_str = $class->release_string;
-    return 1 if $release =~ /\Q$release_str/;
-    if( my $centos_str = $class->centos_release_string ) {
-        return 1 if $release =~ /\Q$centos_str/;
-    }
-    return 0;
+    return -e '/etc/redhat-release';
 }
 
 sub verify_dependencies {
