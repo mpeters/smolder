@@ -10,7 +10,11 @@
 
 =item * Individual TAP streams are now viewable on the test report screen - M. Peters
 
-=item * Added support for Fedora 9, RHEL 5, CentOS 4 & 5 - M. Peters
+=item * Simplified platform files since all RH derivatives can be treated the same - M. Peters
+
+=item * Remove the /init.d script since we don't want to require root on install/upgrade - M. Peters
+
+=item * Added C<--Platform> option to F<bin/smolder_install> - Elizabeth Cortell
 
 =back
 

@@ -96,6 +96,7 @@ Following is a list of the tasks the installer script will perform.
   --IPAddress           - IP address used for HTTP
 
  Optional parameters:
+  --Platform            - Installation platform
   --DBPlatform          - The Database platform to use (Default: MySQL)
   --DBUser              - Database user used by Smolder (Default: smolder)
   --DBPass              - Database user password used by Smolder (Default: smolder)
@@ -171,6 +172,7 @@ my @opt_params = qw(
   FromBackup
   Group
   InstallPath
+  Platform
   SMTPHost
   User
   verbose
@@ -203,7 +205,7 @@ sub do_install {
     enforce_requirements();
 
     # load the plaform module for this distribution
-    load_platform();
+    load_platform($options{Platform});
 
     # load our database plaform 
     $DB_PLATFORM = Smolder::DBPlatform->load($options{DBPlatform});
@@ -287,8 +289,17 @@ sub unpack_backup {
 sub load_platform {
     exit_error("Can't find data/build.db.  Do you need to run smolder_build?")
       unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
+
+    my $platform = shift;
+
     require Smolder::Platform;
-    $PLATFORM = Smolder::Platform->load(); 
+
+    eval { $PLATFORM = Smolder::Platform->load($platform) };
+    if ( $@ ) {
+        die "Platform '$platform' is not supported.  "
+        . "Available platforms are:\n\n\t"
+        . join( "\n\t", @Smolder::Platform::PLATFORMS ) . "\n\n";
+    }
 
     # find paths to binaries
     $COPY_BIN    = $PLATFORM->find_bin( bin => 'cp' );
