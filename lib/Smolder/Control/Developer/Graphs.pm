@@ -152,9 +152,6 @@ sub image {
         %search_params,
     );
 
-use Data::Dumper;
-warn Dumper $data;
-
     # send out our headers
     $self->header_type('none');
     my $r = $self->param('r');
