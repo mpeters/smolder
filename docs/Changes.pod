@@ -16,6 +16,8 @@
 
 =item * Added C<--Platform> option to F<bin/smolder_install> - Elizabeth Cortell
 
+=item * Fixed build and install on 0SX 10.5 (Leopard) - Elizabeth Cortell
+
 =back
 
 =head2 1.22
