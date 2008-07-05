@@ -11,7 +11,6 @@
     </div>
   [% END %]
   #[% report.id %] Added [% report.added.strftime('%D %l:%M %p') %] by [% report.developer.username | html %]
-  [% IF report.tags.size %]<em>([% report.tags.join(', ') | html %])</em>[% END %]
   [% IF report.duration %]([% report.duration | format_time %])[% END %]
 
 </div>
