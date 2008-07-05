@@ -1,4 +1,4 @@
-package Mandrake9_2::Platform;
+package Mandrake::Platform;
 use strict;
 use warnings;
 
