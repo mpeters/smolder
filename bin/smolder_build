@@ -2,8 +2,6 @@
 use warnings;
 use strict;
 
-=pod
-
 =head1 NAME
 
 smolder_build 
@@ -172,7 +170,7 @@ if (@ARGV) {
 } else {
 
     # look for a platform that wants to handle this
-    $pkg = Smolder::Platform->load();
+    $pkg = Smolder::Platform->load(undef, 1);
     die "Unable to automatically determine your platform, you must\n"
       . "provide one on the command line.  Available platforms are:\n\n\t"
       . join( "\n\t", @Smolder::Platform::PLATFORMS ) . "\n\n"

@@ -57,7 +57,7 @@ it will be divined.
 =cut
 
 sub load {
-    my ( $class, $subclass ) = @_;
+    my ( $class, $subclass, $search ) = @_;
 
     # add in $SMOLDER_ROOT/platform for platform build modules
     my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
@@ -70,21 +70,19 @@ sub load {
         eval "use $subclass";
         die "Unable to load platform module '$subclass': $@\n" if $@;
 
-        # else try and find it
     } else {
+        # check a previous build
         my %build_params = $class->build_params();
 
         # if we were previously built for a platform
-        if ( $build_params{Platform} ) {
+        if ( !$search && $build_params{Platform} ) {
             $subclass = $build_params{Platform} . '::Platform';
             eval "use $subclass";
             die "Unable to load platform module '$subclass': $@\n" if $@;
-
-            # else just see which one wants to take it
         } else {
-
             # look for a platform that wants to handle this
             foreach my $plat (@PLATFORMS) {
+                print "Trying $plat\n" if $search;
                 my $pkg = $plat . '::Platform';
                 eval "use $pkg";
                 die "Unable to load platform modules '$pkg': $@\n" if $@;
@@ -362,7 +360,6 @@ Optional.
 
 sub check_libs {
     my ( $pkg, %args ) = @_;
-
     my $mode = $args{mode};
     my $name = $args{name};
     my $so   = $args{so};
