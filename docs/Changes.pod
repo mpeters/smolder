@@ -18,6 +18,8 @@
 
 =item * Fixed build and install on 0SX 10.5 (Leopard) - Elizabeth Cortell
 
+=item * Improved build and error messages on Ubuntu - Elizabeth Cortell
+
 =back
 
 =head2 1.22

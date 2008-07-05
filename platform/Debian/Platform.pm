@@ -20,4 +20,25 @@ sub guess_platform() {
 	}
 }
 
+# some versions of Debian (at least Ubuntu Hardy Heron)
+# don't have libperl.so, they have libperl.so.5.8.8 or something
+# like that
+sub check_libperl {
+    my ($pkg, @args) = @_;
+    eval {
+        Smolder::Platform->check_libperl(@args);
+    };
+    if( $@ ) {
+        if( $@ =~ /library is required/i ) {
+            die "\n\nWe could not find libperl.so on your system. "
+                . "Perhaps you need a symlink to libperl.so"
+                . sprintf('%vd', $^V)
+                . "\n\n$@\n";
+                
+        } else {
+            die $@;
+        }
+    }
+}
+
 1;
