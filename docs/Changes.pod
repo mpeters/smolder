@@ -21,6 +21,8 @@
 =item * Improved build and error messages on Ubuntu - Elizabeth Cortell
 
 =item * Joined Prototype/Scriptaculous files with protoaculous to improve initial browser load time - M. Peters
+   
+=item * Allow TAP archives to contain all of the fields we also collect on the report form - M. Peters 
 
 =back
 

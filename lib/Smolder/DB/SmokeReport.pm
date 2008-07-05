@@ -534,6 +534,19 @@ sub update_from_tap_archive {
         duration   => $duration,
     );
 
+    # we can take some things from the meta information in the archive
+    # if they weren't provided during the upload
+    if($meta->{extra_properties}) {
+        foreach my $k (keys %{$meta->{extra_properties}}) {
+            foreach my $field qw(architecture platform comments) {
+                if(lc($k) eq $field) {
+                    $self->set($field => delete $meta->{extra_properties}->{$k});
+                    last;
+                }
+            }
+        }
+    }
+
     # generate the HTML reports
     my $matrix = Smolder::TAPHTMLMatrix->new(
         smoke_report => $self,
