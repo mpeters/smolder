@@ -229,7 +229,8 @@ sub _send_emails {
     my ($self, $results) = @_;
 
     # setup some stuff for the emails that we only need to do once
-    my $subject = "Smolder - new " . ( $self->failed ? "failed " : '' ) . "smoke report";
+    my $subject = "[" . $self->project->name . "] new " 
+        . ( $self->failed ? "failed " : '' ) . "Smolder report";
     my $matrix = Smolder::TAPHTMLMatrix->new( 
         smoke_report => $self, 
         test_results => $results, 
