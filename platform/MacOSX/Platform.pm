@@ -12,6 +12,9 @@ sub guess_platform {
     return $release =~ /Darwin.*/;
 }
 
+# we don't want to skip the BSD modules
+sub skip_perl_modules { () };
+
 # left to its own devices Apache configure will select the Darwin install layout
 # there are dependencies in Smolder (eg. smolder_apachectl) which
 # assume the Apache layout (eg. httpd in bin not sbin), so force the layout choice
