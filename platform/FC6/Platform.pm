@@ -2,17 +2,8 @@ package FC6::Platform;
 use strict;
 use warnings;
 
-use base 'FC1::Platform';
+use base 'RedHat::Platform';
 
-use Cwd qw(cwd);
-
-sub guess_platform {
-    return 0 unless -e '/etc/redhat-release';
-    open(RELEASE, '/etc/redhat-release') or return 0;
-    my $release = <RELEASE>;
-    close RELEASE;
-    return 1 if $release =~ /Fedora Core release 6/;
-    return 0;
-}
+sub release_string { 'Fedora Core release 6' }
 
 1;

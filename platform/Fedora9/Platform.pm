@@ -4,6 +4,6 @@ use warnings;
 
 use base 'RedHat::Platform';
 
-sub release_string { 'Fedora release 8' }
+sub release_string { 'Fedora release 9' }
 
 1;

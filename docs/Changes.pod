@@ -10,6 +10,8 @@
 
 =item * Individual TAP streams are now viewable on the test report screen - M. Peters
 
+=item * Added support for Fedora 9, RHEL 5, CentOS 4 & 5 - M. Peters
+
 =back
 
 =head2 1.22
