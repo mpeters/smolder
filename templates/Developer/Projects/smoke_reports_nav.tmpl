@@ -5,7 +5,7 @@
     [% SET tags = project.tags %]
     [% IF tags %]
     <span>
-    <select name="tag" class="auto_submit">
+    <select name="tag" class="auto_submit" style="width:10em">
       <option value="">--Tag--</option>
       [% FOREACH t IN tags %]
         <option value="[% t | html %]"[% IF t == tag %]selected="selected"[% END %]>[% t | html %]</option>
