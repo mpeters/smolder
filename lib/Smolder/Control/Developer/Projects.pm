@@ -271,7 +271,7 @@ sub process_add_report {
     my $url = '/app/' . ($self->public ? 'public' : 'developer' ) 
         . "_projects/smoke_reports/$project";
     $self->header_add( -uri => $url );
-    return "Redirecting to $url";
+    return "Reported #$report added.\nRedirecting to $url";
 }
 
 =head2 smoke_report
