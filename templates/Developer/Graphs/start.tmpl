@@ -80,7 +80,7 @@
   [% IF project.tags.size %]
   <td><label>Tags</label></td>
   <td>
-    <select name="tag" id="tag">
+    <select name="tag" id="tag" style="width: 10em">
     <option value="">--none--</option>
     [% FOREACH tag IN project.tags %]
     <option value="[% tag | html %]">[% tag | html %]</option>
