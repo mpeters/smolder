@@ -4,6 +4,7 @@ use base 'Smolder::Control::Developer::Projects';
 use Smolder::Conf qw(HostName);
 use Smolder::DB;
 use Smolder::DB::Project;
+use Smolder::Util;
 use HTML::FillInForm;
 use XML::Atom::SimpleFeed;
 use DateTime;
@@ -162,8 +163,8 @@ sub feed {
 
     my $feed = XML::Atom::SimpleFeed->new(
         title   => '[' . $project->name . '] Smolder - ' . HostName,
-        link    => $self->url_base,
-        id      => $self->url_base,
+        link    => Smolder::Util::url_base,
+        id      => Smolder::Util::url_base,
         updated => $updated->strftime('%FT%TZ'),
     );
     foreach my $report (@reports) {
