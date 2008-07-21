@@ -167,8 +167,11 @@ sub feed {
         id      => Smolder::Util::url_base,
         updated => $updated->strftime('%FT%TZ'),
     );
+
     foreach my $report (@reports) {
-        my $link = 'http://' . HostName . '/app/developer_projects/smoke_report/' . $report->id;
+        my $link = 'http://' . HostName . '/app/'
+            . ($project->public ? 'public' : 'developer')
+            . '_projects/smoke_report/' . $report->id;
         $feed->add_entry(
             title => '#'
               . $report->id . ' - '
