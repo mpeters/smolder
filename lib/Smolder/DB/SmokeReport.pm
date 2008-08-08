@@ -312,7 +312,7 @@ Returns a text string summarizing the whole test run.
 sub summary {
     my $self = shift;
     return sprintf(
-        '%i test cases: %i ok, %i failed, %i todo, %i skipped and %i unexpectedly succeeded'
+        '%i test cases: %i ok, %i failed, %i todo, %i skipped and %i unexpectedly succeeded',
         $self->total,
         $self->pass,
         $self->fail,
