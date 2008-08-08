@@ -1,5 +1,19 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.24
+
+=over
+
+=item * Fixed problem with Atom URLS - Andrew Moore, M. Peters
+
+=item * Added a few indexes to speed some things up for projects with lots of test reports - M. Peters
+
+=item * Show tags for a report in the Atom feed as well as the report details - M. Peters
+
+=item * Fix some UI issues that came up from having very long tag names - M. Peters
+
+=back
+
 =head2 1.23
 
 =over
