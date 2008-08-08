@@ -438,8 +438,8 @@ sub tags {
         }
     } else {
         my $sth  = $self->db_Main->prepare_cached(q/
-            SELECT DISTINCT(srt.tag) FROM smoke_report_tag srt
-            JOIN smoke_report sr ON (sr.id = srt.smoke_report)
+            SELECT DISTINCT(srt.tag) FROM smoke_report_tag srt 
+            JOIN smoke_report sr ON (sr.id = srt.smoke_report) 
             WHERE sr.project = ? ORDER BY srt.tag/
         );
         $sth->execute( $self->id );
