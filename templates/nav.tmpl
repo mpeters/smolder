@@ -5,7 +5,13 @@
 <div id="top_nav">[ 
   <ul>
 [% IF username %]
-    <li class="first">[% username %]</li>
+    <li class="first">
+      <span class="menu">[% username %]</span>
+      <ul>
+        <li><a href="/app/developer_prefs">preferences</a></li>
+        <li><a href="/app/public_auth/logout">logout</a></li>
+      </ul>
+    </li>
     <li>
       <a href="/app/developer_projects"[% IF projects %] class="menu"[% END %]>my projects</a>
       [% IF projects %]
@@ -16,7 +22,6 @@
       </ul>
       [% END %]
     </li>
-    <li><a href="/app/developer_prefs">prefs</a></li>
 [% END %]
 
 [% IF c.developer.admin %]
@@ -42,9 +47,7 @@
     </li>
 [% END %]
 
-[% IF username %]
-    <li><a href="/app/public_auth/logout">logout</a></li>
-[% ELSE %]
+[% UNLESS username %]
     <li><a href="/app/public_auth/login">login</a></li>
 [% END %]
 ]
