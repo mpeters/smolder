@@ -4,11 +4,11 @@ use Test::More;
 use Smolder::TestScript;
 use Smolder::TestData qw(
   base_url
-  is_apache_running
+  is_smolder_running
 );
 use Smolder::Mech;
 
-if (is_apache_running) {
+if (is_smolder_running) {
     plan( tests => 2 );
 } else {
     plan( skip_all => 'Smolder apache not running' );

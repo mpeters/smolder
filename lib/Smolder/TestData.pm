@@ -2,10 +2,11 @@ package Smolder::TestData;
 use strict;
 use warnings;
 use base 'Exporter';
-use Smolder::Conf;
+use Smolder::Conf qw(HostName Port URLPrefix);
 use Smolder::DB;
 use File::Spec::Functions qw(catfile);
 use File::Copy qw(copy);
+use LWP::UserAgent;
 
 our $config = Smolder::Conf->get_config();
 
@@ -20,7 +21,7 @@ our @EXPORT_OK = qw(
   delete_smoke_reports
   delete_tags
   logout
-  is_apache_running
+  is_smolder_running
   base_url
   db_field_value
 );
@@ -248,18 +249,30 @@ sub delete_tags {
     }
 }
 
-=head2 is_apache_running
+=head2 is_smolder_running
 
-Returns true if the Smolder Apache is up and running. Else returns false.
-Perfect to use in controller tests that will skip the test if the Smolder
-apache is not running.
+Returns true if Smolder is up and running. Else returns false.  Perfect to
+use in controller tests that will skip the test if it's not running.
 
 =cut
 
-sub is_apache_running {
-    require File::Spec::Functions;
-    return -e File::Spec::Functions::catfile( $config->get('InstallRoot'), 'tmp', 'httpd.pid' );
+sub is_smolder_running {
+    _can_reach_url('http://' . HostName . ':' . Port . '/app');
 }
+
+sub _can_reach_url {
+    my $url = shift;
+
+    # Create a user agent object
+    use LWP::UserAgent;
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    my $res = $ua->get($url);
+
+    # Check the outcome of the response
+    return $res->is_success;
+}
+
 
 =head2 base_url
 
@@ -268,10 +281,7 @@ Returns the base url for the dynamic portions of the site.
 =cut
 
 sub base_url {
-    return 'http://' . $config->get('HostName') 
-        . ':' . $config->get('ApachePort') 
-        . ( $config->get('URLPrefix') || '' )
-        . '/app';
+    return 'http://' . HostName . ':' . Port . (URLPrefix || '') . '/app';
 }
 
 =head2 db_field_value 

@@ -453,7 +453,7 @@ sub output_report {
             InstallPath => $options{InstallRoot},
             HostName    => $OLD_CONF->get("HostName"),
             IPAddress   => $OLD_CONF->get("ApacheAddr"),
-            ApachePort  => $OLD_CONF->get("ApachePort"),
+            Port  => $OLD_CONF->get("Port"),
         }
     );
 }

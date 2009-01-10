@@ -5,14 +5,14 @@ use Smolder::TestScript;
 use Smolder::TestData qw(
   create_developer
   delete_developers
-  is_apache_running
+  is_smolder_running
   base_url
   db_field_value
 );
 use Smolder::Conf qw(HostName);
 use Smolder::Mech;
 
-if (is_apache_running) {
+if (is_smolder_running) {
     plan(tests => 27);
 } else {
     plan( skip_all => 'Smolder Apache not running' );

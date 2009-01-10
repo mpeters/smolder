@@ -4,7 +4,7 @@ use warnings;
 use base 'Test::WWW::Mechanize';
 use Smolder::Conf qw(DBPlatform);
 use Smolder::TestData qw(base_url);
-use JSON qw(jsonToObj);
+use JSON qw(from_json);
 use Test::Builder;
 use Test::More;
 
@@ -138,7 +138,7 @@ against that.
 sub contains_message {
     my ($self, $match) = @_;
     my $resp = $self->response();
-    my $json = jsonToObj($self->response->header('X-JSON') || '{}');
+    my $json = from_json($self->response->header('X-JSON') || '{}');
     my $msgs = $json->{messages} || [];
     my $diag = "contains message $match.";
 

@@ -60,6 +60,7 @@ sub setup {
 
 # to be overridden by subclasses to allow public access
 sub public { 0 };
+sub require_group { 'developer' }
 
 =head1 RUN MODES
 
@@ -152,11 +153,9 @@ sub image {
         %search_params,
     );
 
-    # send out our headers
+    # send out our own headers
+    # XXX - fix to use CGI.pm no Apache to send no-cache image/png headers'
     $self->header_type('none');
-    my $r = $self->param('r');
-    $r->no_cache(1);
-    $r->send_http_header('image/png');
 
     # if we don't have any data, then just send the no_graph_data.png file
     if ( scalar @$data == 0 ) {
@@ -165,7 +164,7 @@ sub image {
         open( $NO_DATA_FH, $file )
           or die "Could not open '$file' for reading: $!";
         local $/ = undef;
-        print $r->print(<$NO_DATA_FH>);
+        print <$NO_DATA_FH>;
         close($NO_DATA_FH) or die "Could not close file '$file': $!";
     } else {
         # else create the graph and send it
@@ -183,7 +182,7 @@ sub image {
             legend => \@legend,
             title  => $title,
         );
-        $r->print( $gd->png );
+        print $gd->png;
     }
 }
 

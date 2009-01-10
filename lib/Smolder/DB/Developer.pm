@@ -29,9 +29,10 @@ The following columns will return objects instead of the value contained in the 
 # encrypt the password if we are creating or updating
 __PACKAGE__->add_trigger(
     before_create => \&_crypt_password,
+);
+__PACKAGE__->add_trigger(
     before_update => \&_crypt_if_changed,
 );
-
 # make sure we delete a preference when we are deleted
 __PACKAGE__->add_trigger(
     after_delete => sub {

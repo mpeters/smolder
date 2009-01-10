@@ -65,7 +65,7 @@ $@
 END
 }
 
-use Smolder::Conf qw(InstallRoot ApachePort User Group);
+use Smolder::Conf qw(InstallRoot Port User Group);
 use Smolder::Platform;
 
 my $platform = Smolder::Platform->load();
@@ -78,7 +78,7 @@ usage()
       or $command eq 'stop'
       or $command eq 'restart';
 
-my @ctl = ([smolder_apachectl => ApachePort()],);
+my @ctl = ([smolder_apachectl => Port()],);
 
 # if we are stopping, then we want to do it in the reverse order
 if ($command eq 'stop') {

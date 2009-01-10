@@ -4,7 +4,7 @@ use Test::More;
 use Smolder::TestScript;
 use Smolder::TestData qw(
   base_url
-  is_apache_running
+  is_smolder_running
   create_developer
   delete_developers
   create_project
@@ -17,8 +17,8 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Conf qw(InstallRoot);
 use File::Spec::Functions qw(catfile);
 
-if (is_apache_running) {
-    plan( tests => 16 );
+if (is_smolder_running) {
+    plan( tests => 15 );
 } else {
     plan( skip_all => 'Smolder apache not running' );
 }
@@ -40,8 +40,8 @@ use_ok('Smolder::Control::Developer::Projects');
 # 2..6
 # login as a developer
 $mech->get($url);
-is($mech->status, 401, 'auth required');
-$mech->content_lacks('Welcome');
+#is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
+$mech->content_contains("You shouldn't be here");
 $mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );
 $mech->get_ok($url);

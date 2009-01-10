@@ -1,5 +1,27 @@
 =head1 TODO
 
+=head2 FOR 1.5
+
+=over
+
+=item * Make Smolder CPANable
+
+    * convert custom build system into a standard Module::Build system
+        * have install put config, bin, htdoc, etc into appropriate places
+        * have install check for upgrade and run if necessary
+    * remove Apache and use HTTP::Engine
+    * move docs/ instal Smolder::Manual pod pages
+
+=item * Remove MySQL support and just use SQLite
+
+=item * Project specific CSS extensions
+
+=item * SCM revision # on the main summary page of a test run
+
+=item * Change graphs to be able to handle more data without looking crappy
+
+=back
+
 =head2 FOR 2.0
 
 =over
@@ -33,19 +55,6 @@ over time. MediaWiki has an example of this:
       07:15:46, 1.10alpha]
 
 We'd need GUIDs for tests so maybe we use a custom TAP diagnostic key
-
-=item *
-
-Make it easier for custom installation on existing Apache or maybe even
-make a lite version that uses HTTP::Server::Simple?
-
-=over
-
-=item Work better under Apache2/mod_perl2 (possibly CGI?)
-
-=item Create a CPAN bundle
-
-=back
 
 =item *
 
@@ -115,10 +124,6 @@ Add coverage reports (related to smoke tests?)
 =item *
 
 Add benchmark gathering?
-
-=item *
-
-Make SQLite the default instead of MySQL?
 
 =back
     

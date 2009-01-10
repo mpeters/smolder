@@ -32,11 +32,6 @@ The script takes the following options:
 
 =over
 
-=item --no-apache
-
-By default the script will build apache and mod_perl for you.  This
-option skips those steps.
-
 =item --mysql
 
 By default Smolder will use SQLite. If for some reason this bothers
@@ -48,9 +43,6 @@ also be built to use MySQL.
 Specify a specific CPAN module to build.  The string you provide will
 be checked as a substring against the distribution file name. You can 
 specify this option multiple times to build a specific set of modules.
-
-When this is specified it automatically sets C<no-apache>
-to true.
 
 =item --skip-module
 
@@ -65,12 +57,6 @@ This option is similar to C<--skip-module> except that it skips every
 perl module.
 The C<--module>, C<--skip-module> and C<--no-module>
 options are not intended to be used together.
-
-=item --debug
-
-This option will build Apache and mod_perl with debugging symbols
-turned on.
-This is extremely useful for tracking down segmentation faults.
 
 =item --dev
 
@@ -118,24 +104,17 @@ use Smolder::Platform;
 my $ROOT            = $ENV{SMOLDER_ROOT};
 my $SRC_DIR         = catdir( $ROOT, 'src' );
 my $DEST_DIR        = catdir( $ROOT, 'lib' );
-my $APACHE_DEST_DIR = catdir( $ROOT, 'apache' );
 my $BUILD_DIR       = tempdir( DIR => catdir( $ROOT, 'tmp' ) );
 my $PLATFORM_DIR    = catdir( $ROOT, 'platform' );
 
 # a few useful constants
-my $APACHE       = 'Apache-MOD_PERL/apache_1.3.36.tar.gz';
-my $MOD_PERL     = 'Apache-MOD_PERL/mod_perl-1.29.tar.gz';
-my $LIBAPREQ     = 'libapreq';
-my $APACHE_TEST  = 'Apache-Test';
 
 # options
-my $skip_apache  = 0;
 my $build_mysql  = 0;
 my $skip_modules = 0;
 my $dev          = 0;
 my ( @modules, @skip_modules, $help, $man, $debug );
 GetOptions(
-    'no-apache'     => \$skip_apache,
     'mysql'         => \$build_mysql,
     'no-modules'    => \$skip_modules,
     'module=s'      => \@modules,
@@ -148,11 +127,6 @@ GetOptions(
 
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
-
-# don't build the extra stuff if we just want to build Perl modules
-if (@modules) {
-    $skip_apache = 1;
-}
 
 # get platform arg
 pod2usage("Wrong number of arguments.\n") if @ARGV > 1;
@@ -231,46 +205,11 @@ unless ($skip_modules) {
     foreach my $file (@files) {
         next unless $file =~ /gz$/;
 
-        # wait to build libapreq and Apache::Test til we've built Apache
-        next if $file =~ /^$LIBAPREQ/o;
-        next if $file =~ /^$APACHE_TEST/o;
-
         # skip modules that we need to skip based on skipping external libs
         # but we still need DateTime::Format::MySQL since it works under sqlite too
         next if (!$build_mysql && $file =~ /mysql/i  && $file !~ /DateTime-Format-MySQL/i);
 
         build_module($file);
-    }
-}
-
-# build Apache/mod_perl
-unless ($skip_apache) {
-    goto_build_dir();
-
-    my $apache_gz = catfile( $SRC_DIR, $APACHE );
-    system("tar zxf $apache_gz") == 0 or die "Couldn't unpack file: $?";
-    my ($apache_dir) = $apache_gz =~ m{/([^/]+)\.tar\.gz$};
-    die "Can't find Apache dir '$apache_dir'." unless -d $apache_dir;
-
-    my $mod_perl_gz = catfile( $SRC_DIR, $MOD_PERL );
-    system("tar zxf $mod_perl_gz") == 0 or die "Couldn't unpack file: $?";
-    my ($mod_perl_dir) = $mod_perl_gz =~ m{/([^/]+)\.tar\.gz$};
-    die "Can't find Mod_perl dir '$mod_perl_dir'." unless -d $mod_perl_dir;
-
-    $pkg->build_apache_modperl(
-        apache_dir       => $apache_dir,
-        mod_perl_dir     => $mod_perl_dir,
-        debug            => $debug,
-    );
-
-    # build Apache::Test before libapreq but after apache
-    if( my ($apache_test) = grep /^$APACHE_TEST/, @files ) {
-        build_module($apache_test);
-    }
-
-    # build libapreq now that mod_perl is in place
-    if ( my ($libapreq) = grep /^$LIBAPREQ/, @files ) {
-        build_module($libapreq, debug => $debug);
     }
 }
 

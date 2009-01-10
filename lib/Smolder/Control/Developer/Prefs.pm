@@ -30,6 +30,8 @@ sub setup {
     );
 }
 
+sub require_group { 'developer' }
+
 =head1 RUN MODES
 
 =head2 change_pw

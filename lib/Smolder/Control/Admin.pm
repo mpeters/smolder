@@ -24,6 +24,7 @@ sub setup {
         ]
     );
 }
+sub require_group { 'admin' }
 
 =head1 RUN MODES
 

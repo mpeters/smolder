@@ -1,5 +1,5 @@
 package Smolder::Email;
-use Smolder::Conf qw(InstallRoot HostName FromAddress SMTPHost ApachePort);
+use Smolder::Conf qw(InstallRoot HostName FromAddress SMTPHost Port);
 use File::Spec::Functions qw(catdir);
 use Template;
 use MIME::Lite;
@@ -80,8 +80,7 @@ sub send_mime_mail {
     my ( $class, %args ) = @_;
     my ( $to, $subject, $tt_params, $name ) = @args{qw(to subject tt_params name)};
     $tt_params->{host_name} = HostName();
-    $tt_params->{host_name} .= ":" . ApachePort()
-      unless ApachePort == 80;
+    $tt_params->{host_name} .= ":" . Port unless Port == 80;
     $tt_params->{subject} = $subject;
     $tt_params->{email} = 1;
     $tt_params->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));

@@ -42,9 +42,8 @@ __PACKAGE__->add_trigger(
         $pref->delete if $pref;
     }
 );
-
 # make sure added is set to NOW
-__PACKAGE__->add_trigger(
+__PACKAGE__->add_trigger( 
     before_create => sub {
         my $self = shift;
         $self->_attribute_set( added => DateTime->now() );

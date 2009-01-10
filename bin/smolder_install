@@ -106,7 +106,7 @@ Following is a list of the tasks the installer script will perform.
   --InstallPath         - Directory for Smolder install (Default: /usr/local/smolder)
   --User                - UNIX user for process ownership (Default: smolder)
   --Group               - UNIX group for process ownership (Default: smolder)
-  --ApachePort          - Port on which CMS HTTP server should run (Default: 80)
+  --Port          - Port on which CMS HTTP server should run (Default: 80)
   --FromAddress         - Email address to use as the From field on outbound messages
   --SMTPHost            - Hostname of the SMTP server to use for sending outbound messages
 
@@ -162,7 +162,7 @@ my @req_params = qw(
 
 my @opt_params = qw(
   AdminDBPass
-  ApachePort
+  Port
   DBHost
   DBName
   DBPass
@@ -664,7 +664,7 @@ sub set_param_defaults {
         InstallPath => '/usr/local/smolder',
         User        => 'smolder',
         Group       => 'smolder',
-        ApachePort  => '80',
+        Port  => '80',
         DBName      => 'smolder',
         DBUser      => 'smolder',
         DBPass      => 'smolder',

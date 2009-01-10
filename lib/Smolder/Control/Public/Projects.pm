@@ -37,7 +37,7 @@ sub setup {
               process_add_report
               forbidden
               feed
-              archive
+              tap_archive
               tap_stream
               )
         ]

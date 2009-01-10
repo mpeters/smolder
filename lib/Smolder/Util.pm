@@ -1,5 +1,5 @@
 package Smolder::Util;
-use Smolder::Conf qw(HostName ApachePort);
+use Smolder::Conf qw(HostName Port);
 use strict;
 use warnings;
 
@@ -76,7 +76,7 @@ Smolder.
 
 {
     my $_base = 'http://' . HostName
-        . ( ApachePort == 80 ? '' : ':' . ApachePort );
+        . ( Port == 80 ? '' : ':' . Port );
 
     sub url_base { $_base };
 }

@@ -7,8 +7,7 @@ our ( @VALID_DIRECTIVES, @REQUIRED_DIRECTIVES );
 
 BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
-      ApacheAddr
-      ApachePort
+      Port
       DBPlatform
       DBHost
       DBName
@@ -26,8 +25,7 @@ BEGIN {
     );
 
     @REQUIRED_DIRECTIVES = qw(
-      ApacheAddr
-      ApachePort
+      Port
       DBPlatform
       DBName
       DBPass

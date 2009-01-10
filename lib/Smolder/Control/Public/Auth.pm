@@ -103,7 +103,7 @@ sub do_login {
             my @groups = ('developer');
             push( @groups, 'admin' ) if ( $dev->admin );
 
-            # now add the AuthTKT cookie going out
+            # now add the auth cookie going out
             my $tkt = Smolder::AuthInfo->new->ticket(
                 id     => $dev->id,
                 groups => \@groups,

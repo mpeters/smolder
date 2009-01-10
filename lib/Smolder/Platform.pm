@@ -1021,7 +1021,7 @@ sub post_install_message {
    Admin Password : 'qa_rocks'
 
 
-   Running on $options{IPAddress} - http://$options{HostName}:$options{ApachePort}/
+   Running on $options{IPAddress} - http://$options{HostName}:$options{Port}/
 
 );
     print $report;
@@ -1059,7 +1059,7 @@ sub post_upgrade_message {
 
 );
     if( $pkg->has_sudo ) {
-        $report .= "Running on $options{IPAddress} -- http://$options{HostName}:$options{ApachePort}/\n\n";
+        $report .= "Running on $options{IPAddress} -- http://$options{HostName}:$options{Port}/\n\n";
     } else {
         $report .= "Start smolder with bin/smolder_ctl\n\n";
     }

@@ -5,13 +5,13 @@ use Test::More;
 use Smolder::TestScript;
 use Smolder::TestData qw(
   base_url
-  is_apache_running
+  is_smolder_running
   create_developer
   delete_developers
 );
 use Smolder::Mech;
 
-if (is_apache_running) {
+if (is_smolder_running) {
     plan( tests => 6 );
 } else {
     plan( skip_all => 'Smolder apache not running' );

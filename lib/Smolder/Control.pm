@@ -7,41 +7,95 @@ use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
 use Template::Plugin::Cycle;
+use CGI::Cookie;
 #use CGI::Application::Plugin::DebugScreen;
 
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(InstallRoot HostName ApachePort DBName DBUser DBPass);
+use Smolder::Conf qw(InstallRoot HostName DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 
 use File::Spec::Functions qw(catdir catfile);
 use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
-# turn off browser caching and setup our logging
+# setup our logging
 __PACKAGE__->add_callback(
     init => sub {
         my $self = shift;
-        # it's all dynamic, so don't let the browser cache anything
-        my $r = $self->param('r');
-        # doing no_cache on internal redirects (auth redirects, etc)
-        # results in a seg fault
-        $r->no_cache(1) if $r->is_initial_req;
 
         # setup log dispatch to use Apache::Log
         $self->log_config(
             APPEND_NEWLINE       => 1,
             LOG_DISPATCH_MODULES => [
                 {
-                    module    => 'Log::Dispatch::ApacheLog',
-                    name      => 'apache_log',
+                    module    => 'Log::Dispatch::File',
+                    name      => 'smolder_log',
                     min_level => 'debug',
+                    # XXX fix to be the correct location when installed
+                    filename  => $ENV{SMOLDER_ROOT} . '/logs/smolder.log',
                     apache    => $self->param('r'),
                 }
             ],
         );
     }
 );
+
+# setup our protection
+__PACKAGE__->add_callback(
+    init => sub {
+        my $self = shift;
+        $self->run_modes(['forbidden']);
+    }
+);
+__PACKAGE__->add_callback(
+    prerun => sub {
+        my $self   = shift;
+        my $cookie = CGI::Cookie->fetch();
+        $cookie = $cookie->{smolder};
+        my $ai = Smolder::AuthInfo->new();
+
+        # make sure we have a cookie and a session
+        if (ref $cookie) {
+            my $value = $cookie->value;
+            if ($value) {
+                $ai->parse($value);
+                $ENV{REMOTE_USER} = $ai->id;
+            }
+        }
+        $ENV{REMOTE_USER} ||= 'anon';
+
+        if (my $group = $self->require_group) {
+            my $user_groups = $ai->groups;
+            my $found       = 0;
+            foreach my $ug (@$user_groups) {
+                if ($ug eq $group) {
+                    $found = 1;
+                    last;
+                }
+            }
+
+            unless ($found) {
+                $self->prerun_mode('forbidden');
+            }
+        }
+    }
+);
+sub require_group { }
+
+=head1 GLOBAL RUN MODES
+
+=head2 forbidden 
+
+Shows a FORBIDDEN message if a user tries to act on a project that is not
+marked as 'forbibben'
+
+=cut
+
+sub forbidden {
+    my $self = shift;
+    return $self->error_message("You shouldn't be here. Consider yourself warned.");
+}
 
 =head1 NAME
 
@@ -81,14 +135,18 @@ from the C<$ENV{REMOTE_USER}> which is set by C<mod_auth_tkt>.
 
 sub developer {
     my $self = shift;
+    unless ($self->param('__developer')) {
 
-    # REMOTE_USER is set by Smolder::AuthHandler
-    if( $ENV{REMOTE_USER} && $ENV{REMOTE_USER} eq 'anon' ) {
-        return Smolder::DB::Developer->get_guest();
-    } else {
-        return Smolder::DB::Developer->retrieve( $ENV{REMOTE_USER} );
+        # REMOTE_USER is set in our prerun
+        my $dev;
+        if ($ENV{REMOTE_USER} eq 'anon') {
+            $dev = Smolder::DB::Developer->get_guest();
+        } else {
+            $dev = Smolder::DB::Developer->retrieve($ENV{REMOTE_USER});
+        }
+        $self->param(__developer => $dev);
     }
-
+    return $self->param('__developer');
 }
 
 =head2 public_projects
@@ -184,6 +242,8 @@ frustrated by having to fight with browser caches.
 
 sub static_url {
     my ( $self, $url ) = @_;
+    # TODO - fix this after the switch to CGI::Application::Server
+    return $url;
 
     # only do this if we aren't a dev install
     # if the 'src' dir exists it's a dev install
