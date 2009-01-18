@@ -59,6 +59,7 @@ sub cgiapp_prerun {
 
 # used by the templates to see if the controller is public
 sub public { 1 }
+sub require_group { }
 
 =head1 RUN MODES
 

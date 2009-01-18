@@ -28,7 +28,8 @@ use_ok('Smolder::Control::Admin');
 
 # 2
 $mech->get($url);
-is($mech->status, 401, 'auth required');
+#is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
+$mech->content_contains("You shouldn't be here");
 $mech->content_lacks('Welcome');
 $mech->login( username => $admin->username, password => $pw );
 ok( $mech->success );

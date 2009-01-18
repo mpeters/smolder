@@ -51,9 +51,11 @@ __PACKAGE__->add_callback(
 __PACKAGE__->add_callback(
     prerun => sub {
         my $self   = shift;
+        my $q = $self->query;
         my $cookie = CGI::Cookie->fetch();
         $cookie = $cookie->{smolder};
         my $ai = Smolder::AuthInfo->new();
+        my @user_groups;
 
         # make sure we have a cookie and a session
         if (ref $cookie) {
@@ -61,14 +63,24 @@ __PACKAGE__->add_callback(
             if ($value) {
                 $ai->parse($value);
                 $ENV{REMOTE_USER} = $ai->id;
+                @user_groups = @{$ai->groups};
             }
         }
+        # log them in if the username and password are passed
+        if (!$ENV{REMOTE_USER} && ($q->param('username') && $q->param('password'))) {
+            my $dev = Smolder::Control::Public::Auth::do_login($self, $q->param('username'),
+                $q->param('password'));
+            @user_groups = $dev->groups if $dev;
+        }
+
+        # make them anonymous if we don't have anything up to this point
         $ENV{REMOTE_USER} ||= 'anon';
 
+        # if our module requires any auth groups, then make sure we are a member
+        # of that group
         if (my $group = $self->require_group) {
-            my $user_groups = $ai->groups;
-            my $found       = 0;
-            foreach my $ug (@$user_groups) {
+            my $found = 0;
+            foreach my $ug (@user_groups) {
                 if ($ug eq $group) {
                     $found = 1;
                     last;

@@ -100,8 +100,7 @@ sub do_login {
         if ( crypt( $pw, $dev->password ) eq $dev->password ) {
 
             # figure out which tokens to add
-            my @groups = ('developer');
-            push( @groups, 'admin' ) if ( $dev->admin );
+            my @groups = $dev->groups;
 
             # now add the auth cookie going out
             my $tkt = Smolder::AuthInfo->new->ticket(
@@ -115,10 +114,10 @@ sub do_login {
             );
             $self->header_add(cookie => [$cookie]);
             $ENV{REMOTE_USER} = $dev->id;
-            return 1;
+            return $dev;
         }
     }
-    return 0;
+    return;
 }
 
 =head2 forgot_pw

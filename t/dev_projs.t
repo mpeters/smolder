@@ -51,7 +51,8 @@ use_ok('Smolder::Control::Developer::Projects');
 # 2..6
 # login as a developer
 $mech->get($url);
-is($mech->status, 401, 'auth required');
+#is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
+$mech->content_contains("You shouldn't be here");
 $mech->content_lacks('Welcome');
 $mech->login( username => $dev->username, password => $pw );
 ok( $mech->success );
@@ -136,8 +137,8 @@ $mech->content_contains('My Projects');
 # process_add_report (w/ auth credentials)
 {
     my $proj1 = _get_proj($proj1_id);
-    my $mech  = Smolder::Mech->new(); # new mech with no auth cookie
-    my $url      = base_url() . "/developer_projects/process_add_report/$proj1_id";
+    my $mech  = Smolder::Mech->new();    # new mech with no auth cookie
+    my $url     = base_url() . "/developer_projects/process_add_report/$proj1_id";
     my $request = POST(
         $url,
         Content_Type => 'form-data',

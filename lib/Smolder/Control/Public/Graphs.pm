@@ -23,7 +23,7 @@ sub setup {
             qw(
                 start
                 image
-                forbidden
+                forbidden_project
               )
         ]
     );
@@ -35,7 +35,7 @@ sub cgiapp_prerun {
     if ($id) {
         my $proj = Smolder::DB::Project->retrieve($id);
         if ( $proj && !$proj->public ) {
-            $self->prerun_mode('forbidden');
+            $self->prerun_mode('forbidden_project');
         } else {
             $self->param( project => $proj );
         }
@@ -44,6 +44,7 @@ sub cgiapp_prerun {
 
 # used by the templates to see if the controller is public
 sub public { 1 }
+sub require_group { }
 
 =head1 RUN MODES
 
@@ -62,14 +63,14 @@ chosen by the user.
 
 This method is provided by L<Smolder::Control::Developer::Graphs>.
 
-=head2 forbidden
+=head2 forbidden_project
 
 Shows a FORBIDDEN message if a user tries to act on a project that is not
-marked as 'forbibben'
+marked as 'public'
 
 =cut
 
-sub forbidden {
+sub forbidden_project {
     my $self = shift;
     return $self->error_message('This is not a public project');
 }

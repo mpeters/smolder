@@ -166,6 +166,20 @@ sub projects {
     return Smolder::DB::Project->sth_to_objects($sth);
 }
 
+=head3 groups
+
+Returns the names of the groups this developer is in
+
+=cut
+
+sub groups {
+    my $self = shift;
+    my @groups;
+    push(@groups, 'developer') if !$self->guest;
+    push(@groups, 'admin') if $self->admin;
+    return @groups;
+}
+
 =head2 CLASS METHODS
 
 =head2 get_guest

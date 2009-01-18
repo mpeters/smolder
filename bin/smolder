@@ -19,9 +19,18 @@ use Smolder::Control::Public;
 use Smolder::Control::Public::Auth;
 use Smolder::Control::Public::Graphs;
 use Smolder::Control::Public::Projects;
+use Smolder::Redirect;
 
 my $server = CGI::Application::Server->new(Port);
 $server->host(HostName);
-$server->document_root("$ENV{SMOLDER_ROOT}/htdocs");
-$server->entry_points({'/app' => 'Smolder::Dispatch', '/static' => "$ENV{SMOLDER_ROOT}/htdocs"});
+$server->entry_points(
+    {
+        '/'       => 'Smolder::Redirect',
+        '/app'    => 'Smolder::Dispatch',
+        #'/static' => "/home/mpeters/development/smolder/htdocs",
+        '/js'     => "$ENV{SMOLDER_ROOT}/htdocs",
+        '/style'     => "$ENV{SMOLDER_ROOT}/htdocs",
+        '/images'     => "$ENV{SMOLDER_ROOT}/htdocs",
+    },
+);
 $server->run();

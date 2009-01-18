@@ -24,7 +24,6 @@ my $mech  = Smolder::Mech->new();
 my $url   = base_url() . '/public_graphs';
 my $dev   = create_developer();
 my $proj1 = create_project();
-my $proj2 = create_project();
 
 END {
     delete_developers();
@@ -39,17 +38,10 @@ use_ok('Smolder::Control::Developer::Graphs');
 $mech->get_ok("$url/start/$proj1");
 $mech->content_contains('Progress Graphs');
 
-# 7
 # image
-#{
 # default
-
 # todo, skip, total
-
 # all
-
 # different types
-
 # no data
-#}
 
