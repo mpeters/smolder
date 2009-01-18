@@ -15,9 +15,7 @@ use Smolder::Util;
 use Smolder::Conf qw(InstallRoot HostName DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
-
 use File::Spec::Functions qw(catdir catfile);
-use HTML::GenerateUtil qw(escape_html EH_INPLACE);
 
 # setup our logging
 __PACKAGE__->add_callback(
@@ -238,7 +236,7 @@ sub auto_complete_results {
     my ( $self, $values ) = @_;
     my $html = '<ul>';
     foreach (@$values) {
-        $html .= '<li>' . escape_html( $_, EH_INPLACE ) . '</li>';
+        $html .= '<li>' . $self->query->escapeHTML($_) . '</li>';
     }
     return $html . '</ul>';
 }

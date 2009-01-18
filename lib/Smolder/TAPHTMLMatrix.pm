@@ -87,70 +87,7 @@ __END__
 
 =head1 NAME
 
-Smolder::TAPHTMLMatrix - Smolder derivative of L<Test::TAP::HTMLMatrix>.
-
-=head1 SYNOPSIS
-
-	use Smolder::TAPHTMLMatrix;
-	use Test::TAP::Model::Visual;
-
-	my $model = Test::TAP::Model::Visual->new(...);
-
-	my $v = Smolder::TAPHTMLMatrix->new($model);
-
-	print $v->detail_html;
-
-=head1 DESCRIPTION
-
-This module is a wrapper for a template and some visualization classes, that
-knows to take a L<Test::TAP::Model> object, which encapsulates test results,
-and produce a pretty html file.
-
-=head1 METHODS
-
-=over 4
-
-=item new (@models)
-
-@model is at least one L<Test::TAP::Model> object (or exactly one
-L<Test::TAP::Model::Consolidated>)
-
-=item detail_html
-
-=item test_detail_html
-
-Returns an HTML string for the corresponding template.
-
-This is also the method implementing stringification.
-
-=item model
-
-=item tmpl_file
-
-=item tmpl_obj
-
-Just settergetters. You can override these for added fun.
-
-=item title
-
-A reasonable title for the page:
-
-	"TAP Matrix - <gmtime>"
-
-=item tests
-
-A sorted array ref, resulting from $self->model->test_files;
-
-=item detail_template
-
-=item test_detail_template
-
-=item summary_template
-
-=item process_tmpl
-
-Processes the L<Template> object returned from L<tmpl_obj> with the given
-template and returns it.
+Smolder::TAPHTMLMatrix
 
 =back
 
