@@ -150,7 +150,7 @@ if ( -r $file ) {
 print "Trying to reach Smolder server at $server.\n" if ($verbose);
 my $mech     = WWW::Mechanize->new();
 my $base_url = "http://$server/app";
-$mech->get($base_url);
+eval { $mech->get($base_url) };
 unless ( $mech->status eq '200' ) {
     warn "Could not reach $server successfully. Received status " . $mech->status . "\n";
     exit(1);
