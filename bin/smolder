@@ -1,36 +1,7 @@
 #!/usr/local/bin/perl
 use strict;
 use warnings;
-use lib '/home/mpeters/development/smolder/lib';
-use CGI::Application::Server;
-use Smolder::Dispatch;
-use Smolder::Conf qw(Port HostName);
+use Smolder::Server;
 
-# load all of our controller modules
-use Smolder::Control;
-use Smolder::Control::Admin;
-use Smolder::Control::Admin::Developers;
-use Smolder::Control::Admin::Projects;
-use Smolder::Control::Developer;
-use Smolder::Control::Developer::Graphs;
-use Smolder::Control::Developer::Prefs;
-use Smolder::Control::Developer::Projects;
-use Smolder::Control::Public;
-use Smolder::Control::Public::Auth;
-use Smolder::Control::Public::Graphs;
-use Smolder::Control::Public::Projects;
-use Smolder::Redirect;
-
-my $server = CGI::Application::Server->new(Port);
-$server->host(HostName);
-$server->entry_points(
-    {
-        '/'       => 'Smolder::Redirect',
-        '/app'    => 'Smolder::Dispatch',
-        #'/static' => "/home/mpeters/development/smolder/htdocs",
-        '/js'     => "$ENV{SMOLDER_ROOT}/htdocs",
-        '/style'     => "$ENV{SMOLDER_ROOT}/htdocs",
-        '/images'     => "$ENV{SMOLDER_ROOT}/htdocs",
-    },
-);
+my $server = Smolder::Server->new();
 $server->run();
