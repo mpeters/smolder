@@ -55,15 +55,15 @@ sub print_banner {
     print "$line\n$banner\n";
 }
 
-sub run {
+sub go {
     my $self = shift;
 
     # do we have a database? If not then create one
 
     # check the DB version to make sure that we don't need to upgrade
     
-    return $self->SUPER::run();
-    #return $self->SUPER::background();
+    return $self->run();
+#    return $self->background();
 }
 
 1;
