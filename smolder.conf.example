@@ -1,0 +1,27 @@
+# Database platform: can be 'MySQL' or 'SQLite', but please use SQLite
+DBPlatform "SQLite"
+# Database name, host, user and password for Smolder. Only needed
+# if you are using MySQL as the DBPlatform
+#DBUser     "smolder"
+#DBPass     "smolder"
+#DBName     "smolder"
+#DBHost     "localhost"
+# Port that the Smolder HTTP server runs on
+Port 8080
+# HostName: the virtual host for the Smolder server.
+HostName "smolder.test"
+#LogFile '/home/mpeters/development/smolder/logs/smolder.log'
+# Email address used as the 'From' address on all outgoing emails
+FromAddress 'smolder@smolder.test'
+# Host name of the SMTP server
+#SMTPHost 127.0.0.1
+# ProjectFullReportsMax: this sets the limit of the number of full
+# reports (compressed XML files) we should save. All summary data is
+# stored, even after this limit is reached, but we would loose the
+# ability to view the details of those that have been purged. This
+# directive mainly exists to save disk space for very active projects
+# A value of '0' means that there is no limit.
+ProjectFullReportsMax 50
+# A secret key used for encrypting various bits (auth tokens, etc)
+Secret "219fdh210kak1@)_492js"
+
