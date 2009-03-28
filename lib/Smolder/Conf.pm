@@ -237,7 +237,11 @@ The directory path for data directory for this install of Smolder
 
 sub data_dir {
     my $class = shift;
-    return $class->get('DataDir') || File::HomeDir->users_data('smolder');
+    my $dir = $class->get('DataDir') || catdir(File::HomeDir->my_data, '.smolder');
+    if( !-d $dir ) {
+        mkdir($dir) or _broked("Can't create data directory $dir! $!");
+    }
+    return $dir;
 }
 
 =head2 test_data_dir
