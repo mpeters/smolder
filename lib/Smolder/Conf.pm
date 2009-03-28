@@ -77,15 +77,11 @@ sub _conf_file_path {
         return $ENV{SMOLDER_CONF};
     } elsif( $ENV{SMOLDER_ROOT} ) {
         my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
-        if( -e $conf_file ) {
-            return $conf_file;
-        } else {
-            $conf_file = catfile($ENV{SMOLDER_ROOT}, 'smolder.conf');
-            return $conf_file if -e $conf_file;
-        }
+        return $conf_file if -e $conf_file;
     }
 
     my @paths = (
+        rel2abs(curdir),
         catdir('', 'usr', 'local', 'smolder', 'conf'),
         catdir('', 'etc', 'smolder'),
         catdir('', 'etc'),
@@ -101,8 +97,8 @@ sub _conf_file_path {
 Unable to find smolder.conf!
 We will look for it in the following order:
 
+    \$CWD/smolder.conf
     \$SMOLDER_ROOT/conf/smolder.conf
-    \$SMOLDER_ROOT/smolder.conf
     /usr/local/smolder/conf/smolder.conf
     /etc/smolder/smolder.conf
     /etc/smolder.conf
