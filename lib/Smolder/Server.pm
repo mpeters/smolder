@@ -25,7 +25,7 @@ sub new {
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
-    my $htdocs = catdir(Smolder::Conf->data_dir, 'htdocs');
+    my $htdocs = Smolder::Conf->htdocs_dir;
 
     # if we need to do logging
     my $log_file = LogFile || devnull();

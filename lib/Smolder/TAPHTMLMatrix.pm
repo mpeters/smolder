@@ -13,7 +13,7 @@ use Template::Plugin::Cycle;
 our $TMPL = Template->new(
     COMPILE_DIR  => tmpdir(),
     COMPILE_EXT  => '.ttc',
-    INCLUDE_PATH => catdir( Smolder::Conf->data_dir, 'templates' ),
+    INCLUDE_PATH => Smolder::Conf->template_dir,
     FILTERS => {
         pass_fail_color => \&Smolder::Util::pass_fail_color,
         format_time     => \&Smolder::Util::format_time,

@@ -2,6 +2,8 @@ package Smolder::Conf;
 use strict;
 use warnings;
 use File::Spec::Functions qw(catfile catdir rel2abs curdir);
+use File::ShareDir qw(dist_dir);
+use File::HomeDir;
 use File::Basename qw(dirname);
 use Carp qw(croak);
 use Config::ApacheFormat;
@@ -26,6 +28,9 @@ BEGIN {
       Secret
       SMTPHost
       ProjectFullReportsMax
+      TemplateDir
+      DataDir
+      HtdocsDir
     );
 
     @REQUIRED_DIRECTIVES = qw(
@@ -202,6 +207,28 @@ sub check {
     }
 }
 
+=head2 template_dir
+
+The directory path for the templates for this install of Smolder
+
+=cut
+
+sub template_dir {
+    my $class = shift;
+    return $class->get('TemplateDir') || catdir(dist_dir('Smolder'), 'templates');
+}
+
+=head2 htdocs_dir
+
+The directory path for the htdocs for this install of Smolder
+
+=cut
+
+sub htdocs_dir {
+    my $class = shift;
+    return $class->get('HtdocsDir') || catdir(dist_dir('Smolder'), 'htdocs');
+}
+
 =head2 data_dir
 
 The directory path for data directory for this install of Smolder
@@ -209,7 +236,8 @@ The directory path for data directory for this install of Smolder
 =cut
 
 sub data_dir {
-    return catdir(dirname(__FILE__), 'Data');
+    my $class = shift;
+    return $class->get('DataDir') || File::HomeDir->users_data('smolder');
 }
 
 =head2 test_data_dir

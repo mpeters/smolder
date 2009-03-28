@@ -319,7 +319,7 @@ of performance.
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
         COMPILE_DIR  => tmpdir(),
-        INCLUDE_PATH => catdir(Smolder::Conf->data_dir, 'templates'),
+        INCLUDE_PATH => Smolder::Conf->template_dir,
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,

@@ -22,7 +22,7 @@ Smolder utility class used to send multi-part MIME email messages
 
 our $TEMPLATE = Template->new(
     COMPILE_DIR  => tmpdir(),
-    INCLUDE_PATH => catdir( Smolder::Conf->data_dir, 'templates' ),
+    INCLUDE_PATH => Smolder::Conf->template_dir,
     COMPILE_EXT  => '.ttc',
     WRAPPER      => 'Email/wrapper.tmpl',
     FILTERS => {

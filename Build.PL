@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 use Module::Build;
+use File::ShareDir qw(dist_dir);
+use File::Spec::Functions qw(catdir);
 use lib './t/lib';
 
 my $builder = Module::Build->new(
@@ -31,6 +33,8 @@ my $builder = Module::Build->new(
         'Email::Valid'                               => 0,
         'Exception::Class'                           => 1.23,
         'File::MMagic'                               => 0,
+        'File::ShareDir'                             => 1.00,
+        'File::HomeDir'                              => 0.86,
         'GD::Graph'                                  => 0,
         'GD::Graph3d'                                => 0,
         'GD::Text'                                   => 0,
@@ -51,6 +55,10 @@ my $builder = Module::Build->new(
         'Test::WWW::Mechanize' => 1.24,
         'Test::Builder'        => 0.86,
         'Test::More'           => 0.86,
+    },
+    install_path => {
+        templates => catdir(dist_dir('Smolder'), 'templates'),
+        htdocs    => catdir(dist_dir('Smolder'), 'htdocs'),
     },
     create_makefile_pl => 'traditional',
     create_readme      => 1,
