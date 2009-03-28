@@ -1,0 +1,12 @@
+[% SET page_title = "Admin" %]
+
+<h2>Users</h2>
+
+<div id="developer_crud" class="crud for_admin_developers">
+    <div class="header">
+      <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" alt="loading" />
+      <a href="/app/admin_developers/add" class="add_trigger">Add New User</a>
+    </div>
+    <div id="developer_add_container" class="add_container" style="display:none"></div>
+    <div id="developer_list_container" class="list_container">[% PROCESS Admin/Developers/list_table.tmpl %]</div>
+</div>

@@ -1,0 +1,123 @@
+[% USE Number.Format %]
+[% UNLESS email %]
+
+<div class="header[% IF report.failed %] attention[% END %]">
+
+  [% IF report.invalid %]
+    <span class="tooltip_trigger for_invalid_reason_[% report.id %]"><strong>INVALID</strong></span> - 
+    <div class="tooltip" id="invalid_reason_[% report.id %]" style="display:none; position:absolute;">
+      <div class="header">Invalid Reason</div>
+      [% report.invalid_reason | html %]
+    </div>
+  [% END %]
+  #[% report.id %] Added [% report.added.strftime('%D %l:%M %p') %] by [% report.developer.username | html %]
+  [% IF report.duration %]([% report.duration | format_time %])[% END %]
+
+</div>
+<div class="content[% IF report.invalid %] invalid[% END %]" style="position: relative">
+[% END %]
+  <table width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <th width="120px">Platform</th>
+      <td width="220px">[% (report.platform OR 'Unknown') | html %] </td>
+      <th width="160px">Architecture</th>
+      <td width="120px">[% (report.architecture OR 'Unknown') | html %]</td>
+      <td>&nbsp;</td>
+    </tr>
+    </tr>
+    <tr>
+      <th># Test Files</th>
+      <td>[% report.test_files | format_number %]</td>
+      <th># Total Tests</th>
+      <td>[% report.total | format_number %]</td>
+      <td rowspan="3" align="center">
+        [% IF report.total %]
+          [% SET pass_ratio = (report.pass / report.total) %]
+          [% SET pass_percent = pass_ratio * 100 %]
+          [% SET fail_percent = (report.fail / report.total) * 100 %]
+          [% IF report.purged %]
+            <span class="pass_fail_ratio" style="background-color: #[% pass_ratio | pass_fail_color %];">
+            [% pass_percent | round %]%
+            </span>
+          [% ELSE %]
+            <a class="pass_fail_ratio ajax" title="HTML test report" style="background-color: #[% pass_ratio | pass_fail_color %];"
+                href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">
+                [% pass_percent | round %]%
+            </a>
+          [% END %]
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th><span class="pass"># Passed</span></th>
+      <td>
+        <span class="pass">[% report.pass | format_number %] 
+        [% IF report.total %]
+        <em>([% pass_percent | round %]%)</em>
+        [% END %]
+        </span>
+      </td>
+      <th><span[% IF report.skip %] class="skip"[% END %]># Skipped</span></th>
+      <td><span[% IF report.skip %] class="skip"[% END %]>[% report.skip | format_number %]</span></td>
+    </tr>
+    <tr>
+      <th><span[% IF report.fail %] class="fail"[% END %]># Failed</span></th>
+      <td>
+        <span[% IF report.fail %] class="fail"[% END %]>[% report.fail | format_number %] 
+        [% IF report.total %]
+        <em>([% fail_percent | round %]%)</em>
+        [% END %]
+        </span>
+      </td>
+      <th><span[% IF report.todo %] class="todo"[% END %]># TODO</span></th>
+      <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo | format_number %]</span></td>
+    </tr>
+    [% IF report.tags.size %]
+    <tr>
+      <th>Tags</th>
+      <td colspan="3">
+        <em>[% report.tags.join(', ') | html %]</em>
+      </td>
+    </tr>
+    [% END %]
+  </table>
+[% UNLESS email %]
+  <div style="position: absolute; right: 0px; bottom: 5px;">
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" 
+      class="indicator" id="invalid_form_[% report.id %]_indicator" alt="loading" />
+  [% IF project.is_admin(c.developer) %]
+    <a class="button invert popup_form" href="#" id="invalid_form_[% report.id %]_trigger">
+      Mark As [% IF report.invalid %]V[% ELSE %]Inv[% END %]alid
+    </a>
+    <div id="invalid_form_[% report.id %]" class="popup_form" style="display:none; position:absolute; right: 0px; width: 240px;">
+      <form id="invalid_form_[% report.id %]_trigger" 
+          action="/app/developer_projects/smoke_test_validity/[% report.id %]" 
+          class="toggle_smoke_valid" method="post">
+      [% IF report.invalid %]
+        Are you sure you want to change this smoke test back to 'valid' status?
+        <input type="hidden" name="invalid" value="0" />
+        <input type="hidden" name="invalid_reason" value="" />
+        <input type="button" value="Cancel" class="cancel_popup" />
+        <input type="submit" value="Yes" />
+      [% ELSE %] 
+        <input type="hidden" name="invalid" value="1" />
+        <table>
+        <tr>
+          <td><label>Reason</label></td>
+          <td><textarea name="invalid_reason" id="invalid_reason_[% report.id %]" cols="20" rows="2"></textarea></td>
+        </tr>
+        <tr>
+          <td colspan="2" align="right">
+            <input type="button" value="Cancel" class="cancel_popup" />
+            <input type="submit" value="Invalidate" />
+          </td>
+        </tr>
+        </table>
+      [% END %]
+      </form>
+    </div>
+  [% END %]
+  </div>
+</div>
+[% END %]
+

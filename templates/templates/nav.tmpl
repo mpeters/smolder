@@ -1,0 +1,56 @@
+[% SET projects = c.developer.projects %]
+[% SET public_projects = c.public_projects %]
+[% SET username = c.developer.guest ? '' : c.developer.username %]
+
+<div id="top_nav">[ 
+  <ul>
+[% IF username %]
+    <li class="first">
+      <span class="menu">[% username %]</span>
+      <ul>
+        <li><a href="/app/developer_prefs">preferences</a></li>
+        <li><a href="/app/public_auth/logout">logout</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="/app/developer_projects"[% IF projects %] class="menu"[% END %]>my projects</a>
+      [% IF projects %]
+      <ul>
+      [% FOREACH proj = projects %]
+        <li><a href="/app/developer_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a></li>
+      [% END %]
+      </ul>
+      [% END %]
+    </li>
+[% END %]
+
+[% IF c.developer.admin %]
+    <li>
+      <a href="/app/admin" class="menu">admin</a>
+      <ul>
+        <li><a href="/app/admin_developers">users</a></li>
+        <li><a href="/app/admin_projects">projects</a></li>
+      </ul>
+    </li>
+[% END %]
+
+[% IF public_projects.size %]
+    <li[% UNLESS username %] class="first"[% END %]>
+      <a href="/app/public_projects"[% IF public_projects.size %] class="menu"[% END %]>public projects</a>
+    [% IF public_projects.size < 20 %]
+      <ul>
+      [% FOREACH proj = c.public_projects %]
+        <li><a href="/app/public_projects/smoke_reports/[% proj.id %]">[% proj.name | html %]</a></li>
+      [% END %]
+      </ul>
+    [% END %]
+    </li>
+[% END %]
+
+[% UNLESS username %]
+    <li><a href="/app/public_auth/login">login</a></li>
+[% END %]
+]
+  </ul>
+</div>
+

@@ -1,0 +1,13 @@
+[% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id || c.dfv_msgs.invalid_email || c.dfv_msgs.invalid_password %]
+<script type="text/javascript">
+[% IF c.dfv_msgs.invalid_unique_developer_username || err_unique_id %]
+    Smolder.show_message('warning', 'A user with that username already exists.');
+[% END %]
+[% IF c.dfv_msgs.invalid_email %]
+    Smolder.show_message('warning', 'Not a valid email address!');
+[% END %]
+[% IF c.dfv_msgs.invalid_password %]
+    Smolder.show_message('warning', 'Must be at leat 4 characters!');
+[% END %]
+</script>
+[% END %]

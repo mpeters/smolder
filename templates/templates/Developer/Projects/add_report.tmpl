@@ -1,0 +1,82 @@
+[% SET page_title = 'New Smoke Report' %]
+
+<h2>[% project.name | html %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+<div id="add_report_[% project.id %]" class="boxed">
+
+[% INCLUDE form_header.tmpl %]
+
+[% IF c.dfv_msgs.any_errors %]
+<script type="text/javascript">
+  [% IF c.dfv_msgs.err_architecture %]
+    Smolder.show_message('warning', 'Architecture must be less than 255 characters.');
+  [% END %]
+  [% IF c.dfv_msgs.err_platform %]
+    Smolder.show_message('warning', 'Platform must be less than 255 characters.');
+  [% END %]
+  [% IF err_valid_file || c.dfv_msgs.err_report_file %] 
+    [% IF error_valid_xml %]
+        Smolder.show_message('warning', 'Was not a valid XML smoke test report.');
+    [% ELSIF error_valid_yaml %]
+        Smolder.show_message('warning', 'Was not a valid YAML smoke test report.');
+    [% ELSIF c.dfv_msgs.missing_report_file %]
+        Smolder.show_message('warning', 'You must upload a smoke test report.');
+    [% ELSIF c.dfv_msgs.invalid_report_file %]
+        Smolder.show_message('warning', 'Uploaded file was not the correct content type.');
+    [% END %]
+  [% END %]
+  [% IF c.dfv_msgs.err_comments %]
+    Smolder.show_message('warning', 'Comments must be less than 1000 characters.');
+  [% END %]
+</script>
+[% END %]
+
+<form action="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/process_add_report/[% project.id %]" method="post" enctype="multipart/form-data" name="add_report"> 
+<table>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_architecture %]class="warn"[% END %]>Architecture</label></td>
+  <td>
+    <input class="first" type="text" size="25" name="architecture" id="architecture" autocomplete="off" value="[% project.default_arch | html %]" />
+    <div class="auto_complete" id="architecture_auto_complete" />
+  </td>
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_platform %]class="warn"[% END %]>Platform</label></td>
+  <td>
+    <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform | html %]" />
+    <div class="auto_complete" id="platform_auto_complete" />
+  </td>
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_tags %]class="warn"[% END %]>Tags</label></td>
+  <td>
+    <input name="tags" id="tags">
+    <em>Comma separated list of tags</em>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_report_file || err_valid_file %] warn[% END %]">Smoke Report File</label></td>
+  <td><input type="file" name="report_file" id="report_file" /></td>
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_comments %]class="warn"[% END %]>Comments</label></td>
+  <td><textarea name="comments" id="comments" rows="4" cols="40"></textarea></td>
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <input type="submit" value="Upload Report" />
+  </td>
+</tr>
+</table>
+</form>
+
+</div>

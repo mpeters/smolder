@@ -1,0 +1,45 @@
+[% SET page_title = 'Change Password' %]
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_prefs">Preferences</a>
+</div>
+
+[% IF c.dfv_msgs.any_errors %]
+<script type="text/javascript">
+  [% IF c.dfv_msgs.invalid_current_pw %]
+    Smolder.show_message('warning', 'Your Current Password does not match what we have on file.');
+  [% END %]
+  [% IF c.dfv_msgs.invalid_new_pw %]
+    Smolder.show_message('warning', 'Your New Password must be at least 4 characters long.');
+  [% END %]
+  [% IF c.dfv_msgs.invalid_new_pw_retyped %]
+    Smolder.show_message('warning', 'Your 2nd New Password does not match the 1st'); 
+  [% END %]
+</script>
+[% END %]
+
+<div class="boxed">
+[% PROCESS form_header.tmpl %]
+<form action="/app/developer_prefs/process_change_pw" class="ajaxable show_indicator" name="change_pw" id="change_pw" method="post">
+<table>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_current_pw %] warn[% END %]">Current Password</label></td>
+  <td><input class="first" type="password" name="current_pw" /></td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_new_pw %] warn[% END %]">New Password</label></td>
+  <td><input type="password" name="new_pw" /></td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_new_pw_retyped %] warn[% END %]">New Password <em>(Retyped)</em></label></td>
+  <td><input type="password" name="new_pw_retyped" /></td>
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator" alt="loading" />
+    <input type="submit" value="Change Password" />
+  </td>
+</tr>
+</table>
+</form>
+</div>

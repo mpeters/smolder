@@ -1,0 +1,26 @@
+[% SET page_title = 'Public Projects' %]
+
+[% IF projects.size() %]
+<div class="fake_accordion" id="accordion_projects">
+  [% FOREACH project IN projects %]
+  <div class="panel">
+    <div class="header">[% project.name | html %]</div>
+    <div class="content">
+      <ul>
+        <li><a href="/app/public_projects/details/[% project.id %]">Project Details</a></li>
+        <li><a href="/app/public_projects/smoke_reports/[% project.id %]">Most Recent Smoke Tests</a></li>
+        <li><a href="/app/public_graphs/start/[% project.id %]">Progress Graphs</a></li>
+        [% IF project.allow_anon %]
+        <li><a href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a></li>
+        [% END %]
+      </ul>
+    </div>
+  </div>
+  [% END %]
+</div>
+[% ELSE %]
+<span class="warn">
+    There are currently no public projects.
+</span>
+[% END %]
+

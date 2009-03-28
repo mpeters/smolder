@@ -1,0 +1,151 @@
+<h2>User Tutorial</h2>
+
+<style type="text/css">
+div.boxed p {
+    padding-left: 10px 
+}
+img.tutorial { 
+    border: solid 1px #555555;
+}
+</style>
+
+<div class="boxed">
+<h3>Logging In</h3>
+<p>
+    By default, every Smolder installation comes with this pre-existing account
+
+    <blockquote>
+    <pre>
+    Username: admin
+    Password: qa_rocks
+    </pre>
+    </blockquote>
+</p>
+
+<p>
+    Simply click on the <strong>login</strong> link, fill in
+    this username and password and you're ready to go. We suggest that the first thing you do is
+    change this password to something other than the default.
+</p>
+<p>
+    You can change your password by clicking on the <strong>preferences</strong>
+    link. 
+</p>
+</div>
+
+
+<div class="boxed">
+<h3>Creating and Managing User Accounts</h3>
+<p>
+    Smolder is designed to allow multiple users to work on multiple projects.
+    The first step to get going is to create developer accounts. Since the <em>admin</em>
+    account is special, you don't want to do your normal work with it, so we'll create
+    a new account.
+</p>
+<ol>
+    <li>
+    <img class="tutorial" align="right" src="[% c.static_url('/images/tutorial/admin/developers_submenu.jpg') %]" />
+    After logging in with the 'admin' account, click on the <strong>users</strong> sub-menu
+    under the <strong>admin</strong> link in the top navigation bar.
+    </li>
+    <li>
+    Click on the <strong>Add New User</strong> link.
+    </li>
+    <li>
+    Fill in the required fields, giving the developer an intial password (which should be changed
+    by the developer when they login for the first time)
+    </li>
+    <li>
+    Click the <strong>Add</strong> button when you're finished.
+    </li>
+</ol>
+<p>
+    You can return at any time to this screen to perform the following tasks
+    <ul>
+      <li>Edit any developer's information</li>
+      <li>Delete a developer from the system</li>
+      <li>Reset a developer's password should they forget theirs</li>
+    </ul>
+</p>
+</div>
+
+
+<div class="boxed">
+<h3>Creating Projects</h3>
+<p>
+    After you've added all of the users that you initially need, it's time to
+    create some projects. Creating projects is almost identical to creating Users
+    so you should feel right at home.
+</p>
+<ol>
+    <li>
+    <img class="tutorial" align="right" src="[% c.static_url('/images/tutorial/admin/projects_submenu.jpg') %]" />
+    After logging in with the 'admin' account (or another account with <em>admin</em> privileges),
+    click on the <strong>projects</strong> sub-menu under the <strong>admin</strong> link in
+    the top navigation bar.
+    </li>
+    <li>
+    Click on the <strong>Add New Project</strong> link.
+    </li>
+    <li>
+    Fill in the required information.
+    </li>
+    <li>
+    Click the <strong>Add</strong> button when you're finished.
+    </li>
+</ol>
+<p>
+    You can add as many projects as you need. After you're done you can always come back to this
+    screen to perform the following tasks
+    <ul>
+      <li>Edit any project's information</li>
+      <li>Delete a project from the system</li>
+    </ul>
+</p>
+</div>
+
+<div class="boxed">
+<h3>Assigning Users to Projects</h3>
+<p>
+    Now that we've created some users and projects we can assign those
+    users to the appropriate project and pick the administrators of
+    those projects to control project specific preferences.
+</p>
+<ol>
+    <li>
+    After logging in with the 'admin' account (or another account with <em>admin</em> privileges),
+    click on either the <strong>projects</strong> or the <strong>users</strong> sub-menu under 
+    the <strong>admin</strong> link in the top navigation bar.
+    </li>
+    <li>
+    Click on the <strong>Assign Users to Projects</strong> link.
+    </li>
+    <li>
+    Looking on the left-hand side you'll see 2 boxes. The one on the top is a list of all
+    available users. The one on the bottom is a trash can.
+    </li>
+    <li>
+    Looking on the right-hand side you'll see a box for every available project.
+    </li>
+    <li>
+    <img class="tutorial" align="right" src="[% c.static_url('/images/tutorial/admin/project_admins.jpg') %]" />
+    To assign a developer to a project, click on the developer's name in the top left box
+    and now drag that developer into the desired project's box.
+    </li>
+    <li>
+    To remove a developer from a project, click on the developer's name that appears in
+    the project's box and drag that name to the trash can.
+    </li>
+    <li>
+    To pick a project's administrator, click on the <strong>Admins?</strong> link at the
+    top of that project's box. This will make a small form appear with a checkbox next to the name
+    of each developer assigned to this project. Check the desired checkboxes and then click
+    on the <strong>Submit Changes</strong> button.
+    </li>
+</ol>
+<p>
+    You can return at any time to this screen to make adjustments to project assignment and
+    to change a project's administrator.
+</p>
+</div>
+

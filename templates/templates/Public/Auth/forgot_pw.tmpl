@@ -1,0 +1,29 @@
+[% SET page_title = "Forgot Password" %]
+
+
+<form class="ajaxable show_indicator" id="forgot_pw" name="forgot_pw" action="/app/public_auth/process_forgot_pw" method="post">
+
+<div class="boxed short">
+[% PROCESS form_header.tmpl %]
+
+<p>
+After submitting this form, a new random password will be generated and emailed to you.
+</p>
+
+<table>
+<tr class="odd">
+  <td><label class="required[% IF not_found %] warn[% END %]">Username</label></td>
+  <td><input class="first" type="text" name="username" value="" size="20" autocomplete="off" /></td>
+  [% IF not_found %]
+    <td><label class="warn">User does not exist!</label></td>
+  [% END %]
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="indicator" alt="loading" />
+    <input type="submit" id="submit" value="Reset" />
+  </td>
+</tr>
+</table>
+</div>
+</form>

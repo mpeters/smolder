@@ -1,0 +1,32 @@
+[% SET page_title = 'Recent Smoke Reports' %]
+[% SET reports = project.all_reports('limit', limit, 'offset', offset, 'tag', tag) %]
+
+<h2>[% project.name | html %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+[% IF reports %]
+  [% PROCESS Developer/Projects/smoke_reports_nav.tmpl %]
+[% END %]
+
+[% IF reports %]
+<div class="fake_accordion" id="accordion_reports">
+  [% FOREACH report IN reports %]
+  <div class="panel" id="smoke_test_[% report.id %]">
+    [% INCLUDE Developer/Projects/smoke_report_details.tmpl %]
+  </div>
+  [% END %]
+</div>
+[% ELSE %]
+<span class="warn">
+    No reports.
+</span>
+[% END %]
+

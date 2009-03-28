@@ -1,0 +1,61 @@
+[% IF no_wrapper -%][% content %]
+[% ELSE %]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Smolder [% IF page_title %]([% page_title %])[% END %]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" type="text/css" href="[% c.static_url('/style/style.css') %]" />
+  <link rel="shortcut icon" type="image/x-icon" href="[% c.static_url('/favicon.ico') %]" />
+  <script type="text/javascript" src="[% c.static_url('/js/protoaculous.1.8.1.min.js') %]"></script>
+  <script type="text/javascript" src="[% c.static_url('/js/calendar.js') %]"></script>
+  <script type="text/javascript" src="[% c.static_url('/js/behaviour.js') %]"></script>
+  <script type="text/javascript" src="[% c.static_url('/js/notify.js') %]"></script>
+  <script type="text/javascript" src="[% c.static_url('/js/smolder.js') %]"></script>
+</head>
+   
+<body>
+
+<div id="container">
+
+<div id="header_container">
+    <div id="header">
+        <div id="logo"></div>
+        <div id="title"></div>
+        <div id="version">[% smolder_version %]</div>
+    </div>
+</div>
+
+<div id="nav">[% PROCESS nav.tmpl %]</div>
+
+<div id="main_container">
+    <div id="message_container"></div>
+    <div id="main">
+        <div id="page_title"><h1>[% page_title %]</h1></div>
+        <div id="content">[% content %]</div>
+    </div>
+</div>
+
+</div>
+
+<div id="ajax_error_container">
+  <center>
+  <div style="width: 300px; border: 1px solid #555555; background-color: #ffff99">
+    <h3>Whoops!</h3>
+    <strong>An error has occurred on the server.</strong><br />
+    Please notify the administrator of the time this occurred
+    and what you were trying to do.
+    <br />
+    <em>Thank you and sorry for the inconvenience.</em>
+  </div>
+  </center>
+</div>
+
+</body>
+
+<script type="text/javascript">
+Smolder.load();
+</script>
+
+</html>
+[% END %]

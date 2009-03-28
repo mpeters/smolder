@@ -1,0 +1,33 @@
+[% PROCESS Admin/Developers/add_edit_msgs.tmpl %]
+<form class="edit_form" name="edit" action="/app/admin_developers/process_edit/[% developer.id %]" method="post">
+
+<table class="crud boxed" id="crud_edit_table">
+<tr><td colspan="4" class="header2">Edit User</td></tr>
+<tr><td colspan="4">[% PROCESS form_header.tmpl %]</td></tr>
+
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_username || err_unique_username %] warn[% END %]">Username</label></td>
+  <td><input class="first" type="text" name="username" size="25" /></td>
+  <td><label class="required[% IF c.dfv_msgs.err_email %] warn[% END %]">Email Address</label></td>
+  <td><input type="text" name="email" size="25" /></td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_fname %] warn[% END %]">First Name</label></td>
+  <td><input type="text" name="fname" size="25" /></td>
+  <td><label class="required[% IF c.dfv_msgs.err_lname %] warn[% END %]">Last Name</label></td>
+  <td><input type="text" name="lname" size="25" /></td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_admin %] warn[% END %]">Site Admin?</label></td>
+  <td>
+    <input type="radio" name="admin" value="1"> Yes
+    <input type="radio" name="admin" value="0"> No
+  </td>
+  <td colspan="2" align="right">
+      <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="add_indicator" id="indicator" alt="loading" />
+      <input type="button" class="edit_cancel" value="Cancel" />
+      <input type="submit" value="Update" />
+  </td>
+</tr>
+</table>
+</form>

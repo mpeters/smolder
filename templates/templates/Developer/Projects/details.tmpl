@@ -1,0 +1,91 @@
+[% SET page_title = project.name %]
+
+<h2>Details</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF public && project.allow_anon %]
+    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% ELSIF ! public %]
+    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% END %]
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+<div>
+<table class="boxed">
+<tr class="even">
+  <td><label>Start Date</label></td>
+  <td>
+    [% project.start_date.strftime('%m/%d/%Y') %]
+  </td>
+</tr>
+<tr>
+  <td valign="top"><label>Project Admin(s)</label></td>
+  <td>
+    [% SET admins = project.admins %]
+    [% IF admins %]
+      [% FOREACH admin IN project.admins %]
+        [% admin.username | html %][% UNLESS loop.last %],[% END %]
+      [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+<tr class="even">
+  <td valign="top"><label>Developers</label></td>
+  <td valign="top">
+    [% SET devs = project.developers %]
+    [% IF devs %]
+        [% FOREACH developer IN devs %]
+            [% developer.username | html %][% UNLESS loop.last() %],[% END %]
+        [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+<tr>
+  <td><label># Smoke Tests</label></td>
+  <td>[% project.report_count %]</td>
+</tr>
+<tr class="even">
+  <td><label>Last Smoke Test Added</label></td>
+  <td>
+    [% SET last = project.most_recent_report %]
+    [% last ? last.added.strftime('%D %l:%H %p') : 'never' %]
+  </td>
+</tr>
+[% IF project.enable_feed %]
+<tr>
+  <td><label>Data Feeds <img src="/images/rss.png"></label></td>
+  <td>
+    <a href="/app/public_projects/feed/[% project.id %]">[% url_base %]/app/public_projects/feed/[% project.id %]</a> 
+    <em>(all)</em><br />
+    <a href="/app/public_projects/feed/[% project.id %]/failed">[% url_base %]/app/public_projects/feed/[% project.id %]/failed</a> 
+    <em>(failed)</em><br />
+  </td>
+</tr>
+[% END %]
+</table>
+</div>
+
+<br />
+
+<h2>Tags</h2>
+
+<div id="project_tags">
+  <div class="boxed tag_cloud" id="tag_cloud_container">
+  [% IF project.tags.size %]
+    [% tag_cloud %]
+  [% ELSE %]
+    <em>No tags exist for smoke reports in this project.</em>
+  [% END %]
+  </div>
+</div>
+
+

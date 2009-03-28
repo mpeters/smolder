@@ -1,0 +1,18 @@
+[% SET page_title = 'Smoke Report #' _ report.id _ ' (' _ project.name _ ')' %]
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/public_projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/public_projects/smoke_reports/[% project.id %]">Recent Smoke Reports</a>
+    <a class="sub_menu" href="/app/public_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF project.allow_anon %]
+    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% END %]
+</div>
+
+<div class="fake_accordion" id="accordion_reports" style="margin-top: 25px">
+  <div class="panel" id="smoke_test_[% report.id %]">
+    [% SET public = 1 %]
+    [% PROCESS Developer/Projects/smoke_report_details.tmpl %]
+  </div>
+</div>
+

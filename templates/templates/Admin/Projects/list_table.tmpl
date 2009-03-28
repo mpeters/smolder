@@ -1,0 +1,55 @@
+[% IF projects %]
+<table class="boxed crud" id="project_list">
+
+<colgroup>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+</colgroup>
+
+<thead>
+  <th>Name</th>
+  <th>Data Feed?</th>
+  <th>Public?</th>
+  <th>Devs</th>
+  <th>Edit</th>
+  <th>Delete</th>
+</thead>
+
+<tbody>
+[% FOREACH project IN projects %]
+  <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
+    <td>[% project.name | html %]</td>
+    <td style="text-align: center">[% IF project.enable_feed %]Yes[% ELSE %]No[% END %]</td>
+    <td style="text-align: center">[% IF project.public %]Yes[% ELSE %]No[% END %]</td>
+    <td style="text-align: center"><a href="/app/admin_projects/devs/[% project.id %]" class="ajaxable">[Devs]</a></td>
+    <td style="text-align: center">
+      <a href="/app/admin_projects/edit/[% project.id %]" class="edit_trigger for_item_[% project.id %]" id="crud_edit_[% project.id %]">
+        [Edit]
+      </a>
+    </td>
+    <td style="text-align: center">
+      <a href="#" class="delete_trigger for_item_[% project.id %]">[Delete]</a>
+      <div class="popup_form" id="delete_[% project.id %]" style="display:none; position: absolute; width: 240px; right: 100px">
+      <form id="delete_form_[% project.id %]" name="delete_[% project.id %]" action="/app/admin_projects/delete/[% project.id %]" method="post">
+        <p>
+        Upon deletion, all information about this project will be removed.
+        <strong>Are you sure this is what you want?</strong>
+        <input type="button" value="No" onclick="Smolder.PopupForm.toggle('delete_[% project.id %]')" />
+        <input type="submit" value="Yes" />
+        <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="delete_indicator_[% project.id %]" alt="loading" />
+        </p>
+      </form>
+      </div>
+    </td>
+  </tr>
+[% END %]
+</tbody>
+</table>
+[% ELSE %]
+  <p class="pushdown">No Projects currently exist.</p>
+[% END %]

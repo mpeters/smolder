@@ -1,0 +1,134 @@
+[%- USE Number.Format -%]
+[%- odd_even.reset() -%]
+<table class="properties boxed">
+<thead>
+  <tr><th colspan="2">Properties</th></tr>
+</thead>
+<tbody>
+[%- IF report.duration -%]
+<tr class="[% odd_even %]">
+  <th>Duration</th>
+  <td>[% report.duration | format_time %]</td>
+</tr>
+[%- END -%]
+[%- IF report.tags -%]
+<tr class="[% odd_even %]">
+  <th>Tags</th>
+  <td>[% report.tags.join(', ') | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+[%- IF report.comments -%]
+<tr class="[% odd_even %]">
+  <th>Comments</th>
+  <td>[% report.comments | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+<tr class="[% odd_even %]">
+  <th>Uploaded</th>
+  <td>[% report.added.strftime('%B %e %Y, %l:%M %p') %]</td>
+</tr>
+<tr class="[% odd_even %]">
+  <th>User</th>
+  <td>[% report.developer.username | html %]</td>
+</tr>
+[%- IF report.platform -%]
+<tr class="[% odd_even %]">
+  <th>Platform</th>
+  <td>[% report.platform | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+[%- IF report.architecture -%]
+<tr class="[% odd_even %]">
+  <th>Architecture</th>
+  <td>[% report.architecture | html | html_line_break %]</td>
+</tr>
+[%- END -%]
+[% FOREACH k IN extra_properties.keys.sort %]
+<tr class="[% odd_even %]">
+  <th>[% k | html %]</th>
+  <td>[% extra_properties.$k | html %]</td>
+</tr>
+[%- END -%]
+[%- UNLESS email -%]
+<tr class="[% odd_even %]">
+  <th>Download</th>
+  <td>
+    <a href="[% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
+        [% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
+    </a>
+</tr>
+[%- END -%]
+</tbody>
+</table>
+
+[%- UNLESS email -%]
+<div class="controls">
+  [%- IF report.failed -%]
+    <a href="#first_failure">Goto First Failure</a> | 
+  [%- END -%]
+  <a href="#" class="show_all">Show All Details</a>
+</div>
+[%- END -%]
+
+<table summary="[% report.summary | html %]" class="boxed matrix">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th colspan="3">Test file</th>
+    </tr>
+  </thead>
+  [%- SET found_first_failure = 0 -%]
+  [%- FOREACH test IN results -%]
+  <tbody id="test_[% loop.index %]" class="results">
+    <tr class="[% odd_even %]">
+      <td>[% loop.count %]</td>
+      <td class="filename">
+        <span style="float: right">
+          <img src="/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
+        </span>
+        [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
+        [%- END -%]
+        <!-- we'll make this a link when we can link to individual tests 
+        <a href="[% test.link %]"[% IF test.failed %] class="fail"[% END %] title="[% test.file | html %]">
+        -->
+        <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
+        <!-- </a> -->
+      </td>
+      <td style="margin: 0px; padding: 0px">
+        <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+            id="for_testfile_details_[% loop.index %]" 
+            class="testfile_details_trigger show_indicator_[% loop.index %] [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
+          [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
+        </a>
+      </td>
+      <td class="x sum" style="background-color: #[% test.percent | pass_fail_color %];">[% test.percent %]%</td>
+    </tr>
+    <tr>
+      <td colspan="3">
+        <div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div>
+        <div id="testfile_details_[% loop.index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
+          <a href="/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+  [%- END %]
+  <tfoot>
+    <tr class="first">
+      <td colspan="2">
+        [%- report.total | format_number %] test cases
+        - [%- report.test_files | format_number %] files
+      </td>
+      <td class="sum" style="background-color: #[% report.total_percentage | pass_fail_color %]">[% report.total_percentage %]%</td>
+    </tr>
+    <tr>
+      <td colspan="4" class="last">
+          [% report.pass      | format_number %] ok, 
+          [% report.fail      | format_number %] failed, 
+          [% report.todo      | format_number %] todo, 
+          [% report.skip      | format_number %] skipped and 
+          [% report.todo_pass | format_number %] unexpectedly succeeded
+      </td>
+    </tr>
+  </tfoot>
+</table>

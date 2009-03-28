@@ -1,0 +1,30 @@
+[% SET page_title = "Not Authorized" %]
+
+
+<form action="/app/public_auth/process_login" method="post" name="login" id="login">
+<input type="hidden" name="back" value="">
+
+<div class="boxed short">
+<p>
+You are not authorized to access this portion of the application. 
+Did you use the wrong username/password? If so, please login again
+with different credentials.
+</p>
+<table>
+<tr class="odd">
+  <td><label>Username<label></td>
+  <td><input class="first" type="text" name="username" value="" size="20" autocomplete="off" /></td>
+</tr>
+<tr class="even">
+  <td><label>Password<label></td>
+  <td><input type="password" name="password" value="" size="20" autocomplete="off" /></td>
+</tr>
+<tr>
+  <td colspan="2" align="right"><input type="submit" id="submit" value="Login" /></td>
+</tr>
+
+<tr><td colspan="2" align="left"><a href="/app/public_auth/forgot_pw">[I forgot my password!]</a></td></tr>
+</table>
+</div>
+</form>
+

@@ -1,0 +1,64 @@
+[% SET page_title = "Admin" %]
+
+<h2>[% project.name | html %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_projects/edit/[% project.id %]">Edit</a>
+    <a class="sub_menu" href="/app/admin_projects/devs/[% project.id %]">Change Users for this Project</a>
+    <a class="sub_menu" href="/app/admin_projects/add">Add a New Project</a>
+    <a class="sub_menu" href="/app/admin_projects/list">All Projects</a>
+</div>
+
+[% IF add %]
+    <p class="warn">New project successfully created.</p>
+[% ELSIF edit %]
+    <p class="warn">Project successfully updated.</p>
+[% END %]
+
+<table class="boxed">
+<tr class="even">
+  <td><label>Project Name</label></td>
+  <td>[% project.name | html %]</td>
+</tr>
+<tr>
+  <td><label>Start Date</label></td>
+  <td>
+    [% project.start_date.strftime('%m/%d/%Y') %]
+  </td>
+</tr>
+<tr class="even">
+  <td><label>Public Project?</label></td>
+  <td>[% IF project.public %] Yes [% ELSE %] No [% END %]</td>
+</tr>
+<tr>
+  <td><label>Enable XML Data Feeds?</label></td>
+  <td>[% IF project.enable_feed %] Yes [% ELSE %] No [% END %]</td>
+</tr>
+<tr class="even">
+  <td valign="top"><label>Project Admin(s)</label></td>
+  <td>
+    [% SET admins = project.admins %]
+    [% IF admins %]
+      [% FOREACH admin IN admins %]
+        <a href="/app/admin_developers/details/[% admin.id %]">[% admin.username | html %]</a>[% UNLESS loop.last %],[% END %]
+      [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+<tr>
+  <td valign="top"><label>Users</label></td>
+  <td valign="top">
+    [% SET devs = project.developers %]
+    [% IF devs %]
+        [% FOREACH developer IN project.developers %]
+            <a href="/app/admin_developers/details/[% developer.id %]">[% developer.username | html %]</a>[% UNLESS loop.last() %],[% END %]
+        [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+</table>
+

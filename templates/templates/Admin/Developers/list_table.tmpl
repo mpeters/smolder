@@ -1,0 +1,62 @@
+[% IF developers %]
+<table class="boxed crud" id="developer_list">
+
+<colgroup>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+  <col></col>
+</colgroup>
+
+<thead>
+  <th>Username</th>
+  <th>Name</th>
+  <th>Email</th>
+  <th>Admin</th>
+  <th>Edit</th>
+  <th>Password</th>
+  <th>Delete</th>
+</thead>
+
+<tbody>
+[% FOREACH developer IN developers %]
+  <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
+    <td>[% developer.username | html %]</td>
+    <td>[% IF developer.lname %][% developer.lname | html %], [% END %][% developer.fname | html %]</td>
+    <td>[% developer.email | html %]</td>
+    <td style="text-align: center">[% IF developer.admin %]Yes[% ELSE %]No[% END %]</td>
+    <td style="text-align: center"><a href="/app/admin_developers/edit/[% developer.id %]" class="edit_trigger for_item_[% developer.id %]" id="crud_edit_[% developer.id %]">[Edit]</a></td>
+    <td style="text-align: center">
+      <a href="#" class="popup_form" id="resetpw_developer_[% developer.id %]_trigger">[Reset]</a>
+      <div id="resetpw_developer_[% developer.id %]" class="popup_form" style="display: none; position: absolute">
+        <form class="resetpw_form show_crud_indicator for_crud_add_container" id="resetpw_developer_[% developer.id %]_form" name="resetpw_[% developer.id %]" action="/app/admin_developers/reset_pw/[% developer.id %]" method="post">
+        Resetting the User's password will remove their old one and create a new
+        random password and email this password to the developer.<br />
+        Are you sure this is what you want?
+        <input type="submit" value="Yes">
+        </form>
+      </div>
+    </td>
+    <td style="text-align: center">
+      <a href="#" class="delete_trigger for_item_[% developer.id %]">[Delete]</a>
+      <div class="popup_form" id="delete_[% developer.id %]" style="display: none; position: absolute; width: 240px; right: 100px;">
+      <form id="delete_form_[% developer.id %]" name="delete_[% developer.id %]" action="/app/admin_developers/delete/[% developer.id %]" method="post">
+        <p>
+        Upon deletion, all information about this user will be removed.
+        <strong>Are you sure this is what you want?</strong>
+        <input type="submit" value="Yes" />
+        <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="delete_indicator_[% developer.id %]" alt="loading" />
+        </p>
+      </form>
+      </div>
+    </td>
+  </tr>
+[% END %]
+</tbody>
+</table>
+[% ELSE %]
+  <p class="pushdown">No Users currently exist</p>
+[% END %]

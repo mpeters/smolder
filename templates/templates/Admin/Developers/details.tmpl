@@ -1,0 +1,36 @@
+[% SET page_title = "Users" %]
+
+<h2>Details of '[% developer.username %]'</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_developers/list">All Users</a>
+</div>
+
+<table class="boxed">
+<tr class="even">
+  <td><label>User Name</label></td>
+  <td>[% developer.fname | html %] [% developer.lname | html %]</td>
+</tr>
+<tr>
+  <td><label>Email</label></td>
+  <td>[% developer.email | html %]</td>
+</tr>
+<tr class="even">
+  <td><label>Admin?</label></td>
+  <td>[% IF developer.admin %]yes[% ELSE %]no[% END %]</td>
+</tr>
+<tr>
+  <td valign="top"><label>Projects</label></td>
+  <td valign="top">
+    [% IF developer.projects %]
+        [% FOREACH project IN developer.projects %]
+            <a href="/app/admin_projects/details/[% project.id %]">[% project.name | html %]</a>
+            [% UNLESS loop.last() %],[% END %]
+        [% END %]
+    [% ELSE %]
+        <em>none</em>
+    [% END %]
+  </td>
+</tr>
+</table>
+

@@ -1,0 +1,69 @@
+[% UNLESS ajax %]
+[% SET page_title = 'Preferences' %]
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_prefs/change_pw">Change Password</a>
+</div>
+
+<div id="developer_prefs" class="boxed">
+[% END %]
+<form class="ajaxable for_developer_prefs show_pref_indicator" id="update_pref" name="update_pref" action="/app/developer_prefs/update_pref" method="post">
+<input type="hidden" name="update_pref" value="1" />
+<input type="hidden" name="sync" value="0" />
+<input type="hidden" name="default_pref_id" value="[% c.developer.preference.id %]" />
+
+<h2>Update Preferences</h2>
+[% PROCESS form_header.tmpl %]
+
+<table>
+<tr>
+  <td><label>Project</label>
+  <td>
+    <select name="id" id="project_preference_selector">
+     <option value="[% c.developer.preference.id %]">My Defaults</option>
+     [% FOREACH project IN c.developer.projects %]
+     <option value="[% c.developer.project_pref(project).id %]">[% project.name | html %]</option>
+     [% END %]
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_email_type %] warn[% END %]">Email Type</td>
+  <td>
+    <select name="email_type">
+      <option value="full">Full HTML Report</option>
+      <option value="summary">Summary of Pass/Fail/Skip</option>
+      <option value="link">A Link to the Full Report</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_email_freq %] warn[% END %]">Email Frequency</td>
+  <td>
+    <select name="email_freq">
+      <option value="on_new">Everytime a new Test Report is Added </option>
+      <option value="on_fail">Only when a new Test Report has Failures</option>
+      <option value="never">Never</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_email_limit %] warn[% END %]">Per-day Email Limit</td>
+  <td>
+    <input name="email_limit" value="[% pref.email_limit %]" size="5"/>
+    <em>0</em> means there is no limit
+  </td>
+</tr>
+<tr>
+  <td colspan="2" align="right">
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="display:none" class="indicator" id="pref_indicator" alt="loading" />
+    <input type="submit" value="Update" />
+    <input type="button" value="Reset Projects to Default" id="dev_prefs_sync_button" style="display:none" />
+  </td>
+</tr>
+</table>
+</form>
+[% UNLESS ajax %]
+</div>
+[% END %]
+

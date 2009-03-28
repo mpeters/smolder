@@ -1,0 +1,24 @@
+[%- IF tests.size -%]
+  [%- FOREACH test IN tests -%]
+    [%- IF loop.count % 40 == 1 -%]
+      <table width="100%" summary="subtests" class="subtests">
+      <tr>
+    [%- END -%]
+    [%- IF test.skip  %] [% SET css_class = 'skip' -%]
+    [%- ELSIF test.ok %] [% SET css_class = test.todo ? 'todo_ok' : 'ok' -%]
+    [%- ELSE          %] [% SET css_class = test.todo ? 'todo'    : 'fail' -%]
+    [%- END -%]
+    <td class="x [% css_class %] tooltip_trigger">
+      <div style="display:none; position:absolute;" class="tooltip">
+        <pre>[% test.comment | html %]</pre>
+        [% IF test.unknown %]<pre class="unknown">[% test.unknown %]</pre>[%- END -%]
+      </div>&nbsp;
+    </td>
+    [%- IF loop.last || ( loop.count % 40 == 0 && !loop.first ) -%]
+      </tr>
+      </table>
+    [%- END -%]
+  [%- END -%]
+[%- ELSE -%]
+  <em>No tests run</em>
+[%- END -%]

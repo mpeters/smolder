@@ -1,0 +1,22 @@
+[% SET page_title = project.name %]
+[% SET base_url = '/app/' _ ( c.public ? 'public' : 'developer') %]
+
+<h2>Test Report #[% report.id %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/developer_projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="[% base_url %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="[% base_url %]_graphs/start/[% project.id %]">Progress Graphs</a>
+    [% IF c.public && project.allow_anon %]
+    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% ELSIF !c.public %]
+    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% END %]
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+<div class="tap">
+[% tap %]
+</div>

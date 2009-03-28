@@ -1,0 +1,27 @@
+[% SET page_title = "Timeout" %]
+
+
+<form action="/app/public_auth/process_login" method="post" name="login" id="login">
+<input type="hidden" name="back" value="">
+
+<div class="boxed short">
+<p>
+Your session has timed out. Please give your username and password again to
+restart your session.
+</p>
+
+<table>
+<tr class="odd">
+  <td><label>Username<label></td>
+  <td><input class="first" type="text" name="username" value="" size="20" autocomplete="off" /></td>
+</tr>
+<tr class="even">
+  <td><label>Password<label></td>
+  <td><input type="password" name="password" value="" size="20" autocomplete="off" /></td>
+</tr>
+<tr>
+  <td colspan="2" align="right"><input type="submit" id="submit" value="Login" /></td>
+</tr>
+</table>
+</form>
+

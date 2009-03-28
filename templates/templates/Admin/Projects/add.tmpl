@@ -1,0 +1,48 @@
+[% PROCESS Admin/Projects/add_edit_msgs.tmpl %]
+<form class="add_form" name="add" action="/app/admin_projects/process_add" method="post">
+
+<table class="crud boxed" id="crud_add_table">
+
+<tr><td colspan="4" class="header2">Add A New Project</td></tr>
+<tr><td colspan="4">[% PROCESS form_header.tmpl %]</td></tr>
+
+<colgroup>
+<col style="width: 14em">
+<col>
+<col style="width: 14em">
+<col>
+</colgroup>
+
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name</label></td>
+  <td><input class="first" type="text" name="project_name" size="20" /></td>
+  <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date</label></td>
+  <td>
+    <nobr>
+    <input type="text" name="start_date" size="10" id="start_date" />
+    <a href="#" id="start_date_calendar_trigger" class="calendar_trigger">&nbsp;</a>
+    <div id="start_date_calendar" class="calendar_container" />
+    </nobr>
+  </td>
+</tr>
+<tr>
+  <td><label class="required[%IF c.dfv_msgs.err_public %] warn[% END %]">Public Project?</label></td>
+  <td>
+    <input type="radio" name="public" value="1" /> Yes
+    <input type="radio" name="public" value="0" /> No
+  </td>
+  <td><label class="required[%IF c.dfv_msgs.err_enable_feed %] warn[% END %]">Data Feeds?</label></td>
+  <td>
+    <input type="radio" name="enable_feed" value="1" /> Yes
+    <input type="radio" name="enable_feed" value="0" /> No
+  </td>
+</tr>
+<tr>
+  <td colspan="4" align="right">
+      <img src="[% c.static_url('/images/indicator.gif') %]" style="visibility:hidden" class="add_indicator" id="proj_add_indicator" alt="loading" />
+      <input type="submit" value="Add" />
+  </td>
+</tr>
+</table>
+</form>
+

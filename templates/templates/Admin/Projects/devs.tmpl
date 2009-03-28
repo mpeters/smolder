@@ -1,0 +1,106 @@
+[% SET page_title = "Admin" %]
+
+<h2>[% project.name | html %] Project Users</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/admin_projects/list">Project List</a>
+</div>
+
+[% IF developers && developers.size %]
+<div id="project_devs_add_container" class="add_container">
+
+<form name="add_project_devs" action="/app/admin_projects/add_dev" type="post" class="ajaxable">
+<input type="hidden" name="project" value="[% project.id %]" />
+<table>
+
+<colgroup>
+  <col></col>
+  <col></col>
+</colgroup>
+
+<tr>
+  <td>
+    <select name="developer">
+    [% FOREACH dev IN developers %]
+      <option value="[% dev.id %]">[% dev.username %] ([% dev.email %])</option>
+    [% END %]
+    </select>
+  </td>
+  <td><input type="submit" value="Add User to Project" /></td>
+</tr>
+
+</table>
+</form>
+</div>
+[% END %]
+
+[% IF project_developers && project_developers.size %]
+<script type="text/javascript">
+change_admin = function(input) {
+    var remove = input.checked ? 0 : 1;
+    var params = {
+        project   : [% project.id %],
+        developer : input.value,
+        remove    : remove
+    };
+    Smolder.Ajax.request({
+        url    : '/app/admin_projects/change_admin',
+        params : params
+    });
+}
+</script>
+
+<div id="project_devs_list_container" class="list_container">
+<form name="project_devs_admin">
+<table class="boxed" id="project_devs_list">
+
+<colgroup>
+  <col></col>
+  <col></col>
+  <col></col>
+</colgroup>
+
+<thead>
+  <th>User</th>
+  <th>Admin?</th>
+  <th>Remove</th>
+</thead>
+
+<tbody>
+[% FOREACH dev IN project_developers %]
+  <tr class="[% IF loop.count % 2 == 0 %]even[% ELSE %]odd[% END %]">
+    <td>
+        <a href="/app/admin_developers/details/[% dev.id %]">[% dev.username | html %]</a>
+        ([% dev.email | html %])
+    </td>
+    <td style="text-align: center">
+      <input type="checkbox" name="is_admin"[% IF project.is_admin(dev) %] checked="checked"[% END %] onchange="change_admin(this)" value="[% dev.id %]" />
+    </td>
+    <td style="text-align: center">
+      <form name="remove_dev_[% dev.id %]" action="/app/admin_projects/remove_dev" type="post" class="ajaxable">
+        <input type="hidden" name="project" value="[% project.id %]" />
+        <input type="hidden" name="developer" value="[% dev.id %]" />
+        <input type="button" value="Remove" onclick="remove_developer([% dev.id %])"/>
+      </form>
+    </td>
+  </tr>
+[% END %]
+</tbody>
+</table>
+[% ELSE %]
+  <p class="pushdown">No users are currently assigned to this project.</p>
+[% END %]
+</form>
+</div>
+
+<form name="remove_dev" id="remove_dev_form" action="/app/admin_projects/remove_dev" type="post" class="ajaxable">
+  <input type="hidden" name="project" value="[% project.id %]" />
+  <input type="hidden" name="developer" value="" />
+</form>
+<script type="text/javascript">
+remove_developer = function (id) {
+    var form = $('remove_dev_form');
+    form.elements['developer'].value = id;
+    form.onsubmit();
+}
+</script>

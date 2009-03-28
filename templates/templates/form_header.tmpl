@@ -1,0 +1,13 @@
+[% IF ! no_required_fields %]
+<p>
+    All fields marked with a <span class="required">&nbsp;&nbsp;&nbsp;</span> are required.
+</p>
+    [% IF c.dfv_msgs.any_errors && c.dfv_msgs.has_missing %]
+    <script type="text/javascript">
+        Smolder.show_message('warning', 'Please fill in the missing required fields.');
+    </script>
+    [% END %]
+[% END %]
+
+
+
