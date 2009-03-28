@@ -2,7 +2,7 @@ package Smolder::Server;
 use strict;
 use warnings;
 use base 'CGI::Application::Server';
-use Smolder::Conf qw(Port HostName);
+use Smolder::Conf qw(Port HostName LogFile);
 use Smolder::Dispatch;
 use File::Spec::Functions qw(catdir);
 # load all of our controller modules so they are in memory
@@ -26,6 +26,15 @@ sub new {
     $server->host(HostName);
     $server->port(Port);
     my $htdocs = catdir(Smolder::Conf->data_dir, 'htdocs');
+
+    # if we need to do logging
+    if( my $log_file = LogFile ) {
+        my $ok = open(STDERR, '>>', $log_file);
+        if( !$ok ) {
+            warn "Could not open logfile $log_file for appending: $!";
+            exit(1);
+        }
+    }
 
     $server->entry_points(
         {

@@ -22,7 +22,7 @@ BEGIN {
       DBUser
       FromAddress
       HostName
-      LogLevel
+      LogFile
       Secret
       SMTPHost
       ProjectFullReportsMax
@@ -33,7 +33,6 @@ BEGIN {
       DBPlatform
       FromAddress
       HostName
-      LogLevel
       Secret
     );
 }
@@ -159,7 +158,7 @@ sub get {
 
 =head2 check
 
-Sanity-check Smolder configuration.  This will die() with an error
+Sanity-check Smolder configuration.  This will croak() with an error
 message if something is wrong with the configuration file.
 
 This is run when the Smolder::Conf loads unless the environment variable
@@ -177,7 +176,30 @@ sub check {
     }
 
     # let them know that MySQL is deprecated
-    # and make sure they provide all the other DB* stuff we need for MySQL
+    if ($CONF->get('DBPlatform') eq 'MySQL') {
+        warn "MySQL is deprecated as a DBPlatform. Please upgrade to SQLite\n";
+
+        # and make sure they provide all the other DB* stuff we need for MySQL
+        unless ($CONF->get('DBName')
+            && $CONF->get('DBUser')
+            && $CONF->get('DBPass')
+            && $CONF->get('DBHost'))
+        {
+            _broked("MySQL needs DBUser, DBPass, DBHost and DBName all set in smolder.conf");
+        }
+    }
+
+    # if we have a log file, does it exist and can we write to it?
+    my $log_file = $CONF->get('LogFile');
+    if ($log_file) {
+        if (-e $log_file && -f $log_file) {
+            broked("We can't write to log file $log_file") unless -r $log_file;
+        } else {
+            open(my $LOG, '>>', $log_file) or _broked("Could not create log file $log_file! $!");
+            print $LOG '';
+            close($LOG);
+        }
+    }
 }
 
 =head2 data_dir

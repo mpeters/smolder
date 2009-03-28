@@ -9,10 +9,9 @@ use CGI::Application::Plugin::JSON qw(:all);
 use Template::Plugin::Cycle;
 use CGI::Cookie;
 #use CGI::Application::Plugin::DebugScreen;
-
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(HostName DBName DBUser DBPass);
+use Smolder::Conf qw(HostName LogFile);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
@@ -30,9 +29,7 @@ __PACKAGE__->add_callback(
                     module    => 'Log::Dispatch::File',
                     name      => 'smolder_log',
                     min_level => 'debug',
-                    # XXX fix to be the correct location when installed
-                    filename  => $ENV{SMOLDER_ROOT} . '/logs/smolder.log',
-                    apache    => $self->param('r'),
+                    filename  => LogFile,
                 }
             ],
         );
