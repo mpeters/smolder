@@ -16,7 +16,7 @@ use Smolder::TestData qw(
 );
 use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use File::Spec::Functions qw(catfile);
 use HTTP::Request::Common;
 
@@ -72,28 +72,28 @@ $mech->content_contains('My Projects');
 # add_report and process_add_report
 {
     my $proj1 = _get_proj($proj1_id);
-    $mech->follow_link_ok( { text => 'Add Smoke Report', n => 1 } );
+    $mech->follow_link_ok({text => 'Add Smoke Report', n => 1});
     $mech->content_contains('New Smoke Report');
-    $mech->content_contains( $proj1->name );
+    $mech->content_contains($proj1->name);
 
     # empty form
-    ok( $mech->form_name('add_report') );
+    ok($mech->form_name('add_report'));
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
 
     # invalid form
-    ok( $mech->form_name('add_report') );
+    ok($mech->form_name('add_report'));
     my $too_big = 'a' x 300;
     $mech->set_fields(
         architecture => $too_big,
         platform     => $too_big,
-        comments     => ( $too_big x 4 ),
+        comments     => ($too_big x 4),
     );
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
     $mech->content_contains('class="required warn">Smoke Report File');
@@ -103,34 +103,34 @@ $mech->content_contains('My Projects');
     $mech->content_contains('must be less than 1000 characters');
     $mech->content_contains('must be less than 255 characters');
     $mech->content_contains(qq(value="$too_big"));
-    $mech->content_contains( '>' . ( $too_big x 4 ) . '<' );
+    $mech->content_contains('>' . ($too_big x 4) . '<');
 
     # valid form
-    ok( $mech->form_name('add_report') );
+    ok($mech->form_name('add_report'));
     $mech->set_fields(
         architecture => 'x386',
         platform     => 'Linux',
         comments     => 'Something random that I want to say',
-        report_file  => catfile( InstallRoot, 't', 'data', 'test_run_bad.tar.gz' ),
+        report_file  => catfile(Smolder::Conf->test_data_dir, 'test_run_bad.tar.gz'),
     );
     $mech->submit();
-    ok( $mech->success );
-    $mech->content_contains( $proj1->name );
+    ok($mech->success);
+    $mech->content_contains($proj1->name);
     $mech->content_contains('Recent Smoke Reports');
 
     # make sure it's in the db
     $proj1 = _get_proj($proj1_id);
-    is( $proj1->report_count, 1 );
+    is($proj1->report_count, 1);
     my ($report) = $proj1->all_reports();
-    isa_ok( $report,            'Smolder::DB::SmokeReport' );
-    isa_ok( $report->project,   'Smolder::DB::Project' );
-    isa_ok( $report->developer, 'Smolder::DB::Developer' );
-    is($report->pass,        446, 'correct # of passed');
-    is($report->skip,        4,   'correct # of skipped');
-    is($report->fail,        8,   'correct # of failed');
-    is($report->todo,        0,   'correct # of todo');
-    is( $report->test_files, 20,  'correct # of files');
-    is( $report->total,      454, 'correct # of tests');
+    isa_ok($report,            'Smolder::DB::SmokeReport');
+    isa_ok($report->project,   'Smolder::DB::Project');
+    isa_ok($report->developer, 'Smolder::DB::Developer');
+    is($report->pass,       446, 'correct # of passed');
+    is($report->skip,       4,   'correct # of skipped');
+    is($report->fail,       8,   'correct # of failed');
+    is($report->todo,       0,   'correct # of todo');
+    is($report->test_files, 20,  'correct # of files');
+    is($report->total,      454, 'correct # of tests');
 }
 
 # 44..55
@@ -148,7 +148,7 @@ $mech->content_contains('My Projects');
             comments     => 'with auth credentials',
             username     => $dev->username,
             password     => $pw,
-            report_file  => [catfile(InstallRoot, 't', 'data', 'test_run_bad.tar.gz')],
+            report_file  => [catfile(Smolder::Conf->test_data_dir, 'test_run_bad.tar.gz')],
         ]
     );
     my $response = $mech->request($request);
@@ -156,18 +156,18 @@ $mech->content_contains('My Projects');
 
     # make sure it's in the db
     $proj1 = _get_proj($proj1_id);
-    is( $proj1->report_count, 2 );
+    is($proj1->report_count, 2);
     my ($report) = $proj1->all_reports();
     is($report->comments, 'with auth credentials');
-    isa_ok( $report,            'Smolder::DB::SmokeReport' );
-    isa_ok( $report->project,   'Smolder::DB::Project' );
-    isa_ok( $report->developer, 'Smolder::DB::Developer' );
-    is($report->pass,        446, 'correct # of passed');
-    is($report->skip,        4,   'correct # of skipped');
-    is($report->fail,        8,   'correct # of failed');
-    is($report->todo,        0,   'correct # of todo');
-    is( $report->test_files, 20,  'correct # of files');
-    is( $report->total,      454, 'correct # of tests');
+    isa_ok($report,            'Smolder::DB::SmokeReport');
+    isa_ok($report->project,   'Smolder::DB::Project');
+    isa_ok($report->developer, 'Smolder::DB::Developer');
+    is($report->pass,       446, 'correct # of passed');
+    is($report->skip,       4,   'correct # of skipped');
+    is($report->fail,       8,   'correct # of failed');
+    is($report->todo,       0,   'correct # of todo');
+    is($report->test_files, 20,  'correct # of files');
+    is($report->total,      454, 'correct # of tests');
 }
 
 # 56..70

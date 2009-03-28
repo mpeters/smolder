@@ -14,7 +14,7 @@ use Smolder::TestData qw(
 );
 use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use File::Spec::Functions qw(catfile);
 
 if (is_smolder_running) {

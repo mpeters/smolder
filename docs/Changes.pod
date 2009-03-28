@@ -1,5 +1,9 @@
 =head1 SMOLDER CHANGES
 
+=head2 1.3
+
+=item * Rewrite of the build/install system to be installable from CPAN - M. Peters
+
 =head2 1.24
 
 =over

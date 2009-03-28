@@ -4,9 +4,10 @@ use Test::More;
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
 use Smolder::TestScript;
-use Smolder::Conf qw(InstallRoot HostName Port);
+use Smolder::Conf qw(HostName Port);
 use Smolder::DB::SmokeReport;
 use Smolder::DB::ProjectDeveloper;
+use Cwd qw(cwd);
 use Smolder::TestData qw(
   is_smolder_running
   create_project
@@ -24,15 +25,15 @@ if( is_smolder_running ) {
     plan( skip_all => 'Smolder apache not running' );
 }
 
-my $bin          = catfile( InstallRoot(), 'bin', 'smolder_smoke_signal' );
+my $bin          = catfile( cwd(), 'bin', 'smolder_smoke_signal' );
 my $host         = HostName() . ':' . Port();
 my $project      = create_project();
 my $project_name = $project->name;
 my $pw           = 's3cr3t';
 my $dev          = create_developer( password => $pw );
 my $username     = $dev->username;
-my $good_run_gz  = catfile( InstallRoot(), 't', 'data', 'test_run_good.tar.gz' );
-my $good_run     = catfile( InstallRoot(), 't', 'data', 'test_run_bad.tar' );
+my $good_run_gz  = catfile( Smolder::Conf->test_data_dir, 'test_run_good.tar.gz' );
+my $good_run     = catfile( Smolder::Conf->test_data_dir, 'test_run_bad.tar' );
 
 END {
     delete_projects();

@@ -24,15 +24,16 @@ sub new {
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
+    my $htdocs = catdir(Smolder::Conf->data_dir, 'htdocs'));
 
     $server->entry_points(
         {
             '/'    => 'Smolder::Redirect',
             '/app' => 'Smolder::Dispatch',
-            #'/static' => "/home/mpeters/development/smolder/htdocs",
-            '/js'     => "$ENV{SMOLDER_ROOT}/htdocs",
-            '/style'  => "$ENV{SMOLDER_ROOT}/htdocs",
-            '/images' => "$ENV{SMOLDER_ROOT}/htdocs",
+            #'/static' => $htdocs", # need to get this working
+            '/js'     => $htdocs,
+            '/style'  => $htdocs,
+            '/images' => $htdocs,
         },
     );
 
@@ -47,6 +48,8 @@ sub print_banner {
 
 sub run {
     my $self = shift;
+
+    # do we have a database? If not then create one
 
     # check the DB version to make sure that we don't need to upgrade
     

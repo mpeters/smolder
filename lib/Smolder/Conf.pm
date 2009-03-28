@@ -1,6 +1,13 @@
 package Smolder::Conf;
 use strict;
 use warnings;
+use File::Spec::Functions qw(catfile catdir rel2abs curdir);
+use File::Basename qw(dirname);
+use Carp qw(croak);
+use Config::ApacheFormat;
+use Cwd qw(fastcwd);
+use IO::Scalar;
+use Smolder;
 
 # all valid configuration directives must be listed here
 our ( @VALID_DIRECTIVES, @REQUIRED_DIRECTIVES );
@@ -14,36 +21,22 @@ BEGIN {
       DBPass
       DBUser
       FromAddress
-      Group
       HostName
-      InstallRoot
       LogLevel
       Secret
       SMTPHost
-      User
       ProjectFullReportsMax
     );
 
     @REQUIRED_DIRECTIVES = qw(
       Port
       DBPlatform
-      DBName
-      DBPass
-      DBUser
       FromAddress
-      Group
       HostName
       LogLevel
       Secret
-      User
     );
 }
-
-use File::Spec::Functions qw(catfile catdir rel2abs);
-use Carp qw(croak);
-use Config::ApacheFormat;
-use Cwd qw(fastcwd);
-use IO::Scalar;
 
 =head1 NAME
 
@@ -51,16 +44,15 @@ Smolder::Conf - Smolder configuration module
 
 =head1 SYNOPSIS
 
-  # all configuration directives are available as exported subs
-  use Smolder::Conf qw(InstallRoot Things);
-  $root = InstallRoot;
-  @thinks = Things;
+    # all configuration directives are available as exported subs
+    use Smolder::Conf qw(Secret Port);
+    $secret = Secret;
 
-  # you can also call get() in Smolder::Conf directly
-  $root = Smolder::Conf->get("InstallRoot");
+    # you can also call get() in Smolder::Conf directly
+    $port = Smolder::Conf->get("Port");
 
-  # or you can access them as methods in the Smolder::Conf module
-  $root = Smolder::Conf->rootdir;
+    # or you can access them as methods in the Smolder::Conf module
+    $port = Smolder::Conf->Port;
 
 =head1 DESCRIPTION
 
@@ -81,12 +73,18 @@ sub _conf_file_path {
         return $ENV{SMOLDER_CONF};
     } elsif( $ENV{SMOLDER_ROOT} ) {
         my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
-        return $conf_file if -e $conf_file;
+        if( -e $conf_file ) {
+            return $conf_file;
+        } else {
+            $conf_file = catfile($ENV{SMOLDER_ROOT}, 'smolder.conf');
+            return $conf_file if -e $conf_file;
+        }
     }
 
     my @paths = (
         catdir('', 'usr', 'local', 'smolder', 'conf'),
         catdir('', 'etc', 'smolder'),
+        catdir('', 'etc'),
     );
     foreach my $path (@paths) {
         my $conf_file = catfile($path, 'smolder.conf');
@@ -97,14 +95,15 @@ sub _conf_file_path {
     croak(<<CROAK);
 
 Unable to find smolder.conf!
-We will look in the following directories in the following order:
+We will look for it in the following order:
 
-    /usr/local/smolder/conf
-    /etc/smolder
-    \$SMOLDER_ROOT/conf/smolder
+    \$SMOLDER_ROOT/conf/smolder.conf
+    \$SMOLDER_ROOT/smolder.conf
+    /usr/local/smolder/conf/smolder.conf
+    /etc/smolder/smolder.conf
+    /etc/smolder.conf
     
-Or can optionally be designated by using the SMOLDER_CONF environment
-variable.
+Or can optionally be designated by using the SMOLDER_CONF environment variable.
 
 CROAK
 }
@@ -125,10 +124,6 @@ sub _load {
       if $@;
     croak("Unable to read config file '$conf_file'.")
       unless $CONF;
-
-    my $extra    = qq(InstallRoot "$ENV{SMOLDER_ROOT}"\n);
-    my $extra_fh = IO::Scalar->new( \$extra );
-    $CONF->read($extra_fh);
 }
 
 # load the configuration file during startup
@@ -181,20 +176,35 @@ sub check {
           unless defined $CONF->get($dir);
     }
 
-    # make sure User and Group exist
-    _broked( "User '" . $CONF->get("User") . "' does not exist" )
-      unless getpwnam( $CONF->get("User") );
-    _broked( "Group '" . $CONF->get("Group") . "' does not exist" )
-      unless getgrnam( $CONF->get("Group") );
+    # let them know that MySQL is deprecated
+    # and make sure they provide all the other DB* stuff we need for MySQL
+}
 
+=head2 data_dir
+
+The directory path for data directory for this install of Smolder
+
+=cut
+
+sub data_dir {
+    return catdir(dirname(__FILE__), 'Data');
+}
+
+=head2 test_data_dir
+
+The directory path for test data directory for this copy of Smolder
+
+=cut
+
+sub test_data_dir {
+    return catdir(curdir(), 't', 'data');
 }
 
 =head1 ACCESSOR METHODS
 
 All configuration directives can be accessed as methods themselves.
 
-    my $dir  = $conf->InstallRoot();
-    my $port = Smolder::Conf->apacheport();
+    my $port = Smolder::Conf->port();
 
 Gets the value of a directive using an autoloaded method.
 Directive names are case-insensitive. 
@@ -214,10 +224,10 @@ sub AUTOLOAD {
 Each configuration directive can also be accessed as an exported
 subroutine.
 
-    use Smolder::Conf qw(InstallRoot apacheport);
+    use Smolder::Conf qw(port FromAddress);
     ...
-    my $root = InstallRoot();
-    my $port = apacheport();
+    my $port = port();
+    my $from = FromAddress();
 
 Directive names are case-insensitive. 
 Gets the value of a variable using an exported, autoloaded method.

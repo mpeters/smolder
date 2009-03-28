@@ -113,7 +113,7 @@ END
 }
 
 use Term::Prompt qw(prompt);
-use Smolder::Conf qw(InstallRoot DBName DBUser DBPass DBHost DBPlatform ApacheAddr);
+use Smolder::Conf qw(DBName DBUser DBPass DBHost DBPlatform ApacheAddr);
 use Smolder::DBPlatform;
 use Getopt::Long;
 use Pod::Usage;

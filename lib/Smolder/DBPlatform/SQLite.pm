@@ -5,6 +5,7 @@ use base 'Smolder::DBPlatform';
 use File::Spec::Functions qw(catdir catfile);
 use Carp qw(croak);
 use File::Temp;
+use DBI;
 
 =head1 NAME
 
@@ -50,7 +51,7 @@ sub verify_admin {
 
 sub run_sql_file {
     my ( $class,   %args ) = @_;
-    my ( $db_name, $file ) = @args{qw(db_name file)};
+    my $file = $args{file};
     open( my $IN, $file ) or die "Could not open file '$file' for reading: $!";
 
     require Smolder::DB;
@@ -83,8 +84,6 @@ sub run_sql_file {
 
 sub dbh {
     my ( $class, %args ) = @_;
-    my $db_name = $args{db_name};
-    require DBI;
     return DBI->connect_cached($class->connection_options(%args));
 }
 
@@ -93,8 +92,8 @@ sub dbh {
 =cut
 
 sub connection_options {
-    my ($class, %args) = @_;
-    my $dsn     = "dbi:SQLite:dbname=" . $class->_get_db_file($args{db_name});
+    my $class = shift;
+    my $dsn     = "dbi:SQLite:dbname=" . $class->_get_db_file();
     return ($dsn, '', '', \%Smolder::DBPlatform::CONNECT_OPTIONS);
 }
 
@@ -214,8 +213,7 @@ sub dump_database {
 
 sub drop_database {
     my ( $class, %args ) = @_;
-    my $db_name = $args{db_name};
-    my $file    = $class->_get_db_file($db_name);
+    my $file    = $class->_get_db_file();
 
     # just delete the file
     if ( -e $file ) {
@@ -230,8 +228,7 @@ sub drop_database {
 
 sub create_database {
     my ( $class, %args ) = @_;
-    my $db_name = $args{db_name};
-    my $file    = $class->_get_db_file($db_name);
+    my $file    = $class->_get_db_file();
 
     # just create the empty file if it's not already there
     unless ( -e $file ) {
@@ -298,8 +295,7 @@ sub unique_failure_msg {
 }
 
 sub _get_db_file {
-    my ( $class, $db_name ) = @_;
-    return catfile( $ENV{SMOLDER_ROOT}, 'data', "$db_name.sqlite" );
+    return catfile( Smolder::Conf->data_dir, "smolder.sqlite" );
 }
 
 

@@ -12,10 +12,10 @@ use CGI::Cookie;
 
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(InstallRoot HostName DBName DBUser DBPass);
+use Smolder::Conf qw(HostName DBName DBUser DBPass);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
-use File::Spec::Functions qw(catdir catfile);
+use File::Spec::Functions qw(catdir catfile tmpdir);
 
 # setup our logging
 __PACKAGE__->add_callback(
@@ -255,14 +255,8 @@ sub static_url {
     # TODO - fix this after the switch to CGI::Application::Server
     return $url;
 
-    # only do this if we aren't a dev install
-    # if the 'src' dir exists it's a dev install
-    if ( -d catdir( InstallRoot, 'src' ) ) {
-        return $url;
-    } else {
-        $url =~ s/^\///;
-        return catfile( '',  $Smolder::VERSION, $url );
-    }
+    $url =~ s/^\///;
+    return catfile( '',  $Smolder::VERSION, $url );
 }
 
 =head2 add_message
@@ -300,7 +294,7 @@ L<CGI::Application::Plugin::TT> plugin. The important are the settings used:
 
 =over
 
-=item The search path of templates is F<InstallRoot/templates>
+=item The search path of templates is F<lib/Smolder/Data/templates>
 
 =item All templates are wrapped with the F<templates/wrapper.tmpl>
 template unless the C<ajax> CGI param is set.
@@ -326,8 +320,8 @@ of performance.
 # configuration options for CAP::TT (Template Toolkit)
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
-        COMPILE_DIR  => catdir(InstallRoot, 'tmp'),
-        INCLUDE_PATH => catdir(InstallRoot, 'templates'),
+        COMPILE_DIR  => tmpdir(),
+        INCLUDE_PATH => catdir(Smolder::Conf->data_dir, 'templates'),
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,
@@ -355,8 +349,7 @@ my $TT_CONFIG = {
         }
         return catfile($dir, $name . '.tmpl');
     },
-
-    #TEMPLATE_PRECOMPILE_DIR => catdir( InstallRoot, 'templates'),
+    #TEMPLATE_PRECOMPILE_DIR => catdir( tmpdir(), 'templates'),
 };
 __PACKAGE__->tt_config($TT_CONFIG);
 

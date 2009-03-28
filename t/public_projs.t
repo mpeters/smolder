@@ -14,7 +14,7 @@ use Smolder::TestData qw(
 );
 use Smolder::Mech;
 use Smolder::DB::ProjectDeveloper;
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use File::Spec::Functions qw(catfile);
 
 if (is_smolder_running) {
@@ -103,7 +103,7 @@ use_ok('Smolder::Control::Public::Projects');
         architecture => 'x386',
         platform     => 'Linux',
         comments     => 'Something random that I want to say',
-        report_file  => catfile( InstallRoot, 't', 'data', 'test_run_bad.tar.gz' ),
+        report_file  => catfile( Smolder::Conf->test_data_dir, 'test_run_bad.tar.gz' ),
     );
     $mech->submit();
     ok( $mech->success );

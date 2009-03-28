@@ -211,7 +211,7 @@ Will delete all test reports create by L<create_smoke_report>.
 
         # set some defaults
         %args = (
-            file => catfile( $config->get('InstallRoot'), 't', 'data', 'test_run_bad_yml.tar.gz' ),
+            file => catfile( Smolder::Conf->test_data_dir, 'test_run_bad_yml.tar.gz' ),
             architecture => 'x386',
             platform     => 'Linux',
             %args,

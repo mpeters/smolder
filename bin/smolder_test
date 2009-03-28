@@ -67,13 +67,13 @@ END
         catfile( $FindBin::Bin, '..', 'lib', $Config{archname} ) );
 }
 
-use Smolder::Script;
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use TAP::Harness::Archive;
 use TAP::Harness;
 use IO::Scalar;
 use Pod::Usage;
 use File::Find;
+use Cwd qw(cwd);
 
 $ENV{SMOLDER_TEST_HARNESS_ACTIVE} = 1;
 
@@ -106,9 +106,9 @@ will be named F<smolder_test_run.tar.gz>.
 
 =item files
 
-This is a comma-delimited list of files (relative to the B<InstallRoot>
-root) that will be tested.  By default this will be every file in the t/
-dir (and all subdirs or t/) that has a '.t' extension.
+This is a comma-delimited list of files (relative to the current working
+directory) that will be tested.  By default this will be every file in
+the t/ dir (and all subdirs or t/) that has a '.t' extension.
 
     ./bin/smolder_test --files 't/control/*'
 
@@ -151,8 +151,7 @@ if ($help) {
 
 my $junk     = '';
 my $junk_err = '';
-
-my $root = InstallRoot();
+my $root     = cwd();
 
 # go the the Smolder root
 print_header("Changing into Smolder Root $root");

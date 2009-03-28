@@ -1,6 +1,6 @@
 package Smolder::Email;
-use Smolder::Conf qw(InstallRoot HostName FromAddress SMTPHost Port);
-use File::Spec::Functions qw(catdir);
+use Smolder::Conf qw(HostName FromAddress SMTPHost Port);
+use File::Spec::Functions qw(catdir tmpdir);
 use Template;
 use MIME::Lite;
 use HTML::FormatText::WithLinks;
@@ -21,8 +21,8 @@ Smolder utility class used to send multi-part MIME email messages
 =cut
 
 our $TEMPLATE = Template->new(
-    COMPILE_DIR  => catdir( InstallRoot, 'tmp' ),
-    INCLUDE_PATH => catdir( InstallRoot, 'templates' ),
+    COMPILE_DIR  => tmpdir(),
+    INCLUDE_PATH => catdir( Smolder::Conf->data_dir, 'templates' ),
     COMPILE_EXT  => '.ttc',
     WRAPPER      => 'Email/wrapper.tmpl',
     FILTERS => {

@@ -8,7 +8,7 @@ use Smolder::TestData qw(
   create_project
   delete_projects
 );
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use File::Spec::Functions qw(catfile catdir);
 use Test::LongString;
 
@@ -48,7 +48,7 @@ isa_ok( $report->added,     'DateTime' );
 
 # upload a new file
 $report = Smolder::DB::SmokeReport->upload_report(
-    file => catfile(InstallRoot, 't', 'data', 'test_run_bad.tar.gz'),
+    file => catfile(Smolder::Conf->test_data_dir, 'test_run_bad.tar.gz'),
     project => $project,
 );
 # object types
@@ -80,7 +80,7 @@ for(0.. ($report->test_files -1)) {
 }
 
 # try uploading a report with a meta yml file
-$report->update_from_tap_archive(catfile(InstallRoot, 't', 'data', 'test_run_bad_yml.tar.gz'));
+$report->update_from_tap_archive(catfile(Smolder::Conf->test_data_dir, 'test_run_bad_yml.tar.gz'));
 is($report->pass,       446, 'correct # of passed');
 is($report->skip,       4,   'correct # of skipped');
 is($report->fail,       8,   'correct # of failed');

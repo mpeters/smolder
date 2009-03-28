@@ -24,7 +24,7 @@ use Smolder::Constraints qw(
   file_mtype
   smoke_report_tags
 );
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 use Smolder::DBPlatform;
 use Exception::Class;
 use HTML::TagCloud;

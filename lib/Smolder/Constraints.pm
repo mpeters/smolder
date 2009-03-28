@@ -1,7 +1,6 @@
 package Smolder::Constraints;
 use strict;
 use warnings;
-use Smolder::Conf qw(InstallRoot);
 use Smolder::DB;
 use Smolder::DB::SmokeReport;
 use Smolder::DB::Preference;
@@ -9,7 +8,7 @@ use Email::Valid;
 use File::Basename;
 use File::Temp;
 use File::MMagic;
-use File::Spec::Functions qw(catdir);
+use File::Spec::Functions qw(catdir tmpdir);
 
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(
@@ -238,7 +237,7 @@ sub file_mtype {
         my $tmp = File::Temp->new(
             UNLINK => 0,
             SUFFIX => ( $suffix || '.tmp' ),
-            DIR    => catdir( InstallRoot, 'tmp' ),
+            DIR    => tmpdir(),
           )
           or die "Could not create tmp file!";
         while ( my $line = <$fh> ) {
