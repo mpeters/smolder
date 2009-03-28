@@ -14,3 +14,5 @@ CREATE TABLE developer (
 CREATE INDEX i_preference_developer on developer (preference);
 CREATE UNIQUE INDEX unique_username_developer on developer (username);
 
+INSERT INTO developer (id, username, fname, lname, email, password, admin, preference, guest) VALUES (1, 'admin', 'Joe', 'Admin', 'test@test.com', 'YhKDbhvT1LKkg', 1, 1, 0);
+INSERT INTO developer (id, username, fname, lname, email, password, admin, preference, guest) VALUES (2, 'anonymous', '', '', '', '', 0, 2, 1);

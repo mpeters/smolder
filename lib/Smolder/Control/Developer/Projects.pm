@@ -2,6 +2,22 @@ package Smolder::Control::Developer::Projects;
 use base 'Smolder::Control';
 use strict;
 use warnings;
+use CGI::Application::Plugin::Stream qw(stream_file);
+use Smolder::DB::Project;
+use Smolder::DB::SmokeReport;
+use Smolder::Conf;
+use Exception::Class;
+use HTML::TagCloud;
+use URI::Escape qw(uri_escape);
+use Smolder::Control::Public::Auth;
+use Smolder::Constraints qw(
+  enum_value
+  length_max
+  unsigned_int
+  bool
+  file_mtype
+  smoke_report_tags
+);
 
 =head1 NAME
 
@@ -12,26 +28,6 @@ Smolder::Control::Developer::Projects
 Controller module that deals with developer actions associated with projects.
 
 =cut
-
-use CGI::Application::Plugin::Stream qw(stream_file);
-use Smolder::DB::Project;
-use Smolder::DB::SmokeReport;
-use Smolder::Constraints qw(
-  enum_value
-  length_max
-  unsigned_int
-  bool
-  file_mtype
-  smoke_report_tags
-);
-use Smolder::Conf;
-use Smolder::DBPlatform;
-use Exception::Class;
-use HTML::TagCloud;
-use URI::Escape qw(uri_escape);
-use Smolder::Control::Public::Auth;
-
-my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 # used to control public or registered developer functionality
 # to be overriden by subclasses if necessary

@@ -7,3 +7,6 @@ CREATE TABLE preference (
     email_sent_timestamp INTEGER
 );
 
+INSERT INTO preference (id) VALUES (1);
+INSERT INTO preference (id) VALUES (2);
+

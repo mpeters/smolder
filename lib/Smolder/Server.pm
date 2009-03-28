@@ -2,23 +2,9 @@ package Smolder::Server;
 use strict;
 use warnings;
 use base 'CGI::Application::Server';
-use Smolder::Conf qw(Port HostName LogFile);
-use Smolder::Dispatch;
 use File::Spec::Functions qw(catdir devnull);
-# load all of our controller modules so they are in memory
-use Smolder::Control;
-use Smolder::Control::Admin;
-use Smolder::Control::Admin::Developers;
-use Smolder::Control::Admin::Projects;
-use Smolder::Control::Developer;
-use Smolder::Control::Developer::Graphs;
-use Smolder::Control::Developer::Prefs;
-use Smolder::Control::Developer::Projects;
-use Smolder::Control::Public;
-use Smolder::Control::Public::Auth;
-use Smolder::Control::Public::Graphs;
-use Smolder::Control::Public::Projects;
-use Smolder::Redirect;
+use Smolder::Conf qw(Port HostName LogFile);
+use Smolder::DB;
 
 sub new {
     my $class = shift;
@@ -26,14 +12,6 @@ sub new {
     $server->host(HostName);
     $server->port(Port);
     my $htdocs = Smolder::Conf->htdocs_dir;
-
-    # if we need to do logging
-    my $log_file = LogFile || devnull();
-    my $ok = open(STDERR, '>>', $log_file);
-    if( !$ok ) {
-        warn "Could not open logfile $log_file for appending: $!";
-        exit(1);
-    }
 
     $server->entry_points(
         {
@@ -59,9 +37,34 @@ sub go {
     my $self = shift;
 
     # do we have a database? If not then create one
+    Smolder::DB->create_database unless -e Smolder::DB->db_file;
 
     # check the DB version to make sure that we don't need to upgrade
     
+    # preload our perl modules
+    require Smolder::Dispatch;
+    require Smolder::Control;
+    require Smolder::Control::Admin;
+    require Smolder::Control::Admin::Developers;
+    require Smolder::Control::Admin::Projects;
+    require Smolder::Control::Developer;
+    require Smolder::Control::Developer::Graphs;
+    require Smolder::Control::Developer::Prefs;
+    require Smolder::Control::Developer::Projects;
+    require Smolder::Control::Public;
+    require Smolder::Control::Public::Auth;
+    require Smolder::Control::Public::Graphs;
+    require Smolder::Control::Public::Projects;
+    require Smolder::Redirect;
+
+    # send warnings to our logs
+    my $log_file = LogFile || devnull();
+    my $ok = open(STDERR, '>>', $log_file);
+    if( !$ok ) {
+        warn "Could not open logfile $log_file for appending: $!";
+        exit(1);
+    }
+
     return $self->run();
 #    return $self->background();
 }

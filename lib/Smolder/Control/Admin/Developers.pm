@@ -6,9 +6,7 @@ use Smolder::DB::Project;
 use Smolder::DB::Developer;
 use Smolder::Email;
 use Smolder::Constraints qw(email unsigned_int length_max length_between bool unique_field_value);
-use Smolder::DBPlatform;
 use Email::Valid;
-my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 =head1 NAME
 
@@ -156,7 +154,7 @@ sub process_edit {
     if ($@) {
 
         # if it was a duplicate developer, then we can handle that
-        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
+        if ( Smolder::Conf->unique_failure_msg($@) ) {
             return $self->edit( { err_unique_username => 1 } );
 
             # else it's something else, so just throw it again
@@ -239,7 +237,7 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate developer, then we can handle that
-        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
+        if ( Smolder::Conf->unique_failure_msg($@) ) {
             return $self->add( { err_unique_username => 1 } );
 
             # else it's something else, so just throw it again

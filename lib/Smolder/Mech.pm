@@ -2,7 +2,7 @@ package Smolder::Mech;
 use strict;
 use warnings;
 use base 'Test::WWW::Mechanize';
-use Smolder::Conf qw(DBPlatform);
+use Smolder::Conf;
 use Smolder::TestData qw(base_url);
 use JSON qw(from_json);
 use Test::Builder;
@@ -84,9 +84,7 @@ SQLite to avoid locking the database
 
 sub get {
     my $self = shift;
-    if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->disconnect();
-    }
+    Smolder::DB->disconnect();
     return $self->SUPER::get(@_);
 }
 
@@ -100,9 +98,7 @@ SQLite to avoid locking the database
 
 sub submit {
     my $self = shift;
-    if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->disconnect();
-    }
+    Smolder::DB->disconnect();
     return $self->SUPER::submit(@_);
 }
 
@@ -116,9 +112,7 @@ SQLite to avoid locking the database
 
 sub request {
     my $self = shift;
-    if ( DBPlatform eq 'SQLite' ) {
-        Smolder::DB->disconnect();
-    }
+    Smolder::DB->disconnect();
     return $self->SUPER::request(@_);
 }
 

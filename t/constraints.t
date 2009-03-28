@@ -85,6 +85,7 @@ _check_with_dfv( 'unique_field_value', \@bad,  0, 'project', 'name' );
 
 sub _check_with_dfv {
     my ( $name, $data, $pass, @args ) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $sub_name = "Smolder::Constraints::$name";
     my $constraint;
     {

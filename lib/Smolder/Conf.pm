@@ -17,11 +17,6 @@ our ( @VALID_DIRECTIVES, @REQUIRED_DIRECTIVES );
 BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
       Port
-      DBPlatform
-      DBHost
-      DBName
-      DBPass
-      DBUser
       FromAddress
       HostName
       LogFile
@@ -31,11 +26,11 @@ BEGIN {
       TemplateDir
       DataDir
       HtdocsDir
+      SQLDir
     );
 
     @REQUIRED_DIRECTIVES = qw(
       Port
-      DBPlatform
       FromAddress
       HostName
       Secret
@@ -176,20 +171,6 @@ sub check {
           unless defined $CONF->get($dir);
     }
 
-    # let them know that MySQL is deprecated
-    if ($CONF->get('DBPlatform') eq 'MySQL') {
-        warn "MySQL is deprecated as a DBPlatform. Please upgrade to SQLite\n";
-
-        # and make sure they provide all the other DB* stuff we need for MySQL
-        unless ($CONF->get('DBName')
-            && $CONF->get('DBUser')
-            && $CONF->get('DBPass')
-            && $CONF->get('DBHost'))
-        {
-            _broked("MySQL needs DBUser, DBPass, DBHost and DBName all set in smolder.conf");
-        }
-    }
-
     # if we have a log file, does it exist and can we write to it?
     my $log_file = $CONF->get('LogFile');
     if ($log_file) {
@@ -224,6 +205,18 @@ sub htdocs_dir {
     my $class = shift;
     return $class->get('HtdocsDir') || catdir(dist_dir('Smolder'), 'htdocs');
 }
+
+=head2 sql_dir
+
+The directory path for the raw SQL files for this install of Smolder
+
+=cut
+
+sub sql_dir {
+    my $class = shift;
+    return $class->get('SQLDir') || catdir(dist_dir('Smolder'), 'sql');
+}
+
 
 =head2 data_dir
 

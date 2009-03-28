@@ -2,7 +2,7 @@ package Smolder::Upgrade;
 use warnings;
 use strict;
 
-use Smolder::Conf qw(DBName DBUser DBHost DBPass DBPlatform);
+use Smolder::Conf;
 use File::Spec::Functions qw(catfile catdir);
 use Smolder::DB;
 use Carp qw(croak);

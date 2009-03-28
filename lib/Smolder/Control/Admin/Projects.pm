@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use base 'Smolder::Control';
 use Data::FormValidator::Constraints::DateTime qw(to_datetime);
+use Smolder::DB::Project;
+use Smolder::DB::Developer;
+use Smolder::DB::ProjectDeveloper;
 use Smolder::Constraints qw(
   length_max
   unsigned_int
@@ -10,11 +13,6 @@ use Smolder::Constraints qw(
   unique_field_value
   existing_field_value
 );
-use Smolder::DB::Project;
-use Smolder::DB::Developer;
-use Smolder::DB::ProjectDeveloper;
-use Smolder::DBPlatform;
-my $DB_PLATFORM = Smolder::DBPlatform->load();
 
 =head1 NAME
 
@@ -141,7 +139,7 @@ sub add_dev {
         if ($@) {
             my $err = $@;
             $proj_pref->delete if $proj_pref;
-            die $err unless $DB_PLATFORM->unique_failure_msg($err);
+            die $err unless Smolder::DB->unique_failure_msg($err);
         } else {
             $self->add_message(
                 msg => "Developer '" . $dev->username 
@@ -303,7 +301,7 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate project name, then we can handle that
-        if ( $DB_PLATFORM->unique_failure_msg($@) ) {
+        if ( Smolder::Conf->unique_failure_msg($@) ) {
             return $self->add( { err_unique_project_name => 1 } );
 
             # else it's something else, so just throw it again

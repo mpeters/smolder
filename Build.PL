@@ -59,6 +59,7 @@ my $builder = Module::Build->new(
     install_path => {
         templates => catdir(dist_dir('Smolder'), 'templates'),
         htdocs    => catdir(dist_dir('Smolder'), 'htdocs'),
+        sql       => catdir(dist_dir('Smolder'), 'sql'),
     },
     create_makefile_pl => 'traditional',
     create_readme      => 1,
