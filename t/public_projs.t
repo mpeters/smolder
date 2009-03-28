@@ -2,6 +2,10 @@ use strict;
 use warnings;
 use Test::More;
 use Smolder::TestScript;
+use Smolder::Mech;
+use Smolder::DB::ProjectDeveloper;
+use Smolder::Conf;
+use File::Spec::Functions qw(catfile);
 use Smolder::TestData qw(
   base_url
   is_smolder_running
@@ -12,10 +16,6 @@ use Smolder::TestData qw(
   create_developer
   delete_developers
 );
-use Smolder::Mech;
-use Smolder::DB::ProjectDeveloper;
-use Smolder::Conf;
-use File::Spec::Functions qw(catfile);
 
 if (is_smolder_running) {
     plan( tests => 69 );
@@ -130,7 +130,7 @@ use_ok('Smolder::Control::Public::Projects');
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
-    for ( 1 .. 13 ) {
+    for (1 .. 13) {
         create_smoke_report(
             project   => $proj1,
             developer => $dev,
@@ -139,7 +139,7 @@ use_ok('Smolder::Control::Public::Projects');
     END { delete_smoke_reports() }
 
     $mech->get_ok("/app/public_projects/smoke_reports/$proj1");
-    $mech->content_contains( $proj1->name );
+    $mech->content_contains($proj1->name);
     $mech->content_contains('Recent Smoke Reports');
 
     # only 5 per page by default
@@ -147,34 +147,26 @@ use_ok('Smolder::Control::Public::Projects');
     $mech->content_unlike(qr/(Added .*){6}/s);
 
     # check the paging
-    my $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link );
+    my $link = $mech->find_link(n => 1, text => "\x{21d0}");
+    ok(!defined $link);
 
-    # go from 1 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" } );
-
-    # go from 2 to 3
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" } );
-
+    $mech->follow_link_ok({n => 1, text => "\x{21d2}"}, 'link from page 1 to 2');
+    $mech->follow_link_ok({n => 1, text => "\x{21d2}"}, 'link from page 2 to 3');
     # can't go past 3
-    $link = $mech->find_link( n => 1, text => "\x{21d2}" );
-    ok( !defined $link );
+    $link = $mech->find_link(n => 1, text => "\x{21d2}");
+    ok(!defined $link);
 
-    # go from 3 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" } );
-
-    # go from 2 to 1
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" } );
-
+    $mech->follow_link_ok({n => 1, text => "\x{21d0}"}, 'link from page 3 to 2');
+    $mech->follow_link_ok({n => 1, text => "\x{21d0}"}, 'link from page 2 to 1');
     # can't go past 1
-    $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link );
+    $link = $mech->find_link(n => 1, text => "\x{21d0}");
+    ok(!defined $link);
 
     # changing the per-page
     $mech->form_name('smoke_reports');
-    $mech->set_fields( limit => 10, );
+    $mech->set_fields(limit => 10,);
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_like(qr/(Added .*){10}/s);
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
