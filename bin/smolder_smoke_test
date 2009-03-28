@@ -167,7 +167,6 @@ sub send_results_to_smolder {
     $fields{tags} = $tags if $tags;
 
     # get the comments from svn
-print `pwd`;
     my @lines = `svn info`;
     @lines = grep { $_ =~ /URL|Revision|LastChanged/ } @lines;
     $fields{comments} = join("\n", @lines);
