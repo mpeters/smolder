@@ -1,9 +1,7 @@
 use strict;
 use warnings;
-
 use Test::More;
 use Smolder::TestScript;
-use Smolder::Platform;
 use File::Spec::Functions qw(catfile);
 use File::Basename qw(basename);
 use Cwd qw(cwd);

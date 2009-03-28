@@ -197,7 +197,7 @@ The directory path for test data directory for this copy of Smolder
 =cut
 
 sub test_data_dir {
-    return catdir(curdir(), 't', 'data');
+    return rel2abs(catdir(curdir(), 't', 'data'));
 }
 
 =head1 ACCESSOR METHODS
