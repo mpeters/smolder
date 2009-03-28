@@ -4,7 +4,7 @@ use warnings;
 use base 'CGI::Application::Server';
 use Smolder::Conf qw(Port HostName LogFile);
 use Smolder::Dispatch;
-use File::Spec::Functions qw(catdir);
+use File::Spec::Functions qw(catdir devnull);
 # load all of our controller modules so they are in memory
 use Smolder::Control;
 use Smolder::Control::Admin;
@@ -28,12 +28,11 @@ sub new {
     my $htdocs = catdir(Smolder::Conf->data_dir, 'htdocs');
 
     # if we need to do logging
-    if( my $log_file = LogFile ) {
-        my $ok = open(STDERR, '>>', $log_file);
-        if( !$ok ) {
-            warn "Could not open logfile $log_file for appending: $!";
-            exit(1);
-        }
+    my $log_file = LogFile || devnull();
+    my $ok = open(STDERR, '>>', $log_file);
+    if( !$ok ) {
+        warn "Could not open logfile $log_file for appending: $!";
+        exit(1);
     }
 
     $server->entry_points(

@@ -20,19 +20,20 @@ use File::Spec::Functions qw(catdir catfile tmpdir);
 __PACKAGE__->add_callback(
     init => sub {
         my $self = shift;
-
-        # setup log dispatch to use Apache::Log
-        $self->log_config(
-            APPEND_NEWLINE       => 1,
-            LOG_DISPATCH_MODULES => [
-                {
-                    module    => 'Log::Dispatch::File',
-                    name      => 'smolder_log',
-                    min_level => 'debug',
-                    filename  => LogFile,
-                }
-            ],
-        );
+        if( LogFile ) {
+            # setup log dispatch to use Apache::Log
+            $self->log_config(
+                APPEND_NEWLINE       => 1,
+                LOG_DISPATCH_MODULES => [
+                    {
+                        module    => 'Log::Dispatch::File',
+                        name      => 'smolder_log',
+                        min_level => 'debug',
+                        filename  => LogFile,
+                    }
+                ],
+            );
+        }
     }
 );
 
