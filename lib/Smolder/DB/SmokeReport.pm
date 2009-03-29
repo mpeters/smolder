@@ -559,4 +559,24 @@ sub update_from_tap_archive {
     return \@suite_results;
 }
 
+=head3 update_all_report_html 
+
+Look at all existing reports in the database and regenerate
+the HTML for each of these reports. This is useful for development
+and also upgrading when the report HTML template files have changed
+and you want that change to propagate.
+
+=cut
+
+sub update_all_report_html {
+    my $class = shift;
+    my @reports = $class->search(purged => 0);
+    foreach my $report (@reports) {
+        warn "Updating report #$report\n";
+        eval { $report->update_from_tap_archive() };
+        warn "  Problem updating report #$report: $@\n" if $@;
+    }
+
+}
+
 1;

@@ -164,4 +164,18 @@ sub ACTION_db {
     Smolder::DB->create_database();
 }
 
+=head2 update_smoke_html
+
+Update all the HTML for the existing smoke reports. This is useful for development
+and also upgrading when the report HTML template files have changed
+and you want that change to propagate.
+
+=cut
+
+sub ACTION_update_smoke_html {
+    my $self = shift;
+    require Smolder::DB::SmokeReport;
+    Smolder::DB::SmokeReport->update_all_report_html();
+}
+
 1;
