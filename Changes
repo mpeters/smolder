@@ -1,0 +1,183 @@
+Revision history for Smolder
+
+1.3
+    + Rewrite of the build/install system to be installable from CPAN - M. Peters
+
+1.24
+    + Fixed problem with Atom URLS - Andrew Moore, M. Peters
+    + Added a few indexes to speed some things up for projects with lots of test reports -
+      M. Peters
+    + Show tags for a report in the Atom feed as well as the report details - M. Peters
+    + Fix some UI issues that came up from having very long tag names - M. Peters
+
+1.23
+    + Recognize the extra_properties in an TAP archive and display them on the report - M. Peters
+    + Added --report-id option to bin/smolder_update_smoke_html - M. Peters
+    + Individual TAP streams are now viewable on the test report screen - M. Peters
+    + Simplified platform files since all RH derivatives can be treated the same - M. Peters
+    + Remove the /init.d script since we don't want to require root on install/upgrade - M. Peters
+    + Added --Platform option to bin/smolder_install - Elizabeth Cortell
+    + Fixed build and install on 0SX 10.5 (Leopard) - Elizabeth Cortell
+    + Improved build and error messages on Ubuntu - Elizabeth Cortell
+    + Joined Prototype/Scriptaculous files with protoaculous to improve initial browser load
+      time - M. Peters
+    + Allow TAP archives to contain all of the fields we also collect on the report form -
+      M. Peters
+
+1.22
+    + Developer uploads can now be done without logging in as long as credentials are passed -
+      M. Peters
+    + Minor template and style changes
+
+1.21
+    + Project categories have now been replaced by the more flexible smoke report tags - M. Peters
+    + TAP archives can now be downloaded through the UI for a given report - M. Peters
+    + Graphs can now be done on test run duration if that info was provided in the archive -
+      M. Peters
+    + Fixed some various platform install problems because we weren't detecting missing libraries,
+      or we couldn't find libraries that were already installed. Devel::CheckLib to the rescure -
+      Slaven Rezic, M. Peters
+    + Fixed problems with documentation - Slaven Rezic, M. Peters
+    + The default DBPlatform is now SQLite instead of MySQL - M. Peters
+    + When re-installing, smolder_install calls smolder_unistall with invalid params - Reported
+      by Andy Lester, fixed by M. Peters
+    + When re-installing we need to remove any old database that might be laying around -
+      Reported by Andy Lester, fixed by M. Peters
+    + Added docs/porting.pod and fixed bad link in docs/ops_install.pod - M. Peters
+    + Fixed build issue where Carp::Clan was hanging - M. Peters
+    + Fixed build issue on Mac OSX where we were looking for .so files instead of .dynlib
+      - Michael Schwern, M. Peters
+    + Fixed test of MySQL isolation level to accept READ-COMMITTED or stricter - Sam Villain
+    + Upgraded some CPAN components and removed a lot dependencies that were no longer necessary
+      - M. Peters
+    + Added Fedora 7 & 8 as a build target - M. Peters
+    + Changed the Javascript calendar library we're using - M. Peters
+    + Upgraded Prototype and Scriptaculous JS libraries - M. Peters
+    + Abort build if we detect a broken ExtUtils::Install - Michael Schwern, M. Peters
+    + Auto-convert the sqlite DB to the new version when upgrading Smolder - M. Peters
+    + Added bin/smolder_sql_exec and bin/smolder_dumpdb helper scripts - M. Peters
+
+1.2
+    + Removed smolder_prove. You can now get the new TAP archive format by using
+      TAP::Parser's runtests --archive.
+    + Change the UI for assigning developers to projects to allow for larger lists of groups
+      and developers - M. Peters
+    + Upgraded 3rd party JavaScript libraries (prototype, scriptaculous) and remove unnecssary
+      JS and CSS files - M. Peters
+    + Fixed bug where emails weren't being sent out. - M. Peters
+    + SMTPHost config directive is now optional and Smolder will use the local sendmail program
+      if it's not provided. - M. Peters
+    + Now using TAP::Harness::Archive as the suggested method of creating the TAP archive. Also
+      use it for manipulating them. - M. Peters
+
+1.1
+    + Now using straight TAP (bundled in an archive file) instead of the custom XML/YAML thing
+      we were using before. - M. Peters
+    + Added Atom feeds that can be enabled per project. - M. Peters
+    + Updated various component source modules and projects. - M. Peters
+    + Removed swish-e and mod_auth_tkt since they weren't essential to the functioning of smolder,
+      but added a lot of size. - M. Peters
+    + Allow smolder.conf to be located in various places, not just
+      $SMOLDER_ROOT/conf/smolder. We now look first at $SMOLDER_CONF, then in
+      $SMOLDER_ROOT/conf, /usr/local/smolder/conf and then /etc/smolder. - M. Peters
+    + Added "Show All Details" link to test reports. Will suck browser resources if used on
+      large test reports, but should be find on smaller ones - M. Peters
+    + Fixed upgrades to now use appropriate sql file depending on the running DBPlatform. -
+      M. Peters
+    + Updated various images. - M. Peters
+    + Added bin/smolder_update_smoke_html so that you can regenerate the HTML of the smoke
+      reports after a template change. - M. Peters
+
+1.02
+    + Better tolerance of email failures, allowing the action to proceed and warnings to be
+      sent to the log (and user when appropriate) - M. Peters
+    + Added --not-perl option to bin/smolder_prove so that it will simply exec files
+      without treating them like Perl scripts. - M. Peters
+    + Fixed bug when building with --no-mysql on a system that doesnt have MySQL installed -
+      Trushar Zaveri and M. Peters
+    + Fixed bug to allow anonymous access to test file details for public projects - M. Peters
+
+1.01
+    + Fixed bug with uploading YAML files instead of XML - M. Peters
+    + Disable form inputs when AJAXified forms are submitting, then re-enable them on request
+      completion - M. Peters
+    + Minor bug fixes with CRUD UI's - M. Peters
+    + Changed the validation messages to use the same message stack as other messages instead
+      of being inlined. - M. Peters
+    + Better display of test descriptions and diagnostic messages in HTML results matrix. -
+      M. Peters
+
+1.00
+    + Added dynamic HTML TAP Matrix views - M. Peters
+    + Fixed some navigation issues with paged results of smoke reports when using categories. -
+      M. Peters
+    + Removed Swish-e and searchable docs from Smolder. We'll have this someday on the website
+      (when we get one). - M. Peters
+    + Fixed some build/install issues for FreeBSD and MySQL - M. Peters
+    + Added mising Method::Alias module - Sam Tregar
+    + HTML escape test data in the TAP Matrix - M. Peters
+
+0.3 (1.0 RC1)
+    + Mark tests that have files that exit with a non-zero status that use 'no_plan' to be
+      marked as failing - M. Peters
+    + Allow anonymous smoke tests added to public projects - M. Peters
+    + Added public projects - M. Peters
+    + Upgrading to Apache 1.3.36 - M. Peters
+    + Auto-purging of old compressed XML files by ProjectFullReportsMax config directive -
+      M. Peters
+    + Better caching headers for static files - M. Peters
+    + Fixed building of SQLite on some platforms - Mark Stosberg
+    + Searchable HTML versions of docs - M. Peters
+    + Fixing graph generation bug when using SQLite - Sam Tregar
+    + Compressed XML storage and acceptance during upload - M. Peters, Sam Tregar
+    + Runtime errors sometimes being lost - Sam Tregar, M. Peters
+    + Removed un-used mod_ssl sources and build - M. Peters
+
+0.2
+    + Turn on mod_auth_tkt for all dynamic requests so that Apache auth stages are run and
+      valid credentials produced - M. Peters
+    + Added smolder_prove, to run any normal Perl tests for smolder - M. Peters
+    + Send the port number in URLs in emails - Sam Tregar
+    + Skip the authinfo test if Apache is not running - Sam Tregar
+    + Added missing modules to src (XML::Parser, XML::SAX::Expat, Exception::Class and
+      Exception::Class::TryCatch) - Sam Tregar
+    + Using a smaller number of Apache children and Apache::SizeLimit to limit any memory
+      hogging - M. Peters
+    + Added built-in SQLite support - (M. Peters, Mark Stosberg)
+    + Added multi-db support via Smolder::DBPlatform - M. Peters
+    + Upgraded DBI to 1.50 - M. Peters
+    + Added notification to the user of failed AJAX requests - M. Peters
+
+0.1
+    + Overhaul and review of upgrade system - M. Peters
+    + Project admins can control when the project graph starts by default - M. Peters
+    + Can now view progress graph by platform and architecture - M. Peters
+    + Overhaul of Admin Developer/Project CRUDs to keep everything on one AJAXified screen -
+      M. Peters
+
+0.04 (March 13, 2006)
+    + Added ability to see just a single report by id; Smoke report emails now link to single
+      reports - M. Peters
+    + Added logging to Apache::Log via Log::Dispatch and CGI::Application::Plugin::LogDispatch -
+      M. Peters
+    + Fixed smolder_backup and smolder_install to work together and allow installation from a
+      backup - M. Peters
+    + Reviewed all templates and fixed potential XSS issue with non escaped data - M. Peters
+    + Added top-level Makefile as a shortcut to various actions/scripts - M. Peters
+    + Explicitly set Expires headers for CSS/JS/Image to improve caching - M. Peters
+    + Run tests as User/Group if we can - M. Peters
+    + Check for libgd on install - M. Peters
+    + FreeBSD control scripts moved from /etc/rc.d to /usr/local/etc/rc.d.  Currently there is
+      no automatic migration of scripts previously installed in /etc/rc.d by smolder. - Mark Stosberg
+
+0.03 (March 06, 2006)
+    + Added more missing Perl modules to src/ directory - M. Peters
+    + Allow smolder_createdb to use MySQL root passwords with spaces - Matisse Enzer
+    + Add "--dry-run" option to smolder_createdb. -Mark Stosberg 
+
+0.02 (March 05, 2006)
+    + Fixed building of GD.pm on FreeBSD - Mark Stosberg
+    + Added missing Perl modules to src/ directory - M. Peters
+
+0.01 (March 04, 2006)
+    + Initial public release
