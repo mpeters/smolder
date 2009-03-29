@@ -8,3 +8,4 @@ blib
 \.svn
 smolder.conf
 \.sqlite
+\.bak
