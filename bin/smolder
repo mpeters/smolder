@@ -1,5 +1,54 @@
 #!/usr/local/bin/perl
 use strict;
 use warnings;
-use Smolder::Server;
-Smolder::Server->new()->go();
+use Getopt::Long;
+use Pod::Usage;
+
+=head1 NAME 
+
+smolder - Web Smoke Test Aggregator
+
+=head1 SYNOPSIS
+
+  smolder --conf /path/to/smolder.conf
+
+  smolder --daemon 
+
+=head1 DESCRIPTION
+
+Run the Smolder server.
+
+=head1 OPTIONS
+
+=over
+
+=item --daemon (-d)
+
+Run the server in the background as a daemon process.
+
+=item --conf (-c)
+
+Specify a smolder.conf config file. Smolder looks in several
+places for config files but if you want to put it someplace
+else then you can.
+
+=item --help (-h)
+
+Show the help screen.
+
+=back
+
+=cut
+
+my ($conf, $daemon, $help);
+GetOptions(
+    'conf|c=s' => \$conf,
+    'daemon|d' => \$daemon,
+    'help|h'   => \$help,
+);
+pod2usage(1) if $help;
+
+$ENV{SMOLDER_CONF} = $conf if $conf;
+warn "SMOLDER_CONF: $ENV{SMOLDER_CONF}\n";
+require Smolder::Server;
+Smolder::Server->new(daemon => $daemon)->go();
