@@ -1,0 +1,64 @@
+TODO tasks for Smolder
+
++ Plugins that support
+  + adding and overriding templates and htdocs
+  + adding sql tables
+  + adding code
+
++ SCM revision # on the main summary page of a test run
+
++ Change graphs to be able to handle more data without looking crappy
+  + Maybe something client side (JS, Canvas, Google graphs)?
+
++ Handle skip-all better in the plan.
+  + A skip-all plan will look like this:
+    1..0 # Skip Can't reach http://google.com
+
+  We need to show more in the report than just "No tests run". We should show the
+  reason.
+
++ Allow anonymous uploads via smolder_smoke_signal
+
++ Tracking of individual tests. This would provide a view that let's
+  the user see when each test was added and maybe how it has faired 
+  over time. MediaWiki has an example of this:
+
+    * HTML nested bullet list, open tags (bug 5497)    [Has never passed]
+    * HTML nested ordered list, open tags (bug 5497)   [Has never passed]
+    * Fuzz testing: image with bogus manual thumbnail  [Introduced
+      between 08-Apr-2007 07:15:22, 1.10alpha (r21099) and 25-Apr-2007
+      07:15:46, 1.10alpha]
+
+  We'd need GUIDs (or something else) for tests so maybe we use a custom TAP diagnostic key
+
++ Add preference to just get plain-text emails
+
++ Create an interface for comparing 2 sets of reports for the same project. 
+  Possibly similar to the way you select data for graphing.
+
++ Create a full search system of smoke reports, not just a listing
+  by most recent. This would allow for searching based on project,
+  status, category, etc.
+
++ Support new TAP diagnostics (almost specced out in TAP)
+
++ Support nested TAP
+
++ Better message stack that works arcoss sessions.
+
++ Precompile all templates at startup (speeds it up and increases shared memory)
+
++ Rendering in other browsers besides FF and KHTML
+
++ Import/export projects so you can move them around in smolder installs
+
++ Add paging to other listing pages admin_developers/admin_projects, etc (or add datagrid?)
+
++ Add help tooltips where appropriate
+
++ Allow smolder_smoke_signal to use the Smolder modules directly if it's on the same machine.
+
++ Add coverage reports (related to smoke tests?)
+
++ Add benchmark gathering?
+    
