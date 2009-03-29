@@ -1,6 +1,7 @@
 bin/smolder
 bin/smolder_smoke_signal
 Build.PL
+Changes
 htdocs/favicon.ico
 htdocs/images/arrow-desc.gif
 htdocs/images/boxed-bg-bottom.png
@@ -64,6 +65,7 @@ lib/Smolder/DB/ProjectDeveloper.pm
 lib/Smolder/DB/SmokeReport.pm
 lib/Smolder/Dispatch.pm
 lib/Smolder/Email.pm
+lib/Smolder/Manual.pm
 lib/Smolder/Mech.pm
 lib/Smolder/Redirect.pm
 lib/Smolder/Server.pm
@@ -71,10 +73,14 @@ lib/Smolder/TAPHTMLMatrix.pm
 lib/Smolder/TestData.pm
 lib/Smolder/TestScript.pm
 lib/Smolder/Upgrade.pm
+lib/Smolder/Upgrade/V0_1.pm
+lib/Smolder/Upgrade/V0_3.pm
+lib/Smolder/Upgrade/V1_1.pm
+lib/Smolder/Upgrade/V1_21.pm
+lib/Smolder/Upgrade/V1_24.pm
 lib/Smolder/Upgrade/V1_30.pm
 lib/Smolder/Util.pm
 LICENSE
-Makefile
 MANIFEST			This list of files
 MANIFEST.SKIP
 sql/db_version.sql
@@ -83,6 +89,10 @@ sql/preference.sql
 sql/project.sql
 sql/project_developer.sql
 sql/smoke_report.sql
+sql/upgrade/V0_3.sql
+sql/upgrade/V1_1.sql
+sql/upgrade/V1_21.sql
+sql/upgrade/V1_24.sql
 t/admin.t
 t/admin_devs.t
 t/admin_projs.t
@@ -170,8 +180,4 @@ templates/Public/welcome.tmpl
 templates/TAP/full_report.tmpl
 templates/TAP/individual_test.tmpl
 templates/wrapper.tmpl
-upgrades/V0_1.pm
-upgrades/V0_3.pm
-upgrades/V1_1.pm
-upgrades/V1_21.pm
-upgrades/V1_24.pm
+TODO
