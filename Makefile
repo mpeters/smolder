@@ -2,83 +2,44 @@
 #
 #   all           - Show help text
 #
+#   build         - build Smolder
+#
+#   clean         - remove the results of a build, tests etc
+#
 #   test          - runs the test suite
 #
 #   db            - recreates databases by calling bin/smolder_createdb
-#
-#   start         - start the smolder services
-#
-#   restart       - restart the smolder services
-#
-#   stop          - stop the smolder services
-#
-#   dist          - build a Smolder distribution for release
-#
-#   clean         - remove the results of a build
-#
-#   empty_trash   - clean out the tmp/ directory and any .bak or ~ files
-#
-#   build         - build required modules and Apache/mod_perl from source
 #
 #   tidy          - run perltidy on all Smolder *.pm and *.t files. Probably not
 #                   what you want.  see tidy_modified instead.
 #
 #   tidy_modified - run perltidy on all modified *.pm and *.t files, as
-#           reported by svn status
+#              		reported by svn status
 
 
 all:
 	@echo "No default make target."
 
-build:  clean
-	bin/smolder_build
+build:
+	perl Build.PL; ./Build
 
-dist:
-	bin/smolder_makedist
-
-clean:
-	- find lib/ -mindepth 1 | grep -v Smolder | grep -v svn | grep -v '^lib/Devel/CheckLib.pm' | grep -v '^lib/Devel' | xargs rm -rf
-	- find apache/ -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
-	- find docs/html -mindepth 1 -maxdepth 1 | grep -v svn | xargs rm -rf
-	- rm -rf data/build.db data/smoke_reports/* 
-	- rm -rf tmp/*
+clean: build
+	- rm -rf data/*
 	- rm -rf logs/*
+	- ./Build realclean
 
-clean_db:
-	- rm -f data/smolder.sqlite
-	- rm -rf data/smoke_reports/*
-	- rm -rf data/html_smoke_reports/*
+test: build
+	./Build test
 
-test:
-	bin/smolder_test
+db: build
+	./Build db
 
-test_pollute:
-	for i in t/*.t; do ./bin/smolder_test --files "t/aaa_dbcount.t $$i t/zzz_dbcount.t" || break; done;
-
-db:
-	bin/smolder_createdb --destroy
-
-db_noq:
-	bin/smolder_createdb --destroy --no_prompt
-
-start:
-	bin/smolder_ctl start
-
-restart:
-	bin/smolder_ctl restart
-
-stop:
-	bin/smolder_ctl stop
-
-empty_trash:
-	- find . \( -name '*.bak' -or -name '*~' \) -exec rm {} \;
-	- find tmp/ -mindepth 1 -maxdepth 1 ! \( -name '.svn' -o -name '*.conf' -o -name '*.pid' \) -exec rm -rf {} \;
-
+TIDY_ARGS = --backup-and-modify-in-place --indent-columns=4 --cuddled-else --maximum-line-length=100 --nooutdent-long-quotes --paren-tightness=2 --brace-tightness=2 --square-bracket-tightness=2
 tidy:
 	- find lib/Smolder/ -name '*.pm' | xargs perltidy -b -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
-	- find t/ -name '*.t' | xargs perltidy -b -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
+	- find t/ -name '*.t' | xargs perltidy $(TIDY_ARGS)
 
 tidy_modified:
-	svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy -i=4 -pt=1 -ci=2 -ce -bt=1 -sbt=1 -l=100
+	svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy $(TIDY_ARGS)
 
-.PHONY : all dist test clean docs build upgrade
+.PHONY : all build clean test db tidy tidy_modified

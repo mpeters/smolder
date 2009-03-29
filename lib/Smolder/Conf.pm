@@ -2,7 +2,7 @@ package Smolder::Conf;
 use strict;
 use warnings;
 use File::Spec::Functions qw(catfile catdir rel2abs curdir);
-use File::ShareDir qw(dist_dir);
+use File::ShareDir qw(module_dir);
 use File::HomeDir;
 use File::Basename qw(dirname);
 use Carp qw(croak);
@@ -192,7 +192,7 @@ The directory path for the templates for this install of Smolder
 
 sub template_dir {
     my $class = shift;
-    return $class->get('TemplateDir') || catdir(dist_dir('Smolder'), 'templates');
+    return $class->get('TemplateDir') || catdir(module_dir('Smolder'), 'templates');
 }
 
 =head2 htdocs_dir
@@ -203,7 +203,7 @@ The directory path for the htdocs for this install of Smolder
 
 sub htdocs_dir {
     my $class = shift;
-    return $class->get('HtdocsDir') || catdir(dist_dir('Smolder'), 'htdocs');
+    return $class->get('HtdocsDir') || catdir(module_dir('Smolder'), 'htdocs');
 }
 
 =head2 sql_dir
@@ -214,7 +214,7 @@ The directory path for the raw SQL files for this install of Smolder
 
 sub sql_dir {
     my $class = shift;
-    return $class->get('SQLDir') || catdir(dist_dir('Smolder'), 'sql');
+    return $class->get('SQLDir') || catdir(module_dir('Smolder'), 'sql');
 }
 
 

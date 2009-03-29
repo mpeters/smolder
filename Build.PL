@@ -1,11 +1,13 @@
 use strict;
 use warnings;
-use Module::Build;
-use File::ShareDir qw(dist_dir);
+use Smolder::Build;
 use File::Spec::Functions qw(catdir);
+use Config;
 use lib './t/lib';
 
-my $builder = Module::Build->new(
+my $share_dir = catdir($Config{installsitelib}, 'auto', 'share', 'Smolder');
+
+my $builder = Smolder::Build->new(
     module_name       => 'Smolder',
     license           => 'perl',
     dist_author       => 'Michael Peters <mpeters@plusthree.com>',
@@ -22,7 +24,7 @@ my $builder = Module::Build->new(
         'Class::DBI'                                 => 3.0,
         'Class::DBI::Plugin::RetrieveAll'            => 1.04,
         'Config::ApacheFormat'                       => 0,
-        'Data::FormValidator'                        => 4.63,
+        'Data::FormValidator'                        => 4.61,
         'Data::FormValidator::Constraints::DateTime' => 1.09,
         'Data::Random'                               => 0.05,
         'DateTime'                                   => 0.4501,
@@ -34,7 +36,7 @@ my $builder = Module::Build->new(
         'Exception::Class'                           => 1.23,
         'File::MMagic'                               => 0,
         'File::ShareDir'                             => 1.00,
-        'File::HomeDir'                              => 0.86,
+        'File::HomeDir'                              => 0.80,
         'GD::Graph'                                  => 0,
         'GD::Graph3d'                                => 0,
         'GD::Text'                                   => 0,
@@ -52,16 +54,18 @@ my $builder = Module::Build->new(
         'XML::Atom::SimpleFeed'                      => 0,
     },
     build_requires => {
-        'Test::WWW::Mechanize' => 1.24,
-        'Test::Builder'        => 0.86,
-        'Test::More'           => 0.86,
+        'Test::WWW::Mechanize' => 1.22,
+          'Test::Builder'      => 0.86,
+          'Test::More'         => 0.86,
+          'LWP::UserAgent'     => 0,
+          'IPC::Run'           => 0.82,
     },
     install_path => {
-        templates => catdir(dist_dir('Smolder'), 'templates'),
-        htdocs    => catdir(dist_dir('Smolder'), 'htdocs'),
-        sql       => catdir(dist_dir('Smolder'), 'sql'),
+        templates => catdir($share_dir, 'templates'),
+        htdocs    => catdir($share_dir, 'htdocs'),
+        sql       => catdir($share_dir, 'sql'),
     },
-    create_makefile_pl => 'traditional',
+    create_makefile_pl => 'passthrough',
     create_readme      => 1,
 );
 
