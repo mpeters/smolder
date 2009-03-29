@@ -181,6 +181,40 @@ sub ACTION_update_smoke_html {
     Smolder::DB::SmokeReport->update_all_report_html();
 }
 
+=head2 tidy
+
+Run perltidy over all the Perl files in the codebase.
+
+=cut
+
+my @TIDY_ARGS = qw(
+    --backup-and-modify-in-place 
+    --indent-columns=4 
+    --cuddled-else 
+    --maximum-line-length=100 
+    --nooutdent-long-quotes 
+    --paren-tightness=2 
+    --brace-tightness=2 
+    --square-bracket-tightness=2
+);
+sub ACTION_tidy {
+    my $self = shift;
+    system(q(find lib/Smolder/ -name '*.pm' | xargs perltidy ) . join(' ', @TIDY_ARGS));
+    system(q(find t/ -name '*.t' | xargs perltidy ) . join(' ', @TIDY_ARGS));
+    system('perltidy', 'bin', @TIDY_ARGS);
+}
+
+=head2 tidy_modified
+
+Run perltidy over all the Perl files that have changed and not been committed.
+
+=cut
+
+sub ACTION_tidy_modified {
+    my $self = shift;
+    system(q{svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy } . join(' ', @TIDY_ARGS));
+}
+
 # handle the extra file types that smolder needs (templates, sql, htdocs, etc)
 sub process_templates_files {
     my $self = shift;

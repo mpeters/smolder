@@ -6,3 +6,5 @@ _build
 \.git
 blib
 \.svn
+smolder.conf
+\.sqlite
