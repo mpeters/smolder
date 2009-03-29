@@ -49,6 +49,5 @@ GetOptions(
 pod2usage(1) if $help;
 
 $ENV{SMOLDER_CONF} = $conf if $conf;
-warn "SMOLDER_CONF: $ENV{SMOLDER_CONF}\n";
 require Smolder::Server;
 Smolder::Server->new(daemon => $daemon)->go();
