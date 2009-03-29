@@ -1,7 +1,7 @@
 package Smolder::Build;
 use strict;
 use warnings;
-use base 'Module::Build';
+use base 'Module::Build::TAPArchive';
 use File::Temp;
 use Cwd qw(cwd);
 use File::Spec::Functions qw(catdir tmpdir);
@@ -30,7 +30,16 @@ my $HOSTNAME = 'localhost.localdomain';
 my $PORT = '112234';
 sub ACTION_test {
     my $self = shift;
+    $self->_wrap_test_action('test');
+}
 
+sub ACTION_test_archive {
+    my $self = shift;
+    $self->_wrap_test_action('test_archive');
+}
+
+sub _wrap_test_action {
+    my ($self, $action) = @_;
     my $cwd = cwd();
 
     # create a temporary database
@@ -56,7 +65,8 @@ sub ACTION_test {
         sleep(3);
     }
 
-    $self->SUPER::ACTION_test(@_);
+    my $method = "SUPER::ACTION_$action";
+    $self->$method(@_);
     
     # finish() seems to hang, so just kill it
     $subprocess->kill_kill;

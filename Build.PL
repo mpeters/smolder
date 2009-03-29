@@ -54,11 +54,12 @@ my $builder = Smolder::Build->new(
         'XML::Atom::SimpleFeed'                      => 0,
     },
     build_requires => {
-        'Test::WWW::Mechanize' => 1.22,
-          'Test::Builder'      => 0.86,
-          'Test::More'         => 0.86,
-          'LWP::UserAgent'     => 0,
-          'IPC::Run'           => 0.82,
+        'Test::WWW::Mechanize'      => 1.22,
+        'Test::Builder'             => 0.86,
+        'Test::More'                => 0.86,
+        'LWP::UserAgent'            => 0,
+        'IPC::Run'                  => 0.82,
+        'Modlue::Build::TAPArchive' => 0,
     },
     install_path => {
         templates => catdir($share_dir, 'templates'),
