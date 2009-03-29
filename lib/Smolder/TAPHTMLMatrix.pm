@@ -88,5 +88,3 @@ __END__
 
 Smolder::TAPHTMLMatrix
 
-=back
-
