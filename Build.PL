@@ -72,7 +72,6 @@ my $builder = Smolder::Build->new(
         htdocs    => catdir($SHARE_DIR, 'htdocs'),
     },
     create_makefile_pl => 'passthrough',
-    create_readme      => 1,
     add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
 );
 
