@@ -80,10 +80,22 @@ sub _is_smolder_running {
 
 Run the smoke tests and submit them to our Smolder server.
 
+=cut
+
+sub ACTION_smoke {
+}
+
 =head2 db
 
 Create a new blank DB in the data/ directory (used for development)
 
 =cut
+
+sub ACTION_db {
+    my $self = shift;
+    $self->depends_on('build');
+    require Smolder::DB;
+    Smolder::DB->create_database();
+}
 
 1;
