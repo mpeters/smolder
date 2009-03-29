@@ -4,10 +4,15 @@ use warnings;
 use base 'Module::Build::TAPArchive';
 use File::Temp;
 use Cwd qw(cwd);
-use File::Spec::Functions qw(catdir tmpdir);
+use File::Spec::Functions qw(catdir catfile tmpdir curdir rel2abs abs2rel splitdir);
 use IPC::Run qw(start finish pump);
 use LWP::UserAgent;
 use WWW::Mechanize;
+use File::Find ();
+use File::Copy qw(copy);
+
+my $HOSTNAME = 'localhost.localdomain';
+my $PORT = '112234';
 
 =head1 NAME
 
@@ -27,8 +32,6 @@ down Smolder when done.
 
 =cut
 
-my $HOSTNAME = 'localhost.localdomain';
-my $PORT = '112234';
 sub ACTION_test {
     my $self = shift;
     $self->_wrap_test_action('test');
@@ -176,6 +179,53 @@ sub ACTION_update_smoke_html {
     my $self = shift;
     require Smolder::DB::SmokeReport;
     Smolder::DB::SmokeReport->update_all_report_html();
+}
+
+# handle the extra file types that smolder needs (templates, sql, htdocs, etc)
+sub process_templates_files {
+    my $self = shift;
+    $self->_copy_files('templates');
+}
+
+sub process_sql_files {
+    my $self = shift;
+    $self->_copy_files('sql');
+}
+
+sub process_htdocs_files {
+    my $self = shift;
+    $self->_copy_files('htdocs');
+}
+
+sub _copy_files {
+    my ($self, $type) = @_;
+    my $cwd = cwd();
+    my $start_dir = rel2abs(catdir(curdir, $type));
+    my $start_dir_length = scalar splitdir($start_dir);
+    my $dest_dir = rel2abs(catdir(curdir, 'blib', $type));
+
+    unless(-d $dest_dir ) {
+        mkdir $dest_dir or die "Could not create directory $dest_dir: $!";
+    }
+
+    File::Find::find(sub {
+        return if /^\./; # skip special files
+        return if $File::Find::dir =~ /\.svn/; 
+        return if -d;
+        my $name = $_;
+        my @new_dirs = splitdir($File::Find::dir);
+        @new_dirs = @new_dirs[$start_dir_length..$#new_dirs];
+        my $full_path; 
+        foreach my $new_dir (@new_dirs) {
+            $full_path = catdir($dest_dir, $new_dir);
+            unless(-d $full_path ) {
+                mkdir($full_path) or die "Could not create directory $full_path: $!";
+            }
+        }
+        $full_path = $full_path ? catfile($full_path, $name) : catfile($dest_dir, $name);
+        warn "Copying " . abs2rel($File::Find::name, $cwd) . " -> " . abs2rel($full_path, $cwd) . "\n";
+        copy($File::Find::name, $full_path) or die "Could not copy file $File::Find::name to $full_path: $!";
+    }, $start_dir);
 }
 
 1;

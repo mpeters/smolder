@@ -5,7 +5,7 @@ use File::Spec::Functions qw(catdir);
 use Config;
 use lib './t/lib';
 
-my $share_dir = catdir($Config{installsitelib}, 'auto', 'share', 'Smolder');
+my $SHARE_DIR = catdir($Config{installsitelib}, 'auto', 'share', 'Smolder');
 
 my $builder = Smolder::Build->new(
     module_name       => 'Smolder',
@@ -37,6 +37,7 @@ my $builder = Smolder::Build->new(
         'File::MMagic'                               => 0,
         'File::ShareDir'                             => 1.00,
         'File::HomeDir'                              => 0.80,
+        'Getopt::Long'                               => 0,
         'GD::Graph'                                  => 0,
         'GD::Graph3d'                                => 0,
         'GD::Text'                                   => 0,
@@ -47,6 +48,7 @@ my $builder = Smolder::Build->new(
         'IO::Zlib'                                   => 0,
         'JSON'                                       => 0,
         'MIME::Lite'                                 => 0,
+        'Pod::Usage'                                 => 0,
         'TAP::Harness::Archive'                      => 0.12,
         'Template::Plugin::Cycle'                    => 0,
         'URI::Escape'                                => 0,
@@ -61,14 +63,20 @@ my $builder = Smolder::Build->new(
         'WWW::Mechanize'            => 0,
         'IPC::Run'                  => 0.82,
         'Module::Build::TAPArchive' => 0,
+        'File::Find'                => 0,
+        'File::Copy'                => 0,
     },
     install_path => {
-        templates => catdir($share_dir, 'templates'),
-        htdocs    => catdir($share_dir, 'htdocs'),
-        sql       => catdir($share_dir, 'sql'),
+        templates => catdir($SHARE_DIR, 'templates'),
+        sql       => catdir($SHARE_DIR, 'sql'),
+        htdocs    => catdir($SHARE_DIR, 'htdocs'),
     },
     create_makefile_pl => 'passthrough',
     create_readme      => 1,
 );
 
-$builder->create_build_script()
+$builder->add_build_element('templates');
+$builder->add_build_element('sql');
+$builder->add_build_element('htdocs');
+
+$builder->create_build_script();
