@@ -22,7 +22,7 @@ use Smolder::TestData qw(
 if( is_smolder_running ) {
     plan(tests => 30);
 } else {
-    plan( skip_all => 'Smolder apache not running' );
+    plan( skip_all => 'Smolder not running' );
 }
 
 my $bin          = catfile( cwd(), 'bin', 'smolder_smoke_signal' );

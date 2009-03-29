@@ -20,7 +20,7 @@ use Smolder::TestData qw(
 if (is_smolder_running) {
     plan( tests => 69 );
 } else {
-    plan( skip_all => 'Smolder apache not running' );
+    plan( skip_all => 'Smolder not running' );
 }
 
 my $mech     = Smolder::Mech->new();

@@ -15,7 +15,7 @@ use Smolder::Mech;
 if (is_smolder_running) {
     plan(tests => 27);
 } else {
-    plan( skip_all => 'Smolder Apache not running' );
+    plan( skip_all => 'Smolder not running' );
 }
 
 # 1

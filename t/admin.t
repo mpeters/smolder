@@ -1,20 +1,19 @@
 use strict;
 use warnings;
-
 use Test::More;
 use Smolder::TestScript;
+use Smolder::Mech;
 use Smolder::TestData qw(
   base_url
   is_smolder_running
   create_developer
   delete_developers
 );
-use Smolder::Mech;
 
 if (is_smolder_running) {
     plan( tests => 6 );
 } else {
-    plan( skip_all => 'Smolder apache not running' );
+    plan( skip_all => 'Smolder not running' );
 }
 
 my $mech  = Smolder::Mech->new();
