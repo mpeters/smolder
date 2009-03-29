@@ -1,11 +1,10 @@
 package Smolder::Upgrade;
 use warnings;
 use strict;
-
+use File::Spec::Functions qw(catfile);
+use Smolder;
 use Smolder::Conf;
-use File::Spec::Functions qw(catfile catdir);
 use Smolder::DB;
-use Carp qw(croak);
 
 =head1 NAME
 
@@ -14,7 +13,6 @@ Smolder::Upgrade - Base class for Smolder upgrade modules
 =head1 SYNOPSIS
 
     use base 'Smolder::Upgrade';
-
     sub pre_db_upgrade  {....}
     sub post_db_upgrade { ... }
 
@@ -28,7 +26,7 @@ modules.
 =head3 new
 
 The new() method is a constructor which creates a trivial object from a
-hash.  Your upgrade modules may use this to store state information.
+hash. Your upgrade modules may use this to store state information.
 
 =cut
 
@@ -40,44 +38,102 @@ sub new {
 
 =head3 upgrade
 
-The upgrade() method is called by the smolder_upgrade script to implement
-an upgrade. This method will perform the following actions:
+This method looks at the current db_version of the database being used
+and then decides which upgrade modules should be run. Upgrade modules
+are children of this module and have the following naming pattern:
+C<Smolder::Upgrade::VX_YZ> where C<X.YZ> is the version number.
+
+So for example if the current version is at 1.35 and we are upgrading
+to 1.67, then any C<Smolder::Upgrade::VX_YZ> modules between those 2
+versions are run.
+
+=cut
+
+sub upgrade {
+    my $self       = shift;
+    my $db_version = Smolder::DB->db_Main->selectall_arrayref('SELECT db_version FROM db_version');
+    $db_version = $db_version->[0]->[0];
+    if ($db_version < $Smolder::VERSION) {
+
+        # find applicable upgrade modules
+        warn
+          "Your version of Smolder ($db_version) is out of date. Upgrading to $Smolder::VERSION...\n";
+        my $upgrade_dir = __FILE__;
+        $upgrade_dir =~ s/\.pm$//;
+
+        # Find upgrade modules
+        opendir(DIR, $upgrade_dir) || die("Unable to open upgrade directory '$upgrade_dir': $!\n");
+
+        my @up_modules;
+        foreach my $file (sort readdir(DIR)) {
+            if (   (-f catfile($upgrade_dir, $file))
+                && ($file =~ /^V(\d+)\_(\d+)\.pm$/)
+                && ("$1.$2" > $db_version))
+            {
+                push(@up_modules, $file);
+            }
+        }
+        closedir(DIR);
+        warn "  Found " . scalar(@up_modules) . " applicable upgrade modules.\n";
+
+        if (@up_modules) {
+            foreach my $mod (@up_modules) {
+                $mod =~ /(.*)\.pm$/;
+                my $class = $1;
+                my ($major, $minor) = ($class =~ /V(\d+)_(\d+)/);
+                $class = "Smolder::Upgrade::$class";
+                eval "require $class";
+                die "Can't load $class upgrade class: $@" if $@;
+                $class->new->version_upgrade("$major.$minor");
+            }
+        }
+
+        # upgrade the db_version
+        Smolder::DB->db_Main->do('UPDATE db_version SET db_version = ?', undef, $Smolder::VERSION);
+    }
+}
+
+=head3 version_upgrade
+
+This method is called by C<upgrade()> for each upgrade version module. It
+shouldn't be called directly from anyway else except for testing.
+
+It performs the following steps:
 
 =over
 
-=item call the L<pre_db_upgrade> method 
+=item 1
 
-=item run the SQL upgrade file found in F<upgrade/> that has the same version
+Call the L<pre_db_upgrade> method .
+
+=item 2
+
+Run the SQL upgrade file found in F<sql/upgrade/> that has the same version
 which is named for this same version. So an upgrade module named F<V1_23>
 will run the F<upgrade/V1_23.sql> file if it exists.
 
-=item call the L<post_db_upgrade> method
+=item 3
+
+Call the L<post_db_upgrade> method.
 
 =back
 
 =cut
 
-sub upgrade {
-    my $self     = shift;
-    my $platform = _load_platform();
-
-    $self->pre_db_upgrade($platform);
+sub version_upgrade {
+    my ($self, $version) = @_;
+    $self->pre_db_upgrade();
 
     # find and run the SQL file
-    my $file = catfile( $ENV{SMOLDER_ROOT}, 'upgrades', 'sql', lc DBPlatform, ref($self) . '.sql' );
+    $version =~ /(\d+)\.(\d+)/;
+    my $file = catfile( Smolder::Conf->sql_dir, 'upgrades', "V$1_$2.sql" );
     if ( -e $file ) {
-        print "    Upgrading DB with file '$file'.\n";
-        my $db_platform = Smolder::DBPlatform->load();
-        $db_platform->run_sql_file(
-            file   => $file,
-            user   => ( DBUser || '' ),
-            passwd => ( DBPass || '' ),
-            host   => ( DBHost || '' ),
-        );
+        warn "    Upgrading DB with file '$file'.\n";
+        Smolder::DB->run_sql_file($file);
     } else {
-        print "    Could not find SQL file '$file'. Skipping DB upgrade.\n";
+        warn "    No SQL file for version $version. Skipping DB upgrade.\n";
     }
-    $self->post_db_upgrade($platform);
+    $self->post_db_upgrade();
 
     # add any new things to the config file
     my $new_config_stuff = $self->add_to_config();
@@ -127,24 +183,5 @@ directives with a reasonable default.
 
 sub add_to_config {}
 
-
-sub _load_platform {
-
-    exit_error("Can't find data/build.db.  Do you need to run 'make build'?")
-      unless -e catfile( $ENV{SMOLDER_ROOT}, 'data', 'build.db' );
-    require Smolder::Platform;
-    my %build_params = Smolder::Platform->build_params;
-
-    # add in $SMOLDER_ROOT/platform for platform build modules
-    my $plib = catdir( $ENV{SMOLDER_ROOT}, "platform" );
-    $ENV{PERL5LIB} = "$ENV{PERL5LIB}:${plib}";
-    unshift @INC, $plib;
-
-    my $platform = "$build_params{Platform}::Platform";
-    eval "use $platform;";
-    die "Unable to load $platform: $@"
-      if $@;
-    return $platform;
-}
 
 1;

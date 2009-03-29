@@ -36,10 +36,14 @@ sub print_banner {
 sub go {
     my $self = shift;
 
-    # do we have a database? If not then create one
-    Smolder::DB->create_database unless -e Smolder::DB->db_file;
-
-    # check the DB version to make sure that we don't need to upgrade
+    unless(-e Smolder::DB->db_file) {
+        # do we have a database? If not then create one
+        Smolder::DB->create_database;
+    } else {
+        # upgrade if we need to
+        require Smolder::Upgrade;
+        Smolder::Upgrade->new->upgrade();
+    }
     
     # preload our perl modules
     require Smolder::Dispatch;
