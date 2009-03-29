@@ -1,7 +1,0 @@
-=head1 NAME
-
-Smolder Supported Databases
-
-=head1 DESCRIPTION
-
-

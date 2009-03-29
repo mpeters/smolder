@@ -1,7 +1,0 @@
-=head1 NAME
-
-Smolder Database Abstraction
-
-=head1 DESCRIPTION
-
-
