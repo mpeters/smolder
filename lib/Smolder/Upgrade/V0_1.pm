@@ -1,4 +1,4 @@
-package V0_1;
+package Smolder::Upgrade::V0_1;
 use strict;
 use warnings;
 use base 'Smolder::Upgrade';

@@ -1,10 +1,10 @@
-package V1_1;
+package Smolder::Upgrade::V1_1;
 use strict;
 use warnings;
 use base 'Smolder::Upgrade';
 use File::Path qw(rmtree);
 use File::Spec::Functions qw(catdir);
-use Smolder::Conf qw(InstallRoot);
+use Smolder::Conf;
 
 sub pre_db_upgrade  { }
 
@@ -19,9 +19,9 @@ sub post_db_upgrade {
         Smolder::DB->dbi_commit();
     }
     # remove the old HTML reports in the old format
-    rmtree(catdir(InstallRoot, 'data', 'html_smoke_reports'));
+    rmtree(catdir(Smolder::Conf->data_dir, 'html_smoke_reports'));
     # remove the old XML reports
-    my $report_dir = catdir(InstallRoot, 'data', 'smoke_reports');
+    my $report_dir = catdir(Smolder::Conf->data_dir, 'smoke_reports');
     rmtree($report_dir);
     mkdir($report_dir);
 }
