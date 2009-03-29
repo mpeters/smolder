@@ -73,7 +73,7 @@ my $builder = Smolder::Build->new(
     },
     create_makefile_pl => 'passthrough',
     create_readme      => 1,
-    add_to_cleanup     => ['data/*', 'logs/*'],
+    add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
 );
 
 $builder->add_build_element('templates');
