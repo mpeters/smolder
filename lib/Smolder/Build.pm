@@ -7,6 +7,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions qw(catdir tmpdir);
 use IPC::Run qw(start finish pump);
 use LWP::UserAgent;
+use WWW::Mechanize;
 
 =head1 NAME
 
@@ -92,7 +93,62 @@ Run the smoke tests and submit them to our Smolder server.
 
 =cut
 
+__PACKAGE__->add_property(no_update => 0);
+__PACKAGE__->add_property(tags => '');
+__PACKAGE__->add_property(server => 'http://smolder.plusthree.com');
+__PACKAGE__->add_property(project_id => 2);
 sub ACTION_smoke {
+    my $self = shift;
+    my $p    = $self->{properties};
+    if ($p->{no_update} or `svn update` =~ /Updated to/i) {
+
+        $self->ACTION_test_archive();
+
+        # now send the results off to smolder
+        my $mech = WWW::Mechanize->new();
+        $mech->get("$p->{server}/app");
+        unless ($mech->status eq '200') {
+            print "Could not reach $p->{server}/app successfully. Received status "
+              . $mech->status . "\n";
+            exit(1);
+        }
+
+        # now go to the add-smoke-report page for this project
+        $mech->get("$p->{server}/app/public_projects/add_report/$p->{project_id}");
+        if ($mech->status ne '200' || $mech->content !~ /New Smoke Report/) {
+            print "Could not reach the Add Smoke Report form in Smolder!\n";
+            exit(1);
+        }
+        $mech->form_name('add_report');
+        my %fields = (
+            report_file  => $p->{archive_file},
+            platform     => `cat /etc/redhat-release`,
+            architecture => `uname -m`,
+        );
+        $fields{tags} = $p->{tags} if $p->{tags};
+
+        # get the comments from svn
+        my @lines = `svn info`;
+        @lines = grep { $_ =~ /URL|Revision|LastChanged/ } @lines;
+        $fields{comments} = join("\n", @lines);
+        $mech->set_fields(%fields);
+        $mech->submit();
+
+        my $content = $mech->content;
+        if ($mech->status ne '200' || $content !~ /Recent Smoke Reports/) {
+            print "Could not upload smoke report with the given information!\n";
+            exit(1);
+        }
+        $content =~ /#(\d+) Added/;
+        my $report_id = $1;
+
+        print "\nReport successfully uploaded as #$report_id.\n";
+        unlink($p->{archive_file}) if -e $p->{archive_file};
+
+    } else {
+        print "No updates to Smolder\n";
+        exit(0);
+    }
 }
 
 =head2 db

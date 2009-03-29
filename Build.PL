@@ -58,8 +58,9 @@ my $builder = Smolder::Build->new(
         'Test::Builder'             => 0.86,
         'Test::More'                => 0.86,
         'LWP::UserAgent'            => 0,
+        'WWW::Mechanize'            => 0,
         'IPC::Run'                  => 0.82,
-        'Modlue::Build::TAPArchive' => 0,
+        'Module::Build::TAPArchive' => 0,
     },
     install_path => {
         templates => catdir($share_dir, 'templates'),
