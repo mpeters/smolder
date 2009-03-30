@@ -7,7 +7,7 @@ use Smolder::Conf qw(Port HostName LogFile);
 use Smolder::DB;
 
 sub new {
-    my $class  = shift;
+    my ($class, %args) = @_;
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
@@ -17,14 +17,12 @@ sub new {
         {
             '/'    => 'Smolder::Redirect',
             '/app' => 'Smolder::Dispatch',
-
-            #'/static' => $htdocs", # need to get this working
             '/js'     => $htdocs,
             '/style'  => $htdocs,
             '/images' => $htdocs,
         },
     );
-
+    $server->{"__smolder_$_"} = $args{$_} foreach keys %args;
     return $server;
 }
 
@@ -72,9 +70,11 @@ sub go {
         exit(1);
     }
 
-    return $self->run();
-
-    #    return $self->background();
+    if( $self->{__smolder_daemon} ) {
+        return $self->background();
+    } else {
+        return $self->run();
+    }
 }
 
 1;
