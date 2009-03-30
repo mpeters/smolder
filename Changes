@@ -1,6 +1,9 @@
 Revision history for Smolder
 
-1.3
+1.31 (March 30, 2009)
+    + Fixing some minor Build.PL issues
+
+1.3 (March 29, 2009)
     + Rewrite of the build/install system to be installable from CPAN using
       Module::Build::TAPArchive - M. Peters
     + Drop MySQL as supported DB platform. Now we just use SQLite - M. Peters
