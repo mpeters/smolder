@@ -181,5 +181,4 @@ templates/TAP/full_report.tmpl
 templates/TAP/individual_test.tmpl
 templates/wrapper.tmpl
 TODO
-Makefile.PL
 META.yml
