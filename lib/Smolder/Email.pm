@@ -91,11 +91,6 @@ sub send_mime_mail {
       || croak $TEMPLATE->error();
     my $text = HTML::FormatText::WithLinks->new()->parse($html);
 
-my $fh;
-open($fh, '>', '/tmp/email_full.html') or die $!;
-print $fh $html;
-close $fh;
-
     # create the multipart text and html message
     my $mime = MIME::Lite->new(
         From    => FromAddress(),
@@ -113,10 +108,10 @@ close $fh;
     );
 
     # set the SMTP host
-    if( SMTPHost() ) {
-        MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 );
+    unless( $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} ) {
+        MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 ) if SMTPHost();
+        eval { $mime->send() };
     }
-    eval { $mime->send() } unless $ENV{SMOLDER_TEST_HARNESS_ACTIVE};
     return $@;
 }
 

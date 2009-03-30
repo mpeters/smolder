@@ -59,6 +59,7 @@ sub _wrap_test_action {
     print $tmp_conf $conf;
     close $tmp_conf;
     $ENV{SMOLDER_CONF} = $tmp_conf->filename;
+    $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} = 1; 
 
     # start the smolder server
     my ($in, $out, $err);
