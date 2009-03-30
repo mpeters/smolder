@@ -60,8 +60,6 @@ sub _wrap_test_action {
       . "DataDir '"
       . $tmp_dir->dirname . "'\n";
 
-$conf .= "\nLogFile /home/mpeters/development/smolder/logs/smolder.log\n";
-
     my $tmp_conf = File::Temp->new(template => 'smolder-XXXXXX', suffix => '.conf', dir => tmpdir);
     print $tmp_conf $conf;
     close $tmp_conf;
