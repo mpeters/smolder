@@ -73,6 +73,7 @@ sub _wrap_test_action {
     warn "Waiting for Smolder to start...\n";
     while (!_is_smolder_running() && $tries < 7) {
         sleep(3);
+        $tries++;
     }
 
     my $method = "SUPER::ACTION_$action";
