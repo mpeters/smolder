@@ -13,10 +13,15 @@ TODO tasks for Smolder
   + adding sql tables
   + adding code
 
++ Wider UI
+
 + SCM revision # on the main summary page of a test run
 
 + Change graphs to be able to handle more data without looking crappy
   + Maybe something client side (JS, Canvas, Google graphs)?
+  + add percentage based graphs
+
++ Custom dashboard of boxes, picking tags & showing the status for the last report of that tag
 
 + Handle skip-all better in the plan.
   + A skip-all plan will look like this:
