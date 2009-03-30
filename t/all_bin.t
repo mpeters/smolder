@@ -7,7 +7,7 @@ use File::Basename qw(basename);
 use Cwd qw(cwd);
 
 # just make sure we can compile all of our scripts
-my $dir = catfile(cwd, 't', '*');
+my $dir = catfile(cwd, 'bin', '*');
 my @scripts = ();
 @scripts = glob($dir);
 
