@@ -37,7 +37,7 @@ Shows a welcome page using the F<Developer/welcome.tmpl> template.
 
 sub welcome {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 1;

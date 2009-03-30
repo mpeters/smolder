@@ -23,22 +23,19 @@ as a visual indicator of a test's success. Green == 100%, Red == 0%.
 # adapted from Test::TAP::Model::Visual
 sub pass_fail_color {
     my $ratio = shift;
+
     # handle percentages
     $ratio = $ratio / 100 if $ratio > 1;
-    my @start_color = ('255', '00',  '00');     # ff0000
-    my @end_color   = ('00',  '255', '00');     # 00ff00
+    my @start_color = ('255', '00',  '00');    # ff0000
+    my @end_color   = ('00',  '255', '00');    # 00ff00
     my @color_pieces;
-    
-    if ( $ratio == 1 ) {
+
+    if ($ratio == 1) {
         @color_pieces = @end_color;
-    } elsif( $ratio == 0 ) {
+    } elsif ($ratio == 0) {
         @color_pieces = @start_color;
     } else {
-        @color_pieces = (
-            '255',
-            100 + ( ( 255 - 100 ) * $ratio ),
-            100 - 20,
-        );
+        @color_pieces = ('255', 100 + ((255 - 100) * $ratio), 100 - 20,);
     }
     return sprintf('%02x%02x%02x', @color_pieces);
 }
@@ -57,12 +54,12 @@ C<HH:MM:SS> or C<MM:SS> or C<SS>.
 sub format_time {
     my $secs = shift;
     return $secs if $secs < 60;
-    my $hour = int($secs/3600);
-    my $min  = int(($secs %3600)/60);
+    my $hour = int($secs / 3600);
+    my $min  = int(($secs % 3600) / 60);
     my $sec  = $secs % 60;
-    if( $hour ) {
+    if ($hour) {
         return sprintf('%i:%02i:%02i', $hour, $min, $sec);
-    } elsif( $min ) {
+    } elsif ($min) {
         return sprintf('%i:%02i', $min, $sec);
     }
 }
@@ -75,10 +72,9 @@ Smolder.
 =cut
 
 {
-    my $_base = 'http://' . HostName
-        . ( Port == 80 ? '' : ':' . Port );
+    my $_base = 'http://' . HostName . (Port == 80 ? '' : ':' . Port);
 
-    sub url_base { $_base };
+    sub url_base { $_base }
 }
 
 1;

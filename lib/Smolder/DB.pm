@@ -22,7 +22,6 @@ __PACKAGE__->connection(
         RootClass          => 'DBIx::ContextualFetch',
     }
 );
-    
 
 =head1 NAME
 
@@ -89,7 +88,7 @@ columns and the values are the current values of those columns.
 
 sub vars {
     my $self = shift;
-    my %vars = map { $_ => $self->get($_) } ( $self->columns );
+    my %vars = map { $_ => $self->get($_) } ($self->columns);
     return %vars;
 }
 
@@ -112,14 +111,15 @@ my %ENUMS = (
         email_type => [qw(full summary link)],
         email_freq => [qw(on_new on_fail never)],
     },
-    project      => { graph_start => [qw(project year month week day)], },
-    smoke_report => { format      => [qw(XML YAML)], },
+    project      => {graph_start => [qw(project year month week day)],},
+    smoke_report => {format      => [qw(XML YAML)],},
 );
+
 sub enum_values {
     my $self = shift;
     my ($table, $column);
 
-    if ( ref $self || $self ne __PACKAGE__ ) {
+    if (ref $self || $self ne __PACKAGE__) {
         $table = $self->table();
     } else {
         $table = shift;
@@ -146,7 +146,7 @@ begin with the letter 's':
 =cut
 
 sub column_values {
-    my ( $self, $column, $substr ) = @_;
+    my ($self, $column, $substr) = @_;
     my $table = $self->table();
     my $sql   = qq(
         SELECT DISTINCT $column FROM $table WHERE $column IS NOT NULL
@@ -158,14 +158,14 @@ sub column_values {
     if ($substr) {
         $substr .= '%';
         $sql    .= " AND $column LIKE ? ";
-        push( @bind_cols, $substr );
+        push(@bind_cols, $substr);
     }
 
     my $sth = Smolder::DB->db_Main()->prepare_cached($sql);
     $sth->execute(@bind_cols);
     my @values;
-    while ( my $row = $sth->fetchrow_arrayref() ) {
-        push( @values, $row->[0] );
+    while (my $row = $sth->fetchrow_arrayref()) {
+        push(@values, $row->[0]);
     }
     return \@values;
 }
@@ -214,7 +214,7 @@ Returns the full path to the SQLite DB file.
 =cut
 
 sub db_file {
-    return catfile( Smolder::Conf->data_dir, "smolder.sqlite" );
+    return catfile(Smolder::Conf->data_dir, "smolder.sqlite");
 }
 
 =head2 run_sql_file
@@ -226,8 +226,8 @@ Given the runs the SQL contained in the file against out SQLite DB
 =cut
 
 sub run_sql_file {
-    my ( $class, $file) = @_;
-    open( my $IN, $file ) or die "Could not open file '$file' for reading: $!";
+    my ($class, $file) = @_;
+    open(my $IN, $file) or die "Could not open file '$file' for reading: $!";
 
     require Smolder::DB;
     my $dbh = Smolder::DB->db_Main();
@@ -235,15 +235,15 @@ sub run_sql_file {
     my $sql = '';
 
     # read each line
-    while ( my $line = <$IN> ) {
+    while (my $line = <$IN>) {
 
         # skip comments
-        next if ( $line =~ /^--/ );
+        next if ($line =~ /^--/);
         $sql .= $line;
 
         # if we have a ';' at the end of the line then it should
         # be the end of the statement
-        if ( $line =~ /;\s*$/ ) {
+        if ($line =~ /;\s*$/) {
             $dbh->do($sql)
               or die "Could not execute SQL '$sql': $!";
             $sql = '';
@@ -264,8 +264,9 @@ to restore the database to it's present state including all schema creationg sta
 
 sub dump_database {
     my ($class, $file) = @_;
+
     # open the file we want to print to
-    open( my $OUT, '>', $file )
+    open(my $OUT, '>', $file)
       or die "Could not open file '$file' for writing: $!";
 
     # get the list of tables
@@ -278,10 +279,11 @@ sub dump_database {
     )
     );
     $sth->execute();
-    my ( @tables, $table );
-    $sth->bind_col( 1, \$table );
-    while ( $sth->fetch ) {
-        push( @tables, $table );
+    my (@tables, $table);
+    $sth->bind_col(1, \$table);
+
+    while ($sth->fetch) {
+        push(@tables, $table);
     }
     $sth->finish();
 
@@ -297,8 +299,8 @@ sub dump_database {
         );
         $sth->execute($t);
         my $sql;
-        $sth->bind_col( 1, \$sql );
-        while ( $sth->fetch ) {
+        $sth->bind_col(1, \$sql);
+        while ($sth->fetch) {
             print $OUT "$sql;\n";
         }
         $sth->finish();
@@ -311,8 +313,8 @@ sub dump_database {
         )
         );
         $sth->execute($t);
-        $sth->bind_col( 1, \$sql );
-        while ( $sth->fetch ) {
+        $sth->bind_col(1, \$sql);
+        while ($sth->fetch) {
             print $OUT "$sql;\n" if ($sql);
         }
         $sth->finish();
@@ -321,14 +323,14 @@ sub dump_database {
         # now get all of the data in this table
         $sth = $dbh->prepare(qq(SELECT * FROM $t));
         $sth->execute();
-        while ( my $row = $sth->fetchrow_arrayref ) {
+        while (my $row = $sth->fetchrow_arrayref) {
 
             # massage each value so we can create the SQL
             my @values;
             foreach my $value (@$row) {
 
                 # NULLs
-                if ( !defined $value ) {
+                if (!defined $value) {
                     $value = 'NULL';
 
                     # escape and quote it
@@ -336,11 +338,11 @@ sub dump_database {
                     $value =~ s/"/\\"/g;
                     $value = qq("$value");
                 }
-                push( @values, $value );
+                push(@values, $value);
             }
 
             # create the SQL
-            my $sql = "INSERT INTO $t VALUES (" . join( ', ', @values ) . ");\n";
+            my $sql = "INSERT INTO $t VALUES (" . join(', ', @values) . ");\n";
             print $OUT $sql;
         }
 
@@ -359,14 +361,14 @@ This method will create a brand new, completely empty database file for Smolder.
 
 sub create_database {
     my $class = shift;
-    my $file    = $class->db_file();
+    my $file  = $class->db_file();
 
     # create a new file by this name whether it exists or not
-    open( FH, ">$file" ) or die "Could not open file '$file' for writing: $!";
+    open(FH, ">$file") or die "Could not open file '$file' for writing: $!";
     close(FH) or die "Could not close file '$file': $!";
 
     my $sql_dir = Smolder::Conf->sql_dir;
-    my @files = glob("$sql_dir/*.sql");
+    my @files   = glob("$sql_dir/*.sql");
     foreach my $file (@files) {
         eval { $class->run_sql_file($file) };
         die "Couldn't load SQL file $file! $@" if $@;
@@ -374,7 +376,7 @@ sub create_database {
 
     # Set the db_version
     my $version = $Smolder::VERSION;
-    my $dbh = $class->db_Main;
+    my $dbh     = $class->db_Main;
     eval { $dbh->do("UPDATE db_version set db_version=$version") };
     die "Could not update db_version! $@" if $@;
 }
@@ -392,7 +394,7 @@ failed UNIQUE contstraint, else will return false.
 =cut
 
 sub unique_failure_msg {
-    my ( $class, $msg ) = @_;
+    my ($class, $msg) = @_;
     return $msg =~ /not unique\(/i;
 }
 

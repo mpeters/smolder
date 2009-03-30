@@ -25,7 +25,7 @@ our $TEMPLATE = Template->new(
     INCLUDE_PATH => Smolder::Conf->template_dir,
     COMPILE_EXT  => '.ttc',
     WRAPPER      => 'Email/wrapper.tmpl',
-    FILTERS => {
+    FILTERS      => {
         pass_fail_color => \&Smolder::Util::pass_fail_color,
         format_time     => \&Smolder::Util::format_time,
     },
@@ -77,17 +77,17 @@ returned.
 =cut
 
 sub send_mime_mail {
-    my ( $class, %args ) = @_;
-    my ( $to, $subject, $tt_params, $name ) = @args{qw(to subject tt_params name)};
+    my ($class, %args) = @_;
+    my ($to, $subject, $tt_params, $name) = @args{qw(to subject tt_params name)};
     $tt_params->{host_name} = HostName();
     $tt_params->{host_name} .= ":" . Port unless Port == 80;
-    $tt_params->{subject} = $subject;
-    $tt_params->{email} = 1;
+    $tt_params->{subject}  = $subject;
+    $tt_params->{email}    = 1;
     $tt_params->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));
 
     # get the HTML and plain text content
     my $html;
-    $TEMPLATE->process( "Email/$name.tmpl", $tt_params, \$html )
+    $TEMPLATE->process("Email/$name.tmpl", $tt_params, \$html)
       || croak $TEMPLATE->error();
     my $text = HTML::FormatText::WithLinks->new()->parse($html);
 
@@ -108,8 +108,8 @@ sub send_mime_mail {
     );
 
     # set the SMTP host
-    unless( $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} ) {
-        MIME::Lite->send( 'smtp', SMTPHost(), Timeout => 60 ) if SMTPHost();
+    unless ($ENV{SMOLDER_TEST_HARNESS_ARCHIVE}) {
+        MIME::Lite->send('smtp', SMTPHost(), Timeout => 60) if SMTPHost();
         eval { $mime->send() };
     }
     return $@;

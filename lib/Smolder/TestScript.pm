@@ -18,10 +18,10 @@ simply by being C<use>ing it in your scripts.
 =cut
 
 use Test::Builder;
+
 sub import {
     no warnings;
     *Test::Builder::failure_output = sub { return \*STDOUT };
 }
-
 
 1;

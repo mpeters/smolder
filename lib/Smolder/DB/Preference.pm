@@ -47,7 +47,7 @@ that L<Smolder::DB::Project> object, else it will return C<undef>.
 
 sub project {
     my $self = shift;
-    my $sql = q(
+    my $sql  = q(
         SELECT project.* FROM project, project_developer
         WHERE project.id = project_developer.project
         AND project_developer.preference = ?
@@ -81,7 +81,6 @@ sub email_freqs {
     my $class = shift;
     return $class->enum_values('email_freq');
 }
-
 
 1;
 

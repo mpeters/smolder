@@ -12,7 +12,7 @@ use File::Find ();
 use File::Copy qw(copy);
 
 my $HOSTNAME = 'localhost.localdomain';
-my $PORT = '112234';
+my $PORT     = '112234';
 
 =head1 NAME
 
@@ -48,40 +48,46 @@ sub _wrap_test_action {
 
     # create a temporary database
     my $tmp_dir = File::Temp->newdir(template => 'smolder-XXXXXX');
-    my $conf = "Port $PORT\nHostname $HOSTNAME\n"
-        . "FromAddress smolder\@$HOSTNAME\nSecret ad01i11932lsk\n"
-        . "TemplateDir '" . catdir($cwd, 'templates') . "'\n"
-        . "HtdocsDir '" . catdir($cwd, 'htdocs') . "'\n"
-        . "SQLDir '" . catdir($cwd, 'sql') . "'\n"
-        . "DataDir '" . $tmp_dir->dirname . "'\n";
+    my $conf =
+        "Port $PORT\nHostname $HOSTNAME\n"
+      . "FromAddress smolder\@$HOSTNAME\nSecret ad01i11932lsk\n"
+      . "TemplateDir '"
+      . catdir($cwd, 'templates') . "'\n"
+      . "HtdocsDir '"
+      . catdir($cwd, 'htdocs') . "'\n"
+      . "SQLDir '"
+      . catdir($cwd, 'sql') . "'\n"
+      . "DataDir '"
+      . $tmp_dir->dirname . "'\n";
 
     my $tmp_conf = File::Temp->new(template => 'smolder-XXXXXX', suffix => '.conf', dir => tmpdir);
     print $tmp_conf $conf;
     close $tmp_conf;
-    $ENV{SMOLDER_CONF} = $tmp_conf->filename;
-    $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} = 1; 
+    $ENV{SMOLDER_CONF}                 = $tmp_conf->filename;
+    $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} = 1;
 
     # start the smolder server
     my ($in, $out, $err);
     my $subprocess = start(["$cwd/bin/smolder"], \$in, \$out, \$err);
     my $tries = 0;
     warn "Waiting for Smolder to start...\n";
-    while(!_is_smolder_running() && $tries < 7) {
+    while (!_is_smolder_running() && $tries < 7) {
         sleep(3);
     }
 
     my $method = "SUPER::ACTION_$action";
     {
+
         # make sure depends_on('code') doesn't get run since we've already taken care of it
         local *Module::Build::TAPArchive::depends_on = sub {
             my ($self, @args) = @_;
-            if($args[0] && $args[0] ne 'code') {
+            if ($args[0] && $args[0] ne 'code') {
                 return $self->SUPER::depends_on(@args);
             }
         };
         $self->$method(@_);
     }
-    
+
     # finish() seems to hang, so just kill it
     $subprocess->kill_kill;
 }
@@ -106,10 +112,11 @@ Run the smoke tests and submit them to our Smolder server.
 
 =cut
 
-__PACKAGE__->add_property(no_update => 0);
-__PACKAGE__->add_property(tags => '');
-__PACKAGE__->add_property(server => 'http://smolder.plusthree.com');
+__PACKAGE__->add_property(no_update  => 0);
+__PACKAGE__->add_property(tags       => '');
+__PACKAGE__->add_property(server     => 'http://smolder.plusthree.com');
 __PACKAGE__->add_property(project_id => 2);
+
 sub ACTION_smoke {
     my $self = shift;
     my $p    = $self->{properties};
@@ -197,21 +204,21 @@ Run perltidy over all the Perl files in the codebase.
 
 =cut
 
-my @TIDY_ARGS = qw(
-    --backup-and-modify-in-place 
-    --indent-columns=4 
-    --cuddled-else 
-    --maximum-line-length=100 
-    --nooutdent-long-quotes 
-    --paren-tightness=2 
-    --brace-tightness=2 
-    --square-bracket-tightness=2
-);
+my $TIDY_ARGS =
+    "--backup-and-modify-in-place "
+  . "--indent-columns=4 "
+  . "--cuddled-else "
+  . "--maximum-line-length=100 "
+  . "--nooutdent-long-quotes "
+  . "--paren-tightness=2 "
+  . "--brace-tightness=2 "
+  . "--square-bracket-tightness=2 ";
+
 sub ACTION_tidy {
     my $self = shift;
-    system(q(find lib/Smolder/ -name '*.pm' | xargs perltidy ) . join(' ', @TIDY_ARGS));
-    system(q(find t/ -name '*.t' | xargs perltidy ) . join(' ', @TIDY_ARGS));
-    system('perltidy', 'bin', @TIDY_ARGS);
+    system(qq(find lib/Smolder/ -name '*.pm' | xargs perltidy $TIDY_ARGS));
+    system(qq(find t/ -name '*.t' | xargs perltidy $TIDY_ARGS));
+    system(qq(perltidy bin/* $TIDY_ARGS));
 }
 
 =head2 tidy_modified
@@ -222,7 +229,8 @@ Run perltidy over all the Perl files that have changed and not been committed.
 
 sub ACTION_tidy_modified {
     my $self = shift;
-    system(q{svn -q status | grep '^M.*\.\(pm\|pl\|t\)$$' | cut -c 8- | xargs perltidy } . join(' ', @TIDY_ARGS));
+    system(
+        qq{svn -q status | grep '^M.*\.\(pm\|pl\|t\)\$\$' | cut -c 8- | xargs perltidy $TIDY_ARGS});
 }
 
 # handle the extra file types that smolder needs (templates, sql, htdocs, etc)
@@ -243,33 +251,39 @@ sub process_htdocs_files {
 
 sub _copy_files {
     my ($self, $type) = @_;
-    my $cwd = cwd();
-    my $start_dir = rel2abs(catdir(curdir, $type));
+    my $cwd              = cwd();
+    my $start_dir        = rel2abs(catdir(curdir, $type));
     my $start_dir_length = scalar splitdir($start_dir);
-    my $dest_dir = rel2abs(catdir(curdir, 'blib', $type));
+    my $dest_dir         = rel2abs(catdir(curdir, 'blib', $type));
 
-    unless(-d $dest_dir ) {
+    unless (-d $dest_dir) {
         mkdir $dest_dir or die "Could not create directory $dest_dir: $!";
     }
 
-    File::Find::find(sub {
-        return if /^\./; # skip special files
-        return if $File::Find::dir =~ /\.svn/; 
-        return if -d;
-        my $name = $_;
-        my @new_dirs = splitdir($File::Find::dir);
-        @new_dirs = @new_dirs[$start_dir_length..$#new_dirs];
-        my $full_path; 
-        foreach my $new_dir (@new_dirs) {
-            $full_path = catdir($dest_dir, $new_dir);
-            unless(-d $full_path ) {
-                mkdir($full_path) or die "Could not create directory $full_path: $!";
+    File::Find::find(
+        sub {
+            return if /^\./;                         # skip special files
+            return if $File::Find::dir =~ /\.svn/;
+            return if -d;
+            my $name     = $_;
+            my @new_dirs = splitdir($File::Find::dir);
+            @new_dirs = @new_dirs[$start_dir_length .. $#new_dirs];
+            my $full_path;
+            foreach my $new_dir (@new_dirs) {
+                $full_path = catdir($dest_dir, $new_dir);
+                unless (-d $full_path) {
+                    mkdir($full_path) or die "Could not create directory $full_path: $!";
+                }
             }
-        }
-        $full_path = $full_path ? catfile($full_path, $name) : catfile($dest_dir, $name);
-        warn "Copying " . abs2rel($File::Find::name, $cwd) . " -> " . abs2rel($full_path, $cwd) . "\n";
-        copy($File::Find::name, $full_path) or die "Could not copy file $File::Find::name to $full_path: $!";
-    }, $start_dir);
+            $full_path = $full_path ? catfile($full_path, $name) : catfile($dest_dir, $name);
+            warn "Copying "
+              . abs2rel($File::Find::name, $cwd) . " -> "
+              . abs2rel($full_path,        $cwd) . "\n";
+            copy($File::Find::name, $full_path)
+              or die "Could not copy file $File::Find::name to $full_path: $!";
+        },
+        $start_dir
+    );
 }
 
 1;

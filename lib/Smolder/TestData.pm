@@ -75,14 +75,14 @@ my $count = 0;
             public     => 1,
             %args,
         );
-        my $proj = Smolder::DB::Project->create( \%args );
-        push( @projects, $proj );
+        my $proj = Smolder::DB::Project->create(\%args);
+        push(@projects, $proj);
         return $proj;
     }
 
     sub delete_projects {
         foreach my $proj (@projects) {
-            if ( $proj && ref $proj ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+            if ($proj && ref $proj ne 'Class::DBI::Object::Has::Been::Deleted') {
                 $proj->delete();
             }
         }
@@ -121,14 +121,14 @@ Will delete all developers that were created by L<create_developer>.
             preference => create_preference(),
             %args,
         );
-        my $dev = Smolder::DB::Developer->create( \%args );
-        push( @developers, $dev );
+        my $dev = Smolder::DB::Developer->create(\%args);
+        push(@developers, $dev);
         return $dev;
     }
 
     sub delete_developers {
         foreach my $dev (@developers) {
-            if ( $dev && ref $dev ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+            if ($dev && ref $dev ne 'Class::DBI::Object::Has::Been::Deleted') {
                 $dev->delete();
             }
         }
@@ -163,14 +163,14 @@ Will delete all preferences that were created by L<create_preference>.
             email_freq => 'daily',
             %args,
         );
-        my $pref = Smolder::DB::Preference->create( \%args );
-        push( @preferences, $pref );
+        my $pref = Smolder::DB::Preference->create(\%args);
+        push(@preferences, $pref);
         return $pref;
     }
 
     sub delete_preferences {
         foreach my $pref (@preferences) {
-            if ( $pref && ref $pref ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+            if ($pref && ref $pref ne 'Class::DBI::Object::Has::Been::Deleted') {
                 $pref->delete();
             }
         }
@@ -211,12 +211,12 @@ Will delete all test reports create by L<create_smoke_report>.
 
         # set some defaults
         %args = (
-            file => catfile( Smolder::Conf->test_data_dir, 'test_run_bad_yml.tar.gz' ),
+            file         => catfile(Smolder::Conf->test_data_dir, 'test_run_bad_yml.tar.gz'),
             architecture => 'x386',
             platform     => 'Linux',
             %args,
         );
-        my $report = Smolder::DB::SmokeReport->upload_report( %args );
+        my $report = Smolder::DB::SmokeReport->upload_report(%args);
 
         # now add any tags
         $report->add_tag($_) foreach (@$tags);
@@ -226,7 +226,7 @@ Will delete all test reports create by L<create_smoke_report>.
 
     sub delete_smoke_reports {
         foreach my $report (@reports) {
-            if ( $report && ref $report ne 'Class::DBI::Object::Has::Been::Deleted' ) {
+            if ($report && ref $report ne 'Class::DBI::Object::Has::Been::Deleted') {
                 $report->delete();
             }
         }
@@ -243,7 +243,7 @@ Delete the tags with the given names
 
 sub delete_tags {
     my @tags = @_;
-    my $sth = Smolder::DB->db_Main->prepare_cached('DELETE FROM smoke_report_tag WHERE tag = ?');
+    my $sth  = Smolder::DB->db_Main->prepare_cached('DELETE FROM smoke_report_tag WHERE tag = ?');
     foreach my $t (@tags) {
         $sth->execute($t);
     }
@@ -273,7 +273,6 @@ sub _can_reach_url {
     return $res->is_success;
 }
 
-
 =head2 base_url
 
 Returns the base url for the dynamic portions of the site.
@@ -293,7 +292,7 @@ Returns the value for a given database field given the table, field and id.
 =cut
 
 sub db_field_value {
-    my ( $table, $field, $id ) = @_;
+    my ($table, $field, $id) = @_;
     my $sth = Smolder::DB->db_Main->prepare_cached("SELECT $field FROM $table WHERE id = ?");
     $sth->execute($id);
     my $row = $sth->fetchrow_arrayref();

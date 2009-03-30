@@ -12,7 +12,7 @@ use IO::Scalar;
 use Smolder;
 
 # all valid configuration directives must be listed here
-our ( @VALID_DIRECTIVES, @REQUIRED_DIRECTIVES );
+our (@VALID_DIRECTIVES, @REQUIRED_DIRECTIVES);
 
 BEGIN {
     @VALID_DIRECTIVES = map { lc($_) } qw(
@@ -68,9 +68,9 @@ our $CONF;
 
 # look for the file in various places. Return the first one that exists
 sub _conf_file_path {
-    if( $ENV{SMOLDER_CONF} ) {
+    if ($ENV{SMOLDER_CONF}) {
         return $ENV{SMOLDER_CONF};
-    } elsif( $ENV{SMOLDER_ROOT} ) {
+    } elsif ($ENV{SMOLDER_ROOT}) {
         my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
         return $conf_file if -e $conf_file;
     }
@@ -112,7 +112,7 @@ sub _load {
 
     # load conf file into package global
     eval {
-        our $CONF = Config::ApacheFormat->new( valid_directives => \@VALID_DIRECTIVES, );
+        our $CONF = Config::ApacheFormat->new(valid_directives => \@VALID_DIRECTIVES,);
         $CONF->read($conf_file);
     };
     croak("Unable to read config file '$conf_file'.  Error was: $@")
@@ -149,7 +149,7 @@ Directive names are case-insensitive.
 =cut
 
 sub get {
-    return $CONF->get( $_[1] );
+    return $CONF->get($_[1]);
 }
 
 =head2 check
@@ -217,7 +217,6 @@ sub sql_dir {
     return $class->get('SQLDir') || catdir(module_dir('Smolder'), 'sql');
 }
 
-
 =head2 data_dir
 
 The directory path for data directory for this install of Smolder
@@ -227,7 +226,7 @@ The directory path for data directory for this install of Smolder
 sub data_dir {
     my $class = shift;
     my $dir = $class->get('DataDir') || catdir(File::HomeDir->my_data, '.smolder');
-    if( !-d $dir ) {
+    if (!-d $dir) {
         mkdir($dir) or _broked("Can't create data directory $dir! $!");
     }
     return $dir;
@@ -294,6 +293,6 @@ sub _broked {
 }
 
 # run the check ASAP, unless we're in upgrade mode
-BEGIN { __PACKAGE__->check() unless ( $ENV{SMOLDER_CONF_NOCHECK} ) }
+BEGIN { __PACKAGE__->check() unless ($ENV{SMOLDER_CONF_NOCHECK}) }
 
 1;

@@ -8,6 +8,7 @@ use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
 use Template::Plugin::Cycle;
 use CGI::Cookie;
+
 #use CGI::Application::Plugin::DebugScreen;
 use Smolder;
 use Smolder::Util;
@@ -20,7 +21,8 @@ use File::Spec::Functions qw(catdir catfile tmpdir);
 __PACKAGE__->add_callback(
     init => sub {
         my $self = shift;
-        if( LogFile ) {
+        if (LogFile) {
+
             # setup log dispatch to use Apache::Log
             $self->log_config(
                 APPEND_NEWLINE       => 1,
@@ -47,7 +49,7 @@ __PACKAGE__->add_callback(
 __PACKAGE__->add_callback(
     prerun => sub {
         my $self   = shift;
-        my $q = $self->query;
+        my $q      = $self->query;
         my $cookie = CGI::Cookie->fetch();
         $cookie = $cookie->{smolder};
         my $ai = Smolder::AuthInfo->new();
@@ -62,9 +64,11 @@ __PACKAGE__->add_callback(
                 @user_groups = @{$ai->groups};
             }
         }
+
         # log them in if the username and password are passed
         if (!$ENV{REMOTE_USER} && ($q->param('username') && $q->param('password'))) {
-            my $dev = Smolder::Control::Public::Auth::do_login($self, $q->param('username'),
+            my $dev =
+              Smolder::Control::Public::Auth::do_login($self, $q->param('username'),
                 $q->param('password'));
             @user_groups = $dev->groups if $dev;
         }
@@ -127,9 +131,10 @@ Will be true if we are running under Apache2/mod_perl2
 
 =cut
 
-our $MP2 = defined $ENV{MOD_PERL_API_VERSION} ?
-    $ENV{MOD_PERL_API_VERSION} == 2
-    : 0;
+our $MP2 =
+  defined $ENV{MOD_PERL_API_VERSION}
+  ? $ENV{MOD_PERL_API_VERSION} == 2
+  : 0;
 
 =head1 METHODS
 
@@ -165,7 +170,7 @@ This method will return the L<Smolder::DB::Projects> that are marked as 'public'
 
 sub public_projects {
     my $self = shift;
-    my @projs = Smolder::DB::Project->search( public => 1, { order_by => 'name' });
+    my @projs = Smolder::DB::Project->search(public => 1, {order_by => 'name'});
     return \@projs;
 }
 
@@ -177,9 +182,9 @@ messages, but rather to display un-recoverable and un-expected occurances.
 =cut
 
 sub error_message {
-    my ( $self, $msg ) = @_;
+    my ($self, $msg) = @_;
     $self->log->warning("An error occurred: $msg");
-    return $self->tt_process( 'error_message.tmpl', { message => $msg, }, );
+    return $self->tt_process('error_message.tmpl', {message => $msg,},);
 }
 
 =head2 tt_process
@@ -216,7 +221,7 @@ sub dfv_msgs {
     # we need to eval{} 'cause ValidateRM doesn't like dfv_results() being called
     # without check_rm() being called first.
     eval { $results = $self->dfv_results };
-    if ( !$@ ) {
+    if (!$@) {
         return $results->msgs();
     } else {
         return {};
@@ -231,7 +236,7 @@ field.
 =cut
 
 sub auto_complete_results {
-    my ( $self, $values ) = @_;
+    my ($self, $values) = @_;
     my $html = '<ul>';
     foreach (@$values) {
         $html .= '<li>' . $self->query->escapeHTML($_) . '</li>';
@@ -249,12 +254,13 @@ frustrated by having to fight with browser caches.
 =cut
 
 sub static_url {
-    my ( $self, $url ) = @_;
+    my ($self, $url) = @_;
+
     # TODO - fix this after the switch to CGI::Application::Server
     return $url;
 
     $url =~ s/^\///;
-    return catfile( '',  $Smolder::VERSION, $url );
+    return catfile('', $Smolder::VERSION, $url);
 }
 
 =head2 add_message
@@ -281,7 +287,7 @@ default C<info> is assumed.
 sub add_message {
     my ($self, %args) = @_;
     my $msgs = $self->json_header_value('messages') || [];
-    push(@$msgs, { type => ($args{type} || 'info') , msg => ($args{msg} || '') });
+    push(@$msgs, {type => ($args{type} || 'info'), msg => ($args{msg} || '')});
     $self->add_json_header(messages => $msgs);
 }
 
@@ -347,6 +353,7 @@ my $TT_CONFIG = {
         }
         return catfile($dir, $name . '.tmpl');
     },
+
     #TEMPLATE_PRECOMPILE_DIR => catdir( tmpdir(), 'templates'),
 };
 __PACKAGE__->tt_config($TT_CONFIG);
@@ -354,14 +361,14 @@ __PACKAGE__->tt_config($TT_CONFIG);
 __PACKAGE__->add_callback(
     'tt_pre_process',
     sub {
-        my ( $self, $file, $vars ) = @_;
-        if ( $self->query->param('ajax') ) {
+        my ($self, $file, $vars) = @_;
+        if ($self->query->param('ajax')) {
             $vars->{no_wrapper} = 1;
             $vars->{ajax}       = 1;
         }
         $vars->{smolder_version} = $Smolder::VERSION;
-        $vars->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));
-        $vars->{url_base} = Smolder::Util::url_base();
+        $vars->{odd_even}        = Template::Plugin::Cycle->new(qw(odd even));
+        $vars->{url_base}        = Smolder::Util::url_base();
         return;
     }
 );
@@ -384,7 +391,7 @@ Also, the 'any_errors' message will be set.
 
 __PACKAGE__->add_callback(
     init => sub {
-        my $self  = shift;
+        my $self = shift;
         $self->param(
             'dfv_defaults' => {
                 filters                 => ['trim'],
@@ -400,28 +407,28 @@ sub _create_dfv_msgs {
     my %msgs;
 
     # if there's anything wrong
-    if ( !$dfv->success ) {
+    if (!$dfv->success) {
 
         # add 'any_errors'
         $msgs{any_errors} = 1;
 
-        if ( $dfv->has_invalid ) {
+        if ($dfv->has_invalid) {
 
             # add any error messages for failed (possibly named) constraints
-            foreach my $failed ( $dfv->invalid ) {
+            foreach my $failed ($dfv->invalid) {
                 $msgs{"err_$failed"}     = 1;
                 $msgs{"invalid_$failed"} = 1;
                 my $names = $dfv->invalid($failed);
                 foreach my $name (@$names) {
-                    next if ( ref $name );    # skip regexes
+                    next if (ref $name);    # skip regexes
                     $msgs{"invalid_$name"} = 1;
                 }
             }
         }
 
         # now add for missing
-        if ( $dfv->has_missing ) {
-            foreach my $missing ( $dfv->missing ) {
+        if ($dfv->has_missing) {
+            foreach my $missing ($dfv->missing) {
                 $msgs{"err_$missing"}     = 1;
                 $msgs{"missing_$missing"} = 1;
                 $msgs{'has_missing'}      = 1;

@@ -7,7 +7,7 @@ sub dispatch_args {
     return {
         prefix => 'Smolder::Control',
         table  => [
-            ''                      => { app => 'Public' },
+            ''                                             => {app => 'Public'},
             'public_projects/tap_stream/:id/:stream_index' => {
                 app => 'Public::Projects',
                 rm  => 'tap_stream',

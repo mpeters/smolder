@@ -57,7 +57,7 @@ sub setup {
 }
 
 # to be overridden by subclasses to allow public access
-sub public { 0 };
+sub public        { 0 }
 sub require_group { 'developer' }
 
 =head1 RUN MODES
@@ -71,10 +71,10 @@ template.
 =cut
 
 sub start {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
 
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
@@ -107,19 +107,19 @@ sub image {
     my $self  = shift;
     my $query = $self->query();
 
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
-    my ( $start, $stop );
-    my $dt_format = DateTime::Format::Strptime->new( pattern => '%m/%d/%Y', );
-    if ( $query->param('start') ) {
-        $start = $dt_format->parse_datetime( $query->param('start') );
+    my ($start, $stop);
+    my $dt_format = DateTime::Format::Strptime->new(pattern => '%m/%d/%Y',);
+    if ($query->param('start')) {
+        $start = $dt_format->parse_datetime($query->param('start'));
     } else {
         $start = $project->graph_start_datetime;
     }
-    if ( $query->param('stop') ) {
-        $stop = $dt_format->parse_datetime( $query->param('stop') );
+    if ($query->param('stop')) {
+        $stop = $dt_format->parse_datetime($query->param('stop'));
     } else {
         $stop = DateTime->today();
     }
@@ -127,11 +127,12 @@ sub image {
 
     # which fields do we need to show?
     my @fields;
-    if ( $query->param('change') ) {
+    if ($query->param('change')) {
         foreach my $field (keys %FIELDS) {
-            push( @fields, $field ) if ( $query->param($field) );
+            push(@fields, $field) if ($query->param($field));
         }
     } else {
+
         # by default, show pass vs fail
         @fields = qw(pass fail);
     }
@@ -143,7 +144,7 @@ sub image {
 
     foreach my $extra_param qw(tag architecture platform) {
         $search_params{$extra_param} = $query->param($extra_param)
-          if ( $query->param($extra_param) );
+          if ($query->param($extra_param));
     }
 
     my $data = $project->report_graph_data(
@@ -156,15 +157,16 @@ sub image {
     $self->header_type('none');
 
     # if we don't have any data, then just send the no_graph_data.png file
-    if ( scalar @$data == 0 ) {
+    if (scalar @$data == 0) {
         my $NO_DATA_FH;
-        my $file = catfile( Smolder::Conf->htdocs_dir, 'images', 'no_graph_data.png' );
-        open( $NO_DATA_FH, $file )
+        my $file = catfile(Smolder::Conf->htdocs_dir, 'images', 'no_graph_data.png');
+        open($NO_DATA_FH, $file)
           or die "Could not open '$file' for reading: $!";
         local $/ = undef;
         print <$NO_DATA_FH>;
         close($NO_DATA_FH) or die "Could not close file '$file': $!";
     } else {
+
         # else create the graph and send it
         my @colors = map { $FIELDS{$_}->[0] } @fields;
         my @legend = map { $FIELDS{$_}->[1] } @fields;
@@ -185,32 +187,32 @@ sub image {
 }
 
 sub _create_progress_gd {
-    my ( $self, %args ) = @_;
+    my ($self, %args) = @_;
     my $data   = $args{data};
     my $colors = $args{colors};
     my $legend = $args{legend};
     my $title  = $args{title};
 
     # what type of graph are we?
-    my $type = $TYPE_MAP{ $self->param('type') } || 'bars3d';
+    my $type = $TYPE_MAP{$self->param('type')} || 'bars3d';
 
     # we just want to show the first, middle and last labels
     # on the X axis
-    my $x_skip = int( ( scalar( @{ $data->[0] } ) - 1 ) / 2 ) + 1;
+    my $x_skip = int((scalar(@{$data->[0]}) - 1) / 2) + 1;
 
     # find the maximun value for the Y axis
     my $y_max = 0;
-    for my $i (1..$#$data) {
+    for my $i (1 .. $#$data) {
         foreach my $point (@{$data->[$i]}) {
-            $y_max = $point if ( $point > $y_max );
+            $y_max = $point if ($point > $y_max);
         }
     }
 
     # now round up to the nearest 100
-    $y_max = ( $y_max + 100 ) - ( $y_max % 100 );
+    $y_max = ($y_max + 100) - ($y_max % 100);
 
     my $class = 'GD::Graph::' . $type;
-    my $graph = $class->new( 600, 300 );
+    my $graph = $class->new(600, 300);
     $graph->set(
         title                => $title,
         bgclr                => 'white',
@@ -228,8 +230,7 @@ sub _create_progress_gd {
         legend_marker_height => 20,
         legend_spacing       => 8,
         x_labels_vertical    => 0,
-      )
-      or die "Could not set graph attributes! - " . $graph->error();
+    ) or die "Could not set graph attributes! - " . $graph->error();
     $graph->set_legend(@$legend);
 
     my $gd = $graph->plot($data)

@@ -58,25 +58,27 @@ Change the project admin status for a developer within a project.
 sub change_admin {
     my $self    = shift;
     my $query   = $self->query;
-    my $project = Smolder::DB::Project->retrieve( $query->param('project') );
+    my $project = Smolder::DB::Project->retrieve($query->param('project'));
     return $self->error_message("Project does not exist!") unless $project;
 
-    my $dev = Smolder::DB::Developer->retrieve( $query->param('developer') );
+    my $dev = Smolder::DB::Developer->retrieve($query->param('developer'));
     return $self->error_message("Project does not exist!") unless $dev;
 
     # clear out the old admins
-    if( $query->param('remove') ) {
+    if ($query->param('remove')) {
         $project->clear_admins($dev->id);
-        $self->add_message(
-            msg => "Successfully removed developer '" . $dev->username 
-                . "' as an admin of '" . $project->name . "'."
-        );
+        $self->add_message(msg => "Successfully removed developer '"
+              . $dev->username
+              . "' as an admin of '"
+              . $project->name
+              . "'.");
     } else {
         $project->set_admins($dev->id);
-        $self->add_message(
-            msg => "Successfully made developer '" . $dev->username 
-                . "' an admin of '" . $project->name . "'."
-        );
+        $self->add_message(msg => "Successfully made developer '"
+              . $dev->username
+              . "' an admin of '"
+              . $project->name
+              . "'.");
     }
     return;
 }
@@ -92,18 +94,16 @@ Uses the F<Admin/Projects/devs.tmpl> template.
 =cut
 
 sub devs {
-    my ( $self, $tt_params, $proj ) = @_;
-    $tt_params  ||= {};
-    $proj       ||= Smolder::DB::Project->retrieve(
-        $self->param('id') || $self->query->param('project')
-    );
-    my @devs      = Smolder::DB::Developer->search(guest => 0);
+    my ($self, $tt_params, $proj) = @_;
+    $tt_params ||= {};
+    $proj ||= Smolder::DB::Project->retrieve($self->param('id') || $self->query->param('project'));
+    my @devs = Smolder::DB::Developer->search(guest => 0);
     my @proj_devs = $proj->developers;
 
     # only show developers that aren't in this project
-    my %devs_in_project = map { $_->id => 1 } @proj_devs; 
+    my %devs_in_project = map { $_->id => 1 } @proj_devs;
     @devs = grep { !$devs_in_project{$_->id} } @devs;
-    
+
     $tt_params = {
         developers         => \@devs,
         project            => $proj,
@@ -122,10 +122,10 @@ Add a developer to a project. Returns the C<dev> run mode when done.
 sub add_dev {
     my $self  = shift;
     my $query = $self->query;
-    my $proj  = Smolder::DB::Project->retrieve( $query->param('project') );
-    my $dev   = Smolder::DB::Developer->retrieve( $query->param('developer') );
+    my $proj  = Smolder::DB::Project->retrieve($query->param('project'));
+    my $dev   = Smolder::DB::Developer->retrieve($query->param('developer'));
 
-    if ( $dev && $proj ) {
+    if ($dev && $proj) {
         my $proj_pref = $dev->preference->copy;
         eval {
             my $proj_dev = Smolder::DB::ProjectDeveloper->create(
@@ -141,10 +141,11 @@ sub add_dev {
             $proj_pref->delete if $proj_pref;
             die $err unless Smolder::DB->unique_failure_msg($err);
         } else {
-            $self->add_message(
-                msg => "Developer '" . $dev->username 
-                    . "' has been added to project '" . $proj->name . "'."
-            );
+            $self->add_message(msg => "Developer '"
+                  . $dev->username
+                  . "' has been added to project '"
+                  . $proj->name
+                  . "'.");
         }
     }
 
@@ -160,21 +161,22 @@ when done.
 =cut
 
 sub remove_dev {
-    my $self   = shift;
-    my $query  = $self->query;
-    my $proj   = Smolder::DB::Project->retrieve( $query->param('project') );
-    my $dev    = Smolder::DB::Developer->retrieve( $query->param('developer') );
+    my $self  = shift;
+    my $query = $self->query;
+    my $proj  = Smolder::DB::Project->retrieve($query->param('project'));
+    my $dev   = Smolder::DB::Developer->retrieve($query->param('developer'));
 
-    if ( $dev && $proj ) {
+    if ($dev && $proj) {
         Smolder::DB::ProjectDeveloper->retrieve(
             developer => $dev,
             project   => $proj,
         )->delete();
 
-        $self->add_message(
-            msg => "Developer '" . $dev->username 
-                . "' has been removed from project '" . $proj->name . "'."
-        );
+        $self->add_message(msg => "Developer '"
+              . $dev->username
+              . "' has been removed from project '"
+              . $proj->name
+              . "'.");
     }
 
     $self->add_json_header(update_nav => 1) if $dev->id == $self->developer->id;
@@ -189,18 +191,18 @@ template.
 =cut
 
 sub edit {
-    my ( $self, $err_msgs ) = @_;
+    my ($self, $err_msgs) = @_;
     my $query = $self->query;
     my $output;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
 
-    my %tt_params = ( project => $project, );
+    my %tt_params = (project => $project,);
 
     # if we have any error messages, then just re-fill the form
     # and show them
     if ($err_msgs) {
         $output = HTML::FillInForm->new->fill(
-            scalarref => $self->tt_process( { %$err_msgs, %tt_params } ),
+            scalarref => $self->tt_process({%$err_msgs, %tt_params}),
             qobject   => $query,
         );
 
@@ -214,7 +216,7 @@ sub edit {
             enable_feed  => $project->enable_feed,
         );
         $output = HTML::FillInForm->new->fill(
-            scalarref => $self->tt_process( \%tt_params ),
+            scalarref => $self->tt_process(\%tt_params),
             fdat      => \%project_data,
         );
     }
@@ -234,7 +236,7 @@ sub list {
     my %tt_params;
     $tt_params{projects} = \@projects if (@projects);
 
-    return $self->tt_process( \%tt_params );
+    return $self->tt_process(\%tt_params);
 }
 
 =head2 add
@@ -245,7 +247,7 @@ template.
 =cut
 
 sub add {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
@@ -265,19 +267,19 @@ sub process_add {
     my $form = {
         required           => [qw(project_name start_date public enable_feed)],
         constraint_methods => {
-            project_name => [ length_max(255), unique_field_value( 'project', 'name', $id ), ],
+            project_name => [length_max(255), unique_field_value('project', 'name', $id),],
             start_date   => to_datetime('%m/%d/%Y'),
             public       => bool(),
             enable_feed  => bool(),
         },
     };
 
-    my $results = $self->check_rm( ( $id ? 'edit' : 'add' ), $form )
+    my $results = $self->check_rm(($id ? 'edit' : 'add'), $form)
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
     $valid->{name} = delete $valid->{project_name};
 
-    my ( $project, $action );
+    my ($project, $action);
 
     # if we're editing
     if ($id) {
@@ -301,8 +303,8 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate project name, then we can handle that
-        if ( Smolder::Conf->unique_failure_msg($@) ) {
-            return $self->add( { err_unique_project_name => 1 } );
+        if (Smolder::Conf->unique_failure_msg($@)) {
+            return $self->add({err_unique_project_name => 1});
 
             # else it's something else, so just throw it again
         } else {
@@ -311,8 +313,10 @@ sub process_add {
     }
 
     # now show the project's success message
-    my $msg = $id ?  "Project '" . $project->name . "' successfully updated."
-        : "New project '" . $project->name . "' successfully created.";
+    my $msg =
+      $id
+      ? "Project '" . $project->name . "' successfully updated."
+      : "New project '" . $project->name . "' successfully created.";
     $self->add_message(msg => $msg);
     return $self->add_json_header(list_changed => 1, update_nav => 1);
 }
@@ -325,11 +329,11 @@ template.
 =cut
 
 sub details {
-    my ( $self, $project, $action ) = @_;
+    my ($self, $project, $action) = @_;
     my $new;
 
     # if we weren't given a project, then get it from the URL
-    if ( !$project ) {
+    if (!$project) {
         $new = 0;
         my $id = $self->param('id');
         $project = Smolder::DB::Project->retrieve($id);
@@ -338,9 +342,9 @@ sub details {
         $new = 1;
     }
 
-    my %tt_params = ( project => $project );
+    my %tt_params = (project => $project);
     $tt_params{$action} = 1 if ($action);
-    return $self->tt_process( \%tt_params );
+    return $self->tt_process(\%tt_params);
 }
 
 =head2 delete

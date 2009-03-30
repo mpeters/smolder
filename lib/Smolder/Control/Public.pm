@@ -39,7 +39,7 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 
 sub welcome {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 =head2 nav
@@ -50,8 +50,8 @@ Return the nav HTML snippet incase we need to update it
 
 sub nav {
     my $self = shift;
-    return $self->tt_process('nav.tmpl', { no_wrapper => 1 });
-    
+    return $self->tt_process('nav.tmpl', {no_wrapper => 1});
+
 }
 
 =head2 developer_tutorial
@@ -62,7 +62,7 @@ Shows a tutorial for a developer  using the F<Public/developer_tutorial.tmpl> te
 
 sub developer_tutorial {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 =head2 admin_tutorial
@@ -73,7 +73,7 @@ Shows a tutorial for an admin  using the F<Public/admin_tutorial.tmpl> template.
 
 sub admin_tutorial {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 =head2 not_found
@@ -84,7 +84,7 @@ Show the PAGE NOT FOUND error.
 
 sub not_found {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 =head2 error
@@ -95,7 +95,7 @@ Show the INTERNAL SERVER ERROR page.
 
 sub error {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 1;

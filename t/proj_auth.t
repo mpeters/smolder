@@ -18,16 +18,16 @@ use Smolder::Conf;
 use File::Spec::Functions qw(catfile);
 
 if (is_smolder_running) {
-    plan( tests => 15 );
+    plan(tests => 15);
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech    = Smolder::Mech->new();
 my $url     = base_url() . '/developer_projects';
 my $pw      = 's3cr3t';
-my $dev     = create_developer( password => $pw );
-my $proj_id = create_project( public => 0 )->id();
+my $dev     = create_developer(password => $pw);
+my $proj_id = create_project(public => 0)->id();
 
 END {
     delete_developers();
@@ -40,10 +40,11 @@ use_ok('Smolder::Control::Developer::Projects');
 # 2..6
 # login as a developer
 $mech->get($url);
+
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
 $mech->content_contains("You shouldn't be here");
-$mech->login( username => $dev->username, password => $pw );
-ok( $mech->success );
+$mech->login(username => $dev->username, password => $pw);
+ok($mech->success);
 $mech->get_ok($url);
 $mech->content_contains('My Projects');
 

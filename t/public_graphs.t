@@ -17,7 +17,7 @@ use Smolder::DB::ProjectDeveloper;
 if (is_smolder_running) {
     plan('no_plan');
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech  = Smolder::Mech->new();

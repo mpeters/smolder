@@ -9,9 +9,9 @@ use File::Basename;
 
 BEGIN {
     eval { require WWW::Mechanize };
-    if( $@ ) {
-        warn "\nCannot load WWW::Mechanize. " .
-            "\nPlease install it before using smolder_smoke_signal.\n";
+    if ($@) {
+        warn "\nCannot load WWW::Mechanize. "
+          . "\nPlease install it before using smolder_smoke_signal.\n";
         exit(1);
     }
 }
@@ -97,8 +97,8 @@ Print verbose output of our actions to STDOUT.
 =cut
 
 # default options
-my ( $server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose );
-my ( $help, $man );
+my ($server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose);
+my ($help, $man);
 
 GetOptions(
     'server=s'       => \$server,
@@ -113,8 +113,7 @@ GetOptions(
     'verbose!'       => \$verbose,
     'help'           => \$help,
     'man'            => \$man,
-  )
-  || pod2usage();
+) || pod2usage();
 
 if ($help) {
     pod2usage(
@@ -136,8 +135,8 @@ _missing_required('password') unless $pw;
 _missing_required('file')     unless $file;
 
 # make sure our file is there and is of the right type
-if ( -r $file ) {
-    unless( $file =~ /\.tar(\.gz)?$/ ) {
+if (-r $file) {
+    unless ($file =~ /\.tar(\.gz)?$/) {
         warn "File '$file' is not of the correct type!\n";
         exit(1);
     }
@@ -151,16 +150,16 @@ print "Trying to reach Smolder server at $server.\n" if ($verbose);
 my $mech     = WWW::Mechanize->new();
 my $base_url = "http://$server/app";
 eval { $mech->get($base_url) };
-unless ( $mech->status eq '200' ) {
+unless ($mech->status eq '200') {
     warn "Could not reach $server successfully. Received status " . $mech->status . "\n";
     exit(1);
 }
 
 # now login
 print "Trying to login with username '$user'.\n" if ($verbose);
-$mech->get( $base_url . '/public_auth/login' );
+$mech->get($base_url . '/public_auth/login');
 my $form = $mech->form_name('login');
-if ( $mech->status ne '200' || !$form ) {
+if ($mech->status ne '200' || !$form) {
     warn "Could not reach Smolder login form. Are you sure $server is a Smolder server?\n";
     exit(1);
 }
@@ -170,28 +169,27 @@ $mech->set_fields(
 );
 $mech->submit();
 my $content = $mech->content;
-if ( $mech->status ne '200' || $content !~ /Welcome \Q$user\E/ ) {
+if ($mech->status ne '200' || $content !~ /Welcome \Q$user\E/) {
     warn "Could not login with username '$user' and password '$pw'!\n";
     exit(1);
 }
 
 # now go to this project's page
 print "Retrieving project listing for user '$user'.\n" if ($verbose);
-$mech->get( $base_url . '/developer_projects' );
+$mech->get($base_url . '/developer_projects');
 $content = $mech->content;
 $content =~ />\Q$project\E<!--ID:(\d+)-->/;
 my $project_id = $1;
-if ( $mech->status ne '200' || !$project_id ) {
-    warn
-      "Could not get your project listing, or you are not a member of the '$project' project!\n";
+if ($mech->status ne '200' || !$project_id) {
+    warn "Could not get your project listing, or you are not a member of the '$project' project!\n";
     exit(1);
 }
 
 # now go to the add-smoke-report page for this project
 print "Adding smoke report to project '$project'.\n" if ($verbose);
-$mech->get( $base_url . "/developer_projects/add_report/$project_id" );
+$mech->get($base_url . "/developer_projects/add_report/$project_id");
 $content = $mech->content;
-if ( $mech->status ne '200' || $content !~ /New Smoke Report/ ) {
+if ($mech->status ne '200' || $content !~ /New Smoke Report/) {
     warn "Could not reach the Add Smoke Report form!\n";
     exit(1);
 }
@@ -205,7 +203,7 @@ $mech->set_fields(%fields);
 $mech->submit();
 
 $content = $mech->content;
-if ( $mech->status ne '200' || $content !~ /Recent Smoke Reports/ ) {
+if ($mech->status ne '200' || $content !~ /Recent Smoke Reports/) {
     warn "Could not upload smoke report with the given information!\n";
     exit(1);
 }

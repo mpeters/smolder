@@ -60,8 +60,8 @@ Returns a method which validates an email address
 
 sub email {
     return sub {
-        my ( $dfv, $value ) = @_;
-        if ( Email::Valid->address($value) ) {
+        my ($dfv, $value) = @_;
+        if (Email::Valid->address($value)) {
             return $value;
         } else {
             return;
@@ -121,7 +121,7 @@ at least $min and at most $max number of printable characters.
 =cut
 
 sub length_between {
-    my ( $min, $max ) = sort { $a <=> $b } @_;
+    my ($min, $max) = sort { $a <=> $b } @_;
     return qr/^[[:print:]]{$min,$max}$/;
 }
 
@@ -135,12 +135,12 @@ enum value for the given table and column.
 =cut
 
 sub enum_value {
-    my ( $table, $column ) = @_;
-    my $enums = Smolder::DB->enum_values( $table, $column );
+    my ($table, $column) = @_;
+    my $enums = Smolder::DB->enum_values($table, $column);
     return sub {
-        my ( $dfv, $value ) = @_;
+        my ($dfv, $value) = @_;
         foreach my $enum (@$enums) {
-            if ( $enum eq $value ) {
+            if ($enum eq $value) {
                 return $value;
             }
         }
@@ -166,10 +166,10 @@ or
 =cut
 
 sub unique_field_value {
-    my ( $table, $field, $id ) = @_;
+    my ($table, $field, $id) = @_;
 
     return sub {
-        my ( $dfv, $value ) = @_;
+        my ($dfv, $value) = @_;
         $dfv->set_current_constraint_name("unique_${table}_${field}");
 
         # get all the values of a certain field
@@ -197,9 +197,9 @@ table in a particular column.
 =cut 
 
 sub existing_field_value {
-    my ( $table, $column ) = @_;
+    my ($table, $column) = @_;
     return sub {
-        my ( $dfv, $value ) = @_;
+        my ($dfv, $value) = @_;
         my $sth = Smolder::DB->db_Main->prepare_cached(
             qq(
             SELECT $column FROM $table WHERE $column = ?
@@ -208,7 +208,7 @@ sub existing_field_value {
         $sth->execute($value);
         my $row = $sth->fetchrow_arrayref();
         $sth->finish();
-        if ( defined $row->[0] ) {
+        if (defined $row->[0]) {
             return $value;
         } else {
             return;
@@ -229,18 +229,17 @@ being used.
 sub file_mtype {
     my @types = @_;
     return sub {
-        my ( $dfv, $filename ) = @_;
-        my $fh = $dfv->get_input_data()->upload( $dfv->get_current_constraint_field );
-        my ($suffix) = ( basename($filename) =~ /(\..*)$/ );
+        my ($dfv, $filename) = @_;
+        my $fh = $dfv->get_input_data()->upload($dfv->get_current_constraint_field);
+        my ($suffix) = (basename($filename) =~ /(\..*)$/);
 
         # save the file to a temp location
         my $tmp = File::Temp->new(
             UNLINK => 0,
-            SUFFIX => ( $suffix || '.tmp' ),
+            SUFFIX => ($suffix || '.tmp'),
             DIR    => tmpdir(),
-          )
-          or die "Could not create tmp file!";
-        while ( my $line = <$fh> ) {
+        ) or die "Could not create tmp file!";
+        while (my $line = <$fh>) {
             print $tmp $line or die "Could not print to file '$tmp': $!";
         }
         close($tmp) or die "Could not close file '$tmp': $!";
@@ -248,19 +247,18 @@ sub file_mtype {
 
         # now get the file's mime-type
         my $mm   = File::MMagic->new();
-        my $type = $mm->checktype_filename( $tmp->filename );
+        my $type = $mm->checktype_filename($tmp->filename);
         foreach my $t (@types) {
-            if ( $t eq $type ) {
+            if ($t eq $type) {
                 return $tmp->filename;
             }
         }
 
         # if we got here then it wasn't valid, so remove the temp file
-        unlink( $tmp->filename ) or die "Could not remove file '$tmp': $!";
+        unlink($tmp->filename) or die "Could not remove file '$tmp': $!";
         return;
       }
 }
-
 
 =head2 smoke_report_tags
 
@@ -274,14 +272,14 @@ then an array ref of the tags will be returned.
 
 sub smoke_report_tags {
     return sub {
-        my ( $dfv, $value ) = @_;
+        my ($dfv, $value) = @_;
 
         my @words = split(/\s*,\s*/, $value);
         foreach my $word (@words) {
             return if length $word > 255;
         }
         return \@words;
-    }
+      }
 }
 
 1;

@@ -3,12 +3,11 @@ use warnings;
 
 use Test::More;
 use Smolder::TestScript;
-plan( tests => 7 );
-
+plan(tests => 7);
 
 use_ok('Smolder::AuthInfo');
 my $ai = Smolder::AuthInfo->new();
-isa_ok( $ai, 'Smolder::AuthInfo' );
+isa_ok($ai, 'Smolder::AuthInfo');
 my %data = (
     id     => 123,
     groups => [qw(foo bar)],
@@ -26,7 +25,6 @@ is_deeply($ai->groups, $data{groups}, 'good ticket: groups correct');
 my ($data, $hash) = split('::::', $ticket);
 my $bad_ticket = $data . ',admin::::' . $hash;
 $ai->parse($bad_ticket);
-ok(!$ai->id, 'bad ticket: no id');
+ok(!$ai->id,     'bad ticket: no id');
 ok(!$ai->groups, 'bad ticket: no groups');
-
 

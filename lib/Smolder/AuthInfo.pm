@@ -57,7 +57,7 @@ if the ticket was not tampered with.
 sub parse {
     my ($self, $str) = @_;
     my ($data, $digest) = split('::::', $str);
-    if( md5_hex($data, Secret) eq $digest ) {
+    if (md5_hex($data, Secret) eq $digest) {
         my ($id, @groups) = split(',', $data);
         $self->{id}     = $id;
         $self->{groups} = \@groups;

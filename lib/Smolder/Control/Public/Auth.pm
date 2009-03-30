@@ -49,12 +49,12 @@ Show the login form. Uses the F<Public/Auth/login.tmpl> template.
 =cut
 
 sub login {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     if ($tt_params) {
         return $self->tt_process($tt_params);
     } else {
         return HTML::FillInForm->new()->fill(
-            scalarref => $self->tt_process( {} ),
+            scalarref => $self->tt_process({}),
             fobject   => $self->query,
         );
     }
@@ -71,11 +71,11 @@ or taken to the developer home page.
 
 sub process_login {
     my $self    = shift;
-    my $form    = { required => [qw(username password)] };
-    my $results = $self->check_rm( 'login', $form )
+    my $form    = {required => [qw(username password)]};
+    my $results = $self->check_rm('login', $form)
       || return $self->check_rm_error_page();
 
-    my ( $user, $pw ) = ( $results->valid('username'), $results->valid('password') );
+    my ($user, $pw) = ($results->valid('username'), $results->valid('password'));
 
     if ($self->do_login($user, $pw)) {
 
@@ -90,14 +90,14 @@ sub process_login {
 }
 
 sub do_login {
-    my ( $self, $user, $pw ) = @_;
+    my ($self, $user, $pw) = @_;
 
     # see if we have a user with this password
-    my ($dev) = Smolder::DB::Developer->search( username => $user, guest => 0 );
+    my ($dev) = Smolder::DB::Developer->search(username => $user, guest => 0);
     if ($dev) {
 
         # check to see if the password matches the encrypted one
-        if ( crypt( $pw, $dev->password ) eq $dev->password ) {
+        if (crypt($pw, $dev->password) eq $dev->password) {
 
             # figure out which tokens to add
             my @groups = $dev->groups;
@@ -127,7 +127,7 @@ Show the Forgot-my-password form. Uses the F<Public/Auth/forgot_pw.tmpl> templat
 =cut
 
 sub forgot_pw {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
@@ -143,15 +143,14 @@ that developer. If successful, then return to the C<forgot_pw> mode.
 
 sub process_forgot_pw {
     my $self = shift;
-    my ($dev) = Smolder::DB::Developer->search( username => $self->query->param('username') );
+    my ($dev) = Smolder::DB::Developer->search(username => $self->query->param('username'));
     if ($dev) {
         my $email    = $dev->email;
         my $username = $dev->username;
         my $new_pw   = $dev->reset_password();
 
-        if ( $self->log->would_log('debug') ) {
-            $self->log->debug(
-                "New password for developer $username is '$new_pw'" );
+        if ($self->log->would_log('debug')) {
+            $self->log->debug("New password for developer $username is '$new_pw'");
         }
 
         # send an email with the new password
@@ -165,14 +164,14 @@ sub process_forgot_pw {
             },
         );
 
-        if( $error ) {
+        if ($error) {
             $self->add_message(
-                msg => "Problems sending new password email! Please check the logs.",
+                msg  => "Problems sending new password email! Please check the logs.",
                 type => 'warning'
             );
         } else {
             $self->add_message(
-                msg => "An email with a new password has been successfully sent to $email.",
+                msg  => "An email with a new password has been successfully sent to $email.",
                 type => 'info'
             );
         }
@@ -193,7 +192,7 @@ them (so that the cookie is sent to the browser) to the C<show_logout> mode.
 =cut
 
 sub logout {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
 
     # remove their auth cookie
@@ -205,9 +204,9 @@ sub logout {
         -value   => '',
         -expires => '-1d',
     );
-    $self->header_add( -cookie => [$cookie] );
+    $self->header_add(-cookie => [$cookie]);
     $self->header_type('redirect');
-    $self->header_add( -uri => '/app/public_auth/show_logout' );
+    $self->header_add(-uri => '/app/public_auth/show_logout');
     return "Redirecting to '/app/public_auth/show_logout'.";
 }
 
@@ -219,7 +218,7 @@ F<Public/Auth/show_logout.tmpl> template.
 =cut
 
 sub show_logout {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
@@ -233,12 +232,12 @@ Uses the F<Public/Auth/timeout.tmpl> template.
 =cut
 
 sub timeout {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     if ($tt_params) {
         return $self->tt_process($tt_params);
     } else {
         return HTML::FillInForm->new()->fill(
-            scalarref => $self->tt_process( {} ),
+            scalarref => $self->tt_process({}),
             fobject   => $self->query,
         );
     }
@@ -253,12 +252,12 @@ Uses the F<Public/Auth/forbidden.tmpl> template.
 =cut
 
 sub forbidden {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     if ($tt_params) {
         return $self->tt_process($tt_params);
     } else {
         return HTML::FillInForm->new()->fill(
-            scalarref => $self->tt_process( {} ),
+            scalarref => $self->tt_process({}),
             fobject   => $self->query,
         );
     }

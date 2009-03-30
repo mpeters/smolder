@@ -33,7 +33,7 @@ hash. Your upgrade modules may use this to store state information.
 # Create a trivial object
 sub new {
     my $class = shift;
-    bless( {}, $class );
+    bless({}, $class);
 }
 
 =head3 upgrade
@@ -126,8 +126,8 @@ sub version_upgrade {
 
     # find and run the SQL file
     $version =~ /(\d+)\.(\d+)/;
-    my $file = catfile( Smolder::Conf->sql_dir, 'upgrades', "V$1_$2.sql" );
-    if ( -e $file ) {
+    my $file = catfile(Smolder::Conf->sql_dir, 'upgrades', "V$1_$2.sql");
+    if (-e $file) {
         warn "    Upgrading DB with file '$file'.\n";
         Smolder::DB->run_sql_file($file);
     } else {
@@ -137,7 +137,8 @@ sub version_upgrade {
 
     # add any new things to the config file
     my $new_config_stuff = $self->add_to_config();
-    if( $new_config_stuff ) {
+    if ($new_config_stuff) {
+
         # write out the new lines
         my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
         open(CONF, '>>', $conf_file)
@@ -181,7 +182,6 @@ directives with a reasonable default.
 
 =cut
 
-sub add_to_config {}
-
+sub add_to_config { }
 
 1;

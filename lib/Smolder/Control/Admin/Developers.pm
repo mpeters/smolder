@@ -51,8 +51,8 @@ displaying the result.
 =cut
 
 sub reset_pw {
-    my $self      = shift;
-    my $dev = Smolder::DB::Developer->retrieve( $self->param('id') );
+    my $self = shift;
+    my $dev  = Smolder::DB::Developer->retrieve($self->param('id'));
     return $self->error_message("Developer no longer exists!")
       unless $dev;
 
@@ -77,9 +77,8 @@ sub reset_pw {
         );
         $self->log->warning("Could not send 'reset_pw' email to $email - $error");
     } else {
-        $self->add_message(
-            msg => "Password for '$user' has been reset and an email sent with their new password."
-        );
+        $self->add_message(msg =>
+              "Password for '$user' has been reset and an email sent with their new password.");
     }
     return ' ';
 }
@@ -92,8 +91,8 @@ Uses the F<Admin/Developers/edit.tmpl> template.
 =cut
 
 sub edit {
-    my ( $self, $err_msgs ) = @_;
-    my $developer = Smolder::DB::Developer->retrieve( $self->param('id') );
+    my ($self, $err_msgs) = @_;
+    my $developer = Smolder::DB::Developer->retrieve($self->param('id'));
     my $output;
 
     # if we have any error messages, then just re-fill the form
@@ -109,7 +108,7 @@ sub edit {
     } else {
         my %developer_data = $developer->vars();
         $output = HTML::FillInForm->new->fill(
-            scalarref => $self->tt_process( { developer => $developer } ),
+            scalarref => $self->tt_process({developer => $developer}),
             fdat      => \%developer_data,
         );
     }
@@ -130,7 +129,7 @@ sub process_edit {
     my $form = {
         required           => [qw(username fname lname email admin)],
         constraint_methods => {
-            username => [ length_max(255), unique_field_value( 'developer', 'username', $id ), ],
+            username => [length_max(255), unique_field_value('developer', 'username', $id),],
             fname    => length_max(255),
             lname    => length_max(255),
             email    => email(),
@@ -138,7 +137,7 @@ sub process_edit {
         },
     };
 
-    my $results = $self->check_rm( 'edit', $form )
+    my $results = $self->check_rm('edit', $form)
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
@@ -154,8 +153,8 @@ sub process_edit {
     if ($@) {
 
         # if it was a duplicate developer, then we can handle that
-        if ( Smolder::Conf->unique_failure_msg($@) ) {
-            return $self->edit( { err_unique_username => 1 } );
+        if (Smolder::Conf->unique_failure_msg($@)) {
+            return $self->edit({err_unique_username => 1});
 
             # else it's something else, so just throw it again
         } else {
@@ -183,7 +182,7 @@ sub list {
     my %tt_params;
     $tt_params{developers} = \@developers if (@developers);
 
-    return $self->tt_process( \%tt_params );
+    return $self->tt_process(\%tt_params);
 }
 
 =head2 add
@@ -194,7 +193,7 @@ F<Admin/Developers/add.tmpl> template.
 =cut
 
 sub add {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
     return $self->tt_process($tt_params);
 }
@@ -212,16 +211,16 @@ sub process_add {
         required           => [qw(username email password admin)],
         optional           => [qw(fname lname)],
         constraint_methods => {
-            username => [ length_max(255), unique_field_value( 'developer', 'username' ), ],
+            username => [length_max(255), unique_field_value('developer', 'username'),],
             fname    => length_max(255),
             lname    => length_max(255),
             email    => email(),
-            password => length_between( 4, 255 ),
+            password => length_between(4, 255),
             admin    => bool(),
         },
     };
 
-    my $results = $self->check_rm( 'add', $form )
+    my $results = $self->check_rm('add', $form)
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
@@ -237,8 +236,8 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate developer, then we can handle that
-        if ( Smolder::Conf->unique_failure_msg($@) ) {
-            return $self->add( { err_unique_username => 1 } );
+        if (Smolder::Conf->unique_failure_msg($@)) {
+            return $self->add({err_unique_username => 1});
 
             # else it's something else, so just throw it again
         } else {
@@ -263,7 +262,8 @@ sub delete {
     my $id        = $self->param('id');
     my $developer = Smolder::DB::Developer->retrieve($id);
 
-    if( $developer ) {
+    if ($developer) {
+
         # remove all reports from this developer
         my @smokes = $developer->smoke_reports();
         foreach my $smoke (@smokes) {
@@ -286,11 +286,11 @@ template.
 =cut
 
 sub details {
-    my ( $self, $developer, $action ) = @_;
+    my ($self, $developer, $action) = @_;
     my $new;
 
     # if we weren't given a developer, then get it from the query string
-    if ( !$developer ) {
+    if (!$developer) {
         my $id = $self->param('id');
         $new       = 0;
         $developer = Smolder::DB::Developer->retrieve($id);
@@ -299,10 +299,10 @@ sub details {
         $new = 1;
     }
 
-    my %tt_params = ( developer => $developer );
+    my %tt_params = (developer => $developer);
     $tt_params{$action} = 1 if ($action);
 
-    return $self->tt_process( \%tt_params );
+    return $self->tt_process(\%tt_params);
 }
 
 1;

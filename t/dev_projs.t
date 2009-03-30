@@ -21,17 +21,17 @@ use File::Spec::Functions qw(catfile);
 use HTTP::Request::Common;
 
 if (is_smolder_running) {
-    plan( tests => 104 );
+    plan(tests => 104);
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech     = Smolder::Mech->new();
 my $url      = base_url() . '/developer_projects';
 my $pw       = 's3cr3t';
-my $dev      = create_developer( password => $pw );
+my $dev      = create_developer(password => $pw);
 my $proj1_id = create_project()->id();
-my $proj2_id = create_project( public => 0 )->id();
+my $proj2_id = create_project(public => 0)->id();
 
 # add this $dev to $proj1 and $proj2
 my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
@@ -51,21 +51,22 @@ use_ok('Smolder::Control::Developer::Projects');
 # 2..6
 # login as a developer
 $mech->get($url);
+
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
 $mech->content_contains("You shouldn't be here");
 $mech->content_lacks('Welcome');
-$mech->login( username => $dev->username, password => $pw );
-ok( $mech->success );
+$mech->login(username => $dev->username, password => $pw);
+ok($mech->success);
 $mech->get_ok($url);
 $mech->content_contains('My Projects');
 
 # 7..9
 # show_all
 {
-    $mech->get_ok( $url . '/show_all' );
-    my ( $proj1, $proj2 ) = _get_proj( $proj1_id, $proj2_id );
-    $mech->content_contains( $proj1->name );
-    $mech->content_contains( $proj2->name );
+    $mech->get_ok($url . '/show_all');
+    my ($proj1, $proj2) = _get_proj($proj1_id, $proj2_id);
+    $mech->content_contains($proj1->name);
+    $mech->content_contains($proj2->name);
 }
 
 # 10..43
@@ -174,7 +175,7 @@ $mech->content_contains('My Projects');
 # smoke_reports
 {
     my $proj1 = _get_proj($proj1_id);
-    for ( 1 .. 13 ) {
+    for (1 .. 13) {
         create_smoke_report(
             project   => $proj1,
             developer => $dev,
@@ -183,7 +184,7 @@ $mech->content_contains('My Projects');
     END { delete_smoke_reports() }
 
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
-    $mech->content_contains( $proj1->name );
+    $mech->content_contains($proj1->name);
     $mech->content_contains('Recent Smoke Reports');
 
     # only 5 per page by default
@@ -191,33 +192,34 @@ $mech->content_contains('My Projects');
     $mech->content_unlike(qr/(Added .*){6}/s);
 
     # check the paging
-    my $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link, 'no go-back link' );
+    my $link = $mech->find_link(n => 1, text => "\x{21d0}");
+    ok(!defined $link, 'no go-back link');
 
     # go from 1 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" }, 'go from 1 to 2' );
+    $mech->follow_link_ok({n => 1, text => "\x{21d2}"}, 'go from 1 to 2');
 
     # go from 2 to 3
-    $mech->follow_link_ok( { n => 1, text => "\x{21d2}" }, 'go from 2 to 3' );
+    $mech->follow_link_ok({n => 1, text => "\x{21d2}"}, 'go from 2 to 3');
+
     # can't go past 3
-    $link = $mech->find_link( n => 1, text => "\x{21d2}" );
-    ok( !defined $link, 'no go-forward link' );
+    $link = $mech->find_link(n => 1, text => "\x{21d2}");
+    ok(!defined $link, 'no go-forward link');
 
     # go from 3 to 2
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" }, 'go from 3 to 2' );
+    $mech->follow_link_ok({n => 1, text => "\x{21d0}"}, 'go from 3 to 2');
 
     # go from 2 to 1
-    $mech->follow_link_ok( { n => 1, text => "\x{21d0}" }, 'go from 2 to 1' );
+    $mech->follow_link_ok({n => 1, text => "\x{21d0}"}, 'go from 2 to 1');
 
     # can't go past 1
-    $link = $mech->find_link( n => 1, text => "\x{21d0}" );
-    ok( !defined $link, 'no go-back link' );
+    $link = $mech->find_link(n => 1, text => "\x{21d0}");
+    ok(!defined $link, 'no go-back link');
 
     # changing the per-page
     $mech->form_name('smoke_reports');
-    $mech->set_fields( limit => 10, );
+    $mech->set_fields(limit => 10,);
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_like(qr/(Added .*){10}/s);
     $mech->content_unlike(qr/(Added .*){11}/s);
 }
@@ -230,7 +232,7 @@ $mech->content_contains('My Projects');
     # first HTML
     $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
     $mech->follow_link_ok({n => 1, url_regex => qr/report_details/});
-    ok( $mech->ct, 'text/html' );
+    ok($mech->ct, 'text/html');
 
     # make sure our extra properties made it into the report
     $mech->content_contains('GCC Version');
@@ -242,7 +244,7 @@ $mech->content_contains('My Projects');
 
     # individual report files
     $mech->get_ok("/app/developer_projects/test_file_report_details/$proj1/0");
-    ok( $mech->ct, 'text/html' );
+    ok($mech->ct, 'text/html');
 }
 
 # 82..93
@@ -278,15 +280,15 @@ $mech->content_contains('My Projects');
     $mech->content_contains("INVALID");
     $report = undef;
     $report = Smolder::DB::SmokeReport->retrieve($report_id);
-    ok( $report->invalid );
-    is( $report->invalid_reason, 'something sucks' );
+    ok($report->invalid);
+    is($report->invalid_reason, 'something sucks');
 
     # now make it valid
     $mech->get_ok("$url/$report_id?invalid=0");
     $mech->content_lacks("INVALID");
     $report = undef;
     $report = Smolder::DB::SmokeReport->retrieve($report_id);
-    ok( !$report->invalid );
+    ok(!$report->invalid);
 }
 
 # 94..97
@@ -303,8 +305,8 @@ $mech->content_contains('My Projects');
     my $title = "Smoke Report #$report";
     $mech->get_ok($url);
     $mech->title_like(qr/\Q$title\E/);
-    $mech->content_contains( '(' . $proj1->name . ')' );
-    $mech->content_contains( $dev->username );
+    $mech->content_contains('(' . $proj1->name . ')');
+    $mech->content_contains($dev->username);
 }
 
 # 98..100
@@ -322,7 +324,7 @@ $mech->content_contains('My Projects');
     my $tmp = File::Temp->new();
     $tmp->close();
     $mech->save_content($tmp);
-    cmp_ok( -s "$tmp", '==', -s $report->file, 'same size as original file'); 
+    cmp_ok(-s "$tmp", '==', -s $report->file, 'same size as original file');
 }
 
 # 101..104
@@ -345,7 +347,7 @@ sub _get_proj {
     my (@ids) = @_;
     my @projs;
     foreach my $id (@ids) {
-        push( @projs, Smolder::DB::Project->retrieve($id) );
+        push(@projs, Smolder::DB::Project->retrieve($id));
     }
     if (wantarray) {
         return @projs;

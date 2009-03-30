@@ -14,7 +14,7 @@ our $TMPL = Template->new(
     COMPILE_DIR  => tmpdir(),
     COMPILE_EXT  => '.ttc',
     INCLUDE_PATH => Smolder::Conf->template_dir,
-    FILTERS => {
+    FILTERS      => {
         pass_fail_color => \&Smolder::Util::pass_fail_color,
         format_time     => \&Smolder::Util::format_time,
     },
@@ -26,16 +26,16 @@ sub static_url {
 }
 
 sub new {
-	my ( $pkg, %args ) = @_;
+    my ($pkg, %args) = @_;
     my $self = bless(\%args, $pkg);
-	return $self;
+    return $self;
 }
 
 sub report  { shift->{smoke_report} }
 sub results { shift->{test_results} }
 
 sub generate_html {
-	my $self = shift;
+    my $self = shift;
 
     # where are we saving the results
     my $dir = catdir($self->report->data_dir, 'html');
@@ -44,7 +44,7 @@ sub generate_html {
     }
     my $file = catfile($dir, 'report.html');
 
-    my $meta = $self->{meta} || {};
+    my $meta        = $self->{meta}             || {};
     my $extra_props = $meta->{extra_properties} || {};
 
     # process the full report

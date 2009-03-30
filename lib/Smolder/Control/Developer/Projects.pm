@@ -31,7 +31,7 @@ Controller module that deals with developer actions associated with projects.
 
 # used to control public or registered developer functionality
 # to be overriden by subclasses if necessary
-sub public { return 0 };
+sub public { return 0 }
 
 sub setup {
     my $self = shift;
@@ -73,13 +73,13 @@ F<Developer/Projects/smoke_report_details.tmpl> template.
 
 sub smoke_test_validity {
     my $self   = shift;
-    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     return $self->error_message("Smoke Report does not exist!")
       unless $report;
 
     # only project admins can do this
-    unless ( $self->developer
-        && $report->project->is_admin( $self->developer ) )
+    unless ($self->developer
+        && $report->project->is_admin($self->developer))
     {
         return $self->error_message("Not an admin of this project!");
     }
@@ -93,23 +93,22 @@ sub smoke_test_validity {
             invalid_reason => length_max(255),
         }
     };
-    my $results = Data::FormValidator->check( $self->query, $form )
+    my $results = Data::FormValidator->check($self->query, $form)
       || return $self->error_message('Invalid data!');
     my $valid = $results->valid();
 
     # now update the DB
-    $report->invalid( $valid->{invalid} );
-    $report->invalid_reason( $valid->{invalid_reason} );
+    $report->invalid($valid->{invalid});
+    $report->invalid_reason($valid->{invalid_reason});
     $report->update();
 
     # notify the user
-    $self->add_message( 
-        msg => "Report #$report has been marked as " 
-            . ($valid->{invalid} ? 'invalid' : 'valid') . "."
-    );
+    $self->add_message(msg => "Report #$report has been marked as "
+          . ($valid->{invalid} ? 'invalid' : 'valid')
+          . ".");
     return $self->tt_process(
         'Developer/Projects/smoke_report_details.tmpl',
-        { report => $report, project => $report->project },
+        {report => $report, project => $report->project},
     );
 }
 
@@ -123,7 +122,7 @@ of exising platform otpions
 sub platform_options {
     my $self = shift;
     return $self->auto_complete_results(
-        Smolder::DB::SmokeReport->column_values( 'platform', $self->query->param('platform'), ) );
+        Smolder::DB::SmokeReport->column_values('platform', $self->query->param('platform'),));
 }
 
 =head2 architecture_options
@@ -150,15 +149,15 @@ Uses the C<Developer/Projects/add_report.tmpl> template.
 =cut
 
 sub add_report {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
 
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
     # make sure ths developer is a member of this project
-    unless ( $project->public || $project->has_developer( $self->developer ) ) {
+    unless ($project->public || $project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
@@ -183,7 +182,7 @@ details will be removed, and the reports details will no longer be accessible.
 
 sub _goto_login {
     my $self = shift;
-    my $q = $self->query;
+    my $q    = $self->query;
     $self->header_type('redirect');
     my $url = "/app/public_auth/login";
     $self->header_props(-url => $url, -status => '401');
@@ -191,21 +190,22 @@ sub _goto_login {
 }
 
 sub process_add_report {
-    my $self = shift;
-    my $q    = $self->query;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $self    = shift;
+    my $q       = $self->query;
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
-    if( $q->param('username') && $q->param('password') ) {
-        Smolder::Control::Public::Auth::do_login($self, $q->param('username'), $q->param('password'));
+    if ($q->param('username') && $q->param('password')) {
+        Smolder::Control::Public::Auth::do_login($self, $q->param('username'),
+            $q->param('password'));
     }
 
     # we need to be logged in to use this...
     return $self->_goto_login if !$self->public && $self->developer->guest;
 
     # make sure ths developer is a member of this project
-    unless ( $project->public || $project->has_developer( $self->developer ) ) {
+    unless ($project->public || $project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
     my $form = {
@@ -215,20 +215,22 @@ sub process_add_report {
             architecture => length_max(255),
             platform     => length_max(255),
             comments     => length_max(1000),
-            report_file  => file_mtype(qw(
-                application/x-gzip 
-                application/x-gtar 
-                application/x-tar 
-                application/zip 
-                application/x-zip 
-                multipart/x-gzip 
-                multipart/x-zip
-            )),
+            report_file  => file_mtype(
+                qw(
+                  application/x-gzip
+                  application/x-gtar
+                  application/x-tar
+                  application/zip
+                  application/x-zip
+                  multipart/x-gzip
+                  multipart/x-zip
+                  )
+            ),
             tags => smoke_report_tags(),
         },
     };
 
-    my $results = $self->check_rm( 'add_report', $form )
+    my $results = $self->check_rm('add_report', $form)
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
@@ -246,29 +248,29 @@ sub process_add_report {
 
     # is this an exception we can deal with?
     my $e;
-    if ( $e = Exception::Class->caught('Smolder::Exception::InvalidTAP') ) {
-        $self->log->warning( $e->error . "\n" . $e->trace->as_string );
-        return $self->add_report( { invalid_report_file => 1 } );
-    } elsif ( $e = Exception::Class->caught('Smolder::Exception::InvalidArchive') ) {
-        $self->log->warning( $e->error . "\n" . $e->trace->as_string );
-        return $self->add_report( { invalid_report_file => 1 } );
+    if ($e = Exception::Class->caught('Smolder::Exception::InvalidTAP')) {
+        $self->log->warning($e->error . "\n" . $e->trace->as_string);
+        return $self->add_report({invalid_report_file => 1});
+    } elsif ($e = Exception::Class->caught('Smolder::Exception::InvalidArchive')) {
+        $self->log->warning($e->error . "\n" . $e->trace->as_string);
+        return $self->add_report({invalid_report_file => 1});
     } else {
         $e = Exception::Class->caught();
-        if( $e ) {
+        if ($e) {
             ref $e && $e->isa('Exception::Class') ? $e->rethrow : die $e;
         }
     }
 
     # add the tags if present
-    if( $valid->{tags} ) {
+    if ($valid->{tags}) {
         $report->add_tag($_) foreach @{$valid->{tags}};
     }
 
     # redirect to our recent reports
     $self->header_type('redirect');
-    my $url = '/app/' . ($self->public ? 'public' : 'developer' ) 
-        . "_projects/smoke_reports/$project";
-    $self->header_add( -uri => $url );
+    my $url =
+      '/app/' . ($self->public ? 'public' : 'developer') . "_projects/smoke_reports/$project";
+    $self->header_add(-uri => $url);
     return "Reported #$report added.\nRedirecting to $url";
 }
 
@@ -283,17 +285,17 @@ sub smoke_report {
     my $self  = shift;
     my $query = $self->query();
 
-    my $smoke = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    my $smoke = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     return $self->error_message('Smoke report does not exist')
       unless $smoke;
     my $project = $smoke->project;
 
     # make sure ths developer is a member of this project
-    unless ( $project->public || $project->has_developer( $self->developer ) ) {
+    unless ($project->public || $project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
-    return $self->tt_process( { report => $smoke, project => $project } );
+    return $self->tt_process({report => $smoke, project => $project});
 }
 
 =head2 smoke_reports
@@ -305,16 +307,16 @@ template.
 =cut
 
 sub smoke_reports {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
     $tt_params ||= {};
     my $query = $self->query();
 
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
     # make sure ths developer is a member of this project
-    unless ( $project->public || $project->has_developer( $self->developer ) ) {
+    unless ($project->public || $project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
@@ -322,17 +324,17 @@ sub smoke_reports {
     my $form = {
         optional           => [qw(limit offset tag)],
         constraint_methods => {
-            limit    => unsigned_int(),
-            offset   => unsigned_int(),
+            limit  => unsigned_int(),
+            offset => unsigned_int(),
         },
     };
     return $self->error_message('Something fishy')
-      unless Data::FormValidator->check( $query, $form );
+      unless Data::FormValidator->check($query, $form);
 
-    $tt_params->{project}  = $project;
-    $tt_params->{limit}    = defined $query->param('limit') ? $query->param('limit') : 5;
-    $tt_params->{offset}   = $query->param('offset') || 0;
-    $tt_params->{tag}      = $query->param('tag') || undef;
+    $tt_params->{project} = $project;
+    $tt_params->{limit}   = defined $query->param('limit') ? $query->param('limit') : 5;
+    $tt_params->{offset}  = $query->param('offset') || 0;
+    $tt_params->{tag}     = $query->param('tag') || undef;
 
     return $self->tt_process($tt_params);
 }
@@ -346,12 +348,12 @@ outputs the pregenerated file.
 
 sub report_details {
     my $self   = shift;
-    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     return $self->error_message('Test Report does not exist')
       unless $report;
 
     # make sure ths developer is a member of this project
-    unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
+    unless ($report->project->public || $report->project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
@@ -361,7 +363,7 @@ sub report_details {
         report  => $report,
     };
 
-    return $self->tt_process('Developer/Projects/tap.tmpl', $tt_params),
+    return $self->tt_process('Developer/Projects/tap.tmpl', $tt_params),;
 }
 
 =head2 test_file_report_details
@@ -372,14 +374,14 @@ the HTML page generated by L<report_details> by an AJAX call.
 =cut
 
 sub test_file_report_details {
-    my $self = shift;
-    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    my $self   = shift;
+    my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     return $self->error_message('Test Report does not exist')
       unless $report;
     my $num = $self->param('type') || 0;
 
     # make sure ths developer is a member of this project
-    unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
+    unless ($report->project->public || $report->project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
     return $report->html_test_detail($num);
@@ -393,12 +395,12 @@ Return the TAP archive for a given report to the browser
 
 sub tap_archive {
     my $self   = shift;
-    my $report = Smolder::DB::SmokeReport->retrieve( $self->param('id') );
+    my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     return $self->error_message('Test Report does not exist')
       unless $report;
 
     # make sure ths developer is a member of this project
-    unless ( $report->project->public || $report->project->has_developer( $self->developer ) ) {
+    unless ($report->project->public || $report->project->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
@@ -437,7 +439,7 @@ each one.
 
 sub show_all {
     my $self = shift;
-    return $self->tt_process( {} );
+    return $self->tt_process({});
 }
 
 =head2 admin_settings
@@ -449,14 +451,14 @@ and the F<Developer/Projects/admin_settings.tmpl> templates.
 =cut
 
 sub admin_settings {
-    my ( $self, $tt_params ) = @_;
+    my ($self, $tt_params) = @_;
 
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
     # only show if this developer is an admin of this project
-    unless ( $project->is_admin( $self->developer ) ) {
+    unless ($project->is_admin($self->developer)) {
         return $self->error_message('You are not an admin of this Project!');
     }
 
@@ -496,7 +498,7 @@ sub admin_settings {
 sub _project_tag_cloud {
     my ($self, $project, $url) = @_;
     my @tags = $project->tags(with_counts => 1);
-    if( @tags ) {
+    if (@tags) {
         my $cloud = HTML::TagCloud->new();
         foreach (@tags) {
             my $tag_url = $url ? "$url?tag=" . uri_escape($_->{tag}) : 'javascript:void(0)';
@@ -505,7 +507,7 @@ sub _project_tag_cloud {
         return $cloud->html_and_css(100);
     } else {
         return '';
-    }  
+    }
 }
 
 =head2 process_admin_settings 
@@ -518,12 +520,12 @@ to the C<admin_settings> mode.
 
 sub process_admin_settings {
     my $self    = shift;
-    my $project = Smolder::DB::Project->retrieve( $self->param('id') );
+    my $project = Smolder::DB::Project->retrieve($self->param('id'));
     return $self->error_message('Project does not exist')
       unless $project;
 
     # only process if this developer is an admin of this project
-    unless ( $project->is_admin( $self->developer ) ) {
+    unless ($project->is_admin($self->developer)) {
         return $self->error_message('You are not an admin of this Project!');
     }
 
@@ -535,23 +537,21 @@ sub process_admin_settings {
             allow_anon       => bool(),
             default_arch     => length_max(255),
             default_platform => length_max(255),
-            graph_start      => enum_value( 'project', 'graph_start' ),
+            graph_start      => enum_value('project', 'graph_start'),
         },
     };
-    my $results = $self->check_rm( 'admin_settings', $form )
+    my $results = $self->check_rm('admin_settings', $form)
       || return $self->check_rm_error_page;
     my $valid = $results->valid();
 
     # set and save
     foreach my $field qw(allow_anon default_arch default_platform graph_start) {
-        $project->$field( $valid->{$field} );
+        $project->$field($valid->{$field});
     }
     $project->update();
 
-    $self->add_message(
-        msg => "Project settings successfully updated.",
-    );
-    return $self->admin_settings({ success => 1});
+    $self->add_message(msg => "Project settings successfully updated.",);
+    return $self->admin_settings({success => 1});
 }
 
 =head2 delete_tag
@@ -579,15 +579,16 @@ sub delete_tag {
     my ($tag, $replacement) = map { $query->param($_) } qw(tag replacement);
 
     if ($replacement) {
+
         # change the tag
         $project->change_tag($tag, $replacement);
         $self->add_message(msg => "Tag '$tag' was successfully replaced by '$replacement'.");
     } else {
+
         # delete the old tag
         $project->delete_tag($tag);
         $self->add_message(
-            msg => "Tag '$tag' successfully deleted from project '" . $project->name . "'."
-        );
+            msg => "Tag '$tag' successfully deleted from project '" . $project->name . "'.");
     }
 
     return $self->admin_settings();
@@ -601,21 +602,23 @@ Shows the details of a project.
 
 sub details {
     my $self = shift;
-    my $id = $self->param('id');
+    my $id   = $self->param('id');
     my $proj = Smolder::DB::Project->retrieve($id);
 
-    unless ( $proj->public || $proj->has_developer( $self->developer ) ) {
+    unless ($proj->public || $proj->has_developer($self->developer)) {
         return $self->error_message('Unauthorized for this project');
     }
 
     if ($proj) {
-        my $url = "/app/" . ($self->public ? 'public' : 'developer') . '_projects/smoke_reports/' . $proj->id;
+        my $url = "/app/"
+          . ($self->public ? 'public' : 'developer')
+          . '_projects/smoke_reports/'
+          . $proj->id;
         my $tag_cloud = $self->_project_tag_cloud($proj, $url);
-        return $self->tt_process( { project => $proj, tag_cloud => $tag_cloud } );
+        return $self->tt_process({project => $proj, tag_cloud => $tag_cloud});
     } else {
         return $self->error_message('That project does not exist!');
     }
 }
-
 
 1;

@@ -49,16 +49,16 @@ sub cgiapp_prerun {
     my $id   = $self->param('id');
     if ($id) {
         my $proj = Smolder::DB::Project->retrieve($id);
-        if ( $proj && !$proj->public ) {
+        if ($proj && !$proj->public) {
             $self->prerun_mode('forbidden');
         } else {
-            $self->param( project => $proj );
+            $self->param(project => $proj);
         }
     }
 }
 
 # used by the templates to see if the controller is public
-sub public { 1 }
+sub public        { 1 }
 sub require_group { }
 
 =head1 RUN MODES
@@ -70,12 +70,11 @@ Shows a list of all the public projects.
 =cut
 
 sub show_all {
-    my $self  = shift;
+    my $self = shift;
     my @projs = Smolder::DB::Project->search(public => 1, {order_by => 'name'});
 
-    return $self->tt_process( { projects => \@projs } );
+    return $self->tt_process({projects => \@projs});
 }
-
 
 =head2 forbidden 
 
@@ -138,12 +137,12 @@ sub feed {
         JOIN project p ON (sr.project = p.id)
         WHERE p.enable_feed = 1 AND p.id = ?
     /;
-    my $id = $self->param('id');
+    my $id      = $self->param('id');
     my $project = Smolder::DB::Project->retrieve($id);
-    my $type = $self->param('type');
+    my $type    = $self->param('type');
     push(@binds, $id);
 
-    if( $type and $type eq 'failed' ) {
+    if ($type and $type eq 'failed') {
         $sql .= ' AND sr.failed = 1 ';
     }
 
@@ -156,7 +155,7 @@ sub feed {
     $self->header_props(-type => 'text/xml');
 
     my $updated;
-    if( @reports ) {
+    if (@reports) {
         $updated = $reports[0]->added;
     } else {
         $updated = DateTime->now();
@@ -170,13 +169,15 @@ sub feed {
     );
 
     foreach my $report (@reports) {
-        my $link = Smolder::Util::url_base() . '/app/'
-            . ($project->public ? 'public' : 'developer')
-            . '_projects/smoke_report/' . $report->id;
+        my $link =
+            Smolder::Util::url_base() . '/app/'
+          . ($project->public ? 'public' : 'developer')
+          . '_projects/smoke_report/'
+          . $report->id;
         $feed->add_entry(
             title => '#'
               . $report->id . ' - '
-              . ( $report->failed ? 'Failed' : 'New' )
+              . ($report->failed ? 'Failed' : 'New')
               . ' Smoke Report',
             author  => $report->developer->username,
             link    => $link,

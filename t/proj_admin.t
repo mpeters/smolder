@@ -20,23 +20,23 @@ use Smolder::Conf;
 use File::Spec::Functions qw(catfile);
 
 if (is_smolder_running) {
-    plan( tests => 21 );
+    plan(tests => 21);
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech     = Smolder::Mech->new();
 my $url      = base_url() . '/developer_projects';
 my $pw       = 's3cr3t';
-my $dev      = create_developer( password => $pw );
+my $dev      = create_developer(password => $pw);
 my $proj1_id = create_project()->id();
 
 # add this $dev to $proj1
 my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
     {
-        developer => $dev,
-        project   => $proj1_id,
-        admin     => 1,
+        developer  => $dev,
+        project    => $proj1_id,
+        admin      => 1,
         preference => create_preference(),
     }
 );
@@ -53,11 +53,12 @@ use_ok('Smolder::Control::Developer::Projects');
 # 2..6
 # login as a developer
 $mech->get($url);
+
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
 $mech->content_contains("You shouldn't be here");
 $mech->content_lacks('Welcome');
-$mech->login( username => $dev->username, password => $pw );
-ok( $mech->success );
+$mech->login(username => $dev->username, password => $pw);
+ok($mech->success);
 $mech->get_ok($url);
 $mech->content_contains('My Projects');
 
@@ -84,28 +85,28 @@ $mech->content_contains('My Projects');
     $mech->content_contains('value="Bar"');
 
     # invalid form
-    ok( $mech->form_name('admin_settings_form') );
+    ok($mech->form_name('admin_settings_form'));
     $mech->set_fields(
-        default_arch     => ( 'x' x 300 ),
-        default_platform => ( 'x' x 300 ),
+        default_arch     => ('x' x 300),
+        default_platform => ('x' x 300),
     );
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('Default Platform must be under 255 characters');
     $mech->content_contains('Default Architecture must be under 255 characters.');
 
     # valid form
-    ok( $mech->form_name('admin_settings_form') );
+    ok($mech->form_name('admin_settings_form'));
     $mech->set_fields(%settings);
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->contains_message('successfully updated');
 
     my $proj_id = $proj1->id;
     $proj1 = undef;
     $proj1 = Smolder::DB::Project->retrieve($proj_id);
-    foreach ( keys %settings ) {
-        is( $proj1->$_, $settings{$_} );
+    foreach (keys %settings) {
+        is($proj1->$_, $settings{$_});
     }
 }
 
@@ -113,7 +114,7 @@ sub _get_proj {
     my (@ids) = @_;
     my @projs;
     foreach my $id (@ids) {
-        push( @projs, Smolder::DB::Project->retrieve($id) );
+        push(@projs, Smolder::DB::Project->retrieve($id));
     }
     if (wantarray) {
         return @projs;

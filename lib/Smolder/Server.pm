@@ -7,7 +7,7 @@ use Smolder::Conf qw(Port HostName LogFile);
 use Smolder::DB;
 
 sub new {
-    my $class = shift;
+    my $class  = shift;
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
@@ -17,6 +17,7 @@ sub new {
         {
             '/'    => 'Smolder::Redirect',
             '/app' => 'Smolder::Dispatch',
+
             #'/static' => $htdocs", # need to get this working
             '/js'     => $htdocs,
             '/style'  => $htdocs,
@@ -29,22 +30,24 @@ sub new {
 
 sub print_banner {
     my $banner = "Smolder is running on " . HostName . ':' . Port;
-    my $line = '#' x length $banner;
+    my $line   = '#' x length $banner;
     print "$line\n$banner\n";
 }
 
 sub go {
     my $self = shift;
 
-    unless(-e Smolder::DB->db_file) {
+    unless (-e Smolder::DB->db_file) {
+
         # do we have a database? If not then create one
         Smolder::DB->create_database;
     } else {
+
         # upgrade if we need to
         require Smolder::Upgrade;
         Smolder::Upgrade->new->upgrade();
     }
-    
+
     # preload our perl modules
     require Smolder::Dispatch;
     require Smolder::Control;
@@ -64,13 +67,14 @@ sub go {
     # send warnings to our logs
     my $log_file = LogFile || devnull();
     my $ok = open(STDERR, '>>', $log_file);
-    if( !$ok ) {
+    if (!$ok) {
         warn "Could not open logfile $log_file for appending: $!";
         exit(1);
     }
 
     return $self->run();
-#    return $self->background();
+
+    #    return $self->background();
 }
 
 1;

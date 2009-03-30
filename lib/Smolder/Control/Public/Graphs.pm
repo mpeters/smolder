@@ -21,9 +21,9 @@ sub setup {
     $self->run_modes(
         [
             qw(
-                start
-                image
-                forbidden_project
+              start
+              image
+              forbidden_project
               )
         ]
     );
@@ -34,16 +34,16 @@ sub cgiapp_prerun {
     my $id   = $self->param('id');
     if ($id) {
         my $proj = Smolder::DB::Project->retrieve($id);
-        if ( $proj && !$proj->public ) {
+        if ($proj && !$proj->public) {
             $self->prerun_mode('forbidden_project');
         } else {
-            $self->param( project => $proj );
+            $self->param(project => $proj);
         }
     }
 }
 
 # used by the templates to see if the controller is public
-sub public { 1 }
+sub public        { 1 }
 sub require_group { }
 
 =head1 RUN MODES

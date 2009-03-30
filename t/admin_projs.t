@@ -18,16 +18,17 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_smolder_running) {
-    plan( tests => 87 );
+    plan(tests => 87);
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech     = Smolder::Mech->new();
 my $BASE_URL = base_url() . '/admin_projects';
 my $pw       = 's3cr3t';
-my $admin    = create_developer( admin => 1, password => $pw );
-END { 
+my $admin    = create_developer(admin => 1, password => $pw);
+
+END {
     delete_developers();
     delete_preferences();
 }
@@ -43,8 +44,8 @@ my $proj;
 use_ok('Smolder::Control::Admin::Projects');
 
 # 2..5
-$mech->login( username => $admin->username, password => $pw );
-ok( $mech->success );
+$mech->login(username => $admin->username, password => $pw);
+ok($mech->success);
 $mech->get_ok($BASE_URL);
 $mech->content_contains('Admin');
 $mech->content_contains('Projects');
@@ -52,11 +53,12 @@ $mech->content_contains('Projects');
 # 6..21
 # add
 {
+
     # empty form
-    $mech->follow_link_ok( { text => 'Add New Project' } );
+    $mech->follow_link_ok({text => 'Add New Project'});
     $mech->form_name('add');
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('missing required fields');
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('class="required warn">Start Date');
@@ -79,7 +81,7 @@ $mech->content_contains('Projects');
     );
     $mech->request($request);
 
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('name already exists');
 
@@ -92,9 +94,9 @@ $mech->content_contains('Projects');
     $mech->form_name('add');
     $mech->set_fields(%data);
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->contains_message("New project '$data{project_name}' successfully created");
-    ($proj) = Smolder::DB::Project->search( name => $data{project_name} );
+    ($proj) = Smolder::DB::Project->search(name => $data{project_name});
 
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
 }
@@ -103,8 +105,8 @@ $mech->content_contains('Projects');
 # details
 {
     $mech->get_ok("$BASE_URL/details/$proj");
-    $mech->content_contains( $proj->name );
-    $mech->content_contains( $proj->start_date->strftime('%d/%m/%Y') );
+    $mech->content_contains($proj->name);
+    $mech->content_contains($proj->start_date->strftime('%d/%m/%Y'));
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*No\s*|);
     $mech->content_like(qr|Data Feed[^<]*</label>\s*</td>\s*<td>\s*No\s*|);
 }
@@ -112,7 +114,7 @@ $mech->content_contains('Projects');
 # 27..43
 # edit
 {
-    $mech->follow_link_ok( { text => 'Edit' } );
+    $mech->follow_link_ok({text => 'Edit'});
 
     # make sure it's prefilled
     my $form = $mech->form_name('edit');
@@ -134,7 +136,7 @@ $mech->content_contains('Projects');
         }
     );
     $mech->request($request);
-    ok( $mech->success );
+    ok($mech->success);
 
     $mech->content_contains('class="required warn">Project Name');
     $mech->content_contains('name already exists');
@@ -146,11 +148,11 @@ $mech->content_contains('Projects');
     # valid
     $mech->form_name('edit');
     my %new_data = %data;
-    $new_data{public} = 1;
+    $new_data{public}      = 1;
     $new_data{enable_feed} = 1;
     $mech->set_fields(%new_data);
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->contains_message("Project '$new_data{project_name}' successfully updated");
     $mech->get_ok("$BASE_URL/details/$proj");
     $mech->content_like(qr|Public Project\?</label>\s*</td>\s*<td>\s*Yes\s*|);
@@ -160,10 +162,10 @@ $mech->content_contains('Projects');
 # 44..47
 # list
 {
-    $mech->follow_link_ok( { text => 'All Projects' } );
-    $mech->content_contains( $proj->name );
+    $mech->follow_link_ok({text => 'All Projects'});
+    $mech->content_contains($proj->name);
     $mech->content_contains('Yes');
-    $mech->follow_link_ok( { text => '[Edit]', n => -1 } );
+    $mech->follow_link_ok({text => '[Edit]', n => -1});
 }
 
 # 48..82
@@ -181,7 +183,7 @@ $mech->content_contains('Projects');
 
     # add admin, dev1, dev2 and dev3 to proj
     # and try to add dev1 twice to make sure it doesn't cause an error
-    foreach my $developer ( $admin, $dev1, $dev2, $dev3, $dev1 ) {
+    foreach my $developer ($admin, $dev1, $dev2, $dev3, $dev1) {
         my $request = HTTP::Request::Common::POST(
             $url,
             {
@@ -190,23 +192,23 @@ $mech->content_contains('Projects');
             }
         );
         $mech->request($request);
-        ok( $mech->success );
+        ok($mech->success);
 
         # make sure this developer is in this project
         my $proj_dev = Smolder::DB::ProjectDeveloper->retrieve(
             project   => $proj,
             developer => $developer,
         );
-        isa_ok( $proj_dev, 'Smolder::DB::ProjectDeveloper' );
+        isa_ok($proj_dev, 'Smolder::DB::ProjectDeveloper');
     }
 
     # make sure that all are listed under this proj's details
     $mech->get_ok("$BASE_URL/details/$proj");
-    $mech->content_contains( $proj->name );
-    $mech->content_contains( $dev1->username );
-    $mech->content_contains( $dev2->username );
-    $mech->content_contains( $dev3->username );
-    $mech->follow_link_ok( { text => $dev1->username } );
+    $mech->content_contains($proj->name);
+    $mech->content_contains($dev1->username);
+    $mech->content_contains($dev2->username);
+    $mech->content_contains($dev3->username);
+    $mech->follow_link_ok({text => $dev1->username});
 
     # get the admins for this project
     my @admins = $proj->admins();
@@ -215,7 +217,7 @@ $mech->content_contains('Projects');
     # set dev2 as the admin
     $mech->get_ok("$BASE_URL/change_admin?project=$proj&developer=$dev2");
     @admins = $proj->admins();
-    is(scalar @admins, 1, 'now with 1 admin');
+    is(scalar @admins, 1,         'now with 1 admin');
     is($admins[0]->id, $dev2->id, 'dev2 is now an admin');
 
     # set dev1 as an admin
@@ -223,7 +225,7 @@ $mech->content_contains('Projects');
     @admins = $proj->admins();
     is(scalar @admins, 2, 'now with 2 admin');
     is_deeply(
-        [ sort { $a->id <=> $b->id } @admins ],
+        [sort { $a->id <=> $b->id } @admins],
         [$dev1, $dev2],
         '2 correct devs are now admins',
     );
@@ -231,9 +233,9 @@ $mech->content_contains('Projects');
     # now unset dev2 as an admin
     $mech->get_ok("$BASE_URL/change_admin?project=$proj&developer=$dev2&remove=1");
     @admins = $proj->admins();
-    is(scalar @admins, 1, 'now with 1 admin');
+    is(scalar @admins, 1,         'now with 1 admin');
     is($admins[0]->id, $dev1->id, 'dev1 is now the only admin');
-        
+
     # now remove_developer for $dev2
     $url = "$BASE_URL/remove_dev";
     my $request = HTTP::Request::Common::POST(
@@ -244,31 +246,31 @@ $mech->content_contains('Projects');
         }
     );
     $mech->request($request);
-    ok( $mech->success );
+    ok($mech->success);
 
     # make sure this developer is not in this project
     my $proj_dev = Smolder::DB::ProjectDeveloper->retrieve(
         project   => $proj->id,
         developer => $dev2->id,
     );
-    ok( !defined $proj_dev );
+    ok(!defined $proj_dev);
 
     # make sure that dev2 is not listed under this proj's details
     $mech->get_ok("$BASE_URL/details/$proj");
-    $mech->content_contains( $proj->name );
-    $mech->content_contains( $dev1->username );
-    $mech->content_lacks( $dev2->username );
-    $mech->content_contains( $dev3->username );
+    $mech->content_contains($proj->name);
+    $mech->content_contains($dev1->username);
+    $mech->content_lacks($dev2->username);
+    $mech->content_contains($dev3->username);
 }
 
 # 83..87
 # delete
 {
-    $mech->follow_link_ok( { text => 'All Projects' } );
-    ok( $mech->form_name("delete_$proj") );
+    $mech->follow_link_ok({text => 'All Projects'});
+    ok($mech->form_name("delete_$proj"));
     $mech->submit();
-    ok( $mech->success );
+    ok($mech->success);
     $mech->content_contains('project_list');
-    $mech->content_lacks( $proj->name );
+    $mech->content_lacks($proj->name);
 }
 

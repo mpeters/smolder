@@ -9,9 +9,9 @@ use Smolder::TestData qw(
 use Smolder::Mech;
 
 if (is_smolder_running) {
-    plan( tests => 2 );
+    plan(tests => 2);
 } else {
-    plan( skip_all => 'Smolder not running' );
+    plan(skip_all => 'Smolder not running');
 }
 
 my $mech = Smolder::Mech->new();

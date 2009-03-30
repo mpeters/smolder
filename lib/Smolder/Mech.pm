@@ -140,17 +140,17 @@ sub contains_message {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     foreach my $msg (@$msgs) {
-        if( ref $match eq 'Regexp' ) {
-            if( $msg->{msg} =~ $match ) {
+        if (ref $match eq 'Regexp') {
+            if ($msg->{msg} =~ $match) {
                 ok(1, $diag);
                 return 1;
             }
         } else {
-            if( index($msg->{msg}, $match) != -1 ) {
+            if (index($msg->{msg}, $match) != -1) {
                 ok(1, $diag);
                 return 1;
             }
-        } 
+        }
     }
 
     $diag = qq(Could not find message "$match". Existing messages are:\n)

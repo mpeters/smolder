@@ -24,9 +24,9 @@ The following columns will return objects instead of the value contained in the 
 
 =cut
 
-__PACKAGE__->has_a( project    => 'Smolder::DB::Project' );
-__PACKAGE__->has_a( developer  => 'Smolder::DB::Developer' );
-__PACKAGE__->has_a( preference => 'Smolder::DB::Preference' );
+__PACKAGE__->has_a(project    => 'Smolder::DB::Project');
+__PACKAGE__->has_a(developer  => 'Smolder::DB::Developer');
+__PACKAGE__->has_a(preference => 'Smolder::DB::Preference');
 
 __PACKAGE__->has_a(
     added   => 'DateTime',
@@ -35,18 +35,19 @@ __PACKAGE__->has_a(
 );
 
 # make sure we delete any preferences that are attached to us
-__PACKAGE__->add_trigger( 
-    after_delete => sub { 
+__PACKAGE__->add_trigger(
+    after_delete => sub {
         my $self = shift;
         my $pref = $self->preference;
         $pref->delete if $pref;
     }
 );
+
 # make sure added is set to NOW
-__PACKAGE__->add_trigger( 
+__PACKAGE__->add_trigger(
     before_create => sub {
         my $self = shift;
-        $self->_attribute_set( added => DateTime->now() );
+        $self->_attribute_set(added => DateTime->now());
     },
 );
 

@@ -6,9 +6,10 @@ use File::Path qw(rmtree);
 use File::Spec::Functions qw(catdir);
 use Smolder::Conf;
 
-sub pre_db_upgrade  { }
+sub pre_db_upgrade { }
 
-sub post_db_upgrade { 
+sub post_db_upgrade {
+
     # let's purge all the existing reports
     require Smolder::DB::SmokeReport;
     my @reports = Smolder::DB::SmokeReport->retrieve_all();
@@ -18,8 +19,10 @@ sub post_db_upgrade {
         $report->update();
         Smolder::DB->dbi_commit();
     }
+
     # remove the old HTML reports in the old format
     rmtree(catdir(Smolder::Conf->data_dir, 'html_smoke_reports'));
+
     # remove the old XML reports
     my $report_dir = catdir(Smolder::Conf->data_dir, 'smoke_reports');
     rmtree($report_dir);
@@ -40,10 +43,9 @@ Secret $secret
 sub _random_secret {
     my $length = int(rand(10) + 20);
     my $secret = '';
-    my @chars = ('a'..'z', 'A'..'Z', 0..9, qw(! @ $ % ^ & - _ = + | ; : . / < > ?));
-    $secret .= $chars[int(rand($#chars + 1))] for(0..$length);
+    my @chars  = ('a' .. 'z', 'A' .. 'Z', 0 .. 9, qw(! @ $ % ^ & - _ = + | ; : . / < > ?));
+    $secret .= $chars[int(rand($#chars + 1))] for (0 .. $length);
     return $secret;
 }
-
 
 1;
