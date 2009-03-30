@@ -159,9 +159,9 @@ sub add_report {
     # make sure ths developer is a member of this project, or it's a public project
     # that allows anonymous uploads
     if(!$project->has_developer($self->developer)) {
-        unless($self->public && $project->allow_anon) {
+        if( $project->public && !$project->allow_anon ) {
             return $self->error_message('Project does not allow anonymous reports');
-        } else {
+        } elsif(!$project->public ) {
             return $self->error_message('Unauthorized for this project');
         }
     }
@@ -209,10 +209,16 @@ sub process_add_report {
     # we need to be logged in to use this...
     return $self->_goto_login if !$self->public && $self->developer->guest;
 
-    # make sure ths developer is a member of this project
-    unless ($project->public || $project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
+    # make sure ths developer is a member of this project, or it's a public project
+    # that allows anonymous uploads
+    if(!$project->has_developer($self->developer)) {
+        if( $project->public && !$project->allow_anon ) {
+            return $self->error_message('Project does not allow anonymous reports');
+        } elsif(!$project->public ) {
+            return $self->error_message('Unauthorized for this project');
+        }
     }
+            
     my $form = {
         required           => [qw(report_file)],
         optional           => [qw(architecture platform comments tags)],
@@ -225,10 +231,8 @@ sub process_add_report {
                   application/x-gzip
                   application/x-gtar
                   application/x-tar
-                  application/zip
                   application/x-zip
                   multipart/x-gzip
-                  multipart/x-zip
                   )
             ),
             tags => smoke_report_tags(),
