@@ -60,6 +60,8 @@ sub _wrap_test_action {
       . "DataDir '"
       . $tmp_dir->dirname . "'\n";
 
+$conf .= "\nLogFile /home/mpeters/development/smolder/logs/smolder.log\n";
+
     my $tmp_conf = File::Temp->new(template => 'smolder-XXXXXX', suffix => '.conf', dir => tmpdir);
     print $tmp_conf $conf;
     close $tmp_conf;
@@ -72,7 +74,8 @@ sub _wrap_test_action {
 
     # start the smolder server
     my ($in, $out, $err);
-    my $subprocess = start(["$cwd/bin/smolder"], \$in, \$out, \$err);
+    $ENV{PERL5LIB} = catdir($cwd, 'blib', 'lib');
+    my $subprocess = start([catfile($cwd, 'bin', 'smolder')], \$in, \$out, \$err);
     my $tries = 0;
     warn "Waiting for Smolder to start...\n";
     while (!_is_smolder_running() && $tries < 7) {
@@ -81,7 +84,7 @@ sub _wrap_test_action {
     }
 
     my $method = "SUPER::ACTION_$action";
-    {
+    eval {
 
         # make sure depends_on('code') doesn't get run since we've already taken care of it
         local *Module::Build::TAPArchive::depends_on = sub {
@@ -91,7 +94,7 @@ sub _wrap_test_action {
             }
         };
         $self->$method(@_);
-    }
+    };
 
     # finish() seems to hang, so just kill it
     $subprocess->kill_kill;
