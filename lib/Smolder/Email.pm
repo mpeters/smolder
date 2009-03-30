@@ -108,7 +108,7 @@ sub send_mime_mail {
     );
 
     # set the SMTP host
-    unless ($ENV{SMOLDER_TEST_HARNESS_ARCHIVE}) {
+    unless ($ENV{SMOLDER_TEST_HARNESS_ACTIVE}) {
         MIME::Lite->send('smtp', SMTPHost(), Timeout => 60) if SMTPHost();
         eval { $mime->send() };
     }

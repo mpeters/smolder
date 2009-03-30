@@ -63,8 +63,8 @@ sub _wrap_test_action {
     my $tmp_conf = File::Temp->new(template => 'smolder-XXXXXX', suffix => '.conf', dir => tmpdir);
     print $tmp_conf $conf;
     close $tmp_conf;
-    $ENV{SMOLDER_CONF}                 = $tmp_conf->filename;
-    $ENV{SMOLDER_TEST_HARNESS_ARCHIVE} = 1;
+    $ENV{SMOLDER_CONF}                = $tmp_conf->filename;
+    $ENV{SMOLDER_TEST_HARNESS_ACTIVE} = 1;
 
     # make sure we create a DB first. Smolder will do this when it starts,
     # but we still want to run some tests even if we fail to start smolder
