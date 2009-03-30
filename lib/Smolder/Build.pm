@@ -71,7 +71,16 @@ sub _wrap_test_action {
     }
 
     my $method = "SUPER::ACTION_$action";
-    $self->$method(@_);
+    {
+        # make sure depends_on('code') doesn't get run since we've already taken care of it
+        local *Module::Build::TAPArchive::depends_on = sub {
+            my ($self, @args) = @_;
+            if($args[0] && $args[0] ne 'code') {
+                return $self->SUPER::depends_on(@args);
+            }
+        };
+        $self->$method(@_);
+    }
     
     # finish() seems to hang, so just kill it
     $subprocess->kill_kill;
