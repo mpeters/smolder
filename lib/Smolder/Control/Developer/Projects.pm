@@ -156,9 +156,14 @@ sub add_report {
     return $self->error_message('Project does not exist')
       unless $project;
 
-    # make sure ths developer is a member of this project
-    unless ($project->public || $project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
+    # make sure ths developer is a member of this project, or it's a public project
+    # that allows anonymous uploads
+    if(!$project->has_developer($self->developer)) {
+        unless($self->public && $project->allow_anon) {
+            return $self->error_message('Project does not allow anonymous reports');
+        } else {
+            return $self->error_message('Unauthorized for this project');
+        }
     }
 
     $tt_params->{project} = $project;

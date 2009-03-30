@@ -1,7 +1,7 @@
 package Smolder;
 use File::Spec::Functions qw(catdir);
 
-our $VERSION = '1.31';
+our $VERSION = '1.32';
 
 1;
 

@@ -1,5 +1,9 @@
 Revision history for Smolder
 
+1.32 (March 30, 2009)
+    + Fix even more build, test, install issues
+    + Fix regression where public projects that didn't allow anonymous reports actually would.
+
 1.31 (March 30, 2009)
     + Fixing some minor Build.PL issues
 
