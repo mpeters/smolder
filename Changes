@@ -1,7 +1,9 @@
 Revision history for Smolder
 
-1.33 ()
+1.33 (March 30, 2009)
     + Tell CPAN to not index out private modules where we still want to have POD - M. Peters
+    + Fix RT#44683 - M. Peters
+    + Require CGI::Application::Plugin::Stream 2.10 to fix download bug - M. Peters
 
 1.32 (March 30, 2009)
     + Fix even more build, test, install issues
