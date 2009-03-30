@@ -1,0 +1,149 @@
+---
+name: Smolder
+version: 1.30
+author:
+  - 'Michael Peters <mpeters@plusthree.com>'
+abstract: Web-based smoke test aggregator
+license: perl
+resources:
+  license: ~
+requires:
+  CGI::Application: 4.21
+  CGI::Application::Dispatch: 2.15
+  CGI::Application::Plugin::JSON: 1.01
+  CGI::Application::Plugin::LogDispatch: 1.02
+  CGI::Application::Plugin::Stream: 2.06
+  CGI::Application::Plugin::TT: 1.04
+  CGI::Application::Plugin::ValidateRM: 2.3
+  CGI::Application::Server: 0.06
+  Class::DBI: 3
+  Class::DBI::Plugin::RetrieveAll: 1.04
+  Config::ApacheFormat: 0
+  DBD::SQLite: 1.12
+  Data::FormValidator: 4.61
+  Data::FormValidator::Constraints::DateTime: 1.09
+  Data::Random: 0.05
+  DateTime: 0.4501
+  DateTime::Format::MySQL: 0
+  DateTime::Format::Strptime: 0
+  Digest::MD5: 0
+  Email::Valid: 0
+  Exception::Class: 1.23
+  File::HomeDir: 0.8
+  File::MMagic: 0
+  File::ShareDir: 1
+  GD::Graph: 0
+  GD::Graph3d: 0
+  GD::Text: 0
+  Getopt::Long: 0
+  HTML::FillInForm: 2
+  HTML::FormatText::WithLinks: 0
+  HTML::TagCloud: 0.34
+  IO::Scalar: 0
+  IO::Zlib: 0
+  JSON: 0
+  MIME::Lite: 0
+  Pod::Usage: 0
+  TAP::Harness::Archive: 0.12
+  Template::Plugin::Cycle: 0
+  URI::Escape: 0
+  URI::file: 0
+  XML::Atom::SimpleFeed: 0
+build_requires:
+  File::Copy: 0
+  File::Find: 0
+  IPC::Run: 0.82
+  LWP::UserAgent: 0
+  Module::Build::TAPArchive: 0
+  Test::Builder: 0.86
+  Test::More: 0.86
+  Test::WWW::Mechanize: 1.22
+  WWW::Mechanize: 0
+provides:
+  Smolder:
+    file: lib/Smolder.pm
+    version: 1.30
+  Smolder::AuthHandler:
+    file: lib/Smolder/AuthHandler.pm
+  Smolder::AuthInfo:
+    file: lib/Smolder/AuthInfo.pm
+  Smolder::Build:
+    file: lib/Smolder/Build.pm
+  Smolder::Conf:
+    file: lib/Smolder/Conf.pm
+  Smolder::Constraints:
+    file: lib/Smolder/Constraints.pm
+  Smolder::Control:
+    file: lib/Smolder/Control.pm
+  Smolder::Control::Admin:
+    file: lib/Smolder/Control/Admin.pm
+  Smolder::Control::Admin::Developers:
+    file: lib/Smolder/Control/Admin/Developers.pm
+  Smolder::Control::Admin::Projects:
+    file: lib/Smolder/Control/Admin/Projects.pm
+  Smolder::Control::Developer:
+    file: lib/Smolder/Control/Developer.pm
+  Smolder::Control::Developer::Graphs:
+    file: lib/Smolder/Control/Developer/Graphs.pm
+  Smolder::Control::Developer::Prefs:
+    file: lib/Smolder/Control/Developer/Prefs.pm
+  Smolder::Control::Developer::Projects:
+    file: lib/Smolder/Control/Developer/Projects.pm
+  Smolder::Control::Public:
+    file: lib/Smolder/Control/Public.pm
+  Smolder::Control::Public::Auth:
+    file: lib/Smolder/Control/Public/Auth.pm
+  Smolder::Control::Public::Graphs:
+    file: lib/Smolder/Control/Public/Graphs.pm
+  Smolder::Control::Public::Projects:
+    file: lib/Smolder/Control/Public/Projects.pm
+  Smolder::DB:
+    file: lib/Smolder/DB.pm
+  Smolder::DB::Developer:
+    file: lib/Smolder/DB/Developer.pm
+  Smolder::DB::Preference:
+    file: lib/Smolder/DB/Preference.pm
+  Smolder::DB::Project:
+    file: lib/Smolder/DB/Project.pm
+  Smolder::DB::ProjectDeveloper:
+    file: lib/Smolder/DB/ProjectDeveloper.pm
+  Smolder::DB::SmokeReport:
+    file: lib/Smolder/DB/SmokeReport.pm
+  Smolder::Dispatch:
+    file: lib/Smolder/Dispatch.pm
+  Smolder::Email:
+    file: lib/Smolder/Email.pm
+  Smolder::Manual:
+    file: lib/Smolder/Manual.pm
+  Smolder::Mech:
+    file: lib/Smolder/Mech.pm
+  Smolder::Redirect:
+    file: lib/Smolder/Redirect.pm
+  Smolder::Server:
+    file: lib/Smolder/Server.pm
+  Smolder::TAPHTMLMatrix:
+    file: lib/Smolder/TAPHTMLMatrix.pm
+  Smolder::TestData:
+    file: lib/Smolder/TestData.pm
+  Smolder::TestScript:
+    file: lib/Smolder/TestScript.pm
+  Smolder::Upgrade:
+    file: lib/Smolder/Upgrade.pm
+  Smolder::Upgrade::V0_1:
+    file: lib/Smolder/Upgrade/V0_1.pm
+  Smolder::Upgrade::V0_3:
+    file: lib/Smolder/Upgrade/V0_3.pm
+  Smolder::Upgrade::V1_1:
+    file: lib/Smolder/Upgrade/V1_1.pm
+  Smolder::Upgrade::V1_21:
+    file: lib/Smolder/Upgrade/V1_21.pm
+  Smolder::Upgrade::V1_24:
+    file: lib/Smolder/Upgrade/V1_24.pm
+  Smolder::Upgrade::V1_30:
+    file: lib/Smolder/Upgrade/V1_30.pm
+  Smolder::Util:
+    file: lib/Smolder/Util.pm
+generated_by: Module::Build version 0.32
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
