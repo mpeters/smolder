@@ -79,6 +79,34 @@ my $builder = Smolder::Build->new(
         htdocs    => catdir($SHARE_DIR, 'htdocs'),
     },
     add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
+    meta_add => {
+        no_index => {
+            directory => [qw(
+                Smolder/Control
+                Smolder/DB
+                Smolder/Upgrade
+            )],
+            file => [qw(
+                Smolder/AuthHandler.pm
+                Smolder/AuthInfo.pm
+                Smolder/Build.pm
+                Smolder/Conf.pm
+                Smolder/Constraints.pm
+                Smolder/Control.pm
+                Smolder/DB.pm
+                Smolder/Dispatch.pm
+                Smolder/Email.pm
+                Smolder/Mech.pm
+                Smolder/Redirect.pm
+                Smolder/Server.pm
+                Smolder/TAPHTMLMatrix.pm
+                Smolder/TestData.pm
+                Smolder/TestScript.pm
+                Smolder/Upgrade.pm
+                Smolder/Util.pm
+            )],
+        },
+    },
 );
 
 $builder->add_build_element('templates');
