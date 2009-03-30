@@ -1,11 +1,8 @@
 #!/usr/bin/perl
-
 use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
-use File::Spec::Functions qw(catdir catfile splitdir);
-use File::Basename;
 
 BEGIN {
     eval { require WWW::Mechanize };
