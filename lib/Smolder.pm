@@ -1,7 +1,6 @@
 package Smolder;
-use File::Spec::Functions qw(catdir);
 
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 
 1;
 
@@ -9,7 +8,7 @@ __END__
 
 =head1 NAME 
 
-Smolder - Web-based smoke test aggregator
+Smolder - Web-based Continuous Integration Smoke Server
 
 =head1 SYNOPSIS
 
