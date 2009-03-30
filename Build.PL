@@ -1,8 +1,8 @@
 use strict;
 use warnings;
-use lib 'lib';
 use File::Spec::Functions qw(catdir);
 use Config;
+use lib 'lib';
 use Smolder::Build;
 
 my $SHARE_DIR = catdir($Config{installsitelib}, 'auto', 'share', 'Smolder');
