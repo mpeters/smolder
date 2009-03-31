@@ -60,14 +60,15 @@ my $builder = Smolder::Build->new(
     configure_requires => {
         'Module::Build'             => 0,
         'Module::Build::TAPArchive' => 0,
+        'IPC::Run'                  => 0.82,
     },
     build_requires => {
         'Test::WWW::Mechanize'      => 1.22,
         'Test::Builder'             => 0.86,
         'Test::More'                => 0.86,
         'LWP::UserAgent'            => 0,
-        'WWW::Mechanize'            => 0,
         'IPC::Run'                  => 0.82,
+        'WWW::Mechanize'            => 0,
         'File::Find'                => 0,
         'File::Copy'                => 0,
         'Module::Build'             => 0,

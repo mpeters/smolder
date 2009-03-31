@@ -43,6 +43,12 @@
   <td>[% report.architecture | html | html_line_break %]</td>
 </tr>
 [%- END -%]
+[%- IF report.revision -%]
+<tr class="[% odd_even %]">
+  <th>Revision</th>
+  <td>[% report.revision | html %]</td>
+</tr>
+[%- END -%]
 [% FOREACH k IN extra_properties.keys.sort %]
 <tr class="[% odd_even %]">
   <th>[% k | html %]</th>

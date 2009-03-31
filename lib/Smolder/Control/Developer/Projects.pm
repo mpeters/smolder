@@ -221,10 +221,11 @@ sub process_add_report {
             
     my $form = {
         required           => [qw(report_file)],
-        optional           => [qw(architecture platform comments tags)],
+        optional           => [qw(architecture platform comments tags revision)],
         constraint_methods => {
             architecture => length_max(255),
             platform     => length_max(255),
+            revision     => length_max(255),
             comments     => length_max(1000),
             report_file  => file_mtype(
                 qw(
@@ -252,6 +253,7 @@ sub process_add_report {
             architecture => $valid->{architecture},
             platform     => $valid->{platform},
             comments     => $valid->{comments},
+            revision     => $valid->{revision},
         );
     };
 
