@@ -274,8 +274,8 @@ sub _copy_files {
 
     File::Find::find(
         sub {
-            return if /^\./;                         # skip special files
-            return if $File::Find::dir =~ /\.svn/;
+            return if /^\./;                          # skip special files
+            return if $File::Find::dir =~ /\.svn/;    # skip svn droppings
             return if -d;
             my $name     = $_;
             my @new_dirs = splitdir($File::Find::dir);
