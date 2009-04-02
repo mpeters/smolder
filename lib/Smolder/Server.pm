@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use base 'CGI::Application::Server';
 use File::Spec::Functions qw(catdir devnull);
-use Smolder::Conf qw(Port HostName LogFile);
+use Smolder::Conf qw(Port HostName LogFile HtdocsDir);
 use Smolder::DB;
 
 sub new {
@@ -11,15 +11,14 @@ sub new {
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
-    my $htdocs = Smolder::Conf->htdocs_dir;
 
     $server->entry_points(
         {
             '/'    => 'Smolder::Redirect',
             '/app' => 'Smolder::Dispatch',
-            '/js'     => $htdocs,
-            '/style'  => $htdocs,
-            '/images' => $htdocs,
+            '/js'     => HtdocsDir,
+            '/style'  => HtdocsDir,
+            '/images' => HtdocsDir,
         },
     );
     $server->{"__smolder_$_"} = $args{$_} foreach keys %args;

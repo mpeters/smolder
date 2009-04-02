@@ -1,12 +1,10 @@
 TODO tasks for Smolder
 
++ Change ProjectFullReportsMax to be a per-project field
+
 + Add support for dev releases to CPAN
 
 + get /static urls working for better caching by the browser
-
-+ reasonable defaults for all config vars so that smolder.conf isn't needed
-  but can be used if you want. Also allow all config vars to be set using
-  command line options to smolder itself
 
 + Plugins that support
   + adding and overriding templates and htdocs

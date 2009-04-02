@@ -1,8 +1,8 @@
 package Smolder::DB;
 use strict;
 use warnings;
-use Smolder::Conf;
 use base 'Class::DBI::SQLite';
+use Smolder::Conf qw(SQLDir DataDir);
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
 use File::Spec::Functions qw(catfile);
@@ -214,7 +214,7 @@ Returns the full path to the SQLite DB file.
 =cut
 
 sub db_file {
-    return catfile(Smolder::Conf->data_dir, "smolder.sqlite");
+    return catfile(DataDir, "smolder.sqlite");
 }
 
 =head2 run_sql_file
@@ -367,11 +367,10 @@ sub create_database {
     open(FH, ">$file") or die "Could not open file '$file' for writing: $!";
     close(FH) or die "Could not close file '$file': $!";
 
-    my $sql_dir = Smolder::Conf->sql_dir;
-    my @files   = glob("$sql_dir/*.sql");
-    foreach my $file (@files) {
-        eval { $class->run_sql_file($file) };
-        die "Couldn't load SQL file $file! $@" if $@;
+    my @files   = glob(catfile(SQLDir, '*.sql'));
+    foreach my $f (@files) {
+        eval { $class->run_sql_file($f) };
+        die "Couldn't load SQL file $f! $@" if $@;
     }
 
     # Set the db_version

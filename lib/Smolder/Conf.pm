@@ -2,38 +2,37 @@ package Smolder::Conf;
 use strict;
 use warnings;
 use File::Spec::Functions qw(catfile catdir rel2abs curdir);
-use File::ShareDir qw(module_dir);
+use File::ShareDir qw(dist_dir);
 use File::HomeDir;
 use File::Basename qw(dirname);
 use Carp qw(croak);
 use Config::ApacheFormat;
-use Cwd qw(fastcwd);
-use IO::Scalar;
 use Smolder;
 
-# all valid configuration directives must be listed here
-our (@VALID_DIRECTIVES, @REQUIRED_DIRECTIVES);
+sub _random_secret {
+    my $length = int(rand(5) + 10);
+    my $secret = '';
+    my @chars = ('a'..'z', 'A'..'Z', 0..9);
+    $secret .= $chars[int(rand($#chars + 1))] for(0..$length);
+    return $secret;
+}
+
+my %VALUES;
 
 BEGIN {
-    @VALID_DIRECTIVES = map { lc($_) } qw(
-      Port
-      FromAddress
-      HostName
-      LogFile
-      Secret
-      SMTPHost
-      ProjectFullReportsMax
-      TemplateDir
-      DataDir
-      HtdocsDir
-      SQLDir
-    );
-
-    @REQUIRED_DIRECTIVES = qw(
-      Port
-      FromAddress
-      HostName
-      Secret
+    my $share_dir = dist_dir('Smolder');
+    %VALUES = (
+        Port                  => 8080,
+        HostName              => 'localhost.localdomain',
+        FromAddress           => 'smolder@localhost.localdomain',
+        SMTPHost              => 'localhost.localdomain',
+        ProjectFullReportsMax => 0,
+        LogFile               => '',
+        TemplateDir           => catdir($share_dir, 'templates'),
+        DataDir               => catdir(File::HomeDir->my_data, '.smolder'),
+        HtdocsDir             => catdir($share_dir, 'htdocs'),
+        SQLDir                => catdir($share_dir, 'sql'),
+        Secret                => _random_secret(),
     );
 }
 
@@ -53,183 +52,105 @@ Smolder::Conf - Smolder configuration module
     # or you can access them as methods in the Smolder::Conf module
     $port = Smolder::Conf->Port;
 
+    # give Smolder::Conf some values to override the defaults
+    Smolder::Conf->init(
+        Secret   => '1Adxd23023s',
+        Port     => 80,
+        HostName => 'smolder.myorg.com',
+        LogFile  => '/path/to/logs',
+    );
+
+    # pull the conf values from a file
+    Smolder::Conf->init_from_file('/path/to/conf/file');
+
 =head1 DESCRIPTION
 
 This module provides access to the configuration settings in
-F<smolder.conf>.  
-
-Full details on all configuration parameters is available in the
-configuration document, which you can find at F<docs/configuration>.
-
-=cut
-
-# package variables
-our $CONF;
-
-# look for the file in various places. Return the first one that exists
-sub _conf_file_path {
-    if ($ENV{SMOLDER_CONF}) {
-        return $ENV{SMOLDER_CONF};
-    } elsif ($ENV{SMOLDER_ROOT}) {
-        my $conf_file = catfile($ENV{SMOLDER_ROOT}, 'conf', 'smolder.conf');
-        return $conf_file if -e $conf_file;
-    }
-
-    my @paths = (
-        rel2abs(curdir),
-        catdir('', 'usr', 'local', 'smolder', 'conf'),
-        catdir('', 'etc', 'smolder'),
-        catdir('', 'etc'),
-    );
-    foreach my $path (@paths) {
-        my $conf_file = catfile($path, 'smolder.conf');
-        return $conf_file if -e $conf_file;
-    }
-
-    # if we got here then something is wrong
-    croak(<<CROAK);
-
-Unable to find smolder.conf!
-We will look for it in the following order:
-
-    \$CWD/smolder.conf
-    \$SMOLDER_ROOT/conf/smolder.conf
-    /usr/local/smolder/conf/smolder.conf
-    /etc/smolder/smolder.conf
-    /etc/smolder.conf
-    
-Or can optionally be designated by using the SMOLDER_CONF environment variable.
-
-CROAK
-}
-
-# internal routine to load the conf file.  Called by a BEGIN during
-# startup, and used during testing.
-sub _load {
-
-    # find a default conf file
-    my $conf_file = _conf_file_path();
-
-    # load conf file into package global
-    eval {
-        our $CONF = Config::ApacheFormat->new(valid_directives => \@VALID_DIRECTIVES,);
-        $CONF->read($conf_file);
-    };
-    croak("Unable to read config file '$conf_file'.  Error was: $@")
-      if $@;
-    croak("Unable to read config file '$conf_file'.")
-      unless $CONF;
-}
-
-# load the configuration file during startup
-BEGIN { _load(); }
+F<smolder.conf>.  Smolder tries to have reasonable defaults but they
+can be overridden when needed.
 
 =head1 METHODS
 
-=head2 get_config
+=head2 init
 
-Class method that returns the underlying L<Config::ApacheFormat> object.
+Override the configuration defaults by providing named-value pairs:
 
-=cut
-
-sub get_config {
-    return $CONF;
-}
-
-=head2 get
-
-
-Given a directive name, returns the value (which may be a list) of a configuration directive.
-Directive names are case-insensitive. 
-
-    $value = Smolder::Conf->get("DirectiveName")
-
-    @values = Smolder::Conf->get("DirectiveName")
+    Smolder::Conf->init(
+        Secret   => '1Adxd23023s',
+        Port     => 80,
+        HostName => 'smolder.myorg.com',
+        LogFile  => '/path/to/logs',
+    );
 
 =cut
 
-sub get {
-    return $CONF->get($_[1]);
-}
-
-=head2 check
-
-Sanity-check Smolder configuration.  This will croak() with an error
-message if something is wrong with the configuration file.
-
-This is run when the Smolder::Conf loads unless the environment variable
-"SMOLDER_CONF_NOCHECK" is set to a true value.
-
-=cut
-
-sub check {
-    my $pkg = shift;
-
-    # check required directives
-    foreach my $dir (@REQUIRED_DIRECTIVES) {
-        _broked("Missing required $dir directive")
-          unless defined $CONF->get($dir);
-    }
-
-    # if we have a log file, does it exist and can we write to it?
-    my $log_file = $CONF->get('LogFile');
-    if ($log_file) {
-        if (-e $log_file && -f $log_file) {
-            broked("We can't write to log file $log_file") unless -r $log_file;
+sub init {
+    my ($class, %args) = @_;
+    foreach my $key (keys %args) {
+        if( exists $VALUES{$key} ) {
+            $VALUES{$key} = $args{$key};
         } else {
-            open(my $LOG, '>>', $log_file) or _broked("Could not create log file $log_file! $!");
-            print $LOG '';
-            close($LOG);
+            croak "$key is not a valid Smolder config parameter!";
         }
     }
 }
 
-=head2 template_dir
+=head2 init_from_file
 
-The directory path for the templates for this install of Smolder
+Override the configuration defaults by providing a file. Config files are simple
+lists of name-values pairs. One pair per-line and each name/value is separated by
+whitespace:
 
-=cut
-
-sub template_dir {
-    my $class = shift;
-    return $class->get('TemplateDir') || catdir(module_dir('Smolder'), 'templates');
-}
-
-=head2 htdocs_dir
-
-The directory path for the htdocs for this install of Smolder
-
-=cut
-
-sub htdocs_dir {
-    my $class = shift;
-    return $class->get('HtdocsDir') || catdir(module_dir('Smolder'), 'htdocs');
-}
-
-=head2 sql_dir
-
-The directory path for the raw SQL files for this install of Smolder
+    HostName    smolder.test
+    DataDir     /var/lib/smolder/
+    Port        80
+    FromAddress smolder@smolder.test
+    TemplateDir /var/share/smolder/templates
+    HtdocsDir   /var/share/smolder/htdocs
+    SQLDir      /var/share/smolder/sql
 
 =cut
 
-sub sql_dir {
-    my $class = shift;
-    return $class->get('SQLDir') || catdir(module_dir('Smolder'), 'sql');
-}
+sub init_from_file {
+    my ($class, $file) = @_;
+    croak "Config file $file does not exist!" unless -e $file;
+    croak "Config file $file is not readable!" unless -r $file;
 
-=head2 data_dir
-
-The directory path for data directory for this install of Smolder
-
-=cut
-
-sub data_dir {
-    my $class = shift;
-    my $dir = $class->get('DataDir') || catdir(File::HomeDir->my_data, '.smolder');
-    if (!-d $dir) {
-        mkdir($dir) or _broked("Can't create data directory $dir! $!");
+    open(my $FH, '<', $file) or croak "Could not open file $file for reading: $!";
+    my %values;
+    while(my $line = <$FH>) {
+        # only get lines that look like name-value pairs but not comments
+        if( $line !~ /\s*#/ && $line =~ /(\S+)\s+(\S+)/ ) {
+            # strip off any quotes
+            my ($key, $val) = ($1, $2);
+            $val =~ s/^'(.*)'$/$1/;
+            $val =~ s/^"(.*)"$/$1/;
+            $values{$key} = $val;
+        }
     }
-    return $dir;
+    $class->init(%values);
+}
+
+BEGIN {
+    __PACKAGE__->init_from_file($ENV{SMOLDER_CONF}) if $ENV{SMOLDER_CONF};
+}
+
+=head2 get
+
+Given a directive name, returns the value (which may be a list) of a configuration directive.
+Directive names are case-insensitive. 
+
+    $value = Smolder::Conf->get('DirectiveName');
+
+=cut
+
+sub get {
+    my ($class, $key) = @_;
+    if( exists $VALUES{$key} ) {
+        return $VALUES{$key};
+    } else {
+        croak "$key is not a valid Smolder config parameter!";
+    }
 }
 
 =head2 test_data_dir
@@ -286,13 +207,5 @@ sub import {
         *{"$callpkg\::$name"} = sub () { $pkg->get($name) };
     }
 }
-
-sub _broked {
-    warn("Error found in smolder.conf: $_[0].\n");
-    exit(1);
-}
-
-# run the check ASAP, unless we're in upgrade mode
-BEGIN { __PACKAGE__->check() unless ($ENV{SMOLDER_CONF_NOCHECK}) }
 
 1;

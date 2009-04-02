@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use base 'Smolder::DB';
 use Smolder::DB::Developer;
-use Smolder::Conf qw(ProjectFullReportsMax);
+use Smolder::Conf qw(ProjectFullReportsMax DataDir);
 use File::Path;
 use File::Spec::Functions qw(catdir);
 use DateTime::Format::MySQL;
@@ -41,7 +41,7 @@ __PACKAGE__->has_a(
 __PACKAGE__->add_trigger(
     after_delete => sub {
         my $self = shift;
-        my $dir = catdir(Smolder::Conf->data_dir, 'smoke_reports', $self->id);
+        my $dir = catdir(DataDir, 'smoke_reports', $self->id);
         rmtree($dir) if (-d $dir);
     }
 );

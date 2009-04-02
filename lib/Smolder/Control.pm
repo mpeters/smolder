@@ -8,11 +8,10 @@ use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
 use Template::Plugin::Cycle;
 use CGI::Cookie;
-
 #use CGI::Application::Plugin::DebugScreen;
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(HostName LogFile);
+use Smolder::Conf qw(HostName LogFile TemplateDir);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
@@ -325,7 +324,7 @@ of performance.
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
         COMPILE_DIR  => tmpdir(),
-        INCLUDE_PATH => Smolder::Conf->template_dir,
+        INCLUDE_PATH => TemplateDir,
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,

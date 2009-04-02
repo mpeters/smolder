@@ -2,7 +2,7 @@ package Smolder::DB::SmokeReport;
 use strict;
 use warnings;
 use base 'Smolder::DB';
-use Smolder::Conf;
+use Smolder::Conf qw(DataDir);
 use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile);
 use File::Path qw(mkpath rmtree);
@@ -145,7 +145,7 @@ If it doesn't exist it will be created.
 
 sub data_dir {
     my $self = shift;
-    my $dir = catdir(Smolder::Conf->data_dir, 'smoke_reports', $self->project->id, $self->id);
+    my $dir = catdir(DataDir, 'smoke_reports', $self->project->id, $self->id);
 
     # create it if it doesn't exist
     mkpath($dir) if (!-d $dir);

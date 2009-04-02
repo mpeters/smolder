@@ -4,7 +4,7 @@ use warnings;
 use base 'Smolder::Upgrade';
 use File::Path qw(rmtree);
 use File::Spec::Functions qw(catdir);
-use Smolder::Conf;
+use Smolder::Conf qw(DataDir);
 
 sub pre_db_upgrade { }
 
@@ -21,10 +21,10 @@ sub post_db_upgrade {
     }
 
     # remove the old HTML reports in the old format
-    rmtree(catdir(Smolder::Conf->data_dir, 'html_smoke_reports'));
+    rmtree(catdir(DataDir, 'html_smoke_reports'));
 
     # remove the old XML reports
-    my $report_dir = catdir(Smolder::Conf->data_dir, 'smoke_reports');
+    my $report_dir = catdir(DataDir, 'smoke_reports');
     rmtree($report_dir);
     mkdir($report_dir);
 }

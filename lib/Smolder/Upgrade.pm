@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use File::Spec::Functions qw(catfile);
 use Smolder;
-use Smolder::Conf;
+use Smolder::Conf qw(SQLDir);
 use Smolder::DB;
 
 =head1 NAME
@@ -126,7 +126,7 @@ sub version_upgrade {
 
     # find and run the SQL file
     $version =~ /(\d+)\.(\d+)/;
-    my $file = catfile(Smolder::Conf->sql_dir, 'upgrades', "V$1_$2.sql");
+    my $file = catfile(SQLDir, 'upgrades', "V$1_$2.sql");
     if (-e $file) {
         warn "    Upgrading DB with file '$file'.\n";
         Smolder::DB->run_sql_file($file);

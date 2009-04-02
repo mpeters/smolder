@@ -22,7 +22,6 @@ my $builder = Smolder::Build->new(
         'Class::DBI'                                 => 3.0,
         'Class::DBI::SQLite'                         => 0,
         'Class::DBI::Plugin::RetrieveAll'            => 1.04,
-        'Config::ApacheFormat'                       => 0,
         'Data::FormValidator'                        => 4.61,
         'Data::FormValidator::Constraints::DateTime' => 1.09,
         'Data::Random'                               => 0.05,
@@ -58,9 +57,6 @@ my $builder = Smolder::Build->new(
     configure_requires => {
         'Module::Build'             => 0,
         'Module::Build::TAPArchive' => 0,
-        'IPC::Run'                  => 0.82,
-        'WWW::Mechanize'            => 0,
-        'LWP::UserAgent'            => 0,
     },
     build_requires => {
         'Test::WWW::Mechanize'      => 1.22,

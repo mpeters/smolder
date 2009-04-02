@@ -2,13 +2,11 @@ package Smolder::TestData;
 use strict;
 use warnings;
 use base 'Exporter';
-use Smolder::Conf qw(HostName Port URLPrefix);
+use Smolder::Conf qw(HostName Port);
 use Smolder::DB;
 use File::Spec::Functions qw(catfile);
 use File::Copy qw(copy);
 use LWP::UserAgent;
-
-our $config = Smolder::Conf->get_config();
 
 our @EXPORT_OK = qw(
   create_project
@@ -280,7 +278,7 @@ Returns the base url for the dynamic portions of the site.
 =cut
 
 sub base_url {
-    return 'http://' . HostName . ':' . Port . (URLPrefix || '') . '/app';
+    return 'http://' . HostName . ':' . Port . '/app';
 }
 
 =head2 db_field_value 

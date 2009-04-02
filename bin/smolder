@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
+use Smolder::Conf;
+use File::Spec::Functions qw(catdir);
 
 =head1 NAME 
 
@@ -28,11 +30,25 @@ Run the server in the background as a daemon process.
 
 =item --conf (-c)
 
-Specify a smolder.conf config file. Smolder looks in several
-places for config files but if you want to put it someplace
-else then you can.
+Specify a smolder.conf config file.
 
-=item --help (-h)
+=item --port (-p)
+
+Specify the port from which Smolder will server requests. Defaults to 8080
+
+=item --host (-h)
+
+The hostname that Smolder will use when running. Defaults to localhost@localdomain
+
+=item --data_dir
+
+The data directory that Smolder will use. Defaults to $HOME/.smolder (or equivalent)
+
+=item --share_dir
+
+The shared directory that Smolder will use for read-only things like templates, css, images and sql files
+
+=item --help
 
 Show the help screen.
 
@@ -40,14 +56,28 @@ Show the help screen.
 
 =cut
 
-my ($conf, $daemon, $help);
+my ($conf, $daemon, $help, $port, $host, $data_dir, $share_dir);
 GetOptions(
-    'conf|c=s' => \$conf,
-    'daemon|d' => \$daemon,
-    'help|h'   => \$help,
+    'conf|c=s'    => \$conf,
+    'daemon|d'    => \$daemon,
+    'port|p=s'    => \$port,
+    'host|h=s'    => \$host,
+    'data_dir=s'  => \$data_dir,
+    'share_dir=s' => \$share_dir,
+    'help'        => \$help,
 );
 pod2usage(1) if $help;
 
-$ENV{SMOLDER_CONF} = $conf if $conf;
+my %conf_values;
+$conf_values{Port}     = $port     if $port;
+$conf_values{HostName} = $host     if $host;
+$conf_values{DataDir}  = $data_dir if $data_dir;
+if ($share_dir) {
+    $conf_values{TemplateDir} = catdir($share_dir, 'templates');
+    $conf_values{SQLDir}      = catdir($share_dir, 'sql');
+    $conf_values{HtdocsDir}   = catdir($share_dir, 'htdocs');
+}
+Smolder::Conf->init_from_file($conf) if $conf;
+Smolder::Conf->init(%conf_values)    if %conf_values;
 require Smolder::Server;
 Smolder::Server->new(daemon => $daemon)->start();

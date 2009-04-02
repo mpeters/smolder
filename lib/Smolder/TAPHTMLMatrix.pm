@@ -6,14 +6,14 @@ use File::Spec::Functions qw(catdir catfile tmpdir);
 use File::Path;
 use URI::file;
 use Template;
-use Smolder::Conf;
+use Smolder::Conf qw(TemplateDir);
 use Smolder::Control;
 use Template::Plugin::Cycle;
 
 our $TMPL = Template->new(
     COMPILE_DIR  => tmpdir(),
     COMPILE_EXT  => '.ttc',
-    INCLUDE_PATH => Smolder::Conf->template_dir,
+    INCLUDE_PATH => TemplateDir,
     FILTERS      => {
         pass_fail_color => \&Smolder::Util::pass_fail_color,
         format_time     => \&Smolder::Util::format_time,
