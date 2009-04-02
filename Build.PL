@@ -5,8 +5,6 @@ use Config;
 use lib 'lib';
 use Smolder::Build;
 
-my $SHARE_DIR = catdir($Config{installsitelib}, 'auto', 'share', 'Smolder');
-
 my $builder = Smolder::Build->new(
     module_name       => 'Smolder',
     license           => 'perl',
@@ -61,6 +59,8 @@ my $builder = Smolder::Build->new(
         'Module::Build'             => 0,
         'Module::Build::TAPArchive' => 0,
         'IPC::Run'                  => 0.82,
+        'WWW::Mechanize'            => 0,
+        'LWP::UserAgent'            => 0,
     },
     build_requires => {
         'Test::WWW::Mechanize'      => 1.22,
@@ -73,11 +73,6 @@ my $builder = Smolder::Build->new(
         'File::Copy'                => 0,
         'Module::Build'             => 0,
         'Module::Build::TAPArchive' => 0,
-    },
-    install_path => {
-        templates => catdir($SHARE_DIR, 'templates'),
-        sql       => catdir($SHARE_DIR, 'sql'),
-        htdocs    => catdir($SHARE_DIR, 'htdocs'),
     },
     add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
     meta_add => {

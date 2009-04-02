@@ -32,7 +32,7 @@ sub print_banner {
     print "$line\n$banner\n";
 }
 
-sub go {
+sub start {
     my $self = shift;
 
     unless (-e Smolder::DB->db_file) {

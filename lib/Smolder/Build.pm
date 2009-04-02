@@ -5,10 +5,9 @@ use base 'Module::Build::TAPArchive';
 use File::Temp;
 use Cwd qw(cwd);
 use File::Spec::Functions qw(catdir catfile tmpdir curdir rel2abs abs2rel splitdir);
-use LWP::UserAgent;
-use WWW::Mechanize;
 use File::Find ();
 use File::Copy qw(copy);
+use File::Path qw(make_path);
 
 my $HOSTNAME = 'localhost.localdomain';
 my $PORT     = '112234';
@@ -16,6 +15,10 @@ my $PORT     = '112234';
 BEGIN { 
     eval { require IPC::Run };
     die "IPC::Run needed to run Smolder build: $@" if $@;
+    eval { require LWP::UserAgent };
+    die "LWP::UserAgent neede to run Smolder build: $@" if $@;
+    eval { require WWW::Mechanize };
+    die "WWW::Mechanize neede to run Smolder build: $@" if $@;
 }
 
 =head1 NAME
@@ -77,7 +80,7 @@ sub _wrap_test_action {
     # start the smolder server
     my ($in, $out, $err);
     $ENV{PERL5LIB} = catdir($cwd, 'blib', 'lib');
-    my $subprocess = IPC::Run::start([catfile($cwd, 'bin', 'smolder')], \$in, \$out, \$err);
+    my $subprocess = IPC::Run::start([catfile($cwd, 'blib', 'script', 'smolder')], \$in, \$out, \$err);
     my $tries = 0;
     warn "Waiting for Smolder to start...\n";
     while (!_is_smolder_running() && $tries < 7) {
@@ -263,10 +266,10 @@ sub _copy_files {
     my $cwd              = cwd();
     my $start_dir        = rel2abs(catdir(curdir, $type));
     my $start_dir_length = scalar splitdir($start_dir);
-    my $dest_dir         = rel2abs(catdir(curdir, 'blib', $type));
+    my $dest_dir         = rel2abs(catdir(curdir, 'blib', 'lib', 'auto', 'share', 'Smolder', $type));
 
     unless (-d $dest_dir) {
-        mkdir $dest_dir or die "Could not create directory $dest_dir: $!";
+        make_path($dest_dir) or die "Could not create directory $dest_dir: $!";
     }
 
     File::Find::find(

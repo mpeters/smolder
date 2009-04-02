@@ -1,5 +1,14 @@
 Revision history for Smolder
 
+1.34
+    + IPC::Run, LWP::UserAgent and WWW::Mechanize should be listed as part of 
+      configure_requires - G. Szabo, M. Peters 
+    + Load IPC::Run, LWP::UserAgent and WWW::Mechanize conditionally in Build.PL 
+      in case configure_requires is ignored - G. Szabo, M. Peters
+    + Run the smolder binary in blib/ instead of bin/ during tests - G. Szabo
+    + Install shared data into /blib/lib/auto so it goes into the right shared dir
+      even when using a different install_base - G. Szabo, M. Peters
+
 1.33 (March 30, 2009)
     + Tell CPAN to not index out private modules where we still want to have POD - M. Peters
     + Fix RT#44683 - M. Peters

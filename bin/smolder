@@ -50,4 +50,4 @@ pod2usage(1) if $help;
 
 $ENV{SMOLDER_CONF} = $conf if $conf;
 require Smolder::Server;
-Smolder::Server->new(daemon => $daemon)->go();
+Smolder::Server->new(daemon => $daemon)->start();
