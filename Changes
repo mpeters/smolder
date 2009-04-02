@@ -8,6 +8,10 @@ Revision history for Smolder
     + Run the smolder binary in blib/ instead of bin/ during tests - G. Szabo
     + Install shared data into /blib/lib/auto so it goes into the right shared dir
       even when using a different install_base - G. Szabo, M. Peters
+    + added --port, --host, --data_dir and --share_dir to bin/smolder to make it easier
+      to customize without needing a config file - M. Peters
+    + Smolder::Conf is not simpler (doesn't use Config::ApacheFormat) and tries to have
+      better defaults for everything so that a smolder.conf is not needed - M. Peters
 
 1.33 (March 30, 2009)
     + Tell CPAN to not index out private modules where we still want to have POD - M. Peters
