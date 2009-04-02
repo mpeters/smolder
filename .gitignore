@@ -1,0 +1,7 @@
+smolder.conf
+data
+Build
+_build
+blib
+*.bak
+Smolder-*
