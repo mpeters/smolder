@@ -1,6 +1,6 @@
 ---
 name: Smolder
-version: 1.33
+version: 1.35
 author:
   - 'Michael Peters <mpeters@plusthree.com>'
 abstract: Web-based Continuous Integration Smoke Server
@@ -8,7 +8,6 @@ license: perl
 resources:
   license: ~
 configure_requires:
-  IPC::Run: 0.82
   Module::Build: 0
   Module::Build::TAPArchive: 0
 requires:
@@ -23,7 +22,6 @@ requires:
   Class::DBI: 3
   Class::DBI::Plugin::RetrieveAll: 1.04
   Class::DBI::SQLite: 0
-  Config::ApacheFormat: 0
   DBD::SQLite: 1.12
   Data::FormValidator: 4.61
   Data::FormValidator::Constraints::DateTime: 1.09
@@ -69,7 +67,7 @@ build_requires:
 provides:
   Smolder:
     file: lib/Smolder.pm
-    version: 1.33
+    version: 1.35
   Smolder::AuthHandler:
     file: lib/Smolder/AuthHandler.pm
   Smolder::AuthInfo:
