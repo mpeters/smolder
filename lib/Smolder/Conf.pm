@@ -20,7 +20,14 @@ sub _random_secret {
 my %VALUES;
 
 BEGIN {
-    my $share_dir = dist_dir('Smolder');
+    my $share_dir;
+    my $blib_share_dir = rel2abs(catdir(curdir, 'blib', 'lib', 'auto', 'share', 'dist', 'Smolder'));
+    if( -d $blib_share_dir ) {
+        $share_dir = $blib_share_dir;
+    } else {
+        $share_dir = dist_dir('Smolder');
+    }
+
     %VALUES = (
         Port                  => 8080,
         HostName              => 'localhost.localdomain',
