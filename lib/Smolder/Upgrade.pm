@@ -51,6 +51,8 @@ versions are run.
 
 sub upgrade {
     my $self       = shift;
+    # don't do anything for dev releases
+    return if $Smolder::VERSION =~ /_/;
     my $db_version = Smolder::DB->db_Main->selectall_arrayref('SELECT db_version FROM db_version');
     $db_version = $db_version->[0]->[0];
     if ($db_version < $Smolder::VERSION) {
