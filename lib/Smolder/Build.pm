@@ -50,8 +50,9 @@ sub _wrap_test_action {
     my $tmp_conf  = File::Temp->new(template => 'smolder-XXXXXX', suffix => '.conf', dir => tmpdir);
     my $log_dir   = rel2abs(catdir(curdir, 'blib', 'logs'));
     mkpath($log_dir) unless -d $log_dir;
-    
-    my $conf = "HostName '$HOSTNAME'\nPort '$PORT'\n"
+
+    my $conf =
+        "HostName '$HOSTNAME'\nPort '$PORT'\n"
       . "TemplateDir '"
       . catdir($share_dir, 'templates') . "'\n"
       . "HtdocsDir '"
@@ -60,7 +61,9 @@ sub _wrap_test_action {
       . catdir($share_dir, 'sql') . "'\n"
       . "DataDir '"
       . $tmp_dir->dirname . "'\n"
-      . "LogFile '" . catdir($log_dir, 'smolder.log') . "'\n";
+      . "LogFile '"
+#      . catdir($log_dir, 'smolder.log') . "'\n";
+. "/home/mpeters/development/smolder/logs/smolder.log'\n";
     print $tmp_conf $conf;
     close $tmp_conf;
     $ENV{SMOLDER_CONF} = $tmp_conf->filename;
@@ -77,21 +80,26 @@ sub _wrap_test_action {
     $ENV{PERL5LIB} = catdir($cwd, 'blib', 'lib');
     my @cmd = (
         $^X,
+        "-I$ENV{PERL5LIB}",
         catfile($cwd, 'blib', 'script', 'smolder'),
-        '--host'      => $HOSTNAME,
-        '--port'      => $PORT,
+        '--host' => $HOSTNAME,
+        '--port' => $PORT,
     );
     eval { require IPC::Run };
     die "IPC::Run needed to run Smolder test: $@" if $@;
-    my $subprocess = IPC::Run::start(\@cmd, \$in, \$out, \$err);
+    warn "Starting Smolder server\n";
+    my $subprocess = IPC::Run::harness(\@cmd, \$in, \$out, \$err);
+    $subprocess->start();
+
     my $tries = 0;
-    warn "Waiting for Smolder to start...\n";
-    while (!_is_smolder_running() && $tries < 7) {
-        sleep(3);
+    while (!_is_smolder_running() && $tries < 5 && !$err) {
+        $subprocess->pump_nb() if $subprocess->pumpable;
+        sleep(2);
         $tries++;
     }
-    if( !_is_smolder_running()) {
-        warn "Could not start Smolder server: $err\n";
+    if(!_is_smolder_running() ) {
+        warn "Could not start Smolder server\n";
+        warn "$err\n" if $err;
         warn "Trying tests anyway.\n";
     }
 
@@ -99,6 +107,7 @@ sub _wrap_test_action {
     eval {
 
         # make sure depends_on('code') doesn't get run since we've already taken care of it
+        # with depends_on('db')
         local *Module::Build::TAPArchive::depends_on = sub {
             my ($self, @args) = @_;
             if ($args[0] && $args[0] ne 'code') {
