@@ -7,3 +7,4 @@ blib
 Smolder-*
 *.swp
 *.swo
+logs/*
