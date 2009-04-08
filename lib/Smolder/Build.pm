@@ -62,8 +62,7 @@ sub _wrap_test_action {
       . "DataDir '"
       . $tmp_dir->dirname . "'\n"
       . "LogFile '"
-#      . catdir($log_dir, 'smolder.log') . "'\n";
-. "/home/mpeters/development/smolder/logs/smolder.log'\n";
+      . catdir($log_dir, 'smolder.log') . "'\n";
     print $tmp_conf $conf;
     close $tmp_conf;
     $ENV{SMOLDER_CONF} = $tmp_conf->filename;
