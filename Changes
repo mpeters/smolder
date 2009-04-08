@@ -1,7 +1,16 @@
 Revision history for Smolder
 
+1.36
+    + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives
+      during testing - M. Peters
+    + removed t/all_bin.t since we are already testing each bin/ script in other
+      tests - M. Peters
+    + Added -I flag to bin/smolder when starting it for the tests so it will pick
+      up blib/ instead of something else - M. Peters
+
 1.35
-    + We can't rely on using File::ShareDir during the build process. - M. Peters
+    + We can't rely on using File::ShareDir during the build process since we're
+      loading Smolder::Build from ./lib - M. Peters
 
 1.34
     + IPC::Run, LWP::UserAgent and WWW::Mechanize should be listed as part of 
