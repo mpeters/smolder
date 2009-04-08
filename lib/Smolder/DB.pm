@@ -394,7 +394,7 @@ failed UNIQUE contstraint, else will return false.
 
 sub unique_failure_msg {
     my ($class, $msg) = @_;
-    return $msg =~ /not unique\(/i;
+    return $msg =~ /not unique/i;
 }
 
 1;
