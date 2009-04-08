@@ -2,13 +2,13 @@ bin/smolder
 bin/smolder_smoke_signal
 Build.PL
 Changes
-htdocs/favicon.ico
 htdocs/images/arrow-desc.gif
 htdocs/images/boxed-bg-bottom.png
 htdocs/images/boxed-bg-right.png
 htdocs/images/calendar.gif
 htdocs/images/down.gif
 htdocs/images/error_overlay.png
+htdocs/images/favicon.ico
 htdocs/images/grid.png
 htdocs/images/h2_bg.gif
 htdocs/images/h3_bg.gif
@@ -96,7 +96,6 @@ sql/upgrade/V1_24.sql
 t/admin.t
 t/admin_devs.t
 t/admin_projs.t
-t/all_bin.t
 t/authinfo.t
 t/conf.t
 t/constraints.t
