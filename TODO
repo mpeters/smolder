@@ -1,7 +1,5 @@
 TODO tasks for Smolder
 
-+ Remove DateTime::Format::MySQL and just store dates as epoch ints
-
 + Change ProjectFullReportsMax to be a per-project field
 
 + Add support for dev releases to CPAN
