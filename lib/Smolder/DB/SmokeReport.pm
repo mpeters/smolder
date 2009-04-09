@@ -400,6 +400,7 @@ sub upload_report {
             architecture => ($args{architecture} || ''),
             platform     => ($args{platform} || ''),
             comments     => ($args{comments} || ''),
+            revision     => ($args{revision} || ''),
         }
     );
 

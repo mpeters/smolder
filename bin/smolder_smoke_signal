@@ -65,6 +65,11 @@ take.
 
 =over
 
+=item port
+
+If your Smolder server is running on a port other than 80, then you
+can specify it here.
+
 =item architecture
 
 The architecture for the given smoke test run. If none is given
@@ -74,6 +79,15 @@ it will use the default architecture for the project.
 
 The platform for the given smoke test run. If none is given
 it will use the default platform for the project.
+
+=item revision
+
+The revision control number for this test run. Only applies to
+projects that use revision control (shouldn't they all) and only
+applies to tests run against a checkout from revision control.
+
+This is just a free form text option so it will work with any
+revision number that your preferred revision control system uses.
 
 =item tags
 
@@ -94,11 +108,13 @@ Print verbose output of our actions to STDOUT.
 =cut
 
 # default options
-my ($server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose);
+my ($server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose, $rev,
+    $port);
 my ($help, $man);
 
 GetOptions(
     'server=s'       => \$server,
+    'port=s'         => \$port,
     'project=s'      => \$project,
     'username=s'     => \$user,
     'password=s'     => \$pw,
@@ -107,6 +123,7 @@ GetOptions(
     'platform=s'     => \$platform,
     'tags=s'         => \$tags,
     'comments=s'     => \$comments,
+    'revision=s'     => \$rev,
     'verbose!'       => \$verbose,
     'help'           => \$help,
     'man'            => \$man,
@@ -144,11 +161,12 @@ if (-r $file) {
 
 # try and reach the smolder server
 print "Trying to reach Smolder server at $server.\n" if ($verbose);
+$port ||= 80;
 my $mech     = WWW::Mechanize->new();
-my $base_url = "http://$server/app";
+my $base_url = "http://$server:$port/app";
 eval { $mech->get($base_url) };
 unless ($mech->status eq '200') {
-    warn "Could not reach $server successfully. Received status " . $mech->status . "\n";
+    warn "Could not reach $server:$port successfully. Received status " . $mech->status . "\n";
     exit(1);
 }
 
@@ -157,7 +175,7 @@ print "Trying to login with username '$user'.\n" if ($verbose);
 $mech->get($base_url . '/public_auth/login');
 my $form = $mech->form_name('login');
 if ($mech->status ne '200' || !$form) {
-    warn "Could not reach Smolder login form. Are you sure $server is a Smolder server?\n";
+    warn "Could not reach Smolder login form. Are you sure $server:$port is a Smolder server?\n";
     exit(1);
 }
 $mech->set_fields(
@@ -192,10 +210,11 @@ if ($mech->status ne '200' || $content !~ /New Smoke Report/) {
 }
 $mech->form_name('add_report');
 my %fields = (report_file => $file);
-$fields{platform}     = $platform if ($platform);
-$fields{architecture} = $arch     if ($arch);
-$fields{tags}         = $tags     if ($tags);
-$fields{comments}     = $comments if ($comments);
+$fields{platform}     = $platform if $platform;
+$fields{architecture} = $arch     if $arch;
+$fields{tags}         = $tags     if $tags;
+$fields{comments}     = $comments if $comments;
+$fields{revision}     = $rev      if $rev;
 $mech->set_fields(%fields);
 $mech->submit();
 

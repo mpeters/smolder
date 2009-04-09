@@ -128,12 +128,12 @@ sub version_upgrade {
 
     # find and run the SQL file
     $version =~ /(\d+)\.(\d+)/;
-    my $file = catfile(SQLDir, 'upgrades', "V$1_$2.sql");
+    my $file = catfile(SQLDir, 'upgrade', "V$1_$2.sql");
     if (-e $file) {
         warn "    Upgrading DB with file '$file'.\n";
         Smolder::DB->run_sql_file($file);
     } else {
-        warn "    No SQL file for version $version. Skipping DB upgrade.\n";
+        warn "    No SQL file ($file) for version $version. Skipping DB upgrade.\n";
     }
     $self->post_db_upgrade();
 

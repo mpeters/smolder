@@ -18,6 +18,7 @@ CREATE TABLE smoke_report  (
     duration        INTEGER DEFAULT 0,
     purged          INTEGER DEFAULT 0,
     failed          INTEGER DEFAULT 0,
+    revision        TEXT DEFAULT '',
     CONSTRAINT 'fk_smoke_report_project' FOREIGN KEY ('project') REFERENCES 'project' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_smoke_report_developer' FOREIGN KEY ('developer') REFERENCES 'developer' ('id') ON DELETE CASCADE
 );

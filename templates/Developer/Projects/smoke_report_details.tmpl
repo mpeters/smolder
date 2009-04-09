@@ -72,6 +72,14 @@
       <th><span[% IF report.todo %] class="todo"[% END %]># TODO</span></th>
       <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo | format_number %]</span></td>
     </tr>
+    [% IF report.revision %]
+    <tr>
+      <th>Revision</th>
+      <td colspan="3">
+        <em>[% report.revision | html %]</em>
+      </td>
+    </tr>
+    [% END %]
     [% IF report.tags.size %]
     <tr>
       <th>Tags</th>

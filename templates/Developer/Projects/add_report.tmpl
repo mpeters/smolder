@@ -23,6 +23,9 @@
   [% IF c.dfv_msgs.err_platform %]
     Smolder.show_message('warning', 'Platform must be less than 255 characters.');
   [% END %]
+  [% IF c.dfv_msgs.err_revision %]
+    Smolder.show_message('warning', 'Revision must be less than 255 characters.');
+  [% END %]
   [% IF err_valid_file || c.dfv_msgs.err_report_file %] 
     [% IF error_valid_xml %]
         Smolder.show_message('warning', 'Was not a valid XML smoke test report.');
@@ -55,6 +58,10 @@
     <input type="text" size="25" name="platform" id="platform" autocomplete="off" value="[% project.default_platform | html %]" />
     <div class="auto_complete" id="platform_auto_complete" />
   </td>
+</tr>
+<tr>
+  <td><label [% IF c.dfv_msgs.err_revision %]class="warn"[% END %]>Revision</label></td>
+  <td><input type="text" size="25" name="revision" id="revision" value="" /></td>
 </tr>
 <tr>
   <td><label [% IF c.dfv_msgs.err_tags %]class="warn"[% END %]>Tags</label></td>
