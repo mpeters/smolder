@@ -1,5 +1,10 @@
 Revision history for Smolder
 
+1.37
+    + Update tutorial documentation - G. Szabó
+    + Create the data directory if it doesn't already exist when Smolder starts - G. Szabó
+    
+
 1.36
     + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives
       during testing - M. Peters
@@ -14,12 +19,12 @@ Revision history for Smolder
 
 1.34
     + IPC::Run, LWP::UserAgent and WWW::Mechanize should be listed as part of 
-      configure_requires - G. Szabo, M. Peters 
+      configure_requires - G. Szabó, M. Peters 
     + Load IPC::Run, LWP::UserAgent and WWW::Mechanize conditionally in Build.PL 
-      in case configure_requires is ignored - G. Szabo, M. Peters
-    + Run the smolder binary in blib/ instead of bin/ during tests - G. Szabo
+      in case configure_requires is ignored - G. Szabó, M. Peters
+    + Run the smolder binary in blib/ instead of bin/ during tests - G. Szabó
     + Install shared data into /blib/lib/auto so it goes into the right shared dir
-      even when using a different install_base - G. Szabo, M. Peters
+      even when using a different install_base - G. Szabó, M. Peters
     + added --port, --host, --data_dir and --share_dir to bin/smolder to make it easier
       to customize without needing a config file - M. Peters
     + Smolder::Conf is not simpler (doesn't use Config::ApacheFormat) and tries to have
