@@ -59,8 +59,10 @@ __PACKAGE__->add_callback(
             my $value = $cookie->value;
             if ($value) {
                 $ai->parse($value);
-                $ENV{REMOTE_USER} = $ai->id;
-                @user_groups = @{$ai->groups};
+                if( $ai->id ) {
+                    $ENV{REMOTE_USER} = $ai->id;
+                    @user_groups = @{$ai->groups};
+                }
             }
         }
 
