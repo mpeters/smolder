@@ -48,6 +48,10 @@ The data directory that Smolder will use. Defaults to $HOME/.smolder (or equival
 
 The shared directory that Smolder will use for read-only things like templates, css, images and sql files
 
+=item --log_file
+
+The log file used by Smolder.
+
 =item --help
 
 Show the help screen.
@@ -56,7 +60,7 @@ Show the help screen.
 
 =cut
 
-my ($conf, $daemon, $help, $port, $host, $data_dir, $share_dir);
+my ($conf, $daemon, $help, $port, $host, $data_dir, $share_dir, $log_file);
 GetOptions(
     'conf|c=s'    => \$conf,
     'daemon|d'    => \$daemon,
@@ -64,6 +68,7 @@ GetOptions(
     'host|h=s'    => \$host,
     'data_dir=s'  => \$data_dir,
     'share_dir=s' => \$share_dir,
+    'log_file=s'  => \$log_file,
     'help'        => \$help,
 );
 pod2usage(1) if $help;
@@ -72,6 +77,7 @@ my %conf_values;
 $conf_values{Port}     = $port     if $port;
 $conf_values{HostName} = $host     if $host;
 $conf_values{DataDir}  = $data_dir if $data_dir;
+$conf_values{LogFile}  = $log_file if $log_file;
 if ($share_dir) {
     $conf_values{TemplateDir} = catdir($share_dir, 'templates');
     $conf_values{SQLDir}      = catdir($share_dir, 'sql');

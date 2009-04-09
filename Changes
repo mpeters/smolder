@@ -3,7 +3,7 @@ Revision history for Smolder
 1.37
     + Update tutorial documentation - G. Szabó
     + Create the data directory if it doesn't already exist when Smolder starts - G. Szabó
-    
+    + Added --log_file option to bin/smolder - M. Peters
 
 1.36
     + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives
