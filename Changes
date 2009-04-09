@@ -6,6 +6,7 @@ Revision history for Smolder
     + Added --log_file option to bin/smolder - M. Peters
     + Added revision field to smoke reports - M. Peters
     + Added --port option to bin/smolder_smoke_signal - M. Peters
+    + Remove DateTime::Format::MySQL as a dependency and just use strptime and strftime instead - M. Peters
 
 1.36
     + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives
