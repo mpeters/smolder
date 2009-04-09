@@ -10,7 +10,6 @@ use File::Copy qw(move copy);
 use File::Temp qw(tempdir);
 use Cwd qw(fastcwd);
 use DateTime;
-use DateTime::Format::MySQL;
 use Smolder::TAPHTMLMatrix;
 use Carp qw(croak);
 use TAP::Harness::Archive;
@@ -45,8 +44,8 @@ The following columns will return objects instead of the value contained in the 
 
 __PACKAGE__->has_a(
     added   => 'DateTime',
-    inflate => sub { DateTime::Format::MySQL->parse_datetime(shift) },
-    deflate => sub { DateTime::Format::MySQL->format_datetime(shift) },
+    inflate => sub { __PACKAGE__->parse_datetime(shift) },
+    deflate => sub { __PACKAGE__->format_datetime(shift) },
 );
 __PACKAGE__->has_a(developer => 'Smolder::DB::Developer');
 __PACKAGE__->has_a(project   => 'Smolder::DB::Project');

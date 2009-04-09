@@ -26,7 +26,6 @@ my $builder = Smolder::Build->new(
         'Data::FormValidator::Constraints::DateTime' => 1.09,
         'Data::Random'                               => 0.05,
         'DateTime'                                   => 0.4501,
-        'DateTime::Format::MySQL'                    => 0,
         'DateTime::Format::Strptime'                 => 0,
         'DBD::SQLite'                                => 1.20,
         'Digest::MD5'                                => 0,

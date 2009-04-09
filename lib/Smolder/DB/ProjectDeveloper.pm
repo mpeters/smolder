@@ -27,11 +27,10 @@ The following columns will return objects instead of the value contained in the 
 __PACKAGE__->has_a(project    => 'Smolder::DB::Project');
 __PACKAGE__->has_a(developer  => 'Smolder::DB::Developer');
 __PACKAGE__->has_a(preference => 'Smolder::DB::Preference');
-
 __PACKAGE__->has_a(
     added   => 'DateTime',
-    inflate => sub { DateTime::Format::MySQL->parse_datetime(shift) },
-    deflate => sub { DateTime::Format::MySQL->format_datetime(shift) },
+    inflate => sub { __PACKAGE__->parse_datetime(shift) },
+    deflate => sub { __PACKAGE__->format_datetime(shift) },
 );
 
 # make sure we delete any preferences that are attached to us

@@ -6,6 +6,7 @@ use Smolder::Conf qw(SQLDir DataDir);
 use DBI;
 use Class::DBI::Plugin::RetrieveAll;
 use File::Spec::Functions qw(catfile);
+use DateTime::Format::Strptime;
 
 __PACKAGE__->connection(
     "dbi:SQLite:dbname=" . __PACKAGE__->db_file(),
@@ -48,6 +49,16 @@ for object persistence using Class::DBI.
 It also provides a connect() method for getting a DBI connection from non Class::DBI code.
 
 =head1 INTERFACE
+
+=head2 dbh
+
+Get the database handle.
+
+=cut
+
+sub dbh {
+    return shift->db_Main;
+}
 
 =head2 commit
 
@@ -395,6 +406,32 @@ failed UNIQUE contstraint, else will return false.
 sub unique_failure_msg {
     my ($class, $msg) = @_;
     return $msg =~ /not unique/i;
+}
+
+=head2 format_datetime
+
+Given a L<DateTime> object, return the string we want to store in the database
+
+=cut
+
+sub format_datetime {
+    my ($class, $dt) = @_;
+    return $dt->strftime('%Y-%m-%d %H:%M:%S');
+}
+
+=head2 parse_datetime
+
+Given a date string, return the L<DateTime> object it represents.
+
+=cut
+
+my $DATE_FMT = DateTime::Format::Strptime->new(
+    pattern   => '%Y-%m-%d %H:%M:%S',
+    time_zone => 'local'
+);
+sub parse_datetime {
+    my ($class, $string) = @_;
+    return $DATE_FMT->parse_datetime($string);
 }
 
 1;
