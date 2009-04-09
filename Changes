@@ -4,6 +4,8 @@ Revision history for Smolder
     + Update tutorial documentation - G. Szabó
     + Create the data directory if it doesn't already exist when Smolder starts - G. Szabó
     + Added --log_file option to bin/smolder - M. Peters
+    + Added revision field to smoke reports - M. Peters
+    + Added --port option to bin/smolder_smoke_signal - M. Peters
 
 1.36
     + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives
