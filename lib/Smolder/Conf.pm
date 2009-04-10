@@ -6,7 +6,6 @@ use File::ShareDir qw(dist_dir);
 use File::HomeDir;
 use File::Basename qw(dirname);
 use Carp qw(croak);
-use Config::ApacheFormat;
 use Smolder;
 
 sub _random_secret {
