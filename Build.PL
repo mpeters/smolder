@@ -34,6 +34,7 @@ my $builder = Smolder::Build->new(
         'File::MMagic'                               => 0,
         'File::ShareDir'                             => 1.00,
         'File::HomeDir'                              => 0.80,
+        'File::Temp'                                 => 0.21,
         'Getopt::Long'                               => 0,
         'GD::Graph'                                  => 0,
         'GD::Graph3d'                                => 0,
