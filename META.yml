@@ -1,6 +1,6 @@
 ---
 name: Smolder
-version: 1.36
+version: 1.37
 author:
   - 'Michael Peters <mpeters@plusthree.com>'
 abstract: Web-based Continuous Integration Smoke Server
@@ -27,7 +27,6 @@ requires:
   Data::FormValidator::Constraints::DateTime: 1.09
   Data::Random: 0.05
   DateTime: 0.4501
-  DateTime::Format::MySQL: 0
   DateTime::Format::Strptime: 0
   Digest::MD5: 0
   Email::Valid: 0
@@ -35,6 +34,7 @@ requires:
   File::HomeDir: 0.8
   File::MMagic: 0
   File::ShareDir: 1
+  File::Temp: 0.21
   GD::Graph: 0
   GD::Graph3d: 0
   GD::Text: 0
@@ -67,7 +67,7 @@ build_requires:
 provides:
   Smolder:
     file: lib/Smolder.pm
-    version: 1.36
+    version: 1.37
   Smolder::AuthHandler:
     file: lib/Smolder/AuthHandler.pm
   Smolder::AuthInfo:
