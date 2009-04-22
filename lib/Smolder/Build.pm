@@ -10,7 +10,7 @@ use File::Copy qw(copy);
 use File::Path qw(mkpath);
 
 my $PORT     = '112234';
-my $HOSTNAME = 'localhost.localdomain';
+my $HOSTNAME = '127.0.0.1';
 
 =head1 NAME
 
