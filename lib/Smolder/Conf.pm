@@ -32,7 +32,6 @@ BEGIN {
         HostName              => 'localhost.localdomain',
         FromAddress           => 'smolder@localhost.localdomain',
         SMTPHost              => 'localhost.localdomain',
-        ProjectFullReportsMax => 0,
         LogFile               => '',
         TemplateDir           => catdir($share_dir, 'templates'),
         DataDir               => catdir(File::HomeDir->my_data, '.smolder'),

@@ -1,1 +1,4 @@
 ALTER TABLE smoke_report ADD COLUMN revision TEXT DEFAULT '';
+ALTER TABLE project ADD COLUMN max_reports INTEGER DEFAULT 100;
+ALTER TABLE project ADD COLUMN extra_css TEXT DEFAULT '';
+

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use base 'Smolder::DB';
 use Smolder::DB::Developer;
-use Smolder::Conf qw(ProjectFullReportsMax DataDir);
+use Smolder::Conf qw(DataDir);
 use File::Path;
 use File::Spec::Functions qw(catdir);
 
@@ -558,15 +558,15 @@ sub graph_start_datetime {
 
 =head3 purge_old_reports 
 
-This method will check to see if the C<ProjectFullReportsMax> configuration
-limit has been reached for this project and delete the tap archive files
-associated with those reports, also marking the reports as C<purged>.
+This method will check to see if the C<max_reports> limit has been reached
+for this project and delete the tap archive files associated with those
+reports, also marking the reports as C<purged>.
 
 =cut
 
 sub purge_old_reports {
     my $self = shift;
-    if (ProjectFullReportsMax) {
+    if ($self->max_reports) {
 
         # Delete any non-purged reports that pass the above limit
         my $sth = $self->db_Main->prepare_cached(
@@ -575,7 +575,7 @@ sub purge_old_reports {
             WHERE project = ? AND purged = 0
             ORDER BY added DESC
             LIMIT 1000000 OFFSET 
-        ) . ProjectFullReportsMax
+        ) . $self->max_reports
         );
         $sth->execute($self->id);
         my (@ids, $id);

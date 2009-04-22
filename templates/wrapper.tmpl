@@ -12,6 +12,12 @@
   <script type="text/javascript" src="[% c.static_url('/js/behaviour.js') %]"></script>
   <script type="text/javascript" src="[% c.static_url('/js/notify.js') %]"></script>
   <script type="text/javascript" src="[% c.static_url('/js/smolder.js') %]"></script>
+
+  [% IF project.extra_css %]
+  <style type="text/css">
+    [% project.extra_css %]
+  </style>
+  [% END %]
 </head>
    
 <body>
@@ -23,6 +29,7 @@
         <div id="logo"></div>
         <div id="title"></div>
         <div id="version">[% smolder_version %]</div>
+        <div id="header_extra"></div>
     </div>
 </div>
 
@@ -30,9 +37,11 @@
 
 <div id="main_container">
     <div id="message_container"></div>
+    <div id="main_container_extra"></div>
     <div id="main">
         <div id="page_title"><h1>[% page_title %]</h1></div>
         <div id="content">[% content %]</div>
+        <div id="main_extra"></div>
     </div>
 </div>
 

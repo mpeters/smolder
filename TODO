@@ -1,7 +1,5 @@
 TODO tasks for Smolder
 
-+ Change ProjectFullReportsMax to be a per-project field
-
 + Add support for dev releases to CPAN
 
 + get /static urls working for better caching by the browser

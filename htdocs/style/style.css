@@ -4,6 +4,8 @@ body {
     font-size: 10pt;
 }
 
+#header_extra, #main_container_extra, #main_extra { display: none }
+
 #container {
     text-align: left;
 }

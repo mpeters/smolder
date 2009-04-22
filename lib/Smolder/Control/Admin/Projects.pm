@@ -196,13 +196,13 @@ sub edit {
     my $output;
     my $project = Smolder::DB::Project->retrieve($self->param('id'));
 
-    my %tt_params = (project => $project,);
+    my %tt_params = (project => $project, edit => 1);
 
     # if we have any error messages, then just re-fill the form
     # and show them
     if ($err_msgs) {
         $output = HTML::FillInForm->new->fill(
-            scalarref => $self->tt_process({%$err_msgs, %tt_params}),
+            scalarref => $self->tt_process("Admin/Projects/add.tmpl", {%$err_msgs, %tt_params}),
             qobject   => $query,
         );
 
@@ -214,9 +214,11 @@ sub edit {
             start_date   => $project->start_date->strftime('%m/%d/%Y'),
             public       => $project->public,
             enable_feed  => $project->enable_feed,
+            max_reports  => $project->max_reports,
+            extra_css    => $project->extra_css,
         );
         $output = HTML::FillInForm->new->fill(
-            scalarref => $self->tt_process(\%tt_params),
+            scalarref => $self->tt_process("Admin/Projects/add.tmpl", \%tt_params),
             fdat      => \%project_data,
         );
     }
@@ -265,12 +267,14 @@ sub process_add {
     my $self = shift;
     my $id   = $self->param('id');
     my $form = {
-        required           => [qw(project_name start_date public enable_feed)],
+        required           => [qw(project_name start_date public enable_feed max_reports)],
+        optional           => [qw(extra_css)],
         constraint_methods => {
             project_name => [length_max(255), unique_field_value('project', 'name', $id),],
             start_date   => to_datetime('%m/%d/%Y'),
             public       => bool(),
             enable_feed  => bool(),
+            max_reports  => unsigned_int(),
         },
     };
 
@@ -303,7 +307,7 @@ sub process_add {
     if ($@) {
 
         # if it was a duplicate project name, then we can handle that
-        if (Smolder::Conf->unique_failure_msg($@)) {
+        if (Smolder::DB->unique_failure_msg($@)) {
             return $self->add({err_unique_project_name => 1});
 
             # else it's something else, so just throw it again
@@ -313,11 +317,11 @@ sub process_add {
     }
 
     # now show the project's success message
-    my $msg =
-      $id
-      ? "Project '" . $project->name . "' successfully updated."
-      : "New project '" . $project->name . "' successfully created.";
-    $self->add_message(msg => $msg);
+    if( $id ) {
+        $self->add_message(msg => "Project '" . $project->name . "' successfully updated.");
+    } else {
+        $self->add_message(msg => "New project '" . $project->name . "' successfully created.");
+    }
     return $self->add_json_header(list_changed => 1, update_nav => 1);
 }
 

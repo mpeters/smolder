@@ -131,7 +131,6 @@ templates/Admin/Projects/add.tmpl
 templates/Admin/Projects/add_edit_msgs.tmpl
 templates/Admin/Projects/details.tmpl
 templates/Admin/Projects/devs.tmpl
-templates/Admin/Projects/edit.tmpl
 templates/Admin/Projects/list.tmpl
 templates/Admin/Projects/list_table.tmpl
 templates/Admin/welcome.tmpl

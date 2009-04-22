@@ -18,7 +18,7 @@ use Smolder::DB::ProjectDeveloper;
 use Smolder::Mech;
 
 if (is_smolder_running) {
-    plan(tests => 87);
+    plan(tests => 98);
 } else {
     plan(skip_all => 'Smolder not running');
 }
@@ -37,6 +37,8 @@ my %data = (
     start_date   => '01/01/2006',
     public       => 0,
     enable_feed  => 0,
+    max_reports  => 20,
+    extra_css    => '#header_extra { color: red }',
 );
 my $proj;
 
@@ -50,13 +52,14 @@ $mech->get_ok($BASE_URL);
 $mech->content_contains('Admin');
 $mech->content_contains('Projects');
 
-# 6..21
+# 6..31
 # add
 {
 
     # empty form
     $mech->follow_link_ok({text => 'Add New Project'});
     $mech->form_name('add');
+    $mech->set_fields(max_reports => '');
     $mech->submit();
     ok($mech->success);
     $mech->content_contains('missing required fields');
@@ -64,11 +67,13 @@ $mech->content_contains('Projects');
     $mech->content_contains('class="required warn">Start Date');
     $mech->content_contains('class="required warn">Public Project');
     $mech->content_contains('class="required warn">Data Feeds');
+    $mech->content_contains('class="required warn">Number of Full Reports Saved');
 
     # invalid form
     my $other_proj = create_project();
     END { delete_projects() }
 
+    # invalid form
     # set these fields like this since WWW::Mechanize won't let us set them to non-existant values
     my $request = HTTP::Request::Common::POST(
         $mech->uri,
@@ -77,6 +82,7 @@ $mech->content_contains('Projects');
             start_date   => '01/01/06',
             public       => 'abc',
             enable_feed  => 'efg',
+            max_reports  => 'asd',
         }
     );
     $mech->request($request);
@@ -89,6 +95,8 @@ $mech->content_contains('Projects');
     $mech->content_contains('Invalid Start Date');
     $mech->content_contains('class="required warn">Public Project');
     $mech->content_contains('class="required warn">Data Feeds');
+    $mech->content_contains('class="required warn">Number of Full Reports Saved');
+    $mech->content_contains('Invalid Number of Full Reports Saved');
 
     # complete form
     $mech->form_name('add');
@@ -97,11 +105,22 @@ $mech->content_contains('Projects');
     ok($mech->success);
     $mech->contains_message("New project '$data{project_name}' successfully created");
     ($proj) = Smolder::DB::Project->search(name => $data{project_name});
+    isa_ok($proj, 'Smolder::DB::Project');
+    foreach my $field (keys %data) {
+        if( $field eq 'start_date' ) {
+            isa_ok($proj->start_date, 'DateTime');
+            is($proj->start_date->mdy('/'), $data{start_date}, 'start_date was saved correctly');
+        } elsif($field eq 'project_name') {
+            is($proj->name, $data{project_name}, 'project name was saved correctly');
+        } else {
+            is($proj->$field, $data{$field}, "$field field was saved correctly");
+        }
+    }
 
     END { $proj->delete() if ($proj) };    # make sure it's not left over after the tests
 }
 
-# 22..26
+# 32..36
 # details
 {
     $mech->get_ok("$BASE_URL/details/$proj");
@@ -111,7 +130,7 @@ $mech->content_contains('Projects');
     $mech->content_like(qr|Data Feed[^<]*</label>\s*</td>\s*<td>\s*No\s*|);
 }
 
-# 27..43
+# 37..53
 # edit
 {
     $mech->follow_link_ok({text => 'Edit'});
@@ -159,7 +178,7 @@ $mech->content_contains('Projects');
     $mech->content_like(qr|Data Feeds[^<]*</label>\s*</td>\s*<td>\s*Yes\s*|);
 }
 
-# 44..47
+# 54..57
 # list
 {
     $mech->follow_link_ok({text => 'All Projects'});
@@ -168,7 +187,7 @@ $mech->content_contains('Projects');
     $mech->follow_link_ok({text => '[Edit]', n => -1});
 }
 
-# 48..82
+# 58..92
 # devs, add_dev, change_admin and remove_dev
 {
 
@@ -263,7 +282,7 @@ $mech->content_contains('Projects');
     $mech->content_contains($dev3->username);
 }
 
-# 83..87
+# 93..97
 # delete
 {
     $mech->follow_link_ok({text => 'All Projects'});

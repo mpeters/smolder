@@ -8,6 +8,7 @@ Revision history for Smolder
     + Added --port option to bin/smolder_smoke_signal - M. Peters
     + Remove DateTime::Format::MySQL as a dependency and just use strptime and strftime instead - M. Peters
     + Require File::Temp 0.21 so we know we have newdir() - M. Peters
+    + Add max_reports and extra_css properties to Projects - M. Peters
 
 1.36
     + Use IPC::Run more correctly so we can catch any errors that bin/smolder gives

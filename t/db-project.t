@@ -35,10 +35,10 @@ END {
 }
 Smolder::DB::ProjectDeveloper->create(
     {
-        developer  => $dev1,
-        project    => $project,
-        admin      => 1,
-        preference => create_preference(),
+        developer   => $dev1,
+        project     => $project,
+        admin       => 1,
+        preference  => create_preference(),
     }
 );
 Smolder::DB::ProjectDeveloper->create(

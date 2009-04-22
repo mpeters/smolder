@@ -7,7 +7,9 @@ CREATE TABLE project (
     default_platform    TEXT DEFAULT '',
     default_arch        TEXT DEFAULT '',
     graph_start         TEXT DEFAULT 'project',
-    allow_anon          INTEGER DEFAULT 0
+    allow_anon          INTEGER DEFAULT 0,
+    max_reports         INTEGER DEFAULT 100,
+    extra_css           TEXT DEFAULT ''
 );
 
 CREATE UNIQUE INDEX i_project_name_project on project (name);

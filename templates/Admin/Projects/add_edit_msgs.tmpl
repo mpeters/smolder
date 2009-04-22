@@ -7,7 +7,11 @@
 [% END %]
 
 [% IF c.dfv_msgs.invalid_start_date %]
-    Smolder.show_message('warning', 'Invalid Start Date');
+    Smolder.show_message('warning', 'Invalid Start Date: Must be in MM/DD/YYYY format');
+[% END %]
+
+[% IF c.dfv_msgs.invalid_max_reports %]
+    Smolder.show_message('warning', 'Invalid Number of Full Reports Saved: Must be a whole number.');
 [% END %]
 </script>
 [% END %]

@@ -1,21 +1,27 @@
 [% PROCESS Admin/Projects/add_edit_msgs.tmpl %]
+[% IF edit %]
+[% SET add_edit = 'edit' %]
+<form class="edit_form" name="edit" action="/app/admin_projects/process_add/[% project.id %]" method="post">
+[% ELSE %]
+[% SET add_edit = 'add' %]
 <form class="add_form" name="add" action="/app/admin_projects/process_add" method="post">
+[% END %]
 
-<table class="crud boxed" id="crud_add_table">
+<table class="crud boxed" id="crud_[% add_edit %]_table">
 
-<tr><td colspan="4" class="header2">Add A New Project</td></tr>
+<tr><td colspan="4" class="header2">[% IF edit %]Edit[% ELSE %]Add A New[% END %] Project</td></tr>
 <tr><td colspan="4">[% PROCESS form_header.tmpl %]</td></tr>
-
-<colgroup>
-<col style="width: 14em">
-<col>
-<col style="width: 14em">
-<col>
-</colgroup>
 
 <tr>
   <td><label class="required[% IF c.dfv_msgs.err_project_name || err_unique_project_name %] warn[% END %]">Project Name</label></td>
   <td><input class="first" type="text" name="project_name" size="20" /></td>
+  <td><label class="required[%IF c.dfv_msgs.err_public %] warn[% END %]">Public Project?</label></td>
+  <td>
+    <input type="radio" name="public" value="1" /> Yes
+    <input type="radio" name="public" value="0" /> No
+  </td>
+</tr>
+<tr>
   <td><label class="required[% IF c.dfv_msgs.err_start_date %] warn[% END %]">Start Date</label></td>
   <td>
     <nobr>
@@ -24,13 +30,6 @@
     <div id="start_date_calendar" class="calendar_container" />
     </nobr>
   </td>
-</tr>
-<tr>
-  <td><label class="required[%IF c.dfv_msgs.err_public %] warn[% END %]">Public Project?</label></td>
-  <td>
-    <input type="radio" name="public" value="1" /> Yes
-    <input type="radio" name="public" value="0" /> No
-  </td>
   <td><label class="required[%IF c.dfv_msgs.err_enable_feed %] warn[% END %]">Data Feeds?</label></td>
   <td>
     <input type="radio" name="enable_feed" value="1" /> Yes
@@ -38,9 +37,22 @@
   </td>
 </tr>
 <tr>
+  <td colspan="2"><label class="required[% IF c.dfv_msgs.err_max_reports %] warn[% END %]">Number of Full Reports Saved</label></td>
+  <td colspan="2"><input type="text" name="max_reports" size="5" value="100" /></td>
+</tr>
+<tr>
+  <td colspan="2"><label class="">Custom CSS for Smolder UI</label></td>
+  <td colspan="2"><textarea name="extra_css" cols="40" rows="4"></textarea></td>
+</tr>
+<tr>
   <td colspan="4" align="right">
-      <img src="[% c.static_url('/images/indicator.gif') %]" style="visibility:hidden" class="add_indicator" id="proj_add_indicator" alt="loading" />
+    <img src="[% c.static_url('/images/indicator.gif') %]" style="visibility:hidden" class="add_indicator" id="proj_[% add_edit %]_indicator" alt="loading" />
+    [% IF edit %]
+      <input type="button" class="edit_cancel" value="Cancel" />
+      <input type="submit" value="Update" />
+    [% ELSE %]
       <input type="submit" value="Add" />
+    [% END %]
   </td>
 </tr>
 </table>
