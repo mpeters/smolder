@@ -79,10 +79,12 @@ lib/Smolder/Upgrade/V1_1.pm
 lib/Smolder/Upgrade/V1_21.pm
 lib/Smolder/Upgrade/V1_24.pm
 lib/Smolder/Upgrade/V1_30.pm
+lib/Smolder/Upgrade/V1_37.pm
 lib/Smolder/Util.pm
 LICENSE
 MANIFEST			This list of files
 MANIFEST.SKIP
+META.yml
 sql/db_version.sql
 sql/developer.sql
 sql/preference.sql
@@ -93,6 +95,7 @@ sql/upgrade/V0_3.sql
 sql/upgrade/V1_1.sql
 sql/upgrade/V1_21.sql
 sql/upgrade/V1_24.sql
+sql/upgrade/V1_37.sql
 t/admin.t
 t/admin_devs.t
 t/admin_projs.t
@@ -179,4 +182,3 @@ templates/TAP/full_report.tmpl
 templates/TAP/individual_test.tmpl
 templates/wrapper.tmpl
 TODO
-META.yml

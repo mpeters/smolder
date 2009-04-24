@@ -1,5 +1,8 @@
 Revision history for Smolder
 
+1.38
+    + Forgot to include 1.37 upgrade files in MANIFEST - M. Peters
+
 1.37
     + Update tutorial documentation - G. Szabó
     + Create the data directory if it doesn't already exist when Smolder starts - G. Szabó
