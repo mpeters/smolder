@@ -183,6 +183,7 @@ sub feed {
             link    => $link,
             id      => $link,
             summary => $report->summary,
+            updated => $report->added->strftime('%FT%TZ'),
         );
     }
     return $feed->as_string();

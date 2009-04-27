@@ -1,5 +1,8 @@
 Revision history for Smolder
 
+1.39
+    + Fixing Updated date in project Atom feeds - Hirose, Masaaki
+
 1.38
     + Forgot to include 1.37 upgrade files in MANIFEST - M. Peters
 
