@@ -1,6 +1,6 @@
 ---
 name: Smolder
-version: 1.37
+version: 1.38
 author:
   - 'Michael Peters <mpeters@plusthree.com>'
 abstract: Web-based Continuous Integration Smoke Server
@@ -67,7 +67,7 @@ build_requires:
 provides:
   Smolder:
     file: lib/Smolder.pm
-    version: 1.37
+    version: 1.38
   Smolder::AuthHandler:
     file: lib/Smolder/AuthHandler.pm
   Smolder::AuthInfo:
@@ -146,6 +146,8 @@ provides:
     file: lib/Smolder/Upgrade/V1_24.pm
   Smolder::Upgrade::V1_30:
     file: lib/Smolder/Upgrade/V1_30.pm
+  Smolder::Upgrade::V1_37:
+    file: lib/Smolder/Upgrade/V1_37.pm
   Smolder::Util:
     file: lib/Smolder/Util.pm
 generated_by: Module::Build version 0.32
