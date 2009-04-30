@@ -101,10 +101,10 @@ module which does most of the work for us:
     use warnings;
     use strict;
     use TAP::Harness::Archive;
-    use 'lib';
 
     my @files = glob('t/*.t');
     my $harness = TAP::Harness::Archive->new({
+        lib     => [ 'lib', 'blib/lib', 'blib/arch' ],
         archive => 'my_test_run.tar.gz',
     });
     $harness->runtests(@files);
