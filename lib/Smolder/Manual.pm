@@ -101,12 +101,13 @@ module which does most of the work for us:
     use warnings;
     use strict;
     use TAP::Harness::Archive;
+    use 'lib';
 
     my @files = glob('t/*.t');
     my $harness = TAP::Harness::Archive->new({
         archive => 'my_test_run.tar.gz',
     });
-    $harness->run_tests(@files);
+    $harness->runtests(@files);
 
 Or you can use the F<runtests> utility that comes with L<TAP::Harness>
 to this with the C<--archive> or C<-a> arguments.
