@@ -1,5 +1,7 @@
 TODO tasks for Smolder
 
++ Seems that when a report is deleted the directory structure of it's data is still there. We need to do a better job of cleaning up.
+
 + Add support for dev releases to CPAN
 
 + get /static urls working for better caching by the browser
