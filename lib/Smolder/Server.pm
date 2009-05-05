@@ -2,7 +2,7 @@ package Smolder::Server;
 use strict;
 use warnings;
 use base 'CGI::Application::Server';
-use File::Spec::Functions qw(catdir devnull);
+use File::Spec::Functions qw(catdir devnull catfile);
 use File::Path qw(mkpath);
 use Smolder::Conf qw(Port HostName LogFile HtdocsDir DataDir);
 use Smolder::DB;
@@ -20,6 +20,7 @@ sub new {
             '/js'     => HtdocsDir,
             '/style'  => HtdocsDir,
             '/images' => HtdocsDir,
+            '/robots.txt' => HtdocsDir,
         },
     );
     $server->{"__smolder_$_"} = $args{$_} foreach keys %args;
