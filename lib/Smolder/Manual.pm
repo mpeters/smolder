@@ -104,9 +104,10 @@ module which does most of the work for us:
 
     my @files = glob('t/*.t');
     my $harness = TAP::Harness::Archive->new({
+        lib     => [ 'lib', 'blib/lib', 'blib/arch' ],
         archive => 'my_test_run.tar.gz',
     });
-    $harness->run_tests(@files);
+    $harness->runtests(@files);
 
 Or you can use the F<runtests> utility that comes with L<TAP::Harness>
 to this with the C<--archive> or C<-a> arguments.
