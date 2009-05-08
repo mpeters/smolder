@@ -73,7 +73,6 @@ Smolder.
 
 {
     my $_base = 'http://' . HostName . (Port == 80 ? '' : ':' . Port);
-
     sub url_base { $_base }
 }
 

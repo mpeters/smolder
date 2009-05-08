@@ -79,8 +79,7 @@ returned.
 sub send_mime_mail {
     my ($class, %args) = @_;
     my ($to, $subject, $tt_params, $name) = @args{qw(to subject tt_params name)};
-    $tt_params->{host_name} = HostName();
-    $tt_params->{host_name} .= ":" . Port unless Port == 80;
+    $tt_params->{url_base} = Smolder::Util::url_base();
     $tt_params->{subject}  = $subject;
     $tt_params->{email}    = 1;
     $tt_params->{odd_even} = Template::Plugin::Cycle->new(qw(odd even));

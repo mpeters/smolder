@@ -59,8 +59,8 @@
 <tr class="[% odd_even %]">
   <th>Download</th>
   <td>
-    <a href="[% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
-        [% url_base %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
+    <a href="[% url_prefix %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
+        [% url_prefix %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
     </a>
 </tr>
 [%- END -%]
@@ -90,7 +90,7 @@
       <td>[% loop.count %]</td>
       <td class="filename">
         <span style="float: right">
-          <img src="/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
+          <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
         </span>
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
@@ -101,7 +101,12 @@
         <!-- </a> -->
       </td>
       <td style="margin: 0px; padding: 0px">
-        <a href="/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+        <a 
+          [% IF email %]
+            href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]"
+          [% ELSE %]
+            href="[% url_prefix %]/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+          [% END %]
             id="for_testfile_details_[% loop.index %]" 
             class="testfile_details_trigger show_indicator_[% loop.index %] [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
           [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
@@ -113,7 +118,7 @@
       <td colspan="3">
         <div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% loop.index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
+          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>
