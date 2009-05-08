@@ -3,7 +3,7 @@
 <h2>Details</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Recent Reports</a>
     <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
     [% IF public && project.allow_anon %]
     <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>

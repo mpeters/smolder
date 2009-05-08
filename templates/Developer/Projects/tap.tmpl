@@ -5,7 +5,7 @@
 
 <div class="sub_menu">
     <a class="sub_menu" href="/app/developer_projects/details/[% project.id %]">Project Details</a>
-    <a class="sub_menu" href="[% base_url %]_projects/smoke_reports/[% project.id %]">Most Recent Reports</a>
+    <a class="sub_menu" href="[% base_url %]_projects/smoke_reports/[% project.id %]">Recent Reports</a>
     <a class="sub_menu" href="[% base_url %]_graphs/start/[% project.id %]">Progress Graphs</a>
     [% IF c.public && project.allow_anon %]
     <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
