@@ -26,6 +26,10 @@ Please see L<Smolder::Manual> for how to use it.
 
 =over
 
+=item * Source Code
+
+L<https://github.com/mpeters/smolder/>
+
 =item * Bugs and Requests
 
 L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Smolder>
