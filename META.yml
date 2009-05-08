@@ -1,6 +1,6 @@
 ---
 name: Smolder
-version: 1.38
+version: 1.39
 author:
   - 'Michael Peters <mpeters@plusthree.com>'
 abstract: Web-based Continuous Integration Smoke Server
@@ -33,6 +33,7 @@ requires:
   Exception::Class: 1.23
   File::HomeDir: 0.8
   File::MMagic: 0
+  File::Path: 2.04
   File::ShareDir: 1
   File::Temp: 0.21
   GD::Graph: 0
@@ -50,6 +51,7 @@ requires:
   TAP::Harness::Archive: 0.12
   Template::Plugin::Cycle: 0
   Template::Plugin::Number::Format: 0
+  Test::Harness: 3.17
   URI::Escape: 0
   URI::file: 0
   XML::Atom::SimpleFeed: 0
@@ -67,7 +69,7 @@ build_requires:
 provides:
   Smolder:
     file: lib/Smolder.pm
-    version: 1.38
+    version: 1.39
   Smolder::AuthHandler:
     file: lib/Smolder/AuthHandler.pm
   Smolder::AuthInfo:
