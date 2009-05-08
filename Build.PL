@@ -49,6 +49,7 @@ my $builder = Smolder::Build->new(
         'MIME::Lite'                                 => 0,
         'Pod::Usage'                                 => 0,
         'TAP::Harness::Archive'                      => 0.12,
+        'Test::Harness'                              => 3.17,
         'Template::Plugin::Cycle'                    => 0,
         'Template::Plugin::Number::Format'           => 0,
         'URI::Escape'                                => 0,

@@ -126,12 +126,12 @@ $mech->content_contains('My Projects');
     isa_ok($report,            'Smolder::DB::SmokeReport');
     isa_ok($report->project,   'Smolder::DB::Project');
     isa_ok($report->developer, 'Smolder::DB::Developer');
-    is($report->pass,       446, 'correct # of passed');
+    is($report->pass,       453, 'correct # of passed');
     is($report->skip,       4,   'correct # of skipped');
-    is($report->fail,       8,   'correct # of failed');
+    is($report->fail,       11,  'correct # of failed');
     is($report->todo,       0,   'correct # of todo');
-    is($report->test_files, 20,  'correct # of files');
-    is($report->total,      454, 'correct # of tests');
+    is($report->test_files, 21,  'correct # of files');
+    is($report->total,      464, 'correct # of tests');
 }
 
 # 44..55
@@ -163,12 +163,12 @@ $mech->content_contains('My Projects');
     isa_ok($report,            'Smolder::DB::SmokeReport');
     isa_ok($report->project,   'Smolder::DB::Project');
     isa_ok($report->developer, 'Smolder::DB::Developer');
-    is($report->pass,       446, 'correct # of passed');
+    is($report->pass,       453, 'correct # of passed');
     is($report->skip,       4,   'correct # of skipped');
-    is($report->fail,       8,   'correct # of failed');
+    is($report->fail,       11,   'correct # of failed');
     is($report->todo,       0,   'correct # of todo');
-    is($report->test_files, 20,  'correct # of files');
-    is($report->total,      454, 'correct # of tests');
+    is($report->test_files, 21,  'correct # of files');
+    is($report->total,      464, 'correct # of tests');
 }
 
 # 56..70

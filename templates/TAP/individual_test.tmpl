@@ -10,7 +10,11 @@
     [%- END -%]
     <td class="x [% css_class %] tooltip_trigger">
       <div style="display:none; position:absolute;" class="tooltip">
-        <pre>[% test.comment | html %]</pre>
+        [% IF test.died %]
+          <em>[% test.comment | html %]</em>
+        [% ELSE %]
+          <pre>[% test.comment | html %]</pre>
+        [% END %]
         [% IF test.unknown %]<pre class="unknown">[% test.unknown %]</pre>[%- END -%]
       </div>&nbsp;
     </td>

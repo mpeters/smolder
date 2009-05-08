@@ -12,7 +12,7 @@ use Smolder::Conf;
 use File::Spec::Functions qw(catfile catdir);
 use Test::LongString;
 
-plan(tests => 80);
+plan(tests => 82);
 
 # setup
 END { delete_developers() }
@@ -59,12 +59,12 @@ isa_ok($report->project,   'Smolder::DB::Project');
 isa_ok($report->added,     'DateTime');
 
 # basic datum
-is($report->pass,       446, 'correct # of passed');
+is($report->pass,       453, 'correct # of passed');
 is($report->skip,       4,   'correct # of skipped');
-is($report->fail,       8,   'correct # of failed');
+is($report->fail,       11,  'correct # of failed');
 is($report->todo,       0,   'correct # of todo');
-is($report->test_files, 20,  'correct # of files');
-is($report->total,      454, 'correct # of tests');
+is($report->test_files, 21,  'correct # of files');
+is($report->total,      464, 'correct # of tests');
 ok(!$report->duration, 'duration not provided');
 
 my $html_file = catfile($report->data_dir, 'html', 'report.html');
@@ -81,12 +81,12 @@ for (0 .. ($report->test_files - 1)) {
 
 # try uploading a report with a meta yml file
 $report->update_from_tap_archive(catfile(Smolder::Conf->test_data_dir, 'test_run_bad_yml.tar.gz'));
-is($report->pass,       446, 'correct # of passed');
+is($report->pass,       453, 'correct # of passed');
 is($report->skip,       4,   'correct # of skipped');
-is($report->fail,       8,   'correct # of failed');
+is($report->fail,       11,  'correct # of failed');
 is($report->todo,       0,   'correct # of todo');
-is($report->test_files, 20,  'correct # of files');
-is($report->total,      454, 'correct # of tests');
+is($report->test_files, 21,  'correct # of files');
+is($report->total,      464, 'correct # of tests');
 is($report->duration,   208, 'correct duration');
 
 # now delete the leftover files
