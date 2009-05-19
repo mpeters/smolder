@@ -489,7 +489,7 @@ sub update_from_tap_archive {
                             todo    => ($line->has_todo  || 0),
                             comment => ($line->as_string || 0),
                         );
-                        $failed++  if !$line->is_ok;
+                        $failed++  if !$line->is_ok && !$line->has_skip && !$line->has_todo;
                         $skipped++ if $line->has_skip;
                         push(@tests, \%details);
                     } elsif ($line->type eq 'comment' || $line->type eq 'unknown') {
@@ -558,7 +558,7 @@ sub update_from_tap_archive {
         todo       => scalar $aggregator->todo,
         todo_pass  => scalar $aggregator->todo_passed,
         test_files => scalar @suite_results,
-        failed     => !!$aggregator->failed,
+        failed     => !!$suite_data{failed},
         duration   => $duration,
     );
 

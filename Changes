@@ -1,5 +1,8 @@
 Revision history for Smolder
 
+1.40
+    + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
+
 1.39
     + Fixing Updated date in project Atom feeds - Hirose, Masaaki
     + Adding robots.txt file to keep us from being overwhelmed by bots - M. Peters
