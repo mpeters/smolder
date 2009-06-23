@@ -1,7 +1,7 @@
 package Smolder::Build;
 use strict;
 use warnings;
-use base 'Module::Build::TAPArchive';
+use base 'Module::Build';
 use File::Temp;
 use Cwd qw(cwd);
 use File::Spec::Functions qw(catdir catfile tmpdir curdir rel2abs abs2rel splitdir);
@@ -35,10 +35,11 @@ sub ACTION_test {
     $self->_wrap_test_action('test');
 }
 
-sub ACTION_test_archive {
-    my $self = shift;
-    $self->_wrap_test_action('test_archive');
-}
+# TODO - handle optional Module::Build::TAPArchive features if we have it installed
+#sub ACTION_test_archive {
+#    my $self = shift;
+#    $self->_wrap_test_action('test_archive');
+#}
 
 sub _wrap_test_action {
     my ($self, $action) = @_;

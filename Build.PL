@@ -58,7 +58,6 @@ my $builder = Smolder::Build->new(
     },
     configure_requires => {
         'Module::Build'             => 0,
-        'Module::Build::TAPArchive' => 0,
     },
     build_requires => {
         'Test::WWW::Mechanize'      => 1.22,
