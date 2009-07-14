@@ -38,8 +38,13 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 =cut
 
 sub welcome {
+    # JS -  we have only one project, so just go directly there.
+    #
     my $self = shift;
-    return $self->tt_process({});
+    $self->header_type('redirect');
+    $self->header_add( -uri => '/app/public_projects/smoke_reports/2' );
+    return "redirecting";
+    # return $self->tt_process( {} );
 }
 
 =head2 nav
