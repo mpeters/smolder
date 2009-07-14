@@ -33,6 +33,7 @@ BEGIN {
         FromAddress           => 'smolder@localhost.localdomain',
         SMTPHost              => 'localhost.localdomain',
         LogFile               => '',
+        PidFile               => catdir($share_dir, 'data', 'smolder.pid'),
         TemplateDir           => catdir($share_dir, 'templates'),
         DataDir               => catdir(File::HomeDir->my_data, '.smolder'),
         HtdocsDir             => catdir($share_dir, 'htdocs'),
