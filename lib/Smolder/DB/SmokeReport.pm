@@ -2,9 +2,10 @@ package Smolder::DB::SmokeReport;
 use strict;
 use warnings;
 use base 'Smolder::DB';
-use Smolder::Conf qw(DataDir);
+use Smolder::Conf qw(DataDir TruncateTestFilenames);
 use Smolder::Email;
 use File::Spec::Functions qw(catdir catfile);
+use File::Basename qw(basename);
 use File::Path qw(mkpath rmtree);
 use File::Copy qw(move copy);
 use File::Temp qw(tempdir);
@@ -463,7 +464,7 @@ sub update_from_tap_archive {
             archive              => $file,
             made_parser_callback => sub {
                 my ($parser, $file, $full_path) = @_;
-                $label = $file;
+                $label = TruncateTestFilenames ? basename($file) : $file;
 
                 # clear them out for a new run
                 @tests = ();
@@ -558,7 +559,7 @@ sub update_from_tap_archive {
         todo       => scalar $aggregator->todo,
         todo_pass  => scalar $aggregator->todo_passed,
         test_files => scalar @suite_results,
-        failed     => !!$suite_data{failed},
+        failed     => !!$aggregator->failed,
         duration   => $duration,
     );
 
