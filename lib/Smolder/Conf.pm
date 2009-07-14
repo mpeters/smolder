@@ -38,6 +38,9 @@ BEGIN {
         HtdocsDir             => catdir($share_dir, 'htdocs'),
         SQLDir                => catdir($share_dir, 'sql'),
         Secret                => _random_secret(),
+        AutoRefreshReports    => 0,
+        TruncateTestFilenames => 0,
+        ReportsPerPage        => 5,
     );
 }
 
