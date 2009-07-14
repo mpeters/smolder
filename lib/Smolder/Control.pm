@@ -16,6 +16,11 @@ use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
 
+{package Template::Perl;
+ # Import debugging functions into templates (should be switched on with a config)
+ use Smolder::Debug;
+}
+
 # setup our logging
 __PACKAGE__->add_callback(
     init => sub {
@@ -325,6 +330,7 @@ of performance.
 # configuration options for CAP::TT (Template Toolkit)
 my $TT_CONFIG = {
     TEMPLATE_OPTIONS => {
+        EVAL_PERL    => 1,
         COMPILE_DIR  => tmpdir(),
         INCLUDE_PATH => TemplateDir,
         COMPILE_EXT  => '.ttc',
