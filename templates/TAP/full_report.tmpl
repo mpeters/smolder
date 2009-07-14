@@ -70,7 +70,8 @@
 [%- UNLESS email -%]
 <div class="controls">
   [%- IF report.failed -%]
-    <a href="#first_failure">Goto First Failure</a> | 
+    <a href="#first_failure">Goto First Failure</a> &middot;
+    <a href="#" class="toggle_ok_tests"><span class="show">Show</span><span class="hide" style="display: none">Hide</span> Passing Tests</a> &middot;
   [%- END -%]
   <a href="#" class="show_all">Show All Details</a>
 </div>
@@ -80,13 +81,16 @@
   <thead>
     <tr>
       <th>#</th>
-      <th colspan="3">Test file</th>
+      <th>Test file</th>
+      <th>Results</th>
+      <th>Count</th>
+      <th>%</th>
     </tr>
   </thead>
   [%- SET found_first_failure = 0 -%]
   [%- FOREACH test IN results -%]
-  <tbody id="test_[% loop.index %]" class="results">
-    <tr class="[% odd_even %]">
+  <tbody id="test_[% loop.index %]" class="results[% IF test.failed %] failed[% ELSE %] passed[% END %]" style="[% IF report.failed && !test.failed %]display: none[% END %]">
+    <tr>
       <td>[% loop.count %]</td>
       <td class="filename">
         <span style="float: right">
@@ -94,13 +98,6 @@
         </span>
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
-        <!-- we'll make this a link when we can link to individual tests 
-        <a href="[% test.link %]"[% IF test.failed %] class="fail"[% END %] title="[% test.file | html %]">
-        -->
-        <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
-        <!-- </a> -->
-      </td>
-      <td style="margin: 0px; padding: 0px">
         <a 
           [% IF email %]
             href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]"
@@ -108,11 +105,14 @@
             href="[% url_prefix %]/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
           [% END %]
             id="for_testfile_details_[% loop.index %]" 
-            class="testfile_details_trigger show_indicator_[% loop.index %] [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
-          [% IF test.all_skipped %]SKIPPED[% ELSIF test.failed %]FAILED[% ELSE %]OK[% END %]
+            class="testfile_details_trigger show_indicator_[% loop.index %]">
+        <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
         </a>
       </td>
-      <td class="x sum" style="background-color: #[% test.percent | pass_fail_color %];">[% test.percent %]%</td>
+      <td class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
+      </td>
+      <td class="x sum">[% test.total - test.failed %]/[% test.total %]</td>
+      <td class="x sum">[% test.percent %]%</td>
     </tr>
     <tr>
       <td colspan="3">
@@ -126,14 +126,14 @@
   [%- END %]
   <tfoot>
     <tr class="first">
-      <td colspan="2">
+      <td colspan="4">
         [%- report.total | format_number %] test cases
         - [%- report.test_files | format_number %] files
       </td>
-      <td class="sum" style="background-color: #[% report.total_percentage | pass_fail_color %]">[% report.total_percentage %]%</td>
+      <td class="sum">[% report.total_percentage %]%</td>
     </tr>
     <tr>
-      <td colspan="4" class="last">
+      <td colspan="5" class="last">
           [% report.pass      | format_number %] ok, 
           [% report.fail      | format_number %] failed, 
           [% report.todo      | format_number %] todo, 
