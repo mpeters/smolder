@@ -94,7 +94,7 @@
     border: 1px solid #505050; 
 }
 
-.tap .fail    { background-color: #ff3020; }
+.tap .fail    { background-color: #cc0033; }
 .tap .ok      { background-color: #00ff00; }
 .tap .skip    { background-color: #ddffdd; }
 .tap .todo_ok { background-color: #ffdd20; color: white; }
