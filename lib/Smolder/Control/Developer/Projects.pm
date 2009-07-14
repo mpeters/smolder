@@ -343,7 +343,7 @@ sub smoke_reports {
       unless Data::FormValidator->check($query, $form);
 
     $tt_params->{project} = $project;
-    $tt_params->{limit}   = defined $query->param('limit') ? $query->param('limit') : 5;
+    $tt_params->{limit}   = defined $query->param('limit') ? $query->param('limit') : (Smolder::Conf->get('ReportsPerPage') || 5);
     $tt_params->{offset}  = $query->param('offset') || 0;
     $tt_params->{tag}     = $query->param('tag') || undef;
 
@@ -360,6 +360,11 @@ outputs the pregenerated file.
 sub report_details {
     my $self   = shift;
     my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
+
+    if (Smolder::Conf->get('AutoRefreshReports')) {
+        Smolder::DB::SmokeReport->update_all_report_html();
+    }
+
     return $self->error_message('Test Report does not exist')
       unless $report;
 
