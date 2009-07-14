@@ -282,7 +282,7 @@ Smolder.PopupForm = {
         if( old_popup_id == popup_id ) {
             Smolder.PopupForm.shown_popup_id = '';
         } else {
-            new Effect.SlideDown(popup_id, { duration: .5 });
+            new Effect.SlideDown(popup_id, { duration: .1 });
             Smolder.PopupForm.shown_popup_id = popup_id;
         }
         return false;
@@ -293,7 +293,7 @@ Smolder.PopupForm = {
         }
     },
     hide: function() {
-        new Effect.SlideUp( Smolder.PopupForm.shown_popup_id, { duration: .5 } );
+        new Effect.SlideUp( Smolder.PopupForm.shown_popup_id, { duration: .1 } );
         Smolder.PopupForm.shown_popup_id = '';
     }
 };
@@ -903,7 +903,7 @@ var myrules = {
         el.onclick = function() {
             if( Element.visible(target) ) {
                 $(target + '_tap_stream').hide();
-                Effect.BlindUp(target, { duration: .5 });
+                Effect.BlindUp(target, { duration: .1 });
             } else {
                 $(indicator).style.visibility = 'visible';
                 Smolder.Ajax.update({
@@ -923,7 +923,7 @@ var myrules = {
                                         Smolder.setup_tooltip(el, diag);
                                     });
                                 },
-                                duration    : .5
+                                duration    : .1
                             }
                         );
                     }
@@ -934,6 +934,12 @@ var myrules = {
     },
     '.tap div.diag': function(el) {
         Smolder.setup_tooltip(el, el);
+    },
+    '.tap a.toggle_ok_tests' : function(el) {
+    	el.onclick = function() {
+            $$('a.toggle_ok_tests span.hide', 'a.toggle_ok_tests span.show').invoke('toggle');
+	    $$('tbody.results.passed').invoke('toggle');
+        };
     },
     '.tap a.show_all' : function(el) {
         Event.observe(el, 'click', function() {
