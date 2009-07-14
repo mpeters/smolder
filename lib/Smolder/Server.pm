@@ -28,7 +28,7 @@ sub new {
 }
 
 sub print_banner {
-    my $banner = "Smolder is running on " . HostName . ':' . Port;
+    my $banner = "Smolder is running on " . HostName . ':' . Port . ", pid $$";
     my $line   = '#' x length $banner;
     print "$line\n$banner\n";
 }
