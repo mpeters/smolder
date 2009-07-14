@@ -364,10 +364,9 @@ th, td {
 }
 
 thead th { 
-    background-color: #C47147;
-    background-image: url('/images/h3_bg.gif');
+    background-color: #E0E0E0;
     background-repeat: repeat-x;
-    color: #FFFFFF;
+    color: #00000;
     font-weight: bold;
     text-align: center;
 }
@@ -649,6 +648,20 @@ img.graph {
 	background-color: #fff;
 }
 
+.tap .properties a, .tap .controls a {
+        text-decoration: none;
+        color: #000066;
+}
+
+.tap .controls a {
+	padding: 3px 10px;
+        text-decoration: none;
+}
+
+.tap .properties a:hover, .tap .controls a:hover {
+        text-decoration: underline;
+}
+
 .tap .properties, .tap .controls {
     margin-bottom: 10px;
 }
@@ -686,15 +699,17 @@ img.graph {
 }
 
 .tap a.testfile_details_trigger {
-	font-size: 0.85em;
+    font-size: 0.85em;
     font-weight: bold;
     text-decoration: none;
-    text-align: center;
     color: #000;
-    width: 4.8em;
     border: 1px solid #555;
     display: block;
     height: 1.5em;
+}
+
+.tap a.testfile_details_trigger:hover {
+    text-decoration: underline;
 }
 
 .tap a.testfile_details_trigger.fail {
@@ -716,7 +731,22 @@ img.graph {
 .tap .todo_ok { background-color: #ffdd20; color: #000; }
 .tap .todo    { background-color: #007f00; color: #000; }
 .tap .nottest { background-color: #7f7f7f; color: #000; }
-.tap span.fail { background-color: transparent; color: #C47147 }
+.tap span.fail { background-color: transparent; color: #cc0033 }
+
+ul.subtests 			{ margin: 0px 0px 20px 35px; padding: 0px; list-style-type: none; }
+ul.subtests li 			{ margin: 3px; }
+ul.subtests li pre		{ margin: 0px; }
+.subtests li.fail 		{ background-color: white; color: #cc0033; }
+.subtests li.ok 		{ background-color: white; color: black; opacity: 0.6; }
+.subtests li.skip 		{ background-color: white; color: black; opacity: 0.6; font-style: italic; }
+.subtests li.todo_ok 	{ background-color: white; color: #ffdd20; }
+.subtests li.todo 		{ background-color: white; color: #007f00; }
+.subtests li.nottest 	{ background-color: white; color: #7f7f7f; }
+
+table.subtests td {
+    vertical-align: middle;
+    text-align: center;
+}
 
 /* TAP Matrix tooltip styling */
 .tap .tooltip {
