@@ -1,15 +1,14 @@
 ---
 name: Smolder
-version: 1.39
+version: 1.40
 author:
   - 'Michael Peters <mpeters@plusthree.com>'
 abstract: Web-based Continuous Integration Smoke Server
 license: perl
 resources:
-  license: ~
+  license: http://dev.perl.org/licenses/
 configure_requires:
   Module::Build: 0
-  Module::Build::TAPArchive: 0
 requires:
   CGI::Application: 4.21
   CGI::Application::Dispatch: 2.15
@@ -69,7 +68,7 @@ build_requires:
 provides:
   Smolder:
     file: lib/Smolder.pm
-    version: 1.39
+    version: 1.40
   Smolder::AuthHandler:
     file: lib/Smolder/AuthHandler.pm
   Smolder::AuthInfo:
@@ -152,10 +151,10 @@ provides:
     file: lib/Smolder/Upgrade/V1_37.pm
   Smolder::Util:
     file: lib/Smolder/Util.pm
-generated_by: Module::Build version 0.32
+generated_by: Module::Build version 0.33
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
 no_index:
   directory:
     - Smolder/Control
