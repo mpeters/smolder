@@ -1,5 +1,9 @@
 Revision history for Smolder
 
+1.41
+    + Adding bin/smolderctl - J. Swartz
+    + Adding configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
+
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
     + Removed Module::Build::TAPArchive as a build dependency since
