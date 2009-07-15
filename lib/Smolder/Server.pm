@@ -6,6 +6,7 @@ use File::Spec::Functions qw(catdir devnull catfile);
 use File::Path qw(mkpath);
 use Smolder::Conf qw(Port HostName LogFile HtdocsDir DataDir);
 use Smolder::DB;
+use Net::Server::PreFork;
 
 sub new {
     my ($class, %args) = @_;
@@ -26,6 +27,8 @@ sub new {
     $server->{"__smolder_$_"} = $args{$_} foreach keys %args;
     return $server;
 }
+
+sub net_server { 'Net::Server::PreFork' }
 
 sub print_banner {
     my $banner = "Smolder is running on " . HostName . ':' . Port . ", pid $$";
