@@ -1,23 +1,28 @@
 #!/usr/bin/perl
-use Cwd qw(realpath);
 use File::Basename;
+use Getopt::Long;
+use Smolder::Conf;
 use warnings;
 use strict;
 
-my $root = dirname( dirname( realpath($0) ) );
-unshift( @INC, "$root/lib" );
+my ( $config_file, $verbose );
+GetOptions( 'f=s' => \$config_file, 'v|verbose' => \$verbose );
 
-require Smolder::Conf;
-Smolder::Conf->init_from_file("$root/smolder.conf");
+if ( !defined($config_file) ) {
+    die "usage: $0 -f config_file [-v] start|stop|restart|ping";
+}
+my $config_dir = dirname($config_file);
+
+Smolder::Conf->init_from_file($config_file);
 require Smolder::Server;
 require Server::Control::Smolder;
 my $server = Smolder::Server->new();
 $server->{__smolder_daemon} = 1;    # like passing --daemon, ugh
 
 my $ctl = Server::Control::Smolder->new(
-    server    => $server,
-    pid_file  => "$root/data/server.pid",
-    error_log => "$root/log",
-    verbose   => 1,
+    description => "smolder ($config_dir)",
+    server      => $server,
+    pid_file    => Smolder::Conf->get('PidFile'),
+    error_log   => Smolder::Conf->get('LogFile'),
 );
-$ctl->handle_cmdline();
+$ctl->handle_cmdline(verbose => $verbose);
