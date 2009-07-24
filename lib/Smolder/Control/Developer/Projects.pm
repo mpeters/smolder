@@ -3,9 +3,11 @@ use base 'Smolder::Control';
 use strict;
 use warnings;
 use CGI::Application::Plugin::Stream qw(stream_file);
+use DateTime;
 use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
 use Smolder::Conf;
+use Smolder::DB::TestFile;
 use Exception::Class;
 use HTML::TagCloud;
 use URI::Escape qw(uri_escape);
@@ -55,6 +57,7 @@ sub setup {
               details
               tap_archive
               tap_stream
+              bulk_test_file_action
               )
         ]
     );
@@ -635,6 +638,39 @@ sub details {
     } else {
         return $self->error_message('That project does not exist!');
     }
+}
+
+=head2 bulk_test_file_action
+
+Perform bulk actions on test files
+
+=cut
+
+sub bulk_test_file_action {
+    use Smolder::Debug;
+    my $self = shift;
+    my $id   = $self->param('id');
+    my $query = $self->query;
+    my ($action) = grep { /(.+)_action/ } $query->param
+        or die "could not find action";
+    $action = substr($action, 0, -7);
+    my @testfile_ids = $query->param('testfiles');
+    my @testfiles = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
+    if ($action eq 'mute') {
+        my $num_days = $query->param('num_days');
+        die "could not find num_days" if !defined($num_days);
+        my $mute_until_time = DateTime->now->add(days => $num_days)->truncate(to => 'day')->epoch;
+        foreach my $testfile (@testfiles) {
+            $testfile->mute_until($mute_until_time);
+            $testfile->update;
+        }
+    }
+
+    $self->header_type('redirect');
+    my $url =
+      '/app/' . ($self->public ? 'public' : 'developer') . "_projects/report_details/$id";
+    $self->header_add(-uri => $url);
+    return "Redirecting";
 }
 
 1;
