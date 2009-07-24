@@ -39,6 +39,7 @@ sub setup {
               feed
               tap_archive
               tap_stream
+              bulk_test_file_action
               )
         ]
     );
