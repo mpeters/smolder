@@ -935,9 +935,9 @@ var myrules = {
     '.tap div.diag': function(el) {
         Smolder.setup_tooltip(el, el);
     },
-    '.tap a.toggle_ok_tests' : function(el) {
+    '.tap a.toggle_all_tests' : function(el) {
     	el.onclick = function() {
-            $$('a.toggle_ok_tests span.hide', 'a.toggle_ok_tests span.show').invoke('toggle');
+            $$('a.toggle_all_tests span.hide', 'a.toggle_all_tests span.show').invoke('toggle');
 	    $$('tbody.results.passed').invoke('toggle');
         };
     },
