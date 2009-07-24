@@ -2,16 +2,18 @@ package Smolder::Control;
 use strict;
 use warnings;
 use base 'CGI::Application';
+use Carp qw(confess);
 use CGI::Application::Plugin::ValidateRM;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::LogDispatch;
 use CGI::Application::Plugin::JSON qw(:all);
 use Template::Plugin::Cycle;
 use CGI::Cookie;
-#use CGI::Application::Plugin::DebugScreen;
+# This has nice output, but can't get it to work more than once... - JS
+# BEGIN { $ENV{CGI_APP_DEBUG} = 1 ; } use CGI::Application::Plugin::DebugScreen;
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(HostName LogFile TemplateDir);
+use Smolder::Conf qw(ErrorsToScreen HostName LogFile TemplateDir);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
@@ -19,6 +21,20 @@ use File::Spec::Functions qw(catdir catfile tmpdir);
 {package Template::Perl;
  # Import debugging functions into templates (should be switched on with a config)
  use Smolder::Debug;
+}
+
+sub run {
+    my $self = shift;
+
+    if (ErrorsToScreen) {
+        $self->error_mode('error_message');
+        local $SIG{__DIE__} = sub { confess($_[0]) };
+        local $SIG{__WARN__} = sub { die $_[0] if ($_[0] =~ /Deep recursion/) };
+        $self->SUPER::run(@_);
+    }
+    else {
+        $self->SUPER::run(@_);
+    }
 }
 
 # setup our logging
@@ -34,6 +50,7 @@ __PACKAGE__->add_callback(
                     {
                         module    => 'Log::Dispatch::File',
                         name      => 'smolder_log',
+                        mode      => 'append',
                         min_level => 'debug',
                         filename  => LogFile,
                     }
@@ -190,7 +207,8 @@ messages, but rather to display un-recoverable and un-expected occurances.
 sub error_message {
     my ($self, $msg) = @_;
     $self->log->warning("An error occurred: $msg");
-    return $self->tt_process('error_message.tmpl', {message => $msg,},);
+    (my $html_msg = $msg) =~ s/\n/<br>/g;
+    return $self->tt_process('error_message.tmpl', {message => $html_msg,},);
 }
 
 =head2 tt_process
