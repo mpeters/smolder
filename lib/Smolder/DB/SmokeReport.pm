@@ -456,9 +456,10 @@ sub update_from_tap_archive {
     }
 
     my $meta;
-    # keep track of some things on our own because TAP::Parser::Aggregator 
+
+    # keep track of some things on our own because TAP::Parser::Aggregator
     # doesn't handle total or failed right when a test exits early
-    my %suite_data; 
+    my %suite_data;
     my $aggregator = TAP::Harness::Archive->aggregator_from_archive(
         {
             archive              => $file,
@@ -490,7 +491,7 @@ sub update_from_tap_archive {
                             todo    => ($line->has_todo  || 0),
                             comment => ($line->as_string || 0),
                         );
-                        $failed++  if !$line->is_ok && !$line->has_skip && !$line->has_todo;
+                        $failed++ if !$line->is_ok && !$line->has_skip && !$line->has_todo;
                         $skipped++ if $line->has_skip;
                         push(@tests, \%details);
                     } elsif ($line->type eq 'comment' || $line->type eq 'unknown') {
@@ -508,13 +509,14 @@ sub update_from_tap_archive {
                 },
                 EOF => sub {
                     my $parser = shift;
+
                     # did we run everything we planned to?
                     my $planned = $parser->tests_planned;
-                    my $run = $parser->tests_run;
+                    my $run     = $parser->tests_run;
                     my $total;
-                    if( $planned && $planned > $run ) {
+                    if ($planned && $planned > $run) {
                         $total = $planned;
-                        foreach (1..$planned-$run) {
+                        foreach (1 .. $planned - $run) {
                             $failed++;
                             push(
                                 @tests,
@@ -543,7 +545,7 @@ sub update_from_tap_archive {
                             all_skipped => ($skipped == $total),
                         }
                     );
-                    $suite_data{total} += $total;
+                    $suite_data{total}  += $total;
                     $suite_data{failed} += $failed;
                   }
             },
