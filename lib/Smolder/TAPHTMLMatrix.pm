@@ -73,6 +73,7 @@ sub generate_html {
                 tests     => $test->{tests},
                 odd_even  => $odd_even,
                 url_base  => Smolder::Util::url_base(),
+                is_muted  => $test->{is_muted},
             },
             $save_file,
         ) or croak "Problem processing template file '$file': ", $TMPL->error;
