@@ -1,3 +1,4 @@
+[% SET public = report.project.public %]<p>
 [%- USE Number.Format -%]
 [%- odd_even.reset() -%]
 <table class="properties boxed">
@@ -59,8 +60,8 @@
 <tr class="[% odd_even %]">
   <th>Download</th>
   <td>
-    <a href="[% url_prefix %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
-        [% url_prefix %]/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
+    <a href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
+        [% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
     </a>
 </tr>
 [%- END -%]
@@ -71,15 +72,26 @@
 <div class="controls">
   [%- IF report.failed -%]
     <a href="#first_failure">Goto First Failure</a> &middot;
-    <a href="#" class="toggle_ok_tests"><span class="show">Show</span><span class="hide" style="display: none">Hide</span> Passing Tests</a> &middot;
+    <a href="#" class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &middot;
   [%- END -%]
   <a href="#" class="show_all">Show All Details</a>
 </div>
 [%- END -%]
 
+<form method=GET action="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/bulk_test_file_action/[% report.id %]">
+Bulk actions: Mute tests
+<select name="num_days">
+<option value=1>until tomorrow</option>
+[% FOREACH num_days = [ '2', '3', '4', '7', '30' ] %]
+<option value=[% num_days %]>for [% num_days %] day[% num_days == '1' ? '' : 's' %]</option>
+[% END %]
+<option value=0>unmute</option>
+</select>
+<input type=submit name="mute_action" value="Set">
 <table summary="[% report.summary | html %]" class="boxed matrix">
   <thead>
     <tr>
+      <th></th>
       <th>#</th>
       <th>Test file</th>
       <th>Results</th>
@@ -89,9 +101,10 @@
   </thead>
   [%- SET found_first_failure = 0 -%]
   [%- FOREACH test IN results -%]
-  <tbody id="test_[% loop.index %]" class="results[% IF test.failed %] failed[% ELSE %] passed[% END %]" style="[% IF report.failed && !test.failed %]display: none[% END %]">
+  <tbody id="test_[% loop.index %]" class="results[% IF test.failed && !test.is_muted %] failed[% ELSE %] passed[% END %]" style="[% IF report.failed && (!test.failed || test.is_muted) %]display: none[% END %]">
     <tr>
-      <td>[% loop.count %]</td>
+      <td width=5%><input type="checkbox" name="testfiles" value=[% test.test_file %]></td>
+      <td width=5%>[% test.file_index %]</td>
       <td class="filename">
         <span style="float: right">
           <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
@@ -100,13 +113,16 @@
         [%- END -%]
         <a 
           [% IF email %]
-            href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]"
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% report.id %]/[% loop.index %]"
           [% ELSE %]
-            href="[% url_prefix %]/app/public_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
           [% END %]
             id="for_testfile_details_[% loop.index %]" 
             class="testfile_details_trigger show_indicator_[% loop.index %]">
-        <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
+        <span class="filename[% IF test.failed %] fail[% END %]">
+           [% test.label | html %]
+           [% IF test.is_muted %] (muted until [% test.mute_until %]) [% END %]
+        </span>
         </a>
       </td>
       <td class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
@@ -115,7 +131,7 @@
       <td class="x sum">[% test.percent %]%</td>
     </tr>
     <tr>
-      <td colspan="3">
+      <td colspan="6">
         <div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% loop.index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
           <a href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
@@ -126,14 +142,14 @@
   [%- END %]
   <tfoot>
     <tr class="first">
-      <td colspan="4">
+      <td colspan="5">
         [%- report.total | format_number %] test cases
         - [%- report.test_files | format_number %] files
       </td>
       <td class="sum">[% report.total_percentage %]%</td>
     </tr>
     <tr>
-      <td colspan="5" class="last">
+      <td colspan="6" class="last">
           [% report.pass      | format_number %] ok, 
           [% report.fail      | format_number %] failed, 
           [% report.todo      | format_number %] todo, 
@@ -143,3 +159,4 @@
     </tr>
   </tfoot>
 </table>
+</form>
