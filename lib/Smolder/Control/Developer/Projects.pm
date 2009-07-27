@@ -365,7 +365,7 @@ sub report_details {
     my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
 
     if (Smolder::Conf->get('AutoRefreshReports')) {
-        Smolder::DB::SmokeReport->update_all_report_html();
+        $report->update_from_tap_archive();
     }
 
     return $self->error_message('Test Report does not exist')
