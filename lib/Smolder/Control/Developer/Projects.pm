@@ -161,10 +161,10 @@ sub add_report {
 
     # make sure ths developer is a member of this project, or it's a public project
     # that allows anonymous uploads
-    if(!$project->has_developer($self->developer)) {
-        if( $project->public && !$project->allow_anon ) {
+    if (!$project->has_developer($self->developer)) {
+        if ($project->public && !$project->allow_anon) {
             return $self->error_message('Project does not allow anonymous reports');
-        } elsif(!$project->public ) {
+        } elsif (!$project->public) {
             return $self->error_message('Unauthorized for this project');
         }
     }
@@ -214,14 +214,14 @@ sub process_add_report {
 
     # make sure ths developer is a member of this project, or it's a public project
     # that allows anonymous uploads
-    if(!$project->has_developer($self->developer)) {
-        if( $project->public && !$project->allow_anon ) {
+    if (!$project->has_developer($self->developer)) {
+        if ($project->public && !$project->allow_anon) {
             return $self->error_message('Project does not allow anonymous reports');
-        } elsif(!$project->public ) {
+        } elsif (!$project->public) {
             return $self->error_message('Unauthorized for this project');
         }
     }
-            
+
     my $form = {
         required           => [qw(report_file)],
         optional           => [qw(architecture platform comments tags revision)],
@@ -346,9 +346,12 @@ sub smoke_reports {
       unless Data::FormValidator->check($query, $form);
 
     $tt_params->{project} = $project;
-    $tt_params->{limit}   = defined $query->param('limit') ? $query->param('limit') : (Smolder::Conf->get('ReportsPerPage') || 5);
-    $tt_params->{offset}  = $query->param('offset') || 0;
-    $tt_params->{tag}     = $query->param('tag') || undef;
+    $tt_params->{limit} =
+      defined $query->param('limit')
+      ? $query->param('limit')
+      : (Smolder::Conf->get('ReportsPerPage') || 5);
+    $tt_params->{offset} = $query->param('offset') || 0;
+    $tt_params->{tag}    = $query->param('tag')    || undef;
 
     return $self->tt_process($tt_params);
 }
@@ -648,14 +651,15 @@ Perform bulk actions on test files
 
 sub bulk_test_file_action {
     use Smolder::Debug;
-    my $self = shift;
-    my $id   = $self->param('id');
+    my $self  = shift;
+    my $id    = $self->param('id');
     my $query = $self->query;
     my ($action) = grep { /(.+)_action/ } $query->param
-        or die "could not find action";
+      or die "could not find action";
     $action = substr($action, 0, -7);
     my @testfile_ids = $query->param('testfiles');
     my @testfiles = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
+
     if ($action eq 'mute') {
         my $num_days = $query->param('num_days');
         die "could not find num_days" if !defined($num_days);
@@ -667,8 +671,7 @@ sub bulk_test_file_action {
     }
 
     $self->header_type('redirect');
-    my $url =
-      '/app/' . ($self->public ? 'public' : 'developer') . "_projects/report_details/$id";
+    my $url = '/app/' . ($self->public ? 'public' : 'developer') . "_projects/report_details/$id";
     $self->header_add(-uri => $url);
     return "Redirecting";
 }
