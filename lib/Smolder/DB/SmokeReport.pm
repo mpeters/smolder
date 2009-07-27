@@ -12,6 +12,8 @@ use File::Temp qw(tempdir);
 use Cwd qw(fastcwd);
 use DateTime;
 use Smolder::TAPHTMLMatrix;
+use Smolder::DB::TestFile;
+use Smolder::DB::TestFileResult;
 use Carp qw(croak);
 use TAP::Harness::Archive;
 use IO::Zlib;
@@ -447,7 +449,8 @@ sub update_from_tap_archive {
     # our data structures for holding the info about the TAP parsing
     my ($duration, @suite_results, @tests, $label);
     my ($total, $failed, $skipped, $planned) = (0, 0, 0, 0);
-    my $file_index = 0;
+    my $file_index      = 0;
+    my $next_file_index = 0;
 
     # make our tap directory if it doesn't already exist
     my $tap_dir = catdir($self->data_dir, 'tap');
@@ -472,9 +475,9 @@ sub update_from_tap_archive {
                 ($failed, $skipped) = (0, 0, 0);
 
                 # save the raw TAP stream somewhere we can use it later
+                $file_index = $next_file_index++;
                 my $new_file = catfile($self->data_dir, 'tap', "$file_index.tap");
                 copy($full_path, $new_file) or die "Could not copy $full_path to $new_file. $!\n";
-                $file_index++;
             },
             meta_yaml_callback => sub {
                 my $yaml = shift;
@@ -534,6 +537,26 @@ sub update_from_tap_archive {
                     }
 
                     my $percent = $total ? sprintf('%i', (($total - $failed) / $total) * 100) : 100;
+
+                    # record the individual test file and test file result
+                    my $test_file = Smolder::DB::TestFile->find_or_create(
+                        {
+                            project => $self->project,
+                            label   => $label
+                        }
+                    ) or die "could not find or create test file '$label'";
+                    Smolder::DB::TestFileResult->insert_or_replace(
+                        {
+                            test_file    => $test_file->id,
+                            smoke_report => $self->id,
+                            total        => $total,
+                            failed       => $failed,
+                            percent      => $percent,
+                            file_index   => $file_index,
+                        }
+                    ) or die "could not set result for test file '$label'";
+
+                    # push a hash onto the list of results for TAPHTMLMatrix
                     push(
                         @suite_results,
                         {
@@ -543,6 +566,12 @@ sub update_from_tap_archive {
                             failed      => $failed,
                             percent     => $percent,
                             all_skipped => ($skipped == $total),
+                            is_muted    => $test_file->is_muted,
+                            mute_until  => $test_file->is_muted
+                            ? $test_file->mute_until->strftime("%a %b %d")
+                            : '',
+                            file_index => $file_index,
+                            test_file  => $test_file->id,
                         }
                     );
                     $suite_data{total}  += $total;
