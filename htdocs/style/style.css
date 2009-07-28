@@ -366,7 +366,7 @@ th, td {
 thead th { 
     background-color: #E0E0E0;
     background-repeat: repeat-x;
-    color: #00000;
+    color: #000000;
     font-weight: bold;
     text-align: center;
 }
@@ -699,6 +699,21 @@ img.graph {
 }
 
 .tap a.testfile_details_trigger {
+    font-weight: bold;
+    text-decoration: none;
+    color: #000;
+    display: block;
+}
+
+.tap a.testfile_details_trigger:hover {
+    text-decoration: underline;
+}
+
+a.testfile_details_trigger.fail {
+    color: #fff;
+}
+
+.tap a.testfile_label {
     font-size: 0.85em;
     font-weight: bold;
     text-decoration: none;
@@ -708,12 +723,8 @@ img.graph {
     height: 1.5em;
 }
 
-.tap a.testfile_details_trigger:hover {
+.tap a.testfile_label:hover {
     text-decoration: underline;
-}
-
-.tap a.testfile_details_trigger.fail {
-    color: #fff;
 }
 
 .tap .exp {
@@ -732,6 +743,8 @@ img.graph {
 .tap .todo    { background-color: #007f00; color: #000; }
 .tap .nottest { background-color: #7f7f7f; color: #000; }
 .tap span.fail { background-color: transparent; color: #cc0033 }
+
+.tap .filename { color: #000; }
 
 ul.subtests 			{ margin: 0px 0px 20px 35px; padding: 0px; list-style-type: none; }
 ul.subtests li 			{ margin: 3px; }
