@@ -549,6 +549,7 @@ sub update_from_tap_archive {
                         {
                             test_file    => $test_file->id,
                             smoke_report => $self->id,
+                            project      => $self->project->id,
                             total        => $total,
                             failed       => $failed,
                             percent      => $percent,
