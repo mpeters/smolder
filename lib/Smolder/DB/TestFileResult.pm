@@ -16,7 +16,7 @@ database.
 
 =head1 METHODS
 
-=head2 ACCESSSOR/MUTATORS
+=head2 ACCESSOR/MUTATORS
 
 Each column in the borough table has a method with the same name that can be
 used as an accessor and mutator.
@@ -38,6 +38,7 @@ sub insert_or_replace {
     $class->insert($params);
 }
 
+__PACKAGE__->has_a(project      => 'Smolder::DB::Project');
 __PACKAGE__->has_a(test_file    => 'Smolder::DB::TestFile');
 __PACKAGE__->has_a(smoke_report => 'Smolder::DB::SmokeReport');
 
