@@ -111,6 +111,16 @@ Bulk actions: Mute tests
         </span>
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
+        <a class="testfile_label" href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_history/[% report.project.id %]/[% test.test_file %]">
+        <span class="filename[% IF test.failed %] fail[% END %]">
+             [% test.label | html %]
+           [% IF test.is_muted %] (muted until [% test.mute_until %]) [% END %]
+        </span>
+        </a>
+      </td>
+      <td class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
+      </td>
+      <td class="x sum">
         <a 
           [% IF email %]
             href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% report.id %]/[% loop.index %]"
@@ -119,16 +129,21 @@ Bulk actions: Mute tests
           [% END %]
             id="for_testfile_details_[% loop.index %]" 
             class="testfile_details_trigger show_indicator_[% loop.index %]">
-        <span class="filename[% IF test.failed %] fail[% END %]">
-           [% test.label | html %]
-           [% IF test.is_muted %] (muted until [% test.mute_until %]) [% END %]
-        </span>
+         [% test.total - test.failed %]/[% test.total %]
         </a>
       </td>
-      <td class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
+      <td class="x sum">
+        <a 
+          [% IF email %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% report.id %]/[% loop.index %]"
+          [% ELSE %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+          [% END %]
+            id="for_testfile_details_[% loop.index %]" 
+            class="testfile_details_trigger show_indicator_[% loop.index %]">
+         [% test.percent %]%
+        </a>
       </td>
-      <td class="x sum">[% test.total - test.failed %]/[% test.total %]</td>
-      <td class="x sum">[% test.percent %]%</td>
     </tr>
     <tr>
       <td colspan="6">
