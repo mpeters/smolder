@@ -8,6 +8,7 @@ use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
 use Smolder::Conf;
 use Smolder::DB::TestFile;
+use Smolder::DB::TestFileResult;
 use Exception::Class;
 use HTML::TagCloud;
 use URI::Escape qw(uri_escape);
@@ -58,6 +59,7 @@ sub setup {
               tap_archive
               tap_stream
               bulk_test_file_action
+              test_file_history
               )
         ]
     );
@@ -650,7 +652,6 @@ Perform bulk actions on test files
 =cut
 
 sub bulk_test_file_action {
-    use Smolder::Debug;
     my $self  = shift;
     my $id    = $self->param('id');
     my $query = $self->query;
@@ -659,7 +660,6 @@ sub bulk_test_file_action {
     $action = substr($action, 0, -7);
     my @testfile_ids = $query->param('testfiles');
     my @testfiles = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
-
     if ($action eq 'mute') {
         my $num_days = $query->param('num_days');
         die "could not find num_days" if !defined($num_days);
@@ -674,6 +674,28 @@ sub bulk_test_file_action {
     my $url = '/app/' . ($self->public ? 'public' : 'developer') . "_projects/report_details/$id";
     $self->header_add(-uri => $url);
     return "Redirecting";
+}
+
+=head2 test_file_history
+
+Show history of a particular test file in this project
+
+=cut
+
+sub test_file_history {
+    my $self         = shift;
+    my $project_id   = $self->param('project_id');
+    my $project = Smolder::DB::Project->retrieve($project_id);
+    my $test_file_id = $self->param('test_file_id');
+    my $test_file = Smolder::DB::TestFile->retrieve($test_file_id);
+    my @test_file_results =
+      Smolder::DB::TestFileResult->search(project => $project_id, test_file => $test_file_id);
+    my $tt_params = {
+        project => $project,
+        test_file => $test_file,
+        results => \@test_file_results
+    };
+    return $self->tt_process('Developer/Projects/test_file_history.tmpl', $tt_params);
 }
 
 1;
