@@ -1,0 +1,69 @@
+[% SET page_title = 'Test File History' %]
+[% SET public = project.public %]<p>
+
+<div class="tap">
+<h2>[% project.name | html %] - [% test_file.label | html %]</h2>
+
+<table class="boxed matrix">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Smoke Report</th>
+      <th>Results</th>
+      <th>Count</th>
+      <th>%</th>
+    </tr>
+  </thead>
+[% FOREACH test IN results %]
+  <tbody>
+    <tr>
+      <td width=5%>[% test.id %]</td>
+      <td>
+        <span style="float: right">
+          <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% test.file_index %]" />
+        </span>
+        <a class="testfile_label" href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/report_details/[% test.smoke_report.id %]">
+        <span class="filename[% IF test.failed %] fail[% END %]">
+          [% test.smoke_report.added.strftime('%a %b %d %l:%M %p') %]
+        </span>
+        </a>
+      </td>
+      <td width=5% class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
+      </td>
+      <td width=5% class="x sum">
+        <a 
+          [% IF email %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
+          [% ELSE %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
+          [% END %]
+            id="for_testfile_details_[% test.file_index %]" 
+            class="testfile_details_trigger show_indicator_[% test.file_index %]">
+         [% test.total - test.failed %]/[% test.total %]
+        </a>
+      </td>
+      <td width=5% class="x sum">
+        <a 
+          [% IF email %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
+          [% ELSE %]
+            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
+          [% END %]
+            id="for_testfile_details_[% test.file_index %]" 
+            class="testfile_details_trigger show_indicator_[% test.file_index %]">
+         [% test.percent %]%
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5">
+        <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
+        <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
+          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+[% END %]
+</div>
