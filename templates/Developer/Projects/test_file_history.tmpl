@@ -1,8 +1,34 @@
-[% SET page_title = 'Test File History' %]
-[% SET public = project.public %]<p>
+[%- SET page_title = project.name _ ' - ' _ test_file.label -%]
+[%- SET app_prefix = project.app_prefix -%]
 
 <div class="tap">
-<h2>[% project.name | html %] - [% test_file.label | html %]</h2>
+
+<p>
+
+<h3>Actions</h3>
+
+<form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
+<input type="hidden" name="testfiles" value="[% test_file.id %]">
+<input type="hidden" name="return_to" value="test_file_history/[% project.id %]/[% test_file.id %]">
+<div class="bulk_actions">
+Mute tests
+<select name="num_days">
+<option value=1>until tomorrow</option>
+[% FOREACH num_days = [ '2', '3', '4', '7', '30' ] %]
+<option value=[% num_days %]>for [% num_days %] day[% num_days == '1' ? '' : 's' %]</option>
+[% END %]
+<option value=0>unmute</option>
+</select>
+<input type=submit name="mute_action" value="Set">
+<br>
+
+Add comment: <input name="comment" size=50>
+<input type=submit name="comment_action" value="Add">
+<br>
+</div>
+</form>
+
+<h3>History</h3>
 
 <table class="boxed matrix">
   <thead>
@@ -14,15 +40,15 @@
       <th>%</th>
     </tr>
   </thead>
-[% FOREACH test IN results %]
   <tbody>
+[% FOREACH test IN results %]
     <tr>
       <td width=5%>[% test.id %]</td>
       <td>
         <span style="float: right">
           <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% test.file_index %]" />
         </span>
-        <a class="testfile_label" href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/report_details/[% test.smoke_report.id %]">
+        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/report_details/[% test.smoke_report.id %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
           [% test.smoke_report.added.strftime('%a %b %d %l:%M %p') %]
         </span>
@@ -33,9 +59,9 @@
       <td width=5% class="x sum">
         <a 
           [% IF email %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
+            href="[% url_prefix %][% app_prefix %]/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
           [% ELSE %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
+            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
           [% END %]
             id="for_testfile_details_[% test.file_index %]" 
             class="testfile_details_trigger show_indicator_[% test.file_index %]">
@@ -45,9 +71,9 @@
       <td width=5% class="x sum">
         <a 
           [% IF email %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
+            href="[% url_prefix %][% app_prefix %]/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
           [% ELSE %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
+            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
           [% END %]
             id="for_testfile_details_[% test.file_index %]" 
             class="testfile_details_trigger show_indicator_[% test.file_index %]">
@@ -63,7 +89,22 @@
         </div>
       </td>
     </tr>
+[% END %]
   </tbody>
 </table>
+
+<p>
+
+<h3>Comment log</h3>
+
+<table border=0 class="boxed matrix">
+[% FOREACH comment IN test_file.comments %]
+<tr>
+<td width=20%>[% comment.added.strftime('%a %b %d %l:%M %p') %]</td>
+<td width=10%>[% comment.developer.username %]</td>
+<td>[% comment.comment %]</td>
+</tr>
 [% END %]
+</table>
+
 </div>
