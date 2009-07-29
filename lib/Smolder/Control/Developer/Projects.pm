@@ -652,10 +652,10 @@ Perform bulk actions on test files
 =cut
 
 sub bulk_test_file_action {
-    my $self  = shift;
-    my $id    = $self->param('id');
+    my $self   = shift;
+    my $id     = $self->param('id');
     my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
-    my $query = $self->query;
+    my $query  = $self->query;
 
     # Determine which action was pressed
     my ($action) = grep { /(.+)_action/ } $query->param
@@ -703,12 +703,34 @@ Show history of a particular test file in this project
 
 sub test_file_history {
     my $self         = shift;
+    my $query        = $self->query;
     my $project_id   = $self->param('project_id');
     my $project      = Smolder::DB::Project->retrieve($project_id);
     my $test_file_id = $self->param('test_file_id');
     my $test_file    = Smolder::DB::TestFile->retrieve($test_file_id);
-    my @test_file_results =
-      Smolder::DB::TestFileResult->search(project => $project_id, test_file => $test_file_id);
+
+    # prevent malicious limit and offset values
+    my $form = {
+        optional           => [qw(limit offset)],
+        constraint_methods => {
+            limit  => unsigned_int(),
+            offset => unsigned_int(),
+        },
+    };
+    return $self->error_message('Something fishy')
+      unless Data::FormValidator->check($query, $form);
+
+    my $limit  = $query->param('limit')  || 20;
+    my $offset = $query->param('offset') || 0;
+    my @test_file_results = Smolder::DB::TestFileResult->search_where(
+        {project => $project_id, test_file => $test_file_id},
+        {
+            limit_dialect => 'LimitOffset',
+            offset        => $offset,
+            limit         => $limit,
+            order_by      => 'added DESC'
+        }
+    );
     my $tt_params = {
         project   => $project,
         test_file => $test_file,
