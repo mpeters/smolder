@@ -1,9 +1,27 @@
 package Smolder::DB::TestFileResult;
+use Class::DBI::AbstractSearch;
 use strict;
 use warnings;
 use base 'Smolder::DB';
 
 __PACKAGE__->set_up_table('test_file_result');
+
+__PACKAGE__->has_a(project      => 'Smolder::DB::Project');
+__PACKAGE__->has_a(test_file    => 'Smolder::DB::TestFile');
+__PACKAGE__->has_a(smoke_report => 'Smolder::DB::SmokeReport');
+__PACKAGE__->has_a(
+    added   => 'DateTime',
+    inflate => sub { DateTime->from_epoch(epoch => shift) },
+    deflate => sub { shift->epoch },
+);
+
+# make sure added is set to NOW
+__PACKAGE__->add_trigger(
+    before_create => sub {
+        my $self = shift;
+        $self->_attribute_set(added => DateTime->now());
+    },
+);
 
 =head1 NAME
 
@@ -37,9 +55,5 @@ sub insert_or_replace {
     }
     $class->insert($params);
 }
-
-__PACKAGE__->has_a(project      => 'Smolder::DB::Project');
-__PACKAGE__->has_a(test_file    => 'Smolder::DB::TestFile');
-__PACKAGE__->has_a(smoke_report => 'Smolder::DB::SmokeReport');
 
 1;

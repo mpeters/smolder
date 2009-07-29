@@ -7,6 +7,7 @@ CREATE TABLE test_file_result  (
     total           INTEGER NOT NULL,
     failed          INTEGER NOT NULL,
     percent         INTEGER NOT NULL,
+    added           INTEGER NOT NULL,
     CONSTRAINT 'fk_test_file_result_project' FOREIGN KEY ('project') REFERENCES 'project' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_test_file_result_test_file' FOREIGN KEY ('test_file') REFERENCES 'test_file' ('id') ON DELETE CASCADE,
     CONSTRAINT 'fk_test_file_result_smoke_report' FOREIGN KEY ('smoke_report') REFERENCES 'smoke_report' ('id') ON DELETE CASCADE
