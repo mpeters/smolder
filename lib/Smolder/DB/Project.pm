@@ -613,6 +613,18 @@ sub most_recent_report {
     return $report;
 }
 
+=head3 app_prefix
+
+Returns "/app/developer_projects" or "/app/public_projects" as appropriate for this project.
+
+=cut
+
+sub app_prefix {
+    my $self = shift;
+
+    return "/app/" . ($self->public ? "public_projects" : "developer_projects");
+}
+
 =head2 CLASS METHODS
 
 =head3 all_names
