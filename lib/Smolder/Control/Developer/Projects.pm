@@ -654,12 +654,19 @@ Perform bulk actions on test files
 sub bulk_test_file_action {
     my $self  = shift;
     my $id    = $self->param('id');
+    my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
     my $query = $self->query;
+
+    # Determine which action was pressed
     my ($action) = grep { /(.+)_action/ } $query->param
       or die "could not find action";
     $action = substr($action, 0, -7);
+
+    # Determine which test files were checked
     my @testfile_ids = $query->param('testfiles');
     my @testfiles = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
+
+    # Switch based on action
     if ($action eq 'mute') {
         my $num_days = $query->param('num_days');
         die "could not find num_days" if !defined($num_days);
@@ -668,10 +675,22 @@ sub bulk_test_file_action {
             $testfile->mute_until($mute_until_time);
             $testfile->update;
         }
+    } elsif ($action eq 'comment') {
+        my $comment = $query->param('comment');
+        my %comment_params =
+          (project => $report->project->id, developer => $self->developer->id, comment => $comment);
+        foreach my $testfile (@testfiles) {
+            Smolder::DB::TestFileComment->insert({%comment_params, test_file => $testfile->id});
+        }
     }
 
+    # Recompute page after any bulk action
+    $report->update_from_tap_archive();
+
+    # Redirect back
+    my $return_to = $query->param('return_to') or die "cannot get return_to";
     $self->header_type('redirect');
-    my $url = '/app/' . ($self->public ? 'public' : 'developer') . "_projects/report_details/$id";
+    my $url = '/app/' . ($self->public ? 'public' : 'developer') . "_projects/$return_to";
     $self->header_add(-uri => $url);
     return "Redirecting";
 }
@@ -685,15 +704,15 @@ Show history of a particular test file in this project
 sub test_file_history {
     my $self         = shift;
     my $project_id   = $self->param('project_id');
-    my $project = Smolder::DB::Project->retrieve($project_id);
+    my $project      = Smolder::DB::Project->retrieve($project_id);
     my $test_file_id = $self->param('test_file_id');
-    my $test_file = Smolder::DB::TestFile->retrieve($test_file_id);
+    my $test_file    = Smolder::DB::TestFile->retrieve($test_file_id);
     my @test_file_results =
       Smolder::DB::TestFileResult->search(project => $project_id, test_file => $test_file_id);
     my $tt_params = {
-        project => $project,
+        project   => $project,
         test_file => $test_file,
-        results => \@test_file_results
+        results   => \@test_file_results
     };
     return $self->tt_process('Developer/Projects/test_file_history.tmpl', $tt_params);
 }
