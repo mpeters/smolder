@@ -20,6 +20,7 @@ my $builder = Smolder::Build->new(
         'CGI::Application::Plugin::TT'               => 1.04,
         'CGI::Application::Plugin::ValidateRM'       => 2.3,
         'Class::DBI'                                 => 3.0,
+        'Class::DBI::AbstractSearch'                 => 0.07,
         'Class::DBI::SQLite'                         => 0,
         'Class::DBI::Plugin::RetrieveAll'            => 1.04,
         'Data::FormValidator'                        => 4.61,
