@@ -1,4 +1,5 @@
-[% SET public = report.project.public %]<p>
+[%- SET project = report.project -%]
+[%- SET app_prefix = project.app_prefix -%]
 [%- USE Number.Format -%]
 [%- odd_even.reset() -%]
 <table class="properties boxed">
@@ -60,8 +61,8 @@
 <tr class="[% odd_even %]">
   <th>Download</th>
   <td>
-    <a href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]">
-        [% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_archive/[% report.id %]
+    <a href="[% url_prefix %][% app_prefix %]/tap_archive/[% report.id %]">
+        [% url_prefix %][% app_prefix %]/tap_archive/[% report.id %]
     </a>
 </tr>
 [%- END -%]
@@ -70,16 +71,20 @@
 
 [%- UNLESS email -%]
 <div class="controls">
+<b>View controls:</b>&nbsp;
   [%- IF report.failed -%]
-    <a href="#first_failure">Goto First Failure</a> &middot;
-    <a href="#" class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &middot;
+    <a href="#" class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &nbsp;&middot;&nbsp;
   [%- END -%]
   <a href="#" class="show_all">Show All Details</a>
 </div>
-[%- END -%]
 
-<form method=GET action="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/bulk_test_file_action/[% report.id %]">
-Bulk actions: Mute tests
+<form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
+<input type="hidden" name="return_to" value="report_details/[% report.id %]">
+
+<div class="bulk_actions">
+<b>Actions on checked items:</b><br>
+
+Mute tests
 <select name="num_days">
 <option value=1>until tomorrow</option>
 [% FOREACH num_days = [ '2', '3', '4', '7', '30' ] %]
@@ -88,6 +93,14 @@ Bulk actions: Mute tests
 <option value=0>unmute</option>
 </select>
 <input type=submit name="mute_action" value="Set">
+<br>
+
+Add comment: <input name="comment" size=50>
+<input type=submit name="comment_action" value="Add">
+<br>
+</div>
+[%- END -%]
+
 <table summary="[% report.summary | html %]" class="boxed matrix">
   <thead>
     <tr>
@@ -111,7 +124,7 @@ Bulk actions: Mute tests
         </span>
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
-        <a class="testfile_label" href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_history/[% report.project.id %]/[% test.test_file %]">
+        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/test_file_history/[% project.id %]/[% test.test_file %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
              [% test.label | html %]
            [% IF test.is_muted %] (muted until [% test.mute_until %]) [% END %]
@@ -123,9 +136,9 @@ Bulk actions: Mute tests
       <td class="x sum">
         <a 
           [% IF email %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% report.id %]/[% loop.index %]"
+            href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% loop.index %]"
           [% ELSE %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% report.id %]/[% loop.index %]" 
           [% END %]
             id="for_testfile_details_[% loop.index %]" 
             class="testfile_details_trigger show_indicator_[% loop.index %]">
@@ -135,9 +148,9 @@ Bulk actions: Mute tests
       <td class="x sum">
         <a 
           [% IF email %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/tap_stream/[% report.id %]/[% loop.index %]"
+            href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% loop.index %]"
           [% ELSE %]
-            href="[% url_prefix %]/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/test_file_report_details/[% report.id %]/[% loop.index %]" 
+            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% report.id %]/[% loop.index %]" 
           [% END %]
             id="for_testfile_details_[% loop.index %]" 
             class="testfile_details_trigger show_indicator_[% loop.index %]">
@@ -149,7 +162,7 @@ Bulk actions: Mute tests
       <td colspan="6">
         <div id="testfile_details_[% loop.index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% loop.index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
+          <a href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% loop.index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>
