@@ -648,22 +648,20 @@ img.graph {
 	background-color: #fff;
 }
 
-.tap .properties a, .tap .controls a {
-        text-decoration: none;
-        color: #000066;
-}
-
-.tap .controls a {
-	padding: 3px 10px;
-        text-decoration: none;
-}
-
 .tap .properties a:hover, .tap .controls a:hover {
         text-decoration: underline;
 }
 
-.tap .properties, .tap .controls {
+.tap .properties a, .tap .controls a {
+        text-decoration: none;
+}
+
+.tap .properties, .tap .controls, .tap .bulk_actions {
     margin-bottom: 10px;
+}
+
+.tap .bulk_actions {
+    line-height: 22px;
 }
 
 .tap .matrix th {
