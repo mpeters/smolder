@@ -25,6 +25,11 @@ Mute tests
 Add comment: <input name="comment" size=50>
 <input type=submit name="comment_action" value="Add">
 <br>
+
+[% IF test_file.source_path %]
+<a target="_view_source" href="[% app_prefix %]/test_file_source/[% test_file.id %]">View source</a>
+[% END %]
+
 </div>
 </form>
 
