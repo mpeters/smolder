@@ -670,7 +670,7 @@ sub bulk_test_file_action {
     if ($action eq 'mute') {
         my $num_days = $query->param('num_days');
         die "could not find num_days" if !defined($num_days);
-        my $mute_until_time = DateTime->now->add(days => $num_days)->truncate(to => 'day')->epoch;
+        my $mute_until_time = DateTime->now(time_zone => 'local')->add(days => $num_days)->truncate(to => 'day')->epoch;
         foreach my $testfile (@testfiles) {
             $testfile->mute_until($mute_until_time);
             $testfile->update;

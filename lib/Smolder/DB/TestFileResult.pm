@@ -11,7 +11,7 @@ __PACKAGE__->has_a(test_file    => 'Smolder::DB::TestFile');
 __PACKAGE__->has_a(smoke_report => 'Smolder::DB::SmokeReport');
 __PACKAGE__->has_a(
     added   => 'DateTime',
-    inflate => sub { DateTime->from_epoch(epoch => shift) },
+    inflate => sub { DateTime->from_epoch(epoch => shift, time_zone => 'local') },
     deflate => sub { shift->epoch },
 );
 
@@ -19,7 +19,7 @@ __PACKAGE__->has_a(
 __PACKAGE__->add_trigger(
     before_create => sub {
         my $self = shift;
-        $self->_attribute_set(added => DateTime->now());
+        $self->_attribute_set(added => DateTime->now(time_zone => 'local'));
     },
 );
 

@@ -7,7 +7,7 @@ __PACKAGE__->set_up_table('test_file');
 
 __PACKAGE__->has_a(
     mute_until => 'DateTime',
-    inflate    => sub { DateTime->from_epoch(epoch => shift) },
+    inflate    => sub { DateTime->from_epoch(epoch => shift, time_zone => 'local') },
     deflate => sub { shift->epoch },
 );
 

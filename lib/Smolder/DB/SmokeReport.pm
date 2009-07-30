@@ -57,7 +57,7 @@ __PACKAGE__->has_a(project   => 'Smolder::DB::Project');
 __PACKAGE__->add_trigger(
     before_create => sub {
         my $self = shift;
-        $self->_attribute_set(added => DateTime->now(time_zone => 'local'),);
+        $self->_attribute_set(added => DateTime->now(time_zone => 'local'));
     },
 );
 
