@@ -11,20 +11,8 @@
 <input type="hidden" name="testfiles" value="[% test_file.id %]">
 <input type="hidden" name="return_to" value="test_file_history/[% project.id %]/[% test_file.id %]">
 <div class="bulk_actions">
-Mute tests
-<select name="num_days">
-<option value=1>until tomorrow</option>
-[% FOREACH num_days = [ '2', '3', '4', '7', '30' ] %]
-<option value=[% num_days %]>for [% num_days %] day[% num_days == '1' ? '' : 's' %]</option>
-[% END %]
-<option value=0>unmute</option>
-</select>
-<input type=submit name="mute_action" value="Set">
-<br>
 
-Add comment: <input name="comment" size=50>
-<input type=submit name="comment_action" value="Add">
-<br>
+[% PROCESS Shared/test_file_actions.tmpl %]
 
 [% IF test_file.source_path %]
 <a target="_view_source" href="[% app_prefix %]/test_file_source/[% test_file.id %]">View source</a>
@@ -47,41 +35,29 @@ Add comment: <input name="comment" size=50>
   </thead>
   <tbody>
 [% FOREACH test IN results %]
+   [% SET report = test.smoke_report %]
     <tr>
       <td width=5%>[% test.id %]</td>
       <td>
         <span style="float: right">
           <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% test.file_index %]" />
         </span>
-        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/report_details/[% test.smoke_report.id %]">
+        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/report_details/[% report.id %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
-          [% test.smoke_report.added.strftime('%a %b %d %l:%M %p') %]
+          [% report.added.strftime('%a %b %d %l:%M %p') %]
         </span>
         </a>
       </td>
       <td width=5% class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
       </td>
       <td width=5% class="x sum">
-        <a 
-          [% IF email %]
-            href="[% url_prefix %][% app_prefix %]/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
-          [% ELSE %]
-            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
-          [% END %]
-            id="for_testfile_details_[% test.file_index %]" 
-            class="testfile_details_trigger show_indicator_[% test.file_index %]">
+       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
          [% test.total - test.failed %]/[% test.total %]
         </a>
       </td>
       <td width=5% class="x sum">
         <a 
-          [% IF email %]
-            href="[% url_prefix %][% app_prefix %]/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]"
-          [% ELSE %]
-            href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% test.smoke_report.id %]/[% test.file_index %]" 
-          [% END %]
-            id="for_testfile_details_[% test.file_index %]" 
-            class="testfile_details_trigger show_indicator_[% test.file_index %]">
+       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
          [% test.percent %]%
         </a>
       </td>
@@ -90,7 +66,7 @@ Add comment: <input name="comment" size=50>
       <td colspan="5">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% test.smoke_report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>

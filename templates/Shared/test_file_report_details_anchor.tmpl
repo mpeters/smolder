@@ -1,0 +1,8 @@
+<a 
+  [% IF email %]
+    href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]"
+  [% ELSE %]
+    href="[% url_prefix %][% app_prefix %]/test_file_report_details/[% report.id %]/[% test.file_index %]" 
+  [% END %]
+    id="for_testfile_details_[% test.file_index %]" 
+    class="testfile_details_trigger show_indicator_[% test.file_index %]">

@@ -1,0 +1,16 @@
+[% # Form inputs for test file actions - used in full_report.tmpl and test_file_history.tmpl %]
+
+Mute tests
+<select name="num_days">
+<option value=1>until tomorrow</option>
+[% FOREACH num_days = [ '2', '3', '4', '7', '30' ] %]
+<option value=[% num_days %]>for [% num_days %] day[% num_days == '1' ? '' : 's' %]</option>
+[% END %]
+<option value=0>unmute</option>
+</select>
+<input type=submit name="mute_action" value="Set">
+<br>
+
+Add comment: <input name="comment" size=50>
+<input type=submit name="comment_action" value="Add">
+<br>
