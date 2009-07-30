@@ -35,6 +35,7 @@ my $builder = Smolder::Build->new(
         'File::MMagic'                               => 0,
         'File::ShareDir'                             => 1.00,
         'File::HomeDir'                              => 0.80,
+        'File::Slurp'                                => 0,
         'File::Temp'                                 => 0.21,
         'File::Path'                                 => 2.04,
         'Getopt::Long'                               => 0,
