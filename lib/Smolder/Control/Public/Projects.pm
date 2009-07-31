@@ -40,6 +40,8 @@ sub setup {
               tap_archive
               tap_stream
               bulk_test_file_action
+              test_file_history
+              test_file_source
               )
         ]
     );
