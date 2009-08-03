@@ -40,7 +40,7 @@
         </span>
         <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/report_details/[% report.id %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
-          [% report.added.strftime('%a %b %d %l:%M %p') %]
+          [% report.added.strftime('%a %b %d %l:%M %p') %] [% IF report.architecture %][% "- " _ report.architecture %][% END %][% IF report.platform %][% "- " _ report.platform %][% END %]
         </span>
         </a>
       </td>
