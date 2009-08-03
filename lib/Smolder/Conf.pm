@@ -44,6 +44,7 @@ BEGIN {
         ErrorsToScreen        => 0,
         ReportsPerPage        => 5,
         TestSourceRoot        => undef,
+        AutoRedirectToProject => 0,
     );
 }
 

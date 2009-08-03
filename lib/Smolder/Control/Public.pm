@@ -1,4 +1,5 @@
 package Smolder::Control::Public;
+use Smolder::Conf;
 use base 'Smolder::Control';
 use strict;
 use warnings;
@@ -39,7 +40,14 @@ Shows a welcome page using the F<Public/welcome.tmpl> template.
 
 sub welcome {
     my $self = shift;
-    return $self->tt_process({});
+    if (my $project_id = Smolder::Conf->get('AutoRedirectToProject')) {
+        $self->header_type('redirect');
+        $self->header_add( -uri => "/app/public_projects/smoke_reports/$project_id" );
+        return "redirecting";
+    }
+    else {
+        return $self->tt_process({});
+    }
 }
 
 =head2 nav
