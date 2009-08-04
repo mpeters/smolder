@@ -53,7 +53,8 @@ sub configure_hook {
 }
 
 sub post_configure_hook {
-    my ( params ) = @_;
+    my $self = shift;
+    my $prop = $self->{server};
 
     # This all runs in the child, after forking
     #
@@ -65,9 +66,6 @@ sub post_configure_hook {
         warn "Could not open logfile $log_file for appending: $!";
         exit(1);
     }
-
-
 }
-
 
 1;
