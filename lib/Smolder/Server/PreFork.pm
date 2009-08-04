@@ -1,5 +1,5 @@
 package Smolder::Server::PreFork;
-use Smolder::Conf qw(PidFile LogFile);
+use Smolder::Conf qw(PidFile LogFile DataDir);
 use strict;
 use warnings;
 use base qw(Net::Server::PreFork);
