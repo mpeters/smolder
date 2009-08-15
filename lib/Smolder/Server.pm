@@ -13,7 +13,6 @@ sub new {
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
     $server->port(Port);
-    $server->pid_file(PidFile);
 
     $server->entry_points(
         {
@@ -71,6 +70,17 @@ sub start {
     require Smolder::Control::Public::Projects;
     require Smolder::Redirect;
 
+    my @net_server_args = (pid_file => PidFile);
+    if( $self->{__smolder_daemon} ) {
+        return $self->background(@net_server_args);
+    } else {
+        return $self->run(@net_server_args);
+    }
+}
+
+sub run {
+    my $self = shift;
+
     # send warnings to our logs
     my $log_file = LogFile || devnull();
     my $ok = open(STDERR, '>>', $log_file);
@@ -79,11 +89,7 @@ sub start {
         exit(1);
     }
 
-    if( $self->{__smolder_daemon} ) {
-        return $self->background();
-    } else {
-        return $self->run();
-    }
+    $self->SUPER::run(@_);
 }
 
 1;
