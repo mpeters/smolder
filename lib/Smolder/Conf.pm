@@ -43,7 +43,6 @@ BEGIN {
         TruncateTestFilenames => 0,
         ErrorsToScreen        => 0,
         ReportsPerPage        => 5,
-        TestSourceRoot        => undef,
         AutoRedirectToProject => 0,
     );
 }
