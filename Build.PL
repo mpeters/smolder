@@ -72,7 +72,6 @@ my $builder = Smolder::Build->new(
         'File::Find'                => 0,
         'File::Copy'                => 0,
         'Module::Build'             => 0,
-        'Module::Build::TAPArchive' => 0,
     },
     add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
     meta_add => {
