@@ -70,7 +70,7 @@ GetOptions(
     'share_dir=s' => \$share_dir,
     'log_file=s'  => \$log_file,
     'help'        => \$help,
-);
+) or exit 1;
 pod2usage(1) if $help;
 
 my %conf_values;
