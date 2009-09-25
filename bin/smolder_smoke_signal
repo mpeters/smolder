@@ -150,8 +150,12 @@ _missing_required('file')     unless $file;
 
 # make sure our file is there and is of the right type
 if (-r $file) {
-    unless ($file =~ /\.tar(\.gz)?$/) {
-        warn "File '$file' is not of the correct type!\n";
+    unless ($file =~ /\.tar
+                     |\.tar\.gz
+                     |\.tgz
+        $/x) {
+        warn "File '$file' does have a recognized extension (.tar, .tgz, or .tar.gz)!\n".
+             "Files should be generated should be TAP archives: prove --archive out.tgz ...\n";
         exit(1);
     }
 } else {
