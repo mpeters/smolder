@@ -363,10 +363,20 @@ th, td {
     vertical-align: top;
 }
 
+th {
+    padding: 0 5px 0 5px;
+    margin: 0;
+}
+
+th.small {
+    text-align: center !important;
+}
+
 thead th { 
-    background-color: #E0E0E0;
+    background-color: #c47147;
+    background-image: url(/images/h3_bg.gif);
     background-repeat: repeat-x;
-    color: #000000;
+    color: #ffffff;
     font-weight: bold;
     text-align: center;
 }
@@ -389,10 +399,6 @@ tr.header2, td.header2 {
 
 .pass {
     color: green;
-}
-
-.fail {
-    color: red;
 }
 
 .todo {
@@ -698,24 +704,32 @@ img.graph {
 	font-size: 0.85em;
 }
 
+.tap .pass_fail_result {
+    margin: 0px; 
+    padding: 0px;
+}
+
+.tap .pass_fail_result.fail {
+    color: #fff;
+}
+
 .tap table.subtests td {
     vertical-align: middle;
     text-align: center;
 }
 
-.tap a.testfile_details_trigger {
-    font-weight: bold;
+.tap a.details_trigger {
     text-decoration: none;
-    color: #000;
-    display: block;
+    font-weight: bold;
+    color: #222;
 }
 
-.tap a.testfile_details_trigger:hover {
-    text-decoration: underline;
-}
-
-a.testfile_details_trigger.fail {
+.tap td.fail a.details_trigger {
     color: #fff;
+}
+
+.tap a.details_trigger:hover {
+    text-decoration: underline;
 }
 
 .tap a.testfile_label {
@@ -723,9 +737,6 @@ a.testfile_details_trigger.fail {
     font-weight: bold;
     text-decoration: none;
     color: #000;
-    border: 1px solid #555;
-    display: block;
-    height: 1.5em;
 }
 
 .tap a.testfile_label:hover {
@@ -739,16 +750,16 @@ a.testfile_details_trigger.fail {
 .tap .x { 
     color: black; 
     border: 1px solid #505050; 
+    text-align: center;
 }
 
-.tap .fail    { background-color: #C47147; color: #000; }
-.tap .ok      { background-color: #00ff00; }
-.tap .skip    { background-color: #ddffdd; }
-.tap .todo_ok { background-color: #ffdd20; color: #000; }
-.tap .todo    { background-color: #007f00; color: #000; }
-.tap .nottest { background-color: #7f7f7f; color: #000; }
-.tap span.fail { background-color: transparent; color: #cc0033 }
-
+.tap .fail, .tap a.fail    { background-color: #C47147; color: #fff !important; }
+.tap .ok, .tap a.ok      { background-color: #00ff00; color: #222 !important; }
+.tap .skip, .tap a.skip    { background-color: #ddffdd; color: #222 !important; }
+.tap .todo_ok, .tap a.todo_ok { background-color: #ffdd20; color: #222 !important; }
+.tap .todo, .tap a.todo    { background-color: #007f00; color: #222 !important; }
+.tap .nottest, .tap a.nottest { background-color: #7f7f7f; color: #222 !important; }
+.tap span.fail { background-color: transparent; color: #c47147 !important;}
 .tap .filename { color: #000; }
 
 ul.subtests 			{ margin: 0px 0px 20px 35px; padding: 0px; list-style-type: none; }

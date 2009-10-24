@@ -73,9 +73,9 @@
 <div class="controls">
 <b>View controls:</b>&nbsp;
   [%- IF report.failed -%]
-    <a href="#" class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &nbsp;&middot;&nbsp;
+    <a class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &nbsp;&middot;&nbsp;
   [%- END -%]
-  <a href="#" class="show_all">Show All Details</a>
+  <a class="show_all">Show All Details</a>
 </div>
 
 <form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
@@ -92,20 +92,18 @@
 <table summary="[% report.summary | html %]" class="boxed matrix">
   <thead>
     <tr>
-      <th></th>
-      <th>#</th>
+      <th class="small">&#x2713;</th>
+      <th class="small">#</th>
       <th>Test file</th>
-      <th>Results</th>
-      <th>Count</th>
-      <th>%</th>
+      <th class="small">%</th>
     </tr>
   </thead>
   [%- SET found_first_failure = 0 -%]
   [%- FOREACH test IN results -%]
   <tbody id="test_[% loop.index %]" class="results[% IF test.failed && !test.is_muted %] failed[% ELSE %] passed[% END %]" style="[% IF report.failed && (!test.failed || test.is_muted) %]display: none[% END %]">
-    <tr>
-      <td width=5%><input type="checkbox" name="testfiles" value=[% test.test_file %]></td>
-      <td width=5%>[% test.file_index %]</td>
+    <tr class="[% odd_even %]">
+      <td width="5%"><input type="checkbox" name="testfiles" value=[% test.test_file %]></td>
+      <td width="5%">[% test.file_index  + 1 %]</td>
       <td class="filename">
         <span style="float: right">
           <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% loop.index %]" />
@@ -119,21 +117,15 @@
         </span>
         </a>
       </td>
-      <td class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
-      </td>
-      <td class="x sum">
-       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
-         [% test.total - test.failed %]/[% test.total %]
-        </a>
-      </td>
-      <td class="x sum">
-       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
-         [% test.percent %]%
-        </a>
+      <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
+        <a 
+          href="[% url_prefix %][% app_prefix %]/[% IF email %]tap_stream/[% report.id %]/[% test.file_index %][% ELSE %]test_file_report_details/[% report.id %]/[% test.file_index %][% END %]" 
+            id="for_testfile_details_[% test.file_index %]"
+            class="details_trigger show_indicator_[% test.file_index %]">[% test.percent %]%</a>
       </td>
     </tr>
     <tr>
-      <td colspan="6">
+      <td colspan="4">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
           <a href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
@@ -144,14 +136,12 @@
   [%- END %]
   <tfoot>
     <tr class="first">
-      <td colspan="5">
-        [%- report.total | format_number %] test cases
-        - [%- report.test_files | format_number %] files
-      </td>
-      <td class="sum">[% report.total_percentage %]%</td>
+      <td colspan="2">&nbsp;</td>
+      <td>[%- report.test_files | format_number %] files - [%- report.total | format_number %] test cases</td>
+      <td>[% report.total_percentage %]%</td>
     </tr>
     <tr>
-      <td colspan="6" class="last">
+      <td colspan="4" class="last">
           [% report.pass      | format_number %] ok, 
           [% report.fail      | format_number %] failed, 
           [% report.todo      | format_number %] todo, 

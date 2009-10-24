@@ -892,7 +892,7 @@ var myrules = {
         }
     },
     // TAP Matrix triggers for more test file details
-    '.tap a.testfile_details_trigger' : function(el) {
+    '.tap a.details_trigger' : function(el) {
         // get the id of the target div
         var matches = el.id.match(/^for_(.*)$/);
         var target = matches[1];
@@ -938,7 +938,7 @@ var myrules = {
     '.tap a.toggle_all_tests' : function(el) {
     	el.onclick = function() {
             $$('a.toggle_all_tests span.hide', 'a.toggle_all_tests span.show').invoke('toggle');
-	    $$('tbody.results.passed').invoke('toggle');
+	        $$('tbody.results.passed').invoke('toggle');
         };
     },
     '.tap a.show_all' : function(el) {
