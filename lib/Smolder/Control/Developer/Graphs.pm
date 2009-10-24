@@ -159,7 +159,7 @@ sub image {
     # if we don't have any data, then just send the no_graph_data.png file
     if (scalar @$data == 0) {
         my $NO_DATA_FH;
-        my $file = catfile(Smolder::Conf->htdocs_dir, 'images', 'no_graph_data.png');
+        my $file = catfile(Smolder::Conf->get('HtdocsDir'), 'images', 'no_graph_data.png');
         open($NO_DATA_FH, $file)
           or die "Could not open '$file' for reading: $!";
         local $/ = undef;
