@@ -404,18 +404,25 @@ tr.header2, td.header2 {
 }
 
 .pass_fail_ratio, .pass_fail_ratio:visited {
-    width: 60px;
-    height: 25px;
+    width: 65px;
     border: 1px solid #555555;
     vertical-align: middle;
     text-align: center;
+    vertical-align: center;
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     border-radius: 5px;
     font-weight: bold;
     text-decoration: none;
-    padding: 8px 2px 8px 2px;
+    margin: 2px 2px 4px 2px;
+    padding: 13px 2px 13px 2px;
     color: #222;
+    display: block;
+}
+
+.pass_fail_ratio:hover {
+    color: #ffffff;
+    background-color: #c47147 !important;
 }
 
 div.popup_form {
