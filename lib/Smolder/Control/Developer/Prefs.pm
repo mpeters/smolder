@@ -2,7 +2,7 @@ package Smolder::Control::Developer::Prefs;
 use base 'Smolder::Control';
 use strict;
 use warnings;
-use Smolder::Constraints qw(enum_value length_between unsigned_int existing_field_value);
+use Smolder::Constraints qw(enum_value length_between unsigned_int existing_field_value bool);
 
 =head1 NAME
 
@@ -122,7 +122,8 @@ sub show {
 
     # if we have a preference use it to fill in the form
     if ($pref) {
-        my %fill_data = map { $_ => $pref->$_ } qw(id email_type email_freq email_limit);
+        my %fill_data =
+          map { $_ => $pref->$_ } qw(id email_type email_freq email_limit show_passing);
         return HTML::FillInForm->new()->fill(
             scalarref => $html,
             fdat      => \%fill_data,
@@ -144,7 +145,7 @@ sub get_pref_details {
     my $pref = Smolder::DB::Preference->retrieve($self->query->param('id'));
     my %data;
     if ($pref) {
-        %data = map { $_ => $pref->$_ } qw(email_type email_freq email_limit);
+        %data = map { $_ => $pref->$_ } qw(email_type email_freq email_limit show_passing);
     }
 
     return $self->add_json_header(%data);
@@ -163,12 +164,13 @@ sub update_pref {
 
     # validate the data
     my $form = {
-        required           => [qw(id email_type email_freq email_limit)],
+        required           => [qw(id email_type email_freq email_limit show_passing)],
         constraint_methods => {
-            id          => existing_field_value('preference', 'id'),
-            email_type  => enum_value('preference',           'email_type'),
-            email_freq  => enum_value('preference',           'email_freq'),
-            email_limit => unsigned_int(),
+            id           => existing_field_value('preference', 'id'),
+            email_type   => enum_value('preference',           'email_type'),
+            email_freq   => enum_value('preference',           'email_freq'),
+            email_limit  => unsigned_int(),
+            show_passing => bool(),
         }
     };
 

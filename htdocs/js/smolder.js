@@ -935,10 +935,45 @@ var myrules = {
     '.tap div.diag': function(el) {
         Smolder.setup_tooltip(el, el);
     },
-    '.tap a.toggle_all_tests' : function(el) {
-    	el.onclick = function() {
-            $$('a.toggle_all_tests span.hide', 'a.toggle_all_tests span.show').invoke('toggle');
-	        $$('tbody.results.passed').invoke('toggle');
+    '#toggle_tests_trigger' : function(el) {
+    	el.onchange = function() {
+            var count = 0;
+            $$('.tap tbody').each(function(row) {
+                if( el.checked ) {
+                    if( row.hasClassName('passed') ) {
+                        row.hide();
+                    } else {
+                        if( count % 2 == 1 ) {
+                            if(row.hasClassName('even')) {
+                                row.removeClassName('even');
+                                row.addClassName('odd');
+                            }
+                        } else {
+                            if(row.hasClassName('odd')) {
+                                row.removeClassName('odd');
+                                row.addClassName('even');
+                            }
+                        }
+                        count++;
+                    }
+                } else {
+                    if( row.hasClassName('passed') ) {
+                        row.show();
+                    }
+                    if( count % 2 == 1 ) {
+                        if(row.hasClassName('even')) {
+                            row.removeClassName('even');
+                            row.addClassName('odd');
+                        }
+                    } else {
+                        if(row.hasClassName('odd')) {
+                            row.removeClassName('odd');
+                            row.addClassName('even');
+                        }
+                    }
+                    count++;
+                }
+            });
         };
     },
     '.tap a.show_all' : function(el) {

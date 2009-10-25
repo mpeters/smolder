@@ -762,6 +762,8 @@ img.graph {
 .tap span.fail { background-color: transparent; color: #c47147 !important;}
 .tap .filename { color: #000; }
 
+.tap table.matrix { margin: 0; padding: 0}
+
 ul.subtests 			{ margin: 0px 0px 20px 35px; padding: 0px; list-style-type: none; }
 ul.subtests li 			{ margin: 3px; }
 ul.subtests li pre		{ margin: 0px; }

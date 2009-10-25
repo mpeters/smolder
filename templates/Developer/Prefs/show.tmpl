@@ -51,7 +51,14 @@
   <td><label class="required[% IF c.dfv_msgs.err_email_limit %] warn[% END %]">Per-day Email Limit</td>
   <td>
     <input name="email_limit" value="[% pref.email_limit %]" size="5"/>
-    <em>0</em> means there is no limit
+    <em>0</em> means no limit
+  </td>
+</tr>
+<tr>
+  <td><label class="required[% IF c.dfv_msgs.err_show_passing %] warn[% END %]">Show Passing Results</td>
+  <td>
+    <input type="radio" name="show_passing" value="1" /> Yes
+    <input type="radio" name="show_passing" value="0" /> No
   </td>
 </tr>
 <tr>

@@ -71,11 +71,10 @@
 
 [%- UNLESS email -%]
 <div class="controls">
-<b>View controls:</b>&nbsp;
-  [%- IF report.failed -%]
-    <a class="toggle_all_tests"><span class="show">Show All Tests</span><span class="hide" style="display: none">Show Only Failures</span></a> &nbsp;&middot;&nbsp;
-  [%- END -%]
-  <a class="show_all">Show All Details</a>
+  <form>
+    Only show failures
+    <input type="checkbox" id="toggle_tests_trigger" name="toggle_tests" />
+  </form>
 </div>
 
 <form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
@@ -100,8 +99,8 @@
   </thead>
   [%- SET found_first_failure = 0 -%]
   [%- FOREACH test IN results -%]
-  <tbody id="test_[% loop.index %]" class="results[% IF test.failed && !test.is_muted %] failed[% ELSE %] passed[% END %]" style="[% IF report.failed && (!test.failed || test.is_muted) %]display: none[% END %]">
-    <tr class="[% odd_even %]">
+  <tbody id="test_[% loop.index %]" class="results [% odd_even %] [% UNLESS test.failed %]passed[% END %]">
+    <tr>
       <td width="5%"><input type="checkbox" name="testfiles" value=[% test.test_file %]></td>
       <td width="5%">[% test.file_index  + 1 %]</td>
       <td class="filename">

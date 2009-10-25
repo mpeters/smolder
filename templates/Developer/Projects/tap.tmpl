@@ -20,3 +20,51 @@
 <div class="tap">
 [% tap %]
 </div>
+
+<script type="text/javascript">
+var checkbox = $('toggle_tests_trigger');
+var toggle_rows = function() {
+    var count = 0;
+    $$('.tap tbody').each(function(row) {
+        if( checkbox.checked ) {
+            if( row.hasClassName('passed') ) {
+                row.hide();
+            } else {
+                if( count % 2 == 1 ) {
+                    if(row.hasClassName('even')) {
+                        row.removeClassName('even');
+                        row.addClassName('odd');
+                    }
+                } else {
+                    if(row.hasClassName('odd')) {
+                        row.removeClassName('odd');
+                        row.addClassName('even');
+                    }
+                }
+                count++;
+            }
+        } else {
+            if( row.hasClassName('passed') ) {
+                row.show();
+            }
+            if( count % 2 == 1 ) {
+                if(row.hasClassName('even')) {
+                    row.removeClassName('even');
+                    row.addClassName('odd');
+                }
+            } else {
+                if(row.hasClassName('odd')) {
+                    row.removeClassName('odd');
+                    row.addClassName('even');
+                }
+            }
+            count++;
+        }
+    });
+}
+[% IF c.developer && !c.developer.project_pref(project).show_passing %]
+checkbox.checked = true;
+checkbox.onchange = toggle_rows;
+toggle_rows();
+[% END %]
+</script>
