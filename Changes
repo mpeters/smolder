@@ -4,6 +4,7 @@ Revision history for Smolder
     + Adding bin/smolderctl - J. Swartz
     + Adding configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
     + smolder now exits if any options are invalid, instead of continuing on. - A. Lester
+    + Documentation improvements - M. Stosberg
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
