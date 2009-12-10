@@ -31,7 +31,7 @@ The basic idea is that a single file of TAP output is equivalent to
 a single test script or module. These files are collected together in
 a tar (optionally compressed with gzip) or a zip archive. This archive
 file can have an arbitrary number of these TAP files (the file extension
-doesn't matter, but you can user F<.tap> if you need to use something)
+doesn't matter, but you can use F<.tap> if you need to use something)
 in an arbitrary number of directories (nice for grouping and organizing
 your tests).
 
