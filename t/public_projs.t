@@ -74,7 +74,7 @@ use_ok('Smolder::Control::Public::Projects');
     ok($mech->success);
     $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
-    $mech->content_contains('class="required warn">Smoke Report File');
+    $mech->content_contains('class="required warn">Report File');
 
     # invalid form
     ok($mech->form_name('add_report'));
@@ -88,7 +88,7 @@ use_ok('Smolder::Control::Public::Projects');
     ok($mech->success);
     $mech->content_contains('missing required fields');
     $mech->content_contains('You must upload a smoke test report');
-    $mech->content_contains('class="required warn">Smoke Report File');
+    $mech->content_contains('class="required warn">Report File');
     $mech->content_contains('class="warn">Architecture');
     $mech->content_contains('class="warn">Platform');
     $mech->content_contains('class="warn">Comments');
