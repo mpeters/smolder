@@ -43,12 +43,10 @@ sub start {
 		mkpath(DataDir) or die sprintf("Could not create %s: $!", DataDir);
 	}
 
+    # do we have a database? If not then create one
     unless (-e Smolder::DB->db_file) {
-
-        # do we have a database? If not then create one
         Smolder::DB->create_database;
     } else {
-
         # upgrade if we need to
         require Smolder::Upgrade;
         Smolder::Upgrade->new->upgrade();
