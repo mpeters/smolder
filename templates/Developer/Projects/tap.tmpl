@@ -67,4 +67,39 @@ checkbox.checked = true;
 checkbox.onchange = toggle_rows;
 toggle_rows();
 [% END %]
+
+var num_checked = 0;
+toggle_testfile_menu = function(checkbox) {
+    var row = $(checkbox).up('tr');
+    if(checkbox.checked) {
+        num_checked++;
+        row.addClassName('checked');
+    } else {
+        num_checked--;
+        row.removeClassName('checked');
+    }
+    if( num_checked > 0 ) {
+        $$('#controls input.button.disabled').each(function(button) {
+            button.removeClassName('disabled');
+            button.disabled = false;
+        });
+    } else {
+        $$('#controls input.button').each(function(button) {
+            button.addClassName('disabled');
+            button.disabled = true;
+        });
+    }
+}
+
+mute_testfiles = function(days) {
+    var form_args = Form.serialize('testfile_actions', true);
+    Smolder.Ajax.update({
+        url       : '[% base_url %]_projects/mute_testfiles/[% report.id %]',
+        indicator : 'testfile_action_indicator',
+        params    : {
+            days      : days,
+            testfiles : form_args['testfiles']
+        },
+    });
+}
 </script>

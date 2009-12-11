@@ -31,11 +31,8 @@ htdocs/images/tutorial/admin/project_admins.jpg
 htdocs/images/tutorial/admin/projects_submenu.jpg
 htdocs/images/up.gif
 htdocs/images/warning.png
-htdocs/js/behaviour.js
-htdocs/js/calendar.js
-htdocs/js/notify.js
-htdocs/js/protoaculous.1.8.1.min.js
 htdocs/js/smolder.js
+htdocs/js/outside_libraries.js
 htdocs/style/email.css
 htdocs/style/style.css
 htdocs/style/tapmatrix.css

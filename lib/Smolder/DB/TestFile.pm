@@ -11,7 +11,7 @@ __PACKAGE__->has_a(
     deflate => sub { shift->epoch },
 );
 
-__PACKAGE__->has_many('comments' => 'Smolder::DB::TestFileComment', { order_by => 'added DESC' });
+__PACKAGE__->has_many('comments' => 'Smolder::DB::TestFileComment', { order_by => 'added ASC' });
 
 =head1 NAME
 
