@@ -1,0 +1,31 @@
+Easy
+========
++ Add screenshots to POD (Smolder.pm)
++ Move inline CSS to style sheets
++ Allow anonymous uploads via smolder_smoke_signal
++ Add good documentation for configuration
++ Change Build.PL so that only Smolder, Smolder::Manual, smolder, smolderctl and smolder_smoke_signal 
+  are viewable in search.cpan.org
++ RT #52338 (log file getting truncated)
++ RT #49993 (default port)
+
+
+Medium
+========
++ Get /static urls outputting better HTTP headers to improve browser caching
++ Handle SKIP ALL better (showing more information rather than just "No tests run"
++ Precompile all templates at startup (speeds it up and increases shared memory)
++ RT #49989 (JS error)
++ Change URLs so public and private projects are accessed over the same URL
+
+Hard
+========
++ Design Plugin Architecture
+  + adding and overriding templates and htdocs
+  + adding sql tables
+  + adding code
++ Create a full search system of smoke reports, not just a listing
+  by most recent. This would allow for searching based on project,
+  status, category, etc
++ Import/Export of projects so you can move them around different Smolder installs
+
