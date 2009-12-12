@@ -1,8 +1,8 @@
 Revision history for Smolder
 
 1.50
-    + Adding bin/smolderctl - J. Swartz
-    + Adding configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
+    + Added bin/smolderctl - J. Swartz
+    + Added configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
     + smolder now exits if any options are invalid, instead of continuing on. - A. Lester
     + Documentation improvements - M. Stosberg
     + Now storing results per-stream - J. Swartz
@@ -12,6 +12,7 @@ Revision history for Smolder
     + Fixed RT #49107 by trying to pick a better default hostname - M. Peters
     + Fixed RT #49993 by making smolder_smoke_signal default to 8080 just like Smolder does - M. Peters
     + Fixed RT #49997 by making sure we don't send duplicate emails if multiple accounts use the same address - M. Peters
+    + Added LogLevel configuration directive - M. Peters
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
