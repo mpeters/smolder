@@ -36,7 +36,7 @@
 
 [% IF public_projects.size %]
     <li[% UNLESS username %] class="first"[% END %]>
-      <a href="/app/projects"[% IF public_projects.size %] class="menu"[% END %]>public projects</a>
+      <a href="/app/projects/public"[% IF public_projects.size %] class="menu"[% END %]>public projects</a>
     [% IF public_projects.size < 20 %]
       <ul>
       [% FOREACH proj = public_projects %]

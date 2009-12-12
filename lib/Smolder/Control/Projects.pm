@@ -41,6 +41,7 @@ sub setup {
         [
             qw(
               show_all
+              public
               add_report
               process_add_report
               smoke_reports
@@ -448,35 +449,33 @@ each one.
 
 sub show_all {
     my $self     = shift;
-warn "HERE 1\n";
     my @projects = $self->developer->projects;
-warn "HERE 2\n";
     my $public   = $self->public_projects;
-warn "HERE 3\n";
     
     # only keep the stuff in public that's not in our project list
-warn "HERE 4\n";
     my @non_overlap_public;
-warn "HERE 5\n";
     foreach my $pub_proj (@$public) {
-warn "HERE 6\n";
         my $found = 0;
-warn "HERE 7\n";
         foreach my $proj (@projects) {
-warn "HERE 8\n";
             if( $proj->id == $pub_proj->id ) {
-warn "HERE 9\n";
                 $found = 1;
-warn "HERE 10\n";
                 next;
             }
         }
         push(@non_overlap_public, $pub_proj) if !$found;
-warn "HERE 11\n";
     }
-warn "HERE 12\n";
     return $self->tt_process({my_projects => \@projects, public_projects => \@non_overlap_public});
-warn "HERE 13\n";
+}
+
+=head2 public
+
+Show all of the public projects with and a menu for each one.
+
+=cut
+
+sub public {
+    my $self   = shift;
+    return $self->tt_process({public_projects => $self->public_projects});
 }
 
 =head2 admin_settings
