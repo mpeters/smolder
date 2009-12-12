@@ -14,6 +14,7 @@ Revision history for Smolder
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
     + Removed Module::Build::TAPArchive as a build dependency since
       it's a developer tool, not a build tool - M. Peters
+    + Compile templates at startup time. - A. Schrab
 
 1.39
     + Fixing Updated date in project Atom feeds - Hirose, Masaaki

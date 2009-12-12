@@ -148,16 +148,16 @@
   [%- END %]
   <tfoot>
     <tr class="[% odd_even %]">
-      <td colspan="[% IF email %]2[% ELSE %]3[% END %]">[%- report.test_files | format_number %] files - [%- report.total | format_number %] test cases</td>
+      <td colspan="[% IF email %]2[% ELSE %]3[% END %]">[%- report.test_files||0 | format_number %] files - [%- report.total||0 | format_number %] test cases</td>
       <td class="x [% IF report.failed %]fail[% ELSE %]pass[% END %]">[% report.total_percentage %]%</td>
     </tr>
     <tr class="[% odd_even %]">
       <td colspan="[% IF email %]3[% ELSE %]4[% END %]">
-          [% report.pass      | format_number %] ok, 
-          [% report.fail      | format_number %] failed, 
-          [% report.todo      | format_number %] todo, 
-          [% report.skip      | format_number %] skipped and 
-          [% report.todo_pass | format_number %] unexpectedly succeeded
+          [% report.pass||0      | format_number %] ok, 
+          [% report.fail||0      | format_number %] failed, 
+          [% report.todo||0      | format_number %] todo, 
+          [% report.skip||0      | format_number %] skipped and 
+          [% report.todo_pass||0 | format_number %] unexpectedly succeeded
       </td>
     </tr>
   </tfoot>
