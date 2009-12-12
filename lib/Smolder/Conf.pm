@@ -34,7 +34,7 @@ BEGIN {
         FromAddress           => "smolder\@$default_hostname",
         SMTPHost              => $default_hostname,
         LogFile               => '',
-        PidFile               => catdir($share_dir, 'data', 'smolder.pid'),
+        PidFile               => undef,
         TemplateDir           => catdir($share_dir, 'templates'),
         DataDir               => catdir(File::HomeDir->my_data, '.smolder'),
         HtdocsDir             => catdir($share_dir, 'htdocs'),
@@ -118,8 +118,9 @@ Default: none
 =head2 PidFile
 
 File in which to write the PID of the Smolder process.
+A PidFile is required for smolderctl to work.
 
-Default: data/smolder.pid in the share directory
+Default: none
 
 =head2 TemplateDir
 
