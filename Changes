@@ -1,8 +1,8 @@
 Revision history for Smolder
 
-1.41
-    + Adding bin/smolderctl - J. Swartz
-    + Adding configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
+1.50
+    + Added bin/smolderctl - J. Swartz
+    + Added configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
     + smolder now exits if any options are invalid, instead of continuing on. - A. Lester
     + Documentation improvements - M. Stosberg
     + Now storing results per-stream - J. Swartz
@@ -14,6 +14,7 @@ Revision history for Smolder
     + Fixed RT #49997 by making sure we don't send duplicate emails if multiple accounts use the same address - M. Peters
     + Compile templates at startup time. - A. Schrab
     + Don't write a PidFile by default.  The previous default location is likely to not be writeable. - A. Schrab
+    + Added LogLevel configuration directive - M. Peters
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters

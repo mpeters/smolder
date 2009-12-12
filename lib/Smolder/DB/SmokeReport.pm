@@ -214,7 +214,7 @@ sub _slurp_file {
     my ($self, $file_name) = @_;
     my $text;
     local $/;
-    open(my $IN, $file_name)
+    open(my $IN, '<', $file_name)
       or croak "Could not open file '$file_name' for reading! $!";
 
     $text = <$IN>;

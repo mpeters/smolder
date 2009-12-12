@@ -13,7 +13,7 @@ use CGI::Cookie;
 # BEGIN { $ENV{CGI_APP_DEBUG} = 1 ; } use CGI::Application::Plugin::DebugScreen;
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(ErrorsToScreen HostName LogFile TemplateDir);
+use Smolder::Conf qw(ErrorsToScreen HostName LogFile LogLevel TemplateDir);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
@@ -50,7 +50,7 @@ __PACKAGE__->add_callback(
                         module    => 'Log::Dispatch::File',
                         name      => 'smolder_log',
                         mode      => 'append',
-                        min_level => 'debug',
+                        min_level => LogLevel,
                         filename  => LogFile,
                     }
                 ],

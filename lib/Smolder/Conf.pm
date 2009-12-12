@@ -34,6 +34,7 @@ BEGIN {
         FromAddress           => "smolder\@$default_hostname",
         SMTPHost              => $default_hostname,
         LogFile               => '',
+        LogLevel              => 'warning',
         PidFile               => undef,
         TemplateDir           => catdir($share_dir, 'templates'),
         DataDir               => catdir(File::HomeDir->my_data, '.smolder'),
@@ -114,6 +115,12 @@ Default: localhost.localdomain
 Log file to write to.
 
 Default: none
+
+=head2 LogLevel
+
+The level at which things will start to be logged. Only used if LogFile is set.
+
+Default: warning
 
 =head2 PidFile
 
