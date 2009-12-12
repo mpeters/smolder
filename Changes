@@ -8,6 +8,7 @@ Revision history for Smolder
     + Now storing results per-stream - J. Swartz
     + Individual test files can be muted so they don't generate emails for a specified period of time - J. Swartz, M. Peters
     + Comments can be added to test files - J. Swartz, M. Peters
+    + Allow anonymous reports to be uploaded by bin/smolder_smoke_signal - M. Peters
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters

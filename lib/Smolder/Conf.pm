@@ -84,7 +84,6 @@ can be overridden when needed.
 
 The following configuration options are available:
 
-
 =head2 Port
 
 Port on which Smolder should listen.

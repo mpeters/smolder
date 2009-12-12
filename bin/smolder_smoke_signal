@@ -108,7 +108,7 @@ Print verbose output of our actions to STDOUT.
 =cut
 
 # default options
-my ($server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $verbose, $rev,
+my ($server, $project, $user, $pw, $file, $arch, $platform, $tags, $comments, $v, $rev,
     $port);
 my ($help, $man);
 
@@ -124,7 +124,7 @@ GetOptions(
     'tags=s'         => \$tags,
     'comments=s'     => \$comments,
     'revision=s'     => \$rev,
-    'verbose!'       => \$verbose,
+    'verbose!'       => \$v,
     'help'           => \$help,
     'man'            => \$man,
 ) || pod2usage();
@@ -144,9 +144,17 @@ if ($help) {
 # make sure all the required fields are there
 _missing_required('server')   unless $server;
 _missing_required('project')  unless $project;
-_missing_required('username') unless $user;
-_missing_required('password') unless $pw;
 _missing_required('file')     unless $file;
+
+if($user && !$pw ) {
+    warn "You must have a --password if you provide a --username!\n";
+    pod2usage();
+}
+
+if($pw && !$user ) {
+    warn "You must have a --username if you provide a --password!\n";
+    pod2usage();
+}
 
 # make sure our file is there and is of the right type
 if (-r $file) {
@@ -164,9 +172,10 @@ if (-r $file) {
 }
 
 # try and reach the smolder server
-print "Trying to reach Smolder server at $server.\n" if ($verbose);
+print "Trying to reach Smolder server at $server.\n" if $v;
 $port ||= 80;
 my $mech     = WWW::Mechanize->new();
+my $content;
 my $base_url = "http://$server:$port/app";
 eval { $mech->get($base_url) };
 unless ($mech->status eq '200') {
@@ -175,41 +184,56 @@ unless ($mech->status eq '200') {
 }
 
 # now login
-print "Trying to login with username '$user'.\n" if ($verbose);
-$mech->get($base_url . '/public_auth/login');
-my $form = $mech->form_name('login');
-if ($mech->status ne '200' || !$form) {
-    warn "Could not reach Smolder login form. Are you sure $server:$port is a Smolder server?\n";
-    exit(1);
-}
-$mech->set_fields(
-    username => $user,
-    password => $pw,
-);
-$mech->submit();
-my $content = $mech->content;
-if ($mech->status ne '200' || $content !~ /Welcome \Q$user\E/) {
-    warn "Could not login with username '$user' and password '$pw'!\n";
-    exit(1);
+if( $user && $pw ) {
+    print "Trying to login with username '$user'.\n" if $v;
+    $mech->get($base_url . '/public_auth/login');
+    my $form = $mech->form_name('login');
+    if ($mech->status ne '200' || !$form) {
+        warn "Could not reach Smolder login form. Are you sure $server:$port is a Smolder server?\n";
+        exit(1);
+    }
+    $mech->set_fields(
+        username => $user,
+        password => $pw,
+    );
+    $mech->submit();
+    $content = $mech->content;
+    if ($mech->status ne '200' || $content !~ /Welcome \Q$user\E/) {
+        warn "Could not login with username '$user' and password '$pw'!\n";
+        exit(1);
+    }
 }
 
 # now go to this project's page
-print "Retrieving project listing for user '$user'.\n" if ($verbose);
-$mech->get($base_url . '/projects');
+if ($user) {
+    print "Retrieving project listing for user '$user'.\n" if $v;
+    $mech->get($base_url . '/projects');
+} else {
+    print "Retrieving public project listings.\n" if $v;
+    $mech->get($base_url . '/projects/public');
+}
 $content = $mech->content;
 $content =~ />\Q$project\E<!--ID:(\d+)-->/;
 my $project_id = $1;
 if ($mech->status ne '200' || !$project_id) {
-    warn "Could not get your project listing, or you are not a member of the '$project' project!\n";
+    if( $user ) {
+        warn "Could not get project listing, or you do not have access to the '$project' project!\n";
+    } else {
+        warn "Project '$project' is not a public project! Please use a --username and --password!\n";
+    }
     exit(1);
 }
 
 # now go to the add-smoke-report page for this project
-print "Adding smoke report to project '$project'.\n" if ($verbose);
+print "Adding smoke report to project '$project'.\n" if $v;
 $mech->get($base_url . "/projects/add_report/$project_id");
 $content = $mech->content;
 if ($mech->status ne '200' || $content !~ /New Smoke Report/) {
-    warn "Could not reach the Add Smoke Report form!\n";
+    if( $content =~ /not allow anonymous/i ) {
+        warn "Project '$project' does not allow anonymous Smoke Reports!\n";
+    } else {
+        warn "Could not reach the Add Smoke Report form!\n";
+    }
     exit(1);
 }
 $mech->form_name('add_report');
