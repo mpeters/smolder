@@ -2,14 +2,10 @@ Easy
 ========
 1) Add screenshots to POD (Smolder.pm)
 2) Move inline CSS to style sheets
-3) Allow anonymous uploads via smolder_smoke_signal
 4) Add good documentation for configuration
 5) Change Build.PL so that only Smolder, Smolder::Manual, smolder, smolderctl and smolder_smoke_signal 
   are viewable in search.cpan.org
-6) RT #52338 (log file getting truncated)
-7) RT #49993 (default port)
 16) Add "LogLevel" smolder.conf directive
-
 
 Medium
 ========
