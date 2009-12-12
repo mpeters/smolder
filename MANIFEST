@@ -4,6 +4,7 @@ bin/smolder_smoke_signal
 bin/smolderctl
 Build.PL
 Changes
+data/smolder.pid
 hackathon_todo.txt
 htdocs/images/arrow-desc.gif
 htdocs/images/boxed-bg-bottom.png
@@ -87,7 +88,7 @@ lib/Smolder/Upgrade/V1_21.pm
 lib/Smolder/Upgrade/V1_24.pm
 lib/Smolder/Upgrade/V1_30.pm
 lib/Smolder/Upgrade/V1_37.pm
-lib/Smolder/Upgrade/V1_41.pm
+lib/Smolder/Upgrade/V1_50.pm
 lib/Smolder/Util.pm
 LICENSE
 MANIFEST			This list of files
@@ -107,7 +108,7 @@ sql/upgrade/V1_1.sql
 sql/upgrade/V1_21.sql
 sql/upgrade/V1_24.sql
 sql/upgrade/V1_37.sql
-sql/upgrade/V1_41.sql
+sql/upgrade/V1_50.sql
 t/admin.t
 t/admin_devs.t
 t/admin_projs.t
@@ -166,6 +167,7 @@ templates/Projects/admin_settings.tmpl
 templates/Projects/admin_settings_form.tmpl
 templates/Projects/admin_settings_tags.tmpl
 templates/Projects/details.tmpl
+templates/Projects/public.tmpl
 templates/Projects/show_all.tmpl
 templates/Projects/smoke_report.tmpl
 templates/Projects/smoke_report_details.tmpl
