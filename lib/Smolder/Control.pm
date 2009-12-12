@@ -375,22 +375,17 @@ my $TT_CONFIG = {
 
         # the directory is based on the object's package name
         my $mod = ref $self;
-warn "\n\n\nMOD: $mod\n";
         $mod =~ s/Smolder::Control:://;
-warn "MOD: $mod\n";
         my $dir = catdir(split(/::/, $mod));
-warn "DIR: $dir\n";
 
         # the filename is the method name of the caller
         (caller(2))[3] =~ /([^:]+)$/;
         my $name = $1;
-warn "NAME: $name\n";
         if ($name eq 'tt_process') {
 
             # we were called from tt_process, so go back once more on the caller stack
             (caller(3))[3] =~ /([^:]+)$/;
             $name = $1;
-warn "NAME: $name\n";
         }
         return catfile($dir, $name . '.tmpl');
     },
