@@ -15,7 +15,6 @@ Medium
 ========
 8) Get /static urls outputting better HTTP headers to improve browser caching
 9) Handle SKIP ALL better (showing more information rather than just "No tests run"
-10) Precompile all templates at startup (speeds it up and increases shared memory)
 
 Hard
 ========

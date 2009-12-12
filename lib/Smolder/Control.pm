@@ -365,6 +365,7 @@ my $TT_CONFIG = {
         COMPILE_EXT  => '.ttc',
         WRAPPER      => 'wrapper.tmpl',
         RECURSION    => 1,
+        ABSOLUTE     => 1,
         FILTERS      => {
             pass_fail_color => \&Smolder::Util::pass_fail_color,
             format_time     => \&Smolder::Util::format_time,
@@ -395,7 +396,7 @@ warn "NAME: $name\n";
         return catfile($dir, $name . '.tmpl');
     },
 
-    #TEMPLATE_PRECOMPILE_DIR => catdir( tmpdir(), 'templates'),
+    TEMPLATE_PRECOMPILE_DIR => TemplateDir,
 };
 __PACKAGE__->tt_config($TT_CONFIG);
 
