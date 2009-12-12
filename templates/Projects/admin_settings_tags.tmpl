@@ -1,0 +1,57 @@
+<div class="boxed tag_cloud" id="tag_cloud_container">
+[% IF project.tags.size %]
+  [% tag_cloud %]
+[% ELSE %]
+  <em>No tags exist for smoke reports in this project.</em>
+[% END %]
+</div>
+
+<script type="text/javascript">
+delete_tag = function(e) {
+    var el = e.element();
+    el = $(el);
+    var tag = el.innerHTML;
+
+    // let the forms know which tag we're talking about
+    document.delete_tag_form.elements['tag'].value = tag;
+    document.replace_tag_form.elements['tag'].value = tag;
+
+    // move the form so it's right below the tag we clicked on
+    var dimensions = Element.getDimensions(el);
+    Element.clonePosition($('delete_tag_options'), el,
+        { 
+            setLeft   : true, 
+            setTop    : true, 
+            setWidth  : false, 
+            setHeight : false, 
+            offsetTop : dimensions.height + 10 
+        }
+    );
+    
+    Smolder.PopupForm.toggle('delete_tag_options');
+}
+
+$('tag_cloud_container').select('a').each(function(el) {
+    el.observe('click', delete_tag);
+});
+</script>
+
+<div id="delete_tag_options" style="display:none; position: absolute; padding: 5px" class="popup_form">
+<div>
+Would you like to
+<form name="delete_tag_form" method="post" action="/app/projects/delete_tag/[% project.id %]" class="ajaxable">
+<input type="hidden" name="tag" value="">
+<input type="submit" value="Completely Remove This Tag">
+</form>
+
+or
+
+<form name="replace_tag_form" method="post" action="/app/projects/delete_tag/[% project.id %]" class="ajaxable">
+<input type="hidden" name="tag" value="">
+Replace This Tag with
+<input type="text" name="replacement" value="">
+<input type="submit" value="Replace">
+</form>
+
+</div>
+</div>

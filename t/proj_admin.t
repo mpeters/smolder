@@ -26,10 +26,10 @@ if (is_smolder_running) {
 }
 
 my $mech     = Smolder::Mech->new();
-my $url      = base_url() . '/developer_projects';
+my $url      = base_url() . '/projects';
 my $pw       = 's3cr3t';
 my $dev      = create_developer(password => $pw);
-my $proj1_id = create_project()->id();
+my $proj1_id = create_project(public => 0)->id();
 
 # add this $dev to $proj1
 my $proj1_dev = Smolder::DB::ProjectDeveloper->create(
@@ -48,14 +48,12 @@ END {
 }
 
 # 1
-use_ok('Smolder::Control::Developer::Projects');
+use_ok('Smolder::Control::Projects');
 
 # 2..6
 # login as a developer
-$mech->get($url);
-
-#is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
-$mech->content_contains("You shouldn't be here");
+$mech->get("$url/details/$proj1_id");
+$mech->content_contains("Unauthorized");
 $mech->content_lacks('Welcome');
 $mech->login(username => $dev->username, password => $pw);
 ok($mech->success);
@@ -66,7 +64,7 @@ $mech->content_contains('My Projects');
 # admin_settings, process_admin_settings
 {
     my $proj1    = _get_proj($proj1_id);
-    my $url      = "/app/developer_projects/admin_settings";
+    my $url      = "/app/projects/admin_settings";
     my %settings = (
         default_arch     => 'AMD64',
         default_platform => 'Linux FC4',

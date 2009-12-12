@@ -27,7 +27,7 @@ if (is_smolder_running) {
 
 my $bin          = catfile(cwd(), 'bin', 'smolder_smoke_signal');
 my $host         = HostName() . ':' . Port();
-my $project      = create_project();
+my $project      = create_project(public => 0);
 my $project_name = $project->name;
 my $pw           = 's3cr3t';
 my $dev          = create_developer(password => $pw);

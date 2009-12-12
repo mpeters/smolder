@@ -1,5 +1,4 @@
 [%- SET project = report.project -%]
-[%- SET app_prefix = project.app_prefix -%]
 [%- USE Number.Format -%]
 [%- odd_even.reset() -%]
 <table class="properties boxed">
@@ -66,8 +65,8 @@
 <tr class="[% odd_even %]">
   <th>Download</th>
   <td>
-    <a href="[% url_prefix %][% app_prefix %]/tap_archive/[% report.id %]">
-        [% url_prefix %][% app_prefix %]/tap_archive/[% report.id %]
+    <a href="[% url_prefix %]/app/projects/tap_archive/[% report.id %]">
+        [% url_prefix %]/app/projects/tap_archive/[% report.id %]
     </a>
 </tr>
 [%- END -%]
@@ -81,7 +80,7 @@
 
 [%- UNLESS email -%]
 <div id="controls" style="clear:both">
-  <div style="float: left">
+  <div style="float: left; display:none" id="mute_controls">
     <div class="button_menu">
       <input type="button" class="button menu disabled" value="Mute &#x25bc;" onclick="false" disabled="disabled" />
       <ul>
@@ -125,14 +124,14 @@
         </span>
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
-        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/test_file_history/[% project.id %]/[% test.test_file %]">
+        <a class="testfile_label" href="[% url_prefix %]/app/projects/test_file_history/[% project.id %]/[% test.test_file %]">
           <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
         </a>
         [% IF test.is_muted %]<small><em>(muted until [% test.mute_until %])</em></small>[% END %]
       </td>
       <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
         <a 
-          href="[% url_prefix %][% app_prefix %]/[% IF email %]tap_stream/[% report.id %]/[% test.file_index %][% ELSE %]test_file_report_details/[% report.id %]/[% test.file_index %][% END %]" 
+          href="[% url_prefix %]/app/projects/[% IF email %]tap_stream/[% report.id %]/[% test.file_index %][% ELSE %]test_file_report_details/[% report.id %]/[% test.file_index %][% END %]" 
             id="for_testfile_details_[% test.file_index %]"
             class="details_trigger show_indicator_[% test.file_index %]">[% test.percent %]%</a>
       </td>
@@ -141,7 +140,7 @@
       <td colspan="[% IF email %]3[% ELSE %]4[% END %]">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+          <a href="[% url_prefix %]/app/projects/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>

@@ -1,0 +1,104 @@
+[% SET page_title = project.name %]
+
+<h2>Test Report #[% report.id %]</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/projects/smoke_reports/[% project.id %]">Recent Reports</a>
+    <a class="sub_menu" href="/app/graphs/start/[% project.id %]">Progress Graphs</a>
+    <a class="sub_menu" href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a>
+    [% IF project.is_admin(c.developer) %]
+    <a class="sub_menu" href="/app/projects/admin_settings/[% project.id %]">Project Settings</a>
+    [% END %]
+</div>
+
+<div class="tap">
+[% tap %]
+</div>
+
+<script type="text/javascript">
+var checkbox = $('toggle_tests_trigger');
+var toggle_rows = function() {
+    var count = 0;
+    $$('.tap tbody').each(function(row) {
+        if( checkbox.checked ) {
+            if( row.hasClassName('passed') ) {
+                row.hide();
+            } else {
+                if( count % 2 == 1 ) {
+                    if(row.hasClassName('even')) {
+                        row.removeClassName('even');
+                        row.addClassName('odd');
+                    }
+                } else {
+                    if(row.hasClassName('odd')) {
+                        row.removeClassName('odd');
+                        row.addClassName('even');
+                    }
+                }
+                count++;
+            }
+        } else {
+            if( row.hasClassName('passed') ) {
+                row.show();
+            }
+            if( count % 2 == 1 ) {
+                if(row.hasClassName('even')) {
+                    row.removeClassName('even');
+                    row.addClassName('odd');
+                }
+            } else {
+                if(row.hasClassName('odd')) {
+                    row.removeClassName('odd');
+                    row.addClassName('even');
+                }
+            }
+            count++;
+        }
+    });
+}
+[% IF !c.developer.project_pref(project).show_passing %]
+checkbox.checked = true;
+checkbox.onchange = toggle_rows;
+toggle_rows();
+[% END %]
+
+[% IF project.has_developer(c.developer) %]
+$('mute_controls').show();
+[% END %]
+
+var num_checked = 0;
+toggle_testfile_menu = function(checkbox) {
+    var row = $(checkbox).up('tr');
+    if(checkbox.checked) {
+        num_checked++;
+        row.addClassName('checked');
+    } else {
+        num_checked--;
+        row.removeClassName('checked');
+    }
+    if( num_checked > 0 ) {
+        $$('#controls input.button.disabled').each(function(button) {
+            button.removeClassName('disabled');
+            button.disabled = false;
+        });
+    } else {
+        $$('#controls input.button').each(function(button) {
+            button.addClassName('disabled');
+            button.disabled = true;
+        });
+    }
+}
+
+mute_testfiles = function(days) {
+    var form_args = Form.serialize('testfile_actions', true);
+    Smolder.Ajax.update({
+        url       : '/app/projects/mute_testfiles/[% report.id %]',
+        indicator : 'testfile_action_indicator',
+        params    : {
+            days      : days,
+            testfiles : form_args['testfiles']
+        },
+    });
+}
+</script>

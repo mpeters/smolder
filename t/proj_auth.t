@@ -24,7 +24,7 @@ if (is_smolder_running) {
 }
 
 my $mech    = Smolder::Mech->new();
-my $url     = base_url() . '/developer_projects';
+my $url     = base_url() . '/projects';
 my $pw      = 's3cr3t';
 my $dev     = create_developer(password => $pw);
 my $proj_id = create_project(public => 0)->id();
@@ -35,14 +35,14 @@ END {
 }
 
 # 1
-use_ok('Smolder::Control::Developer::Projects');
+use_ok('Smolder::Control::Projects');
 
 # 2..6
 # login as a developer
-$mech->get($url);
+$mech->get("$url/details/$proj_id");
 
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
-$mech->content_contains("You shouldn't be here");
+$mech->content_contains("Unauthorized");
 $mech->login(username => $dev->username, password => $pw);
 ok($mech->success);
 $mech->get_ok($url);
@@ -53,17 +53,17 @@ $mech->content_contains('My Projects');
 {
 
     # make sure I can't see these pages
-    $mech->get_ok("/app/developer_projects/add_report/$proj_id");
+    $mech->get_ok("/app/projects/add_report/$proj_id");
     $mech->content_contains('Unauthorized');
-    $mech->get_ok("/app/developer_projects/process_add_report/$proj_id");
+    $mech->get_ok("/app/projects/process_add_report/$proj_id");
     $mech->content_contains('Unauthorized');
-    $mech->get_ok("/app/developer_projects/smoke_reports/$proj_id");
+    $mech->get_ok("/app/projects/smoke_reports/$proj_id");
     $mech->content_contains('Unauthorized');
 
     # check project_settings and project_project_settings
-    $mech->get_ok("/app/developer_projects/admin_settings/$proj_id");
+    $mech->get_ok("/app/projects/admin_settings/$proj_id");
     $mech->content_contains('You are not an admin');
-    $mech->get_ok("/app/developer_projects/process_admin_settings/$proj_id");
+    $mech->get_ok("/app/projects/process_admin_settings/$proj_id");
     $mech->content_contains('You are not an admin');
 }
 

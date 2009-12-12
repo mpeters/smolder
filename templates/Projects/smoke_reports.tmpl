@@ -4,26 +4,25 @@
 <h2>[% project.name | html %]</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/public_projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/projects/details/[% project.id %]">Project Details</a>
     [% IF project.allow_anon || project.has_developer(c.developer) %]
-    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% END %]
-    <a class="sub_menu" href="/app/public_graphs/start/[% project.id %]">Progress Graphs</a>
+    <a class="sub_menu" href="/app/graphs/start/[% project.id %]">Progress Graphs</a>
     [% IF project.is_admin(c.developer) %]
-    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    <a class="sub_menu" href="/app/projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
 </div>
 
 [% IF reports %]
-  [% PROCESS Developer/Projects/smoke_reports_nav.tmpl %]
+  [% PROCESS Projects/smoke_reports_nav.tmpl %]
 [% END %]
 
 [% IF reports %]
-[% SET public = 1 %]
 <div class="fake_accordion" id="accordion_reports">
   [% FOREACH report IN reports %]
   <div class="panel" id="smoke_test_[% report.id %]">
-    [% INCLUDE Developer/Projects/smoke_report_details.tmpl %]
+    [% INCLUDE Projects/smoke_report_details.tmpl %]
   </div>
   [% END %]
 </div>

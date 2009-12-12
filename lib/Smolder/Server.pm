@@ -7,6 +7,8 @@ use File::Path qw(mkpath);
 use Smolder::Conf qw(Port HostName LogFile HtdocsDir DataDir PidFile);
 use Smolder::DB;
 use Net::Server::PreFork;
+use Carp;
+$SIG{__DIE__} = \*Carp::confess;
 
 sub new {
     my ($class, %args) = @_;
@@ -61,11 +63,9 @@ sub start {
     require Smolder::Control::Developer;
     require Smolder::Control::Developer::Graphs;
     require Smolder::Control::Developer::Prefs;
-    require Smolder::Control::Developer::Projects;
+    require Smolder::Control::Projects;
     require Smolder::Control::Public;
     require Smolder::Control::Public::Auth;
-    require Smolder::Control::Public::Graphs;
-    require Smolder::Control::Public::Projects;
     require Smolder::Redirect;
 
     my @net_server_args = (pid_file => PidFile);

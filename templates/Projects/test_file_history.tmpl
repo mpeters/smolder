@@ -1,0 +1,84 @@
+[%- SET page_title = project.name _ ' - ' _ test_file.label -%]
+
+<h2>History</h2>
+
+<div class="tap">
+<table class="boxed matrix">
+  <thead>
+    <tr>
+      <th>Smoke Report</th>
+      <th class="small">%</th>
+    </tr>
+  </thead>
+  <tbody>
+[% FOREACH test IN results %]
+   [% SET report = test.smoke_report %]
+    <tr class=" results [% odd_even %]">
+      <td>
+        <a class="testfile_label" href="/app/projects/report_details/[% report.id %]">
+        <span class="filename[% IF test.failed %] fail[% END %]">
+          [% report.added.strftime('%D %l:%M %p') %] [% IF report.architecture %][% "- " _ report.architecture %][% END %][% IF report.platform %][% "- " _ report.platform %][% END %]
+        </span>
+        </a>
+      </td>
+      <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
+        <a 
+          href="/app/projects/test_file_report_details/[% report.id %]/[% test.file_index %]"
+            id="for_testfile_details_[% test.file_index %]"
+            class="details_trigger show_indicator_[% test.file_index %]">[% test.percent %]%</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5">
+        <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
+        <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
+          <a href="/app/projects/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+        </div>
+      </td>
+    </tr>
+[% END %]
+  </tbody>
+</table>
+
+</div>
+
+<br />
+<h2>Comments</h2>
+
+[% IF project.has_developer(c.developer) %]
+<form name="add_comment_form" id="add_comment_form" method="post" action="/app/projects/comment_testfiles/[% project.id %]/[% test.test_file %]">
+<input type="hidden" name="testfiles" value="[% test_file.id %]" />
+<textarea name="comment" cols="90" rows="3"></textarea>
+<input type="button" value="Add New Comment" onclick="add_comment()" />
+<img id="comment_indicator" src="[% c.static_url('/images/indicator.gif') %]" style="display:none" />
+</form>
+
+<script type="text/javascript">
+add_comment = function() {
+    var form = $('add_comment_form');
+    Smolder.Ajax.update({
+        url       : form.action,
+        method    : 'post',
+        indicator : 'comment_indicator',
+        params    : Form.serialize(form, true)
+    });
+}
+</script>
+
+<br />
+
+[% END %]
+
+[% IF test_file.comments %]
+  <table border=0 class="boxed matrix">
+  [% FOREACH comment IN test_file.comments %]
+  <tr class="[% odd_even %]">
+  <td width=20%>[% comment.added.strftime('%D %l:%M %p') %]</td>
+  <td width=10%>[% comment.developer.username %]</td>
+  <td>[% comment.comment %]</td>
+  </tr>
+  [% END %]
+  </table>
+[% ELSE %]
+  <em>No comments so far for this test file</em>
+[% END %]
