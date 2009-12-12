@@ -238,7 +238,7 @@ Given the runs the SQL contained in the file against out SQLite DB
 
 sub run_sql_file {
     my ($class, $file) = @_;
-    open(my $IN, $file) or die "Could not open file '$file' for reading: $!";
+    open(my $IN, '<' $file) or die "Could not open file '$file' for reading: $!";
 
     require Smolder::DB;
     my $dbh = Smolder::DB->db_Main();
@@ -375,7 +375,7 @@ sub create_database {
     my $file  = $class->db_file();
 
     # create a new file by this name whether it exists or not
-    open(FH, ">$file") or die "Could not open file '$file' for writing: $!";
+    open(FH, '>', $file) or die "Could not open file '$file' for writing: $!";
     close(FH) or die "Could not close file '$file': $!";
 
     my @files   = glob(catfile(SQLDir, '*.sql'));
