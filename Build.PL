@@ -76,11 +76,6 @@ my $builder = Smolder::Build->new(
     add_to_cleanup     => ['data/*', 'logs/*', 'Smolder-*'],
     meta_add => {
         no_index => {
-            directory => [qw(
-                Smolder/Control
-                Smolder/DB
-                Smolder/Upgrade
-            )],
             file => [qw(
                 Smolder/AuthHandler.pm
                 Smolder/AuthInfo.pm
@@ -88,6 +83,23 @@ my $builder = Smolder::Build->new(
                 Smolder/Conf.pm
                 Smolder/Constraints.pm
                 Smolder/Control.pm
+                Smolder/Control/Admin.pm
+                Smolder/Control/Developer.pm
+                Smolder/Control/Graphs.pm
+                Smolder/Control/Projects.pm
+                Smolder/Control/Public.pm
+                Smolder/Control/Admin/Developers.pm
+                Smolder/Control/Admin/Projects.pm
+                Smolder/Control/Developer/Prefs.pm
+                Smolder/Control/Public/Auth.pm
+                Smolder/DB/Developer.pm
+                Smolder/DB/Preference.pm
+                Smolder/DB/ProjectDeveloper.pm
+                Smolder/DB/Project.pm
+                Smolder/DB/SmokeReport.pm
+                Smolder/DB/TestFileComment.pm
+                Smolder/DB/TestFile.pm
+                Smolder/DB/TestFileResult.pm
                 Smolder/DB.pm
                 Smolder/Dispatch.pm
                 Smolder/Email.pm
@@ -99,6 +111,14 @@ my $builder = Smolder::Build->new(
                 Smolder/TestScript.pm
                 Smolder/Upgrade.pm
                 Smolder/Util.pm
+                Smolder/Upgrade/V0_1.pm
+                Smolder/Upgrade/V0_3.pm
+                Smolder/Upgrade/V1_1.pm
+                Smolder/Upgrade/V1_21.pm
+                Smolder/Upgrade/V1_24.pm
+                Smolder/Upgrade/V1_30.pm
+                Smolder/Upgrade/V1_37.pm
+                Smolder/Upgrade/V1_50.pm
             )],
         },
     },
