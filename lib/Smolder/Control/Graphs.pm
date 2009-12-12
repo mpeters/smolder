@@ -17,7 +17,7 @@ use HTML::FillInForm;
 
 =head1 NAME
 
-Smolder::Control::Developer::Graphs
+Smolder::Control::Graphs
 
 =head1 DESCRIPTION
 

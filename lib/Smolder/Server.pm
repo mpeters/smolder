@@ -61,9 +61,9 @@ sub start {
     require Smolder::Control::Admin::Developers;
     require Smolder::Control::Admin::Projects;
     require Smolder::Control::Developer;
-    require Smolder::Control::Developer::Graphs;
     require Smolder::Control::Developer::Prefs;
     require Smolder::Control::Projects;
+    require Smolder::Control::Graphs;
     require Smolder::Control::Public;
     require Smolder::Control::Public::Auth;
     require Smolder::Redirect;
