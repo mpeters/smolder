@@ -41,6 +41,7 @@ sub setup {
         [
             qw(
               show_all
+              public
               add_report
               process_add_report
               smoke_reports
@@ -464,6 +465,17 @@ sub show_all {
         push(@non_overlap_public, $pub_proj) if !$found;
     }
     return $self->tt_process({my_projects => \@projects, public_projects => \@non_overlap_public});
+}
+
+=head2 public
+
+Show all of the public projects with and a menu for each one.
+
+=cut
+
+sub public {
+    my $self   = shift;
+    return $self->tt_process({public_projects => $self->public_projects});
 }
 
 =head2 admin_settings

@@ -1,7 +1,7 @@
 [% SET page_title = 'My Projects' %]
 
 <h3>My Projects</h3>
-[% IF my_projects %]
+[% IF my_projects.size %]
 <div class="fake_accordion" id="accordion_projects">
   [% FOREACH project IN my_projects %]
   <div class="panel">
@@ -26,7 +26,7 @@
 </span>
 [% END %]
 
-[% IF public_projects %]
+[% IF public_projects.size %]
 <h3>Public Projects</h3>
 <div class="fake_accordion" id="accordion_projects">
   [% FOREACH project IN public_projects %]

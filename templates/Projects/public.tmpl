@@ -1,0 +1,23 @@
+[% SET page_title = 'Public Projects' %]
+
+[% IF public_projects.size %]
+<h3>Public Projects</h3>
+<div class="fake_accordion" id="accordion_projects">
+  [% FOREACH project IN public_projects %]
+  <div class="panel">
+    <div class="header">[% project.name | html %]<!--ID:[% project.id %]--></div>
+    <div class="content">
+      <ul>
+        <li><a href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a></li>
+        <li><a href="/app/projects/smoke_reports/[% project.id %]">Most Recent Smoke Tests</a></li>
+        <li><a href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a></li>
+        [% IF project.is_admin(c.developer) %]
+        <li><a href="/app/projects/admin_settings/[% project.id %]">Project Settings</a></li>
+        [% END %]
+      </ul>
+    </div>
+  </div>
+  [% END %]
+</div>
+[% END %]
+
