@@ -20,7 +20,7 @@ use Smolder::TestData qw(
 );
 
 if (is_smolder_running) {
-    plan(tests => 30);
+    plan(tests => 33);
 } else {
     plan(skip_all => 'Smolder not running');
 }
@@ -46,10 +46,6 @@ my $out = `$bin 2>&1`;
 like($out, qr/Missing required field 'server'/i);
 $out = `$bin --server $host 2>&1`;
 like($out, qr/Missing required field 'project'/i);
-$out = `$bin --server $host --project $project_name 2>&1`;
-like($out, qr/Missing required field 'username'/i);
-$out = `$bin --server $host --project $project_name --username $username 2>&1`;
-like($out, qr/Missing required field 'password'/i);
 $out = `$bin --server $host --project $project_name --username $username --password $pw 2>&1`;
 like($out, qr/Missing required field 'file'/i);
 
@@ -70,7 +66,7 @@ SKIP: {
       `$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $good_run_gz 2>&1`;
     skip("Smolder not running", 14)
       if ($out =~ /Received status 500/);
-    like($out, qr/you are not a member of/i);
+    like($out, qr/do not have access/i);
 
     # invalid login
     $out =
@@ -80,7 +76,7 @@ SKIP: {
     # non-project-member
     $out =
       `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz 2>&1`;
-    like($out, qr/you are not a member of/i);
+    like($out, qr/do not have access/i);
 
     # add this person to the project
     Smolder::DB::ProjectDeveloper->create(
@@ -175,5 +171,35 @@ SKIP: {
         ok(grep { $_ eq $t } @assigned_tags, qq(tag "$t" correctly appears in report));
     }
     delete_tags(@tags);
+    Smolder::DB->disconnect();
+
+    # non-public project anonymous 
+    $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
+    $out = `$cmd`;
+    like($out, qr/not a public project/i);
+    Smolder::DB->disconnect();
+
+    # invalid anonymous upload
+    $project->public(1);
+    $project->allow_anon(0);
+    $project->update();
+    Smolder::DB->disconnect();
+    $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
+    $out = `$cmd`;
+    like($out, qr/not allow anonymous/i);
+    Smolder::DB->disconnect();
+
+    # anonymous upload
+    $project->allow_anon(1);
+    $project->update();
+    Smolder::DB->disconnect();
+    $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
+    $out = `$cmd`;
+    like($out, qr/successfully uploaded/i);
+    $out =~ /as #(\d+)/;
+    $report_id = $1;
+    $report    = Smolder::DB::SmokeReport->retrieve($report_id);
+    is($report->comments,     $comments);
+    is($report->platform,     $platform);
     Smolder::DB->disconnect();
 }

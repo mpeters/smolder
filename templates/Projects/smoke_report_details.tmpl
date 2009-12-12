@@ -72,33 +72,33 @@
     </tr>
     <tr>
       <th># Test Files</th>
-      <td>[% report.test_files | format_number %]</td>
+      <td>[% report.test_files||0 | format_number %]</td>
       <th># Total Tests</th>
-      <td>[% report.total | format_number %]</td>
+      <td>[% report.total||0 | format_number %]</td>
     </tr>
     <tr>
       <th><span class="pass"># Passed</span></th>
       <td>
-        <span class="pass">[% report.pass | format_number %] 
+        <span class="pass">[% report.pass||0 | format_number %] 
         [% IF report.total %]
         <em>([% pass_percent | round %]%)</em>
         [% END %]
         </span>
       </td>
       <th><span[% IF report.skip %] class="skip"[% END %]># Skipped</span></th>
-      <td><span[% IF report.skip %] class="skip"[% END %]>[% report.skip | format_number %]</span></td>
+      <td><span[% IF report.skip %] class="skip"[% END %]>[% report.skip||0 | format_number %]</span></td>
     </tr>
     <tr>
       <th><span[% IF report.fail %] class="fail"[% END %]># Failed</span></th>
       <td>
-        <span[% IF report.fail %] class="fail"[% END %]>[% report.fail | format_number %] 
+        <span[% IF report.fail %] class="fail"[% END %]>[% report.fail||0 | format_number %] 
         [% IF report.total %]
         <em>([% fail_percent | round %]%)</em>
         [% END %]
         </span>
       </td>
       <th><span[% IF report.todo %] class="todo"[% END %]># TODO</span></th>
-      <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo | format_number %]</span></td>
+      <td><span[% IF report.todo %] class="todo"[% END %]>[% report.todo||0 | format_number %]</span></td>
     </tr>
     [% IF report.revision %]
     <tr>

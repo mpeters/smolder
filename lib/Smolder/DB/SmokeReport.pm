@@ -245,6 +245,7 @@ sub _send_emails {
 
     # get all the developers of this project
     my @devs = $self->project->developers();
+    my %sent;
     foreach my $dev (@devs) {
 
         # get their preference for this project
@@ -273,6 +274,7 @@ sub _send_emails {
         # now send the type of email they want to receive
         my $type  = $pref->email_type;
         my $email = $dev->email;
+        next if $sent{"$email $type"}++;
         my $error = Smolder::Email->send_mime_mail(
             to        => $email,
             name      => "smoke_report_$type",

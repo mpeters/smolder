@@ -27,11 +27,12 @@ BEGIN {
         $share_dir = dist_dir('Smolder');
     }
 
+    my $default_hostname = $ENV{HOSTNAME} || $ENV{HOST} || 'localhost.localdomain';
     %VALUES = (
         Port                  => 8080,
-        HostName              => 'localhost.localdomain',
-        FromAddress           => 'smolder@localhost.localdomain',
-        SMTPHost              => 'localhost.localdomain',
+        HostName              => $default_hostname,
+        FromAddress           => "smolder\@$default_hostname",
+        SMTPHost              => $default_hostname,
         LogFile               => '',
         PidFile               => catdir($share_dir, 'data', 'smolder.pid'),
         TemplateDir           => catdir($share_dir, 'templates'),
@@ -83,7 +84,6 @@ can be overridden when needed.
 =head1 OPTIONS
 
 The following configuration options are available:
-
 
 =head2 Port
 
