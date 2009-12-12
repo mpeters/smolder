@@ -238,7 +238,7 @@ Given the runs the SQL contained in the file against out SQLite DB
 
 sub run_sql_file {
     my ($class, $file) = @_;
-    open(my $IN, '<' $file) or die "Could not open file '$file' for reading: $!";
+    open(my $IN, '<', $file) or die "Could not open file '$file' for reading: $!";
 
     require Smolder::DB;
     my $dbh = Smolder::DB->db_Main();

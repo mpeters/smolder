@@ -15,6 +15,7 @@ Revision history for Smolder
     + Compile templates at startup time. - A. Schrab
     + Don't write a PidFile by default.  The previous default location is likely to not be writeable. - A. Schrab
     + Added LogLevel configuration directive - M. Peters
+    + Changed all uses of open() to be 3-arg version - B. Oaks
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
