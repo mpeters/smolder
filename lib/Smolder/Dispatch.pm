@@ -16,13 +16,17 @@ sub dispatch_args {
                 app => 'Developer::Projects',
                 rm  => 'tap_stream',
             },
-            'public_projects/test_file_history/:project_id/:test_file_id' => {
+            'public_projects/test_file_history/:id/:test_file_id' => {
                 app => 'Public::Projects',
                 rm  => 'test_file_history',
             },
-            'developer_projects/test_file_history/:project_id/:test_file_id' => {
+            'developer_projects/test_file_history/:id/:test_file_id' => {
                 app => 'Developer::Projects',
                 rm  => 'test_file_history',
+            },
+            'developer_projects/comment_testfiles/:id/:test_file_id?' => {
+                app => 'Developer::Projects',
+                rm  => 'comment_testfiles',
             },
             ':app/:rm?/:id?/:type?' => {},
         ],

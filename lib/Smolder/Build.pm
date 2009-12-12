@@ -62,6 +62,8 @@ sub _wrap_test_action {
       . catdir($share_dir, 'sql') . "'\n"
       . "DataDir '"
       . $tmp_dir->dirname . "'\n"
+      . "PidFile '"
+      . catfile($tmp_dir->dirname, 'smolder.pid') . "'\n"
       . "LogFile '"
       . catdir($log_dir, 'smolder.log') . "'\n";
     print $tmp_conf $conf;
@@ -82,8 +84,7 @@ sub _wrap_test_action {
         $^X,
         "-I$ENV{PERL5LIB}",
         catfile($cwd, 'blib', 'script', 'smolder'),
-        '--host' => $HOSTNAME,
-        '--port' => $PORT,
+        '--conf' => $tmp_conf->filename,
     );
     eval { require IPC::Run };
     die "IPC::Run needed to run Smolder test: $@" if $@;

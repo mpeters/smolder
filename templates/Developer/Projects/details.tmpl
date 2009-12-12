@@ -57,7 +57,7 @@
   <td><label>Last Smoke Test Added</label></td>
   <td>
     [% SET last = project.most_recent_report %]
-    [% last ? last.added.strftime('%D %l:%H %p') : 'never' %]
+    [% last ? last.added.strftime('%D %l:%M %p') : 'never' %]
   </td>
 </tr>
 [% IF project.enable_feed %]

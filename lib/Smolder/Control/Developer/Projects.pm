@@ -58,7 +58,8 @@ sub setup {
               details
               tap_archive
               tap_stream
-              bulk_test_file_action
+              mute_testfiles
+              comment_testfiles
               test_file_history
               )
         ]
@@ -645,54 +646,75 @@ sub details {
     }
 }
 
-=head2 bulk_test_file_action
+=head2 mute_testfiles 
 
-Perform bulk actions on test files
+Mute a group of test files.
 
 =cut
 
-sub bulk_test_file_action {
+sub mute_testfiles {
     my $self   = shift;
-    my $id     = $self->param('id');
+    my $q      = $self->query;
     my $report = Smolder::DB::SmokeReport->retrieve($self->param('id'));
-    my $query  = $self->query;
-
-    # Determine which action was pressed
-    my ($action) = grep { /(.+)_action/ } $query->param
-      or die "could not find action";
-    $action = substr($action, 0, -7);
 
     # Determine which test files were checked
-    my @testfile_ids = $query->param('testfiles');
+    my @testfile_ids = $q->param('testfiles');
     my @testfiles = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
 
-    # Switch based on action
-    if ($action eq 'mute') {
-        my $num_days = $query->param('num_days');
-        die "could not find num_days" if !defined($num_days);
-        my $mute_until_time = DateTime->now(time_zone => 'local')->add(days => $num_days)->truncate(to => 'day')->epoch;
-        foreach my $testfile (@testfiles) {
-            $testfile->mute_until($mute_until_time);
-            $testfile->update;
-        }
-    } elsif ($action eq 'comment') {
-        my $comment = $query->param('comment');
-        my %comment_params =
-          (project => $report->project->id, developer => $self->developer->id, comment => $comment);
-        foreach my $testfile (@testfiles) {
-            Smolder::DB::TestFileComment->insert({%comment_params, test_file => $testfile->id});
-        }
+    # mute those files
+    my $days = $q->param('days');
+    my $mute_until_time = DateTime->now(time_zone => 'local')->add(days => $days)->truncate(to => 'day')->epoch;
+    foreach my $testfile (@testfiles) {
+        $testfile->mute_until($mute_until_time);
+        $testfile->update;
     }
 
     # Recompute page after any bulk action
     $report->update_from_tap_archive();
+    $self->add_message(msg => $days ? "Test files successfully muted." : "Test files successfully un-muted.");
+    my $return_to = $q->param('return_to') || 'report_details';
+    return $self->$return_to;
+}
+
+=head2 comment_testfiles 
+
+Create a comment on a group of test files.
+
+=cut
+
+sub comment_testfiles {
+    my $self    = shift;
+    my $id      = $self->param('id');
+    my $report  = Smolder::DB::SmokeReport->retrieve($self->param('id'));
+    my $project = $report->project;
+    my $q       = $self->query;
+
+    if (!$project->has_developer($self->developer)) {
+        return $self->error_message('Unauthorized for this project');
+    }
+
+    # attach the comment to the given testfiles
+    my @testfile_ids = $q->param('testfiles');
+    my @testfiles    = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
+    my $comment      = $q->param('comment');
+    foreach my $testfile (@testfiles) {
+        Smolder::DB::TestFileComment->create(
+            {
+                project   => $project,
+                developer => $self->developer,
+                comment   => $comment,
+                test_file => $testfile->id,
+            }
+        );
+    }
+
+    # Recompute page after any bulk action
+    $report->update_from_tap_archive();
+    $self->add_message(msg => 'Comment successfully added');
 
     # Redirect back
-    my $return_to = $query->param('return_to') or die "cannot get return_to";
-    $self->header_type('redirect');
-    my $url = '/app/' . ($self->public ? 'public' : 'developer') . "_projects/$return_to";
-    $self->header_add(-uri => $url);
-    return "Redirecting";
+    my $return_to = $q->param('return_to') || 'report_details';
+    return $self->$return_to;
 }
 
 =head2 test_file_history
@@ -703,8 +725,8 @@ Show history of a particular test file in this project
 
 sub test_file_history {
     my $self         = shift;
-    my $query        = $self->query;
-    my $project_id   = $self->param('project_id');
+    my $q            = $self->query;
+    my $project_id   = $self->param('id');
     my $project      = Smolder::DB::Project->retrieve($project_id);
     my $test_file_id = $self->param('test_file_id');
     my $test_file    = Smolder::DB::TestFile->retrieve($test_file_id);
@@ -718,10 +740,10 @@ sub test_file_history {
         },
     };
     return $self->error_message('Something fishy')
-      unless Data::FormValidator->check($query, $form);
+      unless Data::FormValidator->check($q, $form);
 
-    my $limit  = $query->param('limit')  || 20;
-    my $offset = $query->param('offset') || 0;
+    my $limit  = $q->param('limit')  || 20;
+    my $offset = $q->param('offset') || 0;
     my @test_file_results = Smolder::DB::TestFileResult->search_where(
         {project => $project_id, test_file => $test_file_id},
         {

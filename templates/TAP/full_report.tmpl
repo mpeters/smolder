@@ -4,9 +4,14 @@
 [%- odd_even.reset() -%]
 <table class="properties boxed">
 <thead>
-  <tr><th colspan="2">Properties</th></tr>
+<tr>
+  <th colspan="2">
+    Properties
+    [% UNLESS email %]<a style="float:right; padding-top: 5px;" onclick="$('properties_body').toggle();"><img src="/images/new.png" style="border: 0" /></a>[% END %]
+  </th>
+</tr>
 </thead>
-<tbody>
+<tbody id="properties_body" [% UNLESS email %]style="display:none"[% END %]>
 [%- IF report.duration -%]
 <tr class="[% odd_even %]">
   <th>Duration</th>
@@ -70,28 +75,37 @@
 </table>
 
 [%- UNLESS email -%]
-<div class="controls">
-  <form>
-    Only show failures
-    <input type="checkbox" id="toggle_tests_trigger" name="toggle_tests" />
-  </form>
-</div>
-
-<form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
-<input type="hidden" name="return_to" value="report_details/[% report.id %]">
-
-<div class="bulk_actions">
-<b>Actions on checked items:</b><br>
-
-[% PROCESS Shared/test_file_actions.tmpl %]
-
-</div>
+<form method="post" action="" id="testfile_actions">
+<input type="hidden" name="days" value="">
 [%- END -%]
 
+[%- UNLESS email -%]
+<div id="controls" style="clear:both">
+  <div style="float: left">
+    <div class="button_menu">
+      <input type="button" class="button menu disabled" value="Mute &#x25bc;" onclick="false" disabled="disabled" />
+      <ul>
+        <li><a href="javascript:mute_testfiles(1)">until tomorrow</a></li>
+        <li><a href="javascript:mute_testfiles(2)">for 2 days</a></li>
+        <li><a href="javascript:mute_testfiles(3)">for 3 days</a></li>
+        <li><a href="javascript:mute_testfiles(7)">for 7 days</a></li>
+        <li><a href="javascript:mute_testfiles(14)">for 14 days</a></li>
+        <li><a href="javascript:mute_testfiles(30)">for 30 days</a></li>
+        <li><a href="javascript:mute_testfiles(0)">unmute</a></li>
+      </ul>
+      <img id="testfile_action_indicator" src="[% url_prefix %]/images/indicator.gif" style="display:none" />
+    </div>
+  </div>
+  <div style="float: right; margin-right: 14px;">
+    Only show failures
+    <input type="checkbox" id="toggle_tests_trigger" name="toggle_tests" />
+  </div>
+</div>
+[%- END -%]
 <table summary="[% report.summary | html %]" class="boxed matrix">
   <thead>
     <tr>
-      <th class="small">&#x2713;</th>
+      [%- UNLESS email -%]<th class="small">&#x2713;</th>[%- END -%]
       <th class="small">#</th>
       <th>Test file</th>
       <th class="small">%</th>
@@ -101,7 +115,9 @@
   [%- FOREACH test IN results -%]
   <tbody id="test_[% loop.index %]" class="results [% odd_even %] [% UNLESS test.failed %]passed[% END %]">
     <tr>
-      <td width="5%"><input type="checkbox" name="testfiles" value=[% test.test_file %]></td>
+      [%- UNLESS email -%]
+      <td width="5%"><input type="checkbox" name="testfiles" value="[% test.test_file %]" onchange="toggle_testfile_menu(this)"></td>
+      [%- END -%]
       <td width="5%">[% test.file_index  + 1 %]</td>
       <td class="filename">
         <span style="float: right">
@@ -110,11 +126,9 @@
         [%- IF !found_first_failure && test.failed %]<a name="first_failure"></a>[% found_first_failure = 1 -%]
         [%- END -%]
         <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/test_file_history/[% project.id %]/[% test.test_file %]">
-        <span class="filename[% IF test.failed %] fail[% END %]">
-             [% test.label | html %]
-           [% IF test.is_muted %] (muted until [% test.mute_until %]) [% END %]
-        </span>
+          <span class="filename[% IF test.failed %] fail[% END %]">[% test.label | html %]</span>
         </a>
+        [% IF test.is_muted %]<small><em>(muted until [% test.mute_until %])</em></small>[% END %]
       </td>
       <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
         <a 
@@ -124,7 +138,7 @@
       </td>
     </tr>
     <tr>
-      <td colspan="4">
+      <td colspan="[% IF email %]3[% ELSE %]4[% END %]">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
           <a href="[% url_prefix %][% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
@@ -134,13 +148,12 @@
   </tbody>
   [%- END %]
   <tfoot>
-    <tr class="first">
-      <td colspan="2">&nbsp;</td>
-      <td>[%- report.test_files | format_number %] files - [%- report.total | format_number %] test cases</td>
-      <td>[% report.total_percentage %]%</td>
+    <tr class="[% odd_even %]">
+      <td colspan="[% IF email %]2[% ELSE %]3[% END %]">[%- report.test_files | format_number %] files - [%- report.total | format_number %] test cases</td>
+      <td class="x [% IF report.failed %]fail[% ELSE %]pass[% END %]">[% report.total_percentage %]%</td>
     </tr>
-    <tr>
-      <td colspan="4" class="last">
+    <tr class="[% odd_even %]">
+      <td colspan="[% IF email %]3[% ELSE %]4[% END %]">
           [% report.pass      | format_number %] ok, 
           [% report.fail      | format_number %] failed, 
           [% report.todo      | format_number %] todo, 

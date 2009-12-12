@@ -1,68 +1,39 @@
 [%- SET page_title = project.name _ ' - ' _ test_file.label -%]
 [%- SET app_prefix = project.app_prefix -%]
 
+<h2>History</h2>
+
 <div class="tap">
-
-<p>
-
-<h3>Actions</h3>
-
-<form method=GET action="[% app_prefix %]/bulk_test_file_action/[% project.id %]">
-<input type="hidden" name="testfiles" value="[% test_file.id %]">
-<input type="hidden" name="return_to" value="test_file_history/[% project.id %]/[% test_file.id %]">
-<div class="bulk_actions">
-
-[% PROCESS Shared/test_file_actions.tmpl %]
-
-</div>
-</form>
-
-<h3>History</h3>
-
 <table class="boxed matrix">
   <thead>
     <tr>
-      <th>#</th>
       <th>Smoke Report</th>
-      <th>Results</th>
-      <th>Count</th>
-      <th>%</th>
+      <th class="small">%</th>
     </tr>
   </thead>
   <tbody>
 [% FOREACH test IN results %]
    [% SET report = test.smoke_report %]
-    <tr>
-      <td width=5%>[% test.id %]</td>
+    <tr class=" results [% odd_even %]">
       <td>
-        <span style="float: right">
-          <img src="[% url_prefix %]/images/indicator.gif" style="visibility:hidden; border: none" id="indicator_[% test.file_index %]" />
-        </span>
-        <a class="testfile_label" href="[% url_prefix %][% app_prefix %]/report_details/[% report.id %]">
+        <a class="testfile_label" href="[% app_prefix %]/report_details/[% report.id %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
-          [% report.added.strftime('%a %b %d %l:%M %p') %] [% IF report.architecture %][% "- " _ report.architecture %][% END %][% IF report.platform %][% "- " _ report.platform %][% END %]
+          [% report.added.strftime('%D %l:%M %p') %] [% IF report.architecture %][% "- " _ report.architecture %][% END %][% IF report.platform %][% "- " _ report.platform %][% END %]
         </span>
         </a>
       </td>
-      <td width=5% class="x sum" style="margin: 0px; padding: 0px; [% IF test.all_skipped %]background-color: #FFFD50; color: black">SKIPPED[% ELSIF test.failed %]background-color: #CC0033; color: white">FAILED[% ELSE %]background-color: #00FF00; color: black">OK[% END %]
-      </td>
-      <td width=5% class="x sum">
-       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
-         [% test.total - test.failed %]/[% test.total %]
-        </a>
-      </td>
-      <td width=5% class="x sum">
+      <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
         <a 
-       [% INCLUDE Shared/test_file_report_details_anchor.tmpl %]
-         [% test.percent %]%
-        </a>
+          href="[% app_prefix %]/test_file_report_details/[% report.id %]/[% test.file_index %]"
+            id="for_testfile_details_[% test.file_index %]"
+            class="details_trigger show_indicator_[% test.file_index %]">[% test.percent %]%</a>
       </td>
     </tr>
     <tr>
       <td colspan="5">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="[% url_prefix %]/app/public_projects/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+          <a href="[% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>
@@ -70,18 +41,46 @@
   </tbody>
 </table>
 
-<p>
-
-<h3>Comment log</h3>
-
-<table border=0 class="boxed matrix">
-[% FOREACH comment IN test_file.comments %]
-<tr>
-<td width=20%>[% comment.added.strftime('%a %b %d %l:%M %p') %]</td>
-<td width=10%>[% comment.developer.username %]</td>
-<td>[% comment.comment %]</td>
-</tr>
-[% END %]
-</table>
-
 </div>
+
+<br />
+<h2>Comments</h2>
+
+[% IF project.has_developer(c.developer) %]
+<form name="add_comment_form" id="add_comment_form" method="post" action="/app/developer_projects/comment_testfiles/[% project.id %]/[% test_file.id %]">
+<input type="hidden" name="testfiles" value="[% test_file.id %]" />
+<input type="hidden" name="return_to" value="test_file_history" />
+<textarea name="comment" cols="90" rows="3"></textarea>
+<input type="button" value="Add New Comment" onclick="add_comment()" />
+<img id="comment_indicator" src="[% c.static_url('/images/indicator.gif') %]" style="display:none" />
+</form>
+
+<script type="text/javascript">
+add_comment = function() {
+    var form = $('add_comment_form');
+    Smolder.Ajax.update({
+        url       : form.action,
+        method    : 'post',
+        indicator : 'comment_indicator',
+        params    : Form.serialize(form, true)
+    });
+}
+</script>
+
+<br />
+
+[% END %]
+
+[% IF test_file.comments %]
+  <table border=0 class="boxed matrix">
+  [% FOREACH comment IN test_file.comments %]
+  <tr class="[% odd_even %]">
+  <td width=20%>[% comment.added.strftime('%D %l:%M %p') %]</td>
+  <td width=10%>[% comment.developer.username %]</td>
+  <td>[% comment.comment %]</td>
+  </tr>
+  [% END %]
+  </table>
+[% ELSE %]
+  <em>No comments so far for this test file</em>
+[% END %]

@@ -140,7 +140,9 @@ Smolder.Ajax.request = function(args) {
     var url       = args.url;
     var params    = args.params || {};
     var indicator = args.indicator;
-    var complete  = args.onComplete || Prototype.emptyFunction;;
+    var on_complete  = args.onComplete || Prototype.emptyFunction;;
+    var on_failure  = args.onFailure || Prototype.emptyFunction;;
+    var on_exception  = args.onException || Prototype.emptyFunction;;
 
     // tell the user that we're doing something
     Smolder.show_indicator(indicator);
@@ -164,10 +166,16 @@ Smolder.Ajax.request = function(args) {
                 // do whatever else the caller wants
                 args.request = request;
                 args.json    = json || {};
-                complete(args);
+                on_complete(args);
             },
-            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
-            onFailure: function(request) { Smolder.show_error() }
+            onException: function(request, exception) { 
+                on_exception();
+                alert("ERROR FROM AJAX REQUEST:\n" + exception);
+            },
+            onFailure: function(request) { 
+                on_failure();
+                Smolder.show_error(); 
+            }
         }
     );
 };
@@ -197,7 +205,9 @@ Smolder.Ajax.update = function(args) {
     var params    = args.params || {};
     var target    = args.target;
     var indicator = args.indicator;
-    var complete  = args.onComplete || Prototype.emptyFunction;;
+    var on_complete  = args.onComplete || Prototype.emptyFunction;
+    var on_failure   = args.onFailure || Prototype.emptyFunction;
+    var on_exception = args.onFailure || Prototype.emptyFunction;
 
     // tell the user that we're doing something
     Smolder.show_indicator(indicator);
@@ -225,10 +235,16 @@ Smolder.Ajax.update = function(args) {
                 // do whatever else the caller wants
                 args.request = request;
                 args.json    = json || {};
-                complete(args);
+                on_complete(args);
             },
-            onException: function(request, exception) { alert("ERROR FROM AJAX REQUEST:\n" + exception) },
-            onFailure: function(request) { Smolder.show_error() }
+            onException: function(request, exception) { 
+                on_exception(); 
+                alert("ERROR FROM AJAX REQUEST:\n" + exception); 
+            },
+            onFailure: function(request) { 
+                on_failure(); 
+                Smolder.show_error(); 
+            }
         }
     );
 };
@@ -255,15 +271,18 @@ Smolder.Ajax.form_update = function(args) {
     // aren't already and remember which ones we disabled
     var form_disabled_inputs = Smolder.disable_form(form);
     var oldOnComplete = args.onComplete;
-    args.onComplete = function(request, json) {
-        oldOnComplete(request, json);
+    var reset_things = function() {
         // reset which forms are open
         Smolder.PopupForm.shown_popup_id = '';
-
-        // if we have a form, enable all of the inputs
-        // that we disabled
+        // if we have a form, enable all of the inputs  that we disabled
         Smolder.reenable_form(form, form_disabled_inputs);
     };
+    args.onComplete = function(request, json) {
+        oldOnComplete(request, json);
+        reset_things();
+    };
+    args.onFailure = reset_things;
+    args.onException = reset_things;
 
     // now submit this normally
     Smolder.Ajax.update(args);
@@ -272,16 +291,16 @@ Smolder.Ajax.form_update = function(args) {
 Smolder.disable_form = function(form) {
     // disable all of the inputs of this form that
     // aren't already and remember which ones we disabled
-    var disabled = [];
+    var disabled = $H();
     $A(form.elements).each(
         function(input, i) { 
             if( !input.disabled ) {
-                disabled.push(input.name);
+                disabled.set(input.name, true);
                 input.disabled = true;
             }
         }
     );
-    return disabled;
+    return disabled.keys();
 };
 
 Smolder.reenable_form = function(form, inputs) {
@@ -290,8 +309,11 @@ Smolder.reenable_form = function(form, inputs) {
     if( form && inputs.length > 0 ) {
         $A(inputs).each(
             function(name, i) {
-                if( name && form.elements[name] )
-                    form.elements[name].disabled = false;
+                if( name && form.elements[name] ) {
+                    $A(form.elements[name]).each(function(input) {
+                        input.disabled = false;
+                    });
+                }
             }
         );
     }

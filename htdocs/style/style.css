@@ -283,8 +283,8 @@ a:visited {
     display: block;
 }
 
-/* Form elements */
-button, input[type="submit"], input[type="button"] {
+/* Buttons */
+button, input[type="submit"], input[type="button"], input.button.disabled:hover {
     color: #C47147;
     background-color: #ffffff;
     border: 1px solid #555555;
@@ -295,6 +295,57 @@ input:hover[type="submit"], input:hover[type="button"] {
     background-color: #C47147;
 }
 
+input.button.disabled {
+    opacity: 0.6;
+}
+
+input.button.disabled:hover {
+    color: #C47147;
+    background-color: #ffffff;
+}
+
+/* "Popup" menu buttons */
+.button_menu {
+    position: relative;
+}
+
+.button_menu > ul {
+    position: absolute;
+    width: auto;
+    height: auto;
+    display: none;
+    padding: 0;
+}
+
+.button_menu:hover > ul {
+    display: block;
+}
+
+.button_menu > input.disabled:hover + ul {
+    display: none;
+}
+
+.button_menu > ul > li {
+    list-style: none; 
+}
+
+.button_menu li > a {
+    text-decoration: none;
+    display: block;
+    color: #C47147;
+    background-color: #ffffff;
+    border: 1px solid #555555;
+    white-space: nowrap;
+    padding: 2px;
+}
+
+.button_menu li > a:hover {
+    color: #ffffff;
+    background-color: #C47147;
+}
+
+
+/* Forms */
 form {
     margin: 0px;
     padding: 0px;
@@ -681,14 +732,12 @@ img.graph {
     text-align: left;
 }
 
-.tap .matrix tfoot {
-    font-weight: bold;
+.tap .matrix tr.checked {
+    background-color: #e2dd92;
 }
 
-.tap .matrix tfoot td.last {
-    text-align: center;
-    background-color: #555;
-    color: #fff;
+.tap .matrix tfoot {
+    font-weight: bold;
 }
 
 .tap td {
@@ -753,12 +802,12 @@ img.graph {
     text-align: center;
 }
 
-.tap .fail, .tap a.fail    { background-color: #C47147; color: #fff !important; }
-.tap .ok, .tap a.ok      { background-color: #00ff00; color: #222 !important; }
-.tap .skip, .tap a.skip    { background-color: #ddffdd; color: #222 !important; }
-.tap .todo_ok, .tap a.todo_ok { background-color: #ffdd20; color: #222 !important; }
-.tap .todo, .tap a.todo    { background-color: #007f00; color: #222 !important; }
-.tap .nottest, .tap a.nottest { background-color: #7f7f7f; color: #222 !important; }
+.tap .fail    { background-color: #C47147; color: #fff !important; }
+.tap .ok      { background-color: #00ff00; color: #222 !important; }
+.tap .skip    { background-color: #ddffdd; color: #222 !important; }
+.tap .todo_ok { background-color: #ffdd20; color: #222 !important; }
+.tap .todo    { background-color: #007f00; color: #222 !important; }
+.tap .nottest { background-color: #7f7f7f; color: #222 !important; }
 .tap span.fail { background-color: transparent; color: #c47147 !important;}
 .tap .filename { color: #000; }
 
