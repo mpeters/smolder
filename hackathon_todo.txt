@@ -2,8 +2,6 @@ Easy
 ========
 2) Move inline CSS to style sheets
 4) Add good documentation for configuration
-5) Change Build.PL so that only Smolder, Smolder::Manual, smolder, smolderctl and smolder_smoke_signal 
-  are viewable in search.cpan.org
 16) Add "LogLevel" smolder.conf directive
 
 Medium
