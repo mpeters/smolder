@@ -1,6 +1,6 @@
 package Smolder;
 
-our $VERSION = '1.41';
+our $VERSION = '1.50';
 
 1;
 
@@ -8,7 +8,7 @@ __END__
 
 =head1 NAME 
 
-Smolder
+Smolder - continuous integration smoke server
 
 =head1 DESCRIPTION
 
