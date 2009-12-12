@@ -1,4 +1,4 @@
-package Smolder::Control::Developer::Projects;
+package Smolder::Control::Projects;
 use base 'Smolder::Control';
 use strict;
 use warnings;
@@ -6,12 +6,10 @@ use CGI::Application::Plugin::Stream qw(stream_file);
 use DateTime;
 use Smolder::DB::Project;
 use Smolder::DB::SmokeReport;
-use Smolder::Conf;
+use Smolder::Conf qw(HostName);
 use Smolder::DB::TestFile;
 use Smolder::DB::TestFileResult;
-use Exception::Class;
-use HTML::TagCloud;
-use URI::Escape qw(uri_escape);
+use Smolder::Util;
 use Smolder::Control::Public::Auth;
 use Smolder::Constraints qw(
   enum_value
@@ -21,20 +19,20 @@ use Smolder::Constraints qw(
   file_mtype
   smoke_report_tags
 );
+use Exception::Class;
+use HTML::TagCloud;
+use URI::Escape qw(uri_escape);
+use XML::Atom::SimpleFeed;
 
 =head1 NAME
 
-Smolder::Control::Developer::Projects
+Smolder::Control::Projects
 
 =head1 DESCRIPTION
 
-Controller module that deals with developer actions associated with projects.
+Controller module that deals with actions associated with projects and test reports
 
 =cut
-
-# used to control public or registered developer functionality
-# to be overriden by subclasses if necessary
-sub public { return 0 }
 
 sub setup {
     my $self = shift;
@@ -61,19 +59,18 @@ sub setup {
               mute_testfiles
               comment_testfiles
               test_file_history
+              feed
               )
         ]
     );
 }
-
-sub require_group { 'developer' }
 
 =head1 RUN MODES
 
 =head2 smoke_test_validity
 
 Set or unset the C<invalid> flag on a given smoke report. Uses the
-F<Developer/Projects/smoke_report_details.tmpl> template.
+F<Projects/smoke_report_details.tmpl> template.
 
 =cut
 
@@ -84,11 +81,8 @@ sub smoke_test_validity {
       unless $report;
 
     # only project admins can do this
-    unless ($self->developer
-        && $report->project->is_admin($self->developer))
-    {
-        return $self->error_message("Not an admin of this project!");
-    }
+    return $self->error_message("Not an admin of this project!")
+      unless $report->project->is_admin($self->developer);
 
     # make sure it's not too long or malicious
     my $form = {
@@ -113,7 +107,7 @@ sub smoke_test_validity {
           . ($valid->{invalid} ? 'invalid' : 'valid')
           . ".");
     return $self->tt_process(
-        'Developer/Projects/smoke_report_details.tmpl',
+        'Projects/smoke_report_details.tmpl',
         {report => $report, project => $report->project},
     );
 }
@@ -150,7 +144,7 @@ sub architecture_options {
 =head2 add_report
 
 Shows the form to allow the developer to add a new smoke report to a project.
-Uses the C<Developer/Projects/add_report.tmpl> template.
+Uses the C<Projects/add_report.tmpl> template.
 
 =cut
 
@@ -211,9 +205,6 @@ sub process_add_report {
         Smolder::Control::Public::Auth::do_login($self, $q->param('username'),
             $q->param('password'));
     }
-
-    # we need to be logged in to use this...
-    return $self->_goto_login if !$self->public && $self->developer->guest;
 
     # make sure ths developer is a member of this project, or it's a public project
     # that allows anonymous uploads
@@ -285,15 +276,14 @@ sub process_add_report {
 
     # redirect to our recent reports
     $self->header_type('redirect');
-    my $url =
-      '/app/' . ($self->public ? 'public' : 'developer') . "_projects/smoke_reports/$project";
+    my $url = "/app/projects/smoke_reports/$project";
     $self->header_add(-uri => $url);
     return "Reported #$report added.\nRedirecting to $url";
 }
 
 =head2 smoke_report
 
-Shows the summary info for a given smoke_report. Uses the F<Developer/Projects/smoke_report.tmpl>
+Shows the summary info for a given smoke_report. Uses the F<Projects/smoke_report.tmpl>
 template.
 
 =cut
@@ -308,9 +298,8 @@ sub smoke_report {
     my $project = $smoke->project;
 
     # make sure ths developer is a member of this project
-    unless ($project->public || $project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($project);
 
     return $self->tt_process({report => $smoke, project => $project});
 }
@@ -318,7 +307,7 @@ sub smoke_report {
 =head2 smoke_reports
 
 Shows a list of smoke reports for a given project based on the limit, offset
-and tag parameters. Uses the F<Developer/Projects/smoke_reports.tmpl>
+and tag parameters. Uses the F<Projects/smoke_reports.tmpl>
 template.
 
 =cut
@@ -333,9 +322,8 @@ sub smoke_reports {
       unless $project;
 
     # make sure ths developer is a member of this project
-    unless ($project->public || $project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($project);
 
     # prevent malicious limit and offset values
     my $form = {
@@ -378,9 +366,8 @@ sub report_details {
       unless $report;
 
     # make sure ths developer is a member of this project
-    unless ($report->project->public || $report->project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($report->project);
 
     my $tt_params = {
         tap     => ${$report->html},
@@ -388,7 +375,7 @@ sub report_details {
         report  => $report,
     };
 
-    return $self->tt_process('Developer/Projects/tap.tmpl', $tt_params),;
+    return $self->tt_process('Projects/tap.tmpl', $tt_params),;
 }
 
 =head2 test_file_report_details
@@ -406,9 +393,8 @@ sub test_file_report_details {
     my $num = $self->param('type') || 0;
 
     # make sure ths developer is a member of this project
-    unless ($report->project->public || $report->project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($report->project);
     return $report->html_test_detail($num);
 }
 
@@ -425,9 +411,8 @@ sub tap_archive {
       unless $report;
 
     # make sure ths developer is a member of this project
-    unless ($report->project->public || $report->project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($report->project);
 
     return $self->stream_file($report->file);
 }
@@ -447,9 +432,8 @@ sub tap_stream {
       unless $report;
 
     # make sure ths developer is a member of this project
-    unless ($report->project->public || $report->project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($report->project);
     my $output = $report->tap_stream($tap_index);
     $$output = '<pre>' . $$output . '</pre>';
     return $output;
@@ -463,15 +447,43 @@ each one.
 =cut
 
 sub show_all {
-    my $self = shift;
-    return $self->tt_process({});
+    my $self     = shift;
+warn "HERE 1\n";
+    my @projects = $self->developer->projects;
+warn "HERE 2\n";
+    my $public   = $self->public_projects;
+warn "HERE 3\n";
+    
+    # only keep the stuff in public that's not in our project list
+warn "HERE 4\n";
+    my @non_overlap_public;
+warn "HERE 5\n";
+    foreach my $pub_proj (@$public) {
+warn "HERE 6\n";
+        my $found = 0;
+warn "HERE 7\n";
+        foreach my $proj (@projects) {
+warn "HERE 8\n";
+            if( $proj->id == $pub_proj->id ) {
+warn "HERE 9\n";
+                $found = 1;
+warn "HERE 10\n";
+                next;
+            }
+        }
+        push(@non_overlap_public, $pub_proj) if !$found;
+warn "HERE 11\n";
+    }
+warn "HERE 12\n";
+    return $self->tt_process({my_projects => \@projects, public_projects => \@non_overlap_public});
+warn "HERE 13\n";
 }
 
 =head2 admin_settings
 
 If this developer is the admin of a project then show them a form to update some
-project specific settings. Uses the F<Developer/Projects/admin_settings_form.tmpl>
-and the F<Developer/Projects/admin_settings.tmpl> templates.
+project specific settings. Uses the F<Projects/admin_settings_form.tmpl>
+and the F<Projects/admin_settings.tmpl> templates.
 
 =cut
 
@@ -483,9 +495,8 @@ sub admin_settings {
       unless $project;
 
     # only show if this developer is an admin of this project
-    unless ($project->is_admin($self->developer)) {
-        return $self->error_message('You are not an admin of this Project!');
-    }
+    return $self->error_message('You are not an admin of this Project!')
+      unless $project->is_admin($self->developer);
 
     # if we have something then we're coming from another sub so fill the
     # form from the CGI params
@@ -495,7 +506,7 @@ sub admin_settings {
         $tt_params->{tag_cloud} = $self->_project_tag_cloud($project);
         $out                    = HTML::FillInForm->new()->fill(
             scalarref =>
-              $self->tt_process('Developer/Projects/admin_settings_form.tmpl', $tt_params),
+              $self->tt_process('Projects/admin_settings_form.tmpl', $tt_params),
             fobject => $self->query(),
         );
 
@@ -550,9 +561,8 @@ sub process_admin_settings {
       unless $project;
 
     # only process if this developer is an admin of this project
-    unless ($project->is_admin($self->developer)) {
-        return $self->error_message('You are not an admin of this Project!');
-    }
+    return $self->error_message('You are not an admin of this Project!')
+      unless $project->is_admin($self->developer);
 
     # validate the incoming data
     my $form = {
@@ -596,20 +606,17 @@ sub delete_tag {
       unless $project;
 
     # only process if this developer is an admin of this project
-    unless ($project->is_admin($self->developer)) {
-        return $self->error_message('You are not an admin of this Project!');
-    }
+    return $self->error_message('You are not an admin of this Project!')
+      unless $project->is_admin($self->developer);
 
     my $query = $self->query();
     my ($tag, $replacement) = map { $query->param($_) } qw(tag replacement);
 
     if ($replacement) {
-
         # change the tag
         $project->change_tag($tag, $replacement);
         $self->add_message(msg => "Tag '$tag' was successfully replaced by '$replacement'.");
     } else {
-
         # delete the old tag
         $project->delete_tag($tag);
         $self->add_message(
@@ -630,16 +637,10 @@ sub details {
     my $id   = $self->param('id');
     my $proj = Smolder::DB::Project->retrieve($id);
 
-    unless ($proj->public || $proj->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
-
     if ($proj) {
-        my $url = "/app/"
-          . ($self->public ? 'public' : 'developer')
-          . '_projects/smoke_reports/'
-          . $proj->id;
-        my $tag_cloud = $self->_project_tag_cloud($proj, $url);
+        return $self->error_message('Unauthorized for this project')
+          unless $self->can_see_project($proj);
+        my $tag_cloud = $self->_project_tag_cloud($proj, "/app/projects/smoke_reports/$proj");
         return $self->tt_process({project => $proj, tag_cloud => $tag_cloud});
     } else {
         return $self->error_message('That project does not exist!');
@@ -664,9 +665,11 @@ sub mute_testfiles {
     # mute those files
     my $days = $q->param('days');
     my $mute_until_time = DateTime->now(time_zone => 'local')->add(days => $days)->truncate(to => 'day')->epoch;
-    foreach my $testfile (@testfiles) {
-        $testfile->mute_until($mute_until_time);
-        $testfile->update;
+    foreach my $test_file (@testfiles) {
+        return $self->error_message('Unauthorized for this project')
+          unless $test_file->project->has_developer($self->developer);
+        $test_file->mute_until($mute_until_time);
+        $test_file->update;
     }
 
     # Recompute page after any bulk action
@@ -683,38 +686,29 @@ Create a comment on a group of test files.
 =cut
 
 sub comment_testfiles {
-    my $self    = shift;
-    my $id      = $self->param('id');
-    my $report  = Smolder::DB::SmokeReport->retrieve($self->param('id'));
-    my $project = $report->project;
-    my $q       = $self->query;
-
-    if (!$project->has_developer($self->developer)) {
-        return $self->error_message('Unauthorized for this project');
-    }
+    my $self = shift;
+    my $q    = $self->query;
 
     # attach the comment to the given testfiles
-    my @testfile_ids = $q->param('testfiles');
-    my @testfiles    = map { Smolder::DB::TestFile->retrieve($_) } @testfile_ids;
+    my @testfiles    = map { Smolder::DB::TestFile->retrieve($_) } ($q->param('testfiles'));
     my $comment      = $q->param('comment');
-    foreach my $testfile (@testfiles) {
+    foreach my $test_file (@testfiles) {
+        return $self->error_message('Unauthorized for this project')
+          unless $test_file->project->has_developer($self->developer);
         Smolder::DB::TestFileComment->create(
             {
-                project   => $project,
+                project   => $test_file->project,
                 developer => $self->developer,
                 comment   => $comment,
-                test_file => $testfile->id,
+                test_file => $test_file,
             }
         );
     }
 
-    # Recompute page after any bulk action
-    $report->update_from_tap_archive();
     $self->add_message(msg => 'Comment successfully added');
-
-    # Redirect back
-    my $return_to = $q->param('return_to') || 'report_details';
-    return $self->$return_to;
+    $self->param(id => $testfiles[0]->project->id);
+    $self->param(test_file_id => $testfiles[0]->id);
+    return $self->test_file_history;
 }
 
 =head2 test_file_history
@@ -726,10 +720,11 @@ Show history of a particular test file in this project
 sub test_file_history {
     my $self         = shift;
     my $q            = $self->query;
-    my $project_id   = $self->param('id');
-    my $project      = Smolder::DB::Project->retrieve($project_id);
-    my $test_file_id = $self->param('test_file_id');
-    my $test_file    = Smolder::DB::TestFile->retrieve($test_file_id);
+    my $project      = Smolder::DB::Project->retrieve($self->param('id'));
+    my $test_file    = Smolder::DB::TestFile->retrieve($self->param('test_file_id'));
+
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($project);
 
     # prevent malicious limit and offset values
     my $form = {
@@ -745,7 +740,10 @@ sub test_file_history {
     my $limit  = $q->param('limit')  || 20;
     my $offset = $q->param('offset') || 0;
     my @test_file_results = Smolder::DB::TestFileResult->search_where(
-        {project => $project_id, test_file => $test_file_id},
+        {
+            project   => $project,
+            test_file => $test_file
+        },
         {
             limit_dialect => 'LimitOffset',
             offset        => $offset,
@@ -758,7 +756,80 @@ sub test_file_history {
         test_file => $test_file,
         results   => \@test_file_results
     };
-    return $self->tt_process('Developer/Projects/test_file_history.tmpl', $tt_params);
+    return $self->tt_process('Projects/test_file_history.tmpl', $tt_params);
+}
+
+=head2 feed
+
+Will return an XML data feed (Atom) to the browser. The 5 most recent smoke
+reports for a project are included in this feed. An optional C<type>
+can also be specified which is can either be C<all> or C<failures>.Only
+projects that have been marked as C<enable_feed> will appear in any feed.
+
+=cut
+
+sub feed {
+    my $self = shift;
+    my @binds;
+    my $sql = qq/
+        SELECT sr.* FROM smoke_report sr
+        JOIN project p ON (sr.project = p.id)
+        WHERE p.enable_feed = 1 AND p.id = ?
+    /;
+    my $id      = $self->param('id');
+    my $project = Smolder::DB::Project->retrieve($id);
+
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($project);
+
+    my $type    = $self->param('type');
+    push(@binds, $id);
+
+    if ($type and $type eq 'failed') {
+        $sql .= ' AND sr.failed = 1 ';
+    }
+
+    $sql .= ' ORDER BY sr.added DESC LIMIT 5';
+
+    my $sth = Smolder::DB::SmokeReport->db_Main->prepare_cached($sql);
+    $sth->execute(@binds);
+    my @reports = Smolder::DB::SmokeReport->sth_to_objects($sth);
+
+    $self->header_props(-type => 'text/xml');
+
+    my $updated;
+    if (@reports) {
+        $updated = $reports[0]->added;
+    } else {
+        $updated = DateTime->now();
+    }
+
+    my $feed = XML::Atom::SimpleFeed->new(
+        title   => '[' . $project->name . '] Smolder - ' . HostName,
+        link    => Smolder::Util::url_base,
+        id      => Smolder::Util::url_base,
+        updated => $updated->strftime('%FT%TZ'),
+    );
+
+    foreach my $report (@reports) {
+        my $link =
+            Smolder::Util::url_base() . '/app/'
+          . ($project->public ? 'public' : 'developer')
+          . '_projects/smoke_report/'
+          . $report->id;
+        $feed->add_entry(
+            title => '#'
+              . $report->id . ' - '
+              . ($report->failed ? 'Failed' : 'New')
+              . ' Smoke Report',
+            author  => $report->developer->username,
+            link    => $link,
+            id      => $link,
+            summary => $report->summary,
+            updated => $report->added->strftime('%FT%TZ'),
+        );
+    }
+    return $feed->as_string();
 }
 
 1;

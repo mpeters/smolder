@@ -42,8 +42,7 @@ __PACKAGE__->add_callback(
     init => sub {
         my $self = shift;
         if (LogFile) {
-
-            # setup log dispatch to use Apache::Log
+            # setup log dispatch to send to a file
             $self->log_config(
                 APPEND_NEWLINE       => 1,
                 LOG_DISPATCH_MODULES => [
@@ -183,6 +182,18 @@ sub developer {
         $self->param(__developer => $dev);
     }
     return $self->param('__developer');
+}
+
+=head2 can_see_project
+
+This method, will return whether the current user making the request
+has permissions to view the given a L<Smolder::DB::Project> object.
+
+=cut
+
+sub can_see_project {
+    my ($self, $proj) = @_;
+    return $proj->public || $proj->has_developer($self->developer);
 }
 
 =head2 public_projects
@@ -364,17 +375,22 @@ my $TT_CONFIG = {
 
         # the directory is based on the object's package name
         my $mod = ref $self;
+warn "\n\n\nMOD: $mod\n";
         $mod =~ s/Smolder::Control:://;
+warn "MOD: $mod\n";
         my $dir = catdir(split(/::/, $mod));
+warn "DIR: $dir\n";
 
         # the filename is the method name of the caller
         (caller(2))[3] =~ /([^:]+)$/;
         my $name = $1;
+warn "NAME: $name\n";
         if ($name eq 'tt_process') {
 
             # we were called from tt_process, so go back once more on the caller stack
             (caller(3))[3] =~ /([^:]+)$/;
             $name = $1;
+warn "NAME: $name\n";
         }
         return catfile($dir, $name . '.tmpl');
     },

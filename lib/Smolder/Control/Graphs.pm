@@ -1,4 +1,4 @@
-package Smolder::Control::Developer::Graphs;
+package Smolder::Control::Graphs;
 use base 'Smolder::Control';
 use strict;
 use warnings;
@@ -56,10 +56,6 @@ sub setup {
     );
 }
 
-# to be overridden by subclasses to allow public access
-sub public        { 0 }
-sub require_group { 'developer' }
-
 =head1 RUN MODES
 
 =head2 start
@@ -78,6 +74,10 @@ sub start {
     return $self->error_message('Project does not exist')
       unless $project;
 
+    # make sure ths developer is a member of this project
+    return $self->error_message('Unauthorized for this project')
+      unless $self->can_see_project($project);
+
     $tt_params->{project} = $project;
 
     # the defaults
@@ -93,7 +93,6 @@ sub start {
         scalarref => $self->tt_process($tt_params),
         fdat      => \%fill_data,
     );
-
 }
 
 =head2 image

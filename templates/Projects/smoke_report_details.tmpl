@@ -32,7 +32,7 @@
             </span>
           [% ELSE %]
             <a class="pass_fail_ratio ajax" title="HTML test report" style="background-color: #[% pass_ratio | pass_fail_color %];"
-                href="/app/[% IF c.public %]public[% ELSE %]developer[% END %]_projects/report_details/[% report.id %]">
+                href="/app/projects/report_details/[% report.id %]">
                 [% pass_percent | round %]%
             </a>
           [% END %]
@@ -41,7 +41,7 @@
           <a class="button invert popup_form" href="#" id="invalid_form_[% report.id %]_trigger">[% IF report.invalid %]V[% ELSE %]Inv[% END %]alidate</a>
           <div id="invalid_form_[% report.id %]" class="popup_form" style="display:none; position:absolute; right: 0px; width: 240px;">
             <form id="invalid_form_[% report.id %]_trigger" 
-                action="/app/developer_projects/smoke_test_validity/[% report.id %]" 
+                action="/app/projects/smoke_test_validity/[% report.id %]" 
                 class="toggle_smoke_valid" method="post">
             [% IF report.invalid %]
               Are you sure you want to change this smoke test back to 'valid' status?

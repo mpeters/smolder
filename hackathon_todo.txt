@@ -8,6 +8,7 @@ Easy
   are viewable in search.cpan.org
 6) RT #52338 (log file getting truncated)
 7) RT #49993 (default port)
+16) Add "LogLevel" smolder.conf directive
 
 
 Medium
@@ -15,8 +16,6 @@ Medium
 8) Get /static urls outputting better HTTP headers to improve browser caching
 9) Handle SKIP ALL better (showing more information rather than just "No tests run"
 10) Precompile all templates at startup (speeds it up and increases shared memory)
-11) RT #49989 (JS error)
-12) Change URLs so public and private projects are accessed over the same URL
 
 Hard
 ========

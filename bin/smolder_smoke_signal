@@ -195,7 +195,7 @@ if ($mech->status ne '200' || $content !~ /Welcome \Q$user\E/) {
 
 # now go to this project's page
 print "Retrieving project listing for user '$user'.\n" if ($verbose);
-$mech->get($base_url . '/developer_projects');
+$mech->get($base_url . '/projects');
 $content = $mech->content;
 $content =~ />\Q$project\E<!--ID:(\d+)-->/;
 my $project_id = $1;
@@ -206,7 +206,7 @@ if ($mech->status ne '200' || !$project_id) {
 
 # now go to the add-smoke-report page for this project
 print "Adding smoke report to project '$project'.\n" if ($verbose);
-$mech->get($base_url . "/developer_projects/add_report/$project_id");
+$mech->get($base_url . "/projects/add_report/$project_id");
 $content = $mech->content;
 if ($mech->status ne '200' || $content !~ /New Smoke Report/) {
     warn "Could not reach the Add Smoke Report form!\n";

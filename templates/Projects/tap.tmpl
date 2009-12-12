@@ -1,19 +1,14 @@
 [% SET page_title = project.name %]
-[% SET base_url = '/app/' _ ( c.public ? 'public' : 'developer') %]
 
 <h2>Test Report #[% report.id %]</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/developer_projects/details/[% project.id %]">Project Details</a>
-    <a class="sub_menu" href="[% base_url %]_projects/smoke_reports/[% project.id %]">Recent Reports</a>
-    <a class="sub_menu" href="[% base_url %]_graphs/start/[% project.id %]">Progress Graphs</a>
-    [% IF c.public && project.allow_anon %]
-    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    [% ELSIF !c.public %]
-    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    [% END %]
+    <a class="sub_menu" href="/app/projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/projects/smoke_reports/[% project.id %]">Recent Reports</a>
+    <a class="sub_menu" href="/app/graphs/start/[% project.id %]">Progress Graphs</a>
+    <a class="sub_menu" href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% IF project.is_admin(c.developer) %]
-    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    <a class="sub_menu" href="/app/projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
 </div>
 
@@ -62,10 +57,14 @@ var toggle_rows = function() {
         }
     });
 }
-[% IF c.developer && !c.developer.project_pref(project).show_passing %]
+[% IF !c.developer.project_pref(project).show_passing %]
 checkbox.checked = true;
 checkbox.onchange = toggle_rows;
 toggle_rows();
+[% END %]
+
+[% IF project.has_developer(c.developer) %]
+$('mute_controls').show();
 [% END %]
 
 var num_checked = 0;
@@ -94,7 +93,7 @@ toggle_testfile_menu = function(checkbox) {
 mute_testfiles = function(days) {
     var form_args = Form.serialize('testfile_actions', true);
     Smolder.Ajax.update({
-        url       : '[% base_url %]_projects/mute_testfiles/[% report.id %]',
+        url       : '/app/projects/mute_testfiles/[% report.id %]',
         indicator : 'testfile_action_indicator',
         params    : {
             days      : days,

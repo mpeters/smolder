@@ -27,7 +27,7 @@ if (is_smolder_running) {
 }
 
 my $mech     = Smolder::Mech->new();
-my $url      = base_url() . '/developer_projects';
+my $url      = base_url() . '/projects';
 my $pw       = 's3cr3t';
 my $dev      = create_developer(password => $pw);
 my $proj1_id = create_project()->id();
@@ -46,14 +46,14 @@ END {
 }
 
 # 1
-use_ok('Smolder::Control::Developer::Projects');
+use_ok('Smolder::Control::Projects');
 
 # 2..6
 # login as a developer
-$mech->get($url);
+$mech->get("$url/details/$proj2_id");
 
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
-$mech->content_contains("You shouldn't be here");
+$mech->content_contains("Unauthorized");
 $mech->content_lacks('Welcome');
 $mech->login(username => $dev->username, password => $pw);
 ok($mech->success);
@@ -139,7 +139,7 @@ $mech->content_contains('My Projects');
 {
     my $proj1 = _get_proj($proj1_id);
     my $mech  = Smolder::Mech->new();    # new mech with no auth cookie
-    my $url     = base_url() . "/developer_projects/process_add_report/$proj1_id";
+    my $url     = base_url() . "/projects/process_add_report/$proj1_id";
     my $request = POST(
         $url,
         Content_Type => 'form-data',
@@ -183,7 +183,7 @@ $mech->content_contains('My Projects');
     }
     END { delete_smoke_reports() }
 
-    $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
+    $mech->get_ok("/app/projects/smoke_reports/$proj1");
     $mech->content_contains($proj1->name);
     $mech->content_contains('Recent Smoke Reports');
 
@@ -230,7 +230,7 @@ $mech->content_contains('My Projects');
     my $proj1 = _get_proj($proj1_id);
 
     # first HTML
-    $mech->get_ok("/app/developer_projects/smoke_reports/$proj1");
+    $mech->get_ok("/app/projects/smoke_reports/$proj1");
     $mech->follow_link_ok({n => 1, url_regex => qr/report_details/});
     ok($mech->ct, 'text/html');
 
@@ -243,7 +243,7 @@ $mech->content_contains('My Projects');
     $mech->content_contains('Linux localhost.localdomain 2.6.20-1.2952.fc6');
 
     # individual report files
-    $mech->get_ok("/app/developer_projects/test_file_report_details/$proj1/0");
+    $mech->get_ok("/app/projects/test_file_report_details/$proj1/0");
     ok($mech->ct, 'text/html');
 }
 
@@ -251,7 +251,7 @@ $mech->content_contains('My Projects');
 # smoke_report_validity
 {
     my $proj1 = _get_proj($proj1_id);
-    my $url   = "/app/developer_projects/smoke_test_validity";
+    my $url   = "/app/projects/smoke_test_validity";
 
     # without a report
     $mech->get_ok($url);
@@ -301,7 +301,7 @@ $mech->content_contains('My Projects');
         project   => $proj1,
         developer => $dev,
     );
-    my $url   = "/app/developer_projects/smoke_report/$report";
+    my $url   = "/app/projects/smoke_report/$report";
     my $title = "Smoke Report #$report";
     $mech->get_ok($url);
     $mech->title_like(qr/\Q$title\E/);
@@ -319,7 +319,7 @@ $mech->content_contains('My Projects');
         project   => $proj,
         developer => $dev,
     );
-    $mech->get_ok("/app/developer_projects/tap_archive/$report");
+    $mech->get_ok("/app/projects/tap_archive/$report");
     is($mech->ct, 'application/x-gzip', 'correct content-type');
     my $tmp = File::Temp->new();
     $tmp->close();
@@ -337,7 +337,7 @@ $mech->content_contains('My Projects');
         project   => $proj,
         developer => $dev,
     );
-    $mech->get_ok("/app/public_projects/tap_stream/$report/1");
+    $mech->get_ok("/app/projects/tap_stream/$report/1");
     $mech->content_contains('ok 2');
     $mech->content_contains('ok 3 # skip');
     $mech->content_contains('1..7');

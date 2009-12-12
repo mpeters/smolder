@@ -1,0 +1,20 @@
+[% SET page_title = project.name %]
+
+<h2>Settings</h2>
+
+<div class="sub_menu">
+    <a class="sub_menu" href="/app/projects/details/[% project.id %]">Project Details</a>
+    <a class="sub_menu" href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a>
+    <a class="sub_menu" href="/app/projects/smoke_reports/[% project.id %]">Recent Reports</a>
+    <a class="sub_menu" href="/app/graphs/start/[% project.id %]">Progress Graphs</a>
+</div>
+
+<div id="admin_settings" style="height: 195px">
+  [% PROCESS Projects/admin_settings_form.tmpl %]
+</div>
+
+<h2>Tags</h2>
+
+<div id="project_tags">
+  [% PROCESS Projects/admin_settings_tags.tmpl %]
+</div>

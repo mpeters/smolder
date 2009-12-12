@@ -13,6 +13,8 @@ use Smolder::TestData qw(
   delete_preferences
 );
 use Smolder::DB::ProjectDeveloper;
+use Carp;
+$SIG{__DIE__} = \*Carp::confess;
 
 plan(tests => 51);
 

@@ -39,14 +39,14 @@ $('tag_cloud_container').select('a').each(function(el) {
 <div id="delete_tag_options" style="display:none; position: absolute; padding: 5px" class="popup_form">
 <div>
 Would you like to
-<form name="delete_tag_form" method="post" action="/app/developer_projects/delete_tag/[% project.id %]" class="ajaxable">
+<form name="delete_tag_form" method="post" action="/app/projects/delete_tag/[% project.id %]" class="ajaxable">
 <input type="hidden" name="tag" value="">
 <input type="submit" value="Completely Remove This Tag">
 </form>
 
 or
 
-<form name="replace_tag_form" method="post" action="/app/developer_projects/delete_tag/[% project.id %]" class="ajaxable">
+<form name="replace_tag_form" method="post" action="/app/projects/delete_tag/[% project.id %]" class="ajaxable">
 <input type="hidden" name="tag" value="">
 Replace This Tag with
 <input type="text" name="replacement" value="">

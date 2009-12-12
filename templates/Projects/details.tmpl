@@ -3,15 +3,11 @@
 <h2>Details</h2>
 
 <div class="sub_menu">
-    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_projects/smoke_reports/[% project.id %]">Recent Reports</a>
-    <a class="sub_menu" href="/app/[% IF public %]public[% ELSE %]developer[% END %]_graphs/start/[% project.id %]">Progress Graphs</a>
-    [% IF public && project.allow_anon %]
-    <a class="sub_menu" href="/app/public_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    [% ELSIF ! public %]
-    <a class="sub_menu" href="/app/developer_projects/add_report/[% project.id %]">Add Smoke Report</a>
-    [% END %]
+    <a class="sub_menu" href="/app/projects/smoke_reports/[% project.id %]">Recent Reports</a>
+    <a class="sub_menu" href="/app/graphs/start/[% project.id %]">Progress Graphs</a>
+    <a class="sub_menu" href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a>
     [% IF project.is_admin(c.developer) %]
-    <a class="sub_menu" href="/app/developer_projects/admin_settings/[% project.id %]">Project Settings</a>
+    <a class="sub_menu" href="/app/projects/admin_settings/[% project.id %]">Project Settings</a>
     [% END %]
 </div>
 
@@ -64,9 +60,9 @@
 <tr>
   <td><label>Data Feeds <img src="/images/rss.png"></label></td>
   <td>
-    <a href="/app/public_projects/feed/[% project.id %]">[% url_base %]/app/public_projects/feed/[% project.id %]</a> 
+    <a href="/app/projects/feed/[% project.id %]">[% url_base %]/app/projects/feed/[% project.id %]</a> 
     <em>(all)</em><br />
-    <a href="/app/public_projects/feed/[% project.id %]/failed">[% url_base %]/app/public_projects/feed/[% project.id %]/failed</a> 
+    <a href="/app/projects/feed/[% project.id %]/failed">[% url_base %]/app/projects/feed/[% project.id %]/failed</a> 
     <em>(failed)</em><br />
   </td>
 </tr>

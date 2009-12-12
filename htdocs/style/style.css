@@ -191,6 +191,8 @@ h3 {
     padding-left: 5px;
     margin-top: 0px;
     margin-bottom: 5px;
+    border-bottom: 1px solid #777777;
+    border-right: 1px solid #777777;
 }
 
 a {

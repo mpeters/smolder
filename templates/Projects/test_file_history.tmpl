@@ -1,5 +1,4 @@
 [%- SET page_title = project.name _ ' - ' _ test_file.label -%]
-[%- SET app_prefix = project.app_prefix -%]
 
 <h2>History</h2>
 
@@ -16,7 +15,7 @@
    [% SET report = test.smoke_report %]
     <tr class=" results [% odd_even %]">
       <td>
-        <a class="testfile_label" href="[% app_prefix %]/report_details/[% report.id %]">
+        <a class="testfile_label" href="/app/projects/report_details/[% report.id %]">
         <span class="filename[% IF test.failed %] fail[% END %]">
           [% report.added.strftime('%D %l:%M %p') %] [% IF report.architecture %][% "- " _ report.architecture %][% END %][% IF report.platform %][% "- " _ report.platform %][% END %]
         </span>
@@ -24,7 +23,7 @@
       </td>
       <td width="8%" class="x [% IF test.all_skipped %]skip[% ELSIF test.failed %]fail[% ELSE %]ok[% END %]">
         <a 
-          href="[% app_prefix %]/test_file_report_details/[% report.id %]/[% test.file_index %]"
+          href="/app/projects/test_file_report_details/[% report.id %]/[% test.file_index %]"
             id="for_testfile_details_[% test.file_index %]"
             class="details_trigger show_indicator_[% test.file_index %]">[% test.percent %]%</a>
       </td>
@@ -33,7 +32,7 @@
       <td colspan="5">
         <div id="testfile_details_[% test.file_index %]" class="testfile_details" style="display:none"></div>
         <div id="testfile_details_[% test.file_index %]_tap_stream" class="testfile_tap_stream" style="display:none; text-align: right">
-          <a href="[% app_prefix %]/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
+          <a href="/app/projects/tap_stream/[% report.id %]/[% test.file_index %]" target="_blank">TAP &#187;</a>
         </div>
       </td>
     </tr>
@@ -47,9 +46,8 @@
 <h2>Comments</h2>
 
 [% IF project.has_developer(c.developer) %]
-<form name="add_comment_form" id="add_comment_form" method="post" action="/app/developer_projects/comment_testfiles/[% project.id %]/[% test_file.id %]">
+<form name="add_comment_form" id="add_comment_form" method="post" action="/app/projects/comment_testfiles/[% project.id %]/[% test.test_file %]">
 <input type="hidden" name="testfiles" value="[% test_file.id %]" />
-<input type="hidden" name="return_to" value="test_file_history" />
 <textarea name="comment" cols="90" rows="3"></textarea>
 <input type="button" value="Add New Comment" onclick="add_comment()" />
 <img id="comment_indicator" src="[% c.static_url('/images/indicator.gif') %]" style="display:none" />

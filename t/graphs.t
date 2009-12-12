@@ -23,10 +23,10 @@ if (is_smolder_running) {
 }
 
 my $mech  = Smolder::Mech->new();
-my $url   = base_url() . '/developer_graphs';
+my $url   = base_url() . '/graphs';
 my $pw    = 's3cr3t';
 my $dev   = create_developer(password => $pw);
-my $proj1 = create_project();
+my $proj1 = create_project( public => 0 );
 my $proj2 = create_project();
 
 # add this $dev to $proj1 and $proj2
@@ -42,15 +42,14 @@ END {
 }
 
 # 1
-use_ok('Smolder::Control::Developer::Graphs');
+use_ok('Smolder::Control::Graphs');
 
 # 2..6
 # login as a developer
-$mech->get($url);
-
+$mech->get("$url/start/$proj1");
 #is($mech->status, 401, 'auth required'); # can we control HTTP codes in C::A::Server?
-$mech->content_contains("You shouldn't be here");
-$mech->content_lacks('Welcome');
+$mech->content_contains("Unauthorized");
+$mech->content_lacks('Progress Graphs');
 $mech->login(username => $dev->username, password => $pw);
 ok($mech->success);
 $mech->get_ok("$url/start/$proj1");
