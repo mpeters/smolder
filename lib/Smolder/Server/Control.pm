@@ -1,14 +1,10 @@
 package Smolder::Server::Control;
+use base 'Server::Control::Simple';
 use File::Basename;
 use File::Slurp;
-use Moose;
 use Smolder::Conf;
 use strict;
 use warnings;
-
-extends 'Server::Control::Simple';
-
-__PACKAGE__->meta->make_immutable();
 
 sub BUILDARGS {
     my $class = shift;
