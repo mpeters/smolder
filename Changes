@@ -10,6 +10,7 @@ Revision history for Smolder
     + Comments can be added to test files - J. Swartz, M. Peters
     + Allow anonymous reports to be uploaded by bin/smolder_smoke_signal - M. Peters
     + Fixing RT #49107 by trying to pick a better default hostname - M. Peters
+    + Fixing RT #49993 by making smolder_smoke_signal default to 8080 just like Smolder does - M. Peters
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters

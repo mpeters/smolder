@@ -173,7 +173,7 @@ if (-r $file) {
 
 # try and reach the smolder server
 print "Trying to reach Smolder server at $server.\n" if $v;
-$port ||= 80;
+$port ||= 8080;
 my $mech     = WWW::Mechanize->new();
 my $content;
 my $base_url = "http://$server:$port/app";
