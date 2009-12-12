@@ -9,6 +9,7 @@ Revision history for Smolder
     + Individual test files can be muted so they don't generate emails for a specified period of time - J. Swartz, M. Peters
     + Comments can be added to test files - J. Swartz, M. Peters
     + Allow anonymous reports to be uploaded by bin/smolder_smoke_signal - M. Peters
+    + Fixing RT #49107 by trying to pick a better default hostname - M. Peters
 
 1.40
     + Tests that died prematurely didn't mark the whole suite as failed - M. Peters
