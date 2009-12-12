@@ -8,21 +8,63 @@ __END__
 
 =head1 NAME 
 
-Smolder - Web-based Continuous Integration Smoke Server
-
-=head1 SYNOPSIS
-
-Start your smolder server:
-
-    ]$ smolder
+Smolder
 
 =head1 DESCRIPTION
 
-If you have a better idea for what Smolder is and how I can describe it, I'm all ears :)
+Smolder is a web-based continuous integration smoke server. It's a central
+repository for you smoke tests for multiple public and private repositories.
 
 Please see L<Smolder::Manual> for how to use it.
 
-=head2 SUPPORT
+=begin html
+
+<img src="http://i.imgur.com/Hb2cD.png" width="600">
+
+=end html
+
+=head1 FEATURES
+
+=over
+
+=item * Self contained web application
+
+Smolder has it's own built-in HTTP server (Net::Server) and database (SQLite).
+
+=item * Standard Format
+
+Smolder uses L<TAP|http://en.wikipedia.org/wiki/Test_Anything_Protocol> and TAP Archives
+as it's reporting format. See L<Smolder::Manual> for more details.
+
+=item * Multiple Notification Channels
+
+Smolder can notifiy you of new or failing tests either by email or Atom data feeds.
+
+=item * Public and Private Projects
+
+Use Smolder for your public open source projects, or for you private work related
+projects. Smolder can host multiple projects of each type.
+
+=item * Project Graphs
+
+Smolder has graphs to help you visualize the changes to your test suite over time.
+See how the number of tests has grown or find patterns in your failing tests.
+
+=item * Smoke Report Organization
+
+You can organize your smoke reports by platform, architecture or any tag you want.
+This makes it easy to see how your project is doing on multiple platforms, or with
+different configurations.
+
+=back
+
+=begin html
+
+<img src="http://i.imgur.com/ASTGB.png" width="600">
+
+=end html
+
+=head1 SUPPORT
 
 =over
 
