@@ -43,21 +43,21 @@ END {
 
 # test required options
 my $out = `$bin 2>&1`;
-like($out, qr/Missing required field 'server'/i);
+like($out, qr/Missing required field 'server'/i, 'missing --server');
 $out = `$bin --server $host 2>&1`;
-like($out, qr/Missing required field 'project'/i);
+like($out, qr/Missing required field 'project'/i, 'missing --project');
 $out = `$bin --server $host --project $project_name --username $username --password $pw 2>&1`;
-like($out, qr/Missing required field 'file'/i);
+like($out, qr/Missing required field 'file'/i, 'missing --file');
 
 # invalid file
 $out =
   `$bin --server $host --project $project_name --username $username --password $pw --file stuff 2>&1`;
-like($out, qr/does not exist/i);
+like($out, qr/does not exist/i, 'invalid file');
 
 # invalid server
 $out =
-  `$bin --server something.tld --project $project_name --username $username --password $pw --file $good_run_gz 2>&1`;
-like($out, qr/Could not reach/i);
+  `$bin --server something --project $project_name --username $username --password $pw --file $good_run_gz 2>&1`;
+like($out, qr/Could not reach/i, 'invalid server');
 
 SKIP: {
 
@@ -66,17 +66,17 @@ SKIP: {
       `$bin --server $host --project "${project_name}asdf" --username $username --password $pw --file $good_run_gz 2>&1`;
     skip("Smolder not running", 14)
       if ($out =~ /Received status 500/);
-    like($out, qr/do not have access/i);
+    like($out, qr/do not have access/i, 'non-existant project');
 
     # invalid login
     $out =
       `$bin --server $host --project "$project_name" --username $username --password asdf --file $good_run_gz 2>&1`;
-    like($out, qr/Could not login/i);
+    like($out, qr/Could not login/i, 'bad login credentials');
 
     # non-project-member
     $out =
       `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz 2>&1`;
-    like($out, qr/do not have access/i);
+    like($out, qr/do not have access/i, 'not a member of the project');
 
     # add this person to the project
     Smolder::DB::ProjectDeveloper->create(
@@ -117,36 +117,36 @@ SKIP: {
     my $comments = "Some tests";
     $out =
       `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" 2>&1`;
-    like($out, qr/successfully uploaded/i);
+    like($out, qr/successfully uploaded/i, 'successfully uploaded w/comments');
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    is($report->comments, $comments);
+    is($report->comments, $comments, 'correct comments');
     Smolder::DB->disconnect();
 
     # platform
     my $platform = "my platform";
     $out =
       `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1`;
-    like($out, qr/successfully uploaded/i);
+    like($out, qr/successfully uploaded/i, 'successful upload w/platform info');
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    is($report->comments, $comments);
-    is($report->platform, $platform);
+    is($report->comments, $comments, 'correct comments');
+    is($report->platform, $platform, 'correct platform');
     Smolder::DB->disconnect();
 
     # architecture
     my $arch = "128 bit something";
     $out =
       `$bin --server $host --project "$project_name" --username $username --password $pw --file $good_run_gz --comments "$comments" --platform "$platform" --architecture "$arch" 2>&1`;
-    like($out, qr/successfully uploaded/i);
+    like($out, qr/successfully uploaded/i, 'successful upload w/arch');
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    is($report->comments,     $comments);
-    is($report->platform,     $platform);
-    is($report->architecture, $arch);
+    is($report->comments,     $comments, 'correct comments');
+    is($report->platform,     $platform, 'correct platform');
+    is($report->architecture, $arch, 'correct arch');
     Smolder::DB->disconnect();
 
     # tags
@@ -157,13 +157,13 @@ SKIP: {
       . join(', ', @tags)
       . qq(" 2>&1);
     $out = `$cmd`;
-    like($out, qr/successfully uploaded/i);
+    like($out, qr/successfully uploaded/i, 'successful upload w/tags');
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    is($report->comments,     $comments);
-    is($report->platform,     $platform);
-    is($report->architecture, $arch);
+    is($report->comments,     $comments, 'correct comments');
+    is($report->platform,     $platform, 'correct platform');
+    is($report->architecture, $arch, 'correct arch');
     my @assigned_tags = $report->tags;
     cmp_ok(@tags, '==', 2, 'correct number of tags');
 
@@ -176,7 +176,7 @@ SKIP: {
     # non-public project anonymous 
     $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
     $out = `$cmd`;
-    like($out, qr/not a public project/i);
+    like($out, qr/not a public project/i, 'not a public project');
     Smolder::DB->disconnect();
 
     # invalid anonymous upload
@@ -186,7 +186,7 @@ SKIP: {
     Smolder::DB->disconnect();
     $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
     $out = `$cmd`;
-    like($out, qr/not allow anonymous/i);
+    like($out, qr/not allow anonymous/i, 'no anonymous uploads');
     Smolder::DB->disconnect();
 
     # anonymous upload
@@ -195,11 +195,11 @@ SKIP: {
     Smolder::DB->disconnect();
     $cmd = qq($bin --server $host --project "$project_name" --file $good_run_gz --comments "$comments" --platform "$platform" 2>&1);
     $out = `$cmd`;
-    like($out, qr/successfully uploaded/i);
+    like($out, qr/successfully uploaded/i, 'successful anonymous upload');
     $out =~ /as #(\d+)/;
     $report_id = $1;
     $report    = Smolder::DB::SmokeReport->retrieve($report_id);
-    is($report->comments,     $comments);
-    is($report->platform,     $platform);
+    is($report->comments,     $comments, 'correct comments');
+    is($report->platform,     $platform, 'correct platform');
     Smolder::DB->disconnect();
 }
