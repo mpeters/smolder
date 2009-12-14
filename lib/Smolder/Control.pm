@@ -18,10 +18,10 @@ use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
 
-{package Template::Perl;
- # Import debugging functions into templates (should be switched on with a config)
- use Smolder::Debug;
-}
+#{package Template::Perl;
+# # Import debugging functions into templates (should be switched on with a config)
+# use Smolder::Debug;
+#}
 
 sub run {
     my $self = shift;
