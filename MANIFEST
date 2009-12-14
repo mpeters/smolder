@@ -4,7 +4,6 @@ bin/smolder_smoke_signal
 bin/smolderctl
 Build.PL
 Changes
-data/smolder.pid
 hackathon_todo.txt
 htdocs/images/arrow-desc.gif
 htdocs/images/boxed-bg-bottom.png
@@ -58,7 +57,6 @@ lib/Smolder/Control/Graphs.pm
 lib/Smolder/Control/Projects.pm
 lib/Smolder/Control/Public.pm
 lib/Smolder/Control/Public/Auth.pm
-lib/Smolder/Control/Public/Graphs.pm
 lib/Smolder/DB.pm
 lib/Smolder/DB/Developer.pm
 lib/Smolder/DB/Preference.pm
