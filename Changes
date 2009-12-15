@@ -1,5 +1,8 @@
 Revision history for Smolder
 
+1.51
+    + Fixed problem on machines with multiple IP addresses and other services bound to port 80 on different IPs - M. Peters
+
 1.50
     + Added bin/smolderctl - J. Swartz
     + Added configuration directives TruncateTestFilenames, ReportsPerPage, AutoRefreshReports - J. Swartz
