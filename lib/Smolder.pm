@@ -17,11 +17,11 @@ repository for you smoke tests for multiple public and private repositories.
 
 Please see L<Smolder::Manual> for how to use it.
 
-=begin html
+=begin HTML
 
-<img src="http://i.imgur.com/Hb2cD.png" width="600">
+<p><img src="http://i.imgur.com/Hb2cD.png" width="600"></p>
 
-=end html
+=end HTML
 
 =head1 FEATURES
 
@@ -58,11 +58,11 @@ different configurations.
 
 =back
 
-=begin html
+=begin HTML
 
-<img src="http://i.imgur.com/ASTGB.png" width="600">
+<p><img src="http://i.imgur.com/ASTGB.png" width="600"></p>
 
-=end html
+=end HTML
 
 =head1 SUPPORT
 
