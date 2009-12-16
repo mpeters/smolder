@@ -14,7 +14,7 @@ sub new {
     my ($class, %args) = @_;
     my $server = $class->SUPER::new(@_);
     $server->host(HostName);
-    $server->port(Hostname . ':' . Port);
+    $server->port(HostName . ':' . Port);
 
     $server->entry_points(
         {
