@@ -237,7 +237,7 @@ sub _send_emails {
     my $subject = sprintf("Smolder - [%s] passed %i/%i tests: %s",
                           $self->project->name(),
                           $self->pass(),
-                          $self->fail(),
+                          $self->total(),
                           ( $self->failed() ? "FAILURE" : "SUCCESS" ));
 
     my $matrix = Smolder::TAPHTMLMatrix->new(
