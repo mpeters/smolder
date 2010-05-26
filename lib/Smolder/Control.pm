@@ -292,10 +292,11 @@ sub static_url {
     my ($self, $url) = @_;
 
     # TODO - fix this after the switch to CGI::Application::Server
-    return $url;
+    #return $url;
 
     $url =~ s/^\///;
-    return catfile('', $Smolder::VERSION, $url);
+    return 'http://' . HostName . ( Port == 80 ? '' : ':' . Port ) . '/' . $url;
+    #return catfile('', $Smolder::VERSION, $url);
 }
 
 =head2 add_message
