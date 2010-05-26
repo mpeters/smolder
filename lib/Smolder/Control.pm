@@ -295,8 +295,7 @@ sub static_url {
     #return $url;
 
     $url =~ s/^\///;
-    return 'http://' . HostName . ( Port == 80 ? '' : ':' . Port ) . '/' . $url;
-    #return catfile('', $Smolder::VERSION, $url);
+    return $url;
 }
 
 =head2 add_message
