@@ -813,7 +813,7 @@ var myrules = {
         new Ajax.Autocompleter(
             'platform',
             'platform_auto_complete',
-            '/app/developer_projects/platform_options'
+            '/app/projects/platform_options'
         );
     },
 
@@ -821,7 +821,7 @@ var myrules = {
         new Ajax.Autocompleter(
             'architecture', 
             'architecture_auto_complete', 
-            '/app/developer_projects/architecture_options'
+            '/app/projects/architecture_options'
         );
     },
 
