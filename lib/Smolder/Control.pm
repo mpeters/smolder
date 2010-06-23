@@ -13,7 +13,7 @@ use CGI::Cookie;
 # BEGIN { $ENV{CGI_APP_DEBUG} = 1 ; } use CGI::Application::Plugin::DebugScreen;
 use Smolder;
 use Smolder::Util;
-use Smolder::Conf qw(ErrorsToScreen HostName LogFile LogLevel TemplateDir);
+use Smolder::Conf qw(ErrorsToScreen HostName Port LogFile LogLevel TemplateDir);
 use Smolder::DB::Developer;
 use Smolder::DB::Project;
 use File::Spec::Functions qw(catdir catfile tmpdir);
@@ -292,10 +292,10 @@ sub static_url {
     my ($self, $url) = @_;
 
     # TODO - fix this after the switch to CGI::Application::Server
-    return $url;
+    #return $url;
 
     $url =~ s/^\///;
-    return catfile('', $Smolder::VERSION, $url);
+    return $url;
 }
 
 =head2 add_message
