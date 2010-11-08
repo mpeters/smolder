@@ -421,7 +421,7 @@ sub upload_report {
     # send an email to all the user's who want this report
     $report->_send_emails($results);
 
-    # move the tmp file to it's real destination
+    # move the tmp file to its real destination
     my $dest = $report->file;
     my $out_fh;
     if ($file =~ /\.gz$/ or $file =~ /\.zip$/) {

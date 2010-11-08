@@ -29,12 +29,12 @@ Please see L<Smolder::Manual> for how to use it.
 
 =item * Self contained web application
 
-Smolder has it's own built-in HTTP server (Net::Server) and database (SQLite).
+Smolder has its own built-in HTTP server (Net::Server) and database (SQLite).
 
 =item * Standard Format
 
 Smolder uses L<TAP|http://en.wikipedia.org/wiki/Test_Anything_Protocol> and TAP Archives
-as it's reporting format. See L<Smolder::Manual> for more details.
+as its reporting format. See L<Smolder::Manual> for more details.
 
 =item * Multiple Notification Channels
 

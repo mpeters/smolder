@@ -85,7 +85,7 @@ seconds (seconds since 01/01/1970).
 
 =item * stop_time
 
-The time the test suite finished it's run. This time is given in epoch
+The time the test suite finished its run. This time is given in epoch
 seconds (seconds since 01/01/1970).
 
 =back
