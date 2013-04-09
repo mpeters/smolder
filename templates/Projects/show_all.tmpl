@@ -10,7 +10,7 @@
       <ul>
         <li><a href="/app/projects/add_report/[% project.id %]">Add Smoke Report</a></li>
         <li><a href="/app/projects/smoke_reports/[% project.id %]">Most Recent Smoke Tests</a></li>
-        <li><a href="/app/developer_graphs/start/[% project.id %]">Progress Graphs</a></li>
+        <li><a href="/app/graphs/start/[% project.id %]">Progress Graphs</a></li>
         [% IF project.is_admin(c.developer) %]
         <li><a href="/app/projects/admin_settings/[% project.id %]">Project Settings</a></li>
         [% END %]
