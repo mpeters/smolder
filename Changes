@@ -1,8 +1,9 @@
 Revision history for Smolder
 
 1.52
-    + Fixed broken link for progess graphs on public projects - K. McDaniel
-
+    + Fixed broken link(s) for progess graphs on project listing pages - K. McDaniel
+    + Fixed broken link to the full report within the smoke report e-mail(s) - K. McDaniel
+    
 1.51
     + Fixed problem on machines with multiple IP addresses and other services bound to port 80 on different IPs - M. Peters
     + Another go at using images in POD - M. Peters
