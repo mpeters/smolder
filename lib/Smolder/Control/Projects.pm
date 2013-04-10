@@ -813,8 +813,7 @@ sub feed {
     foreach my $report (@reports) {
         my $link =
             Smolder::Util::url_base() . '/app/'
-          . ($project->public ? 'public' : 'developer')
-          . '_projects/smoke_report/'
+          . 'projects/smoke_report/'
           . $report->id;
         $feed->add_entry(
             title => '#'

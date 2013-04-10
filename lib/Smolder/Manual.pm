@@ -182,7 +182,7 @@ Or you can use the C<LWP> Perl library directly (and there's probably a way
 to do it just using C<curl> from the command line.
 
     LWP::UserAgent->new()->post(
-        'http://smolder.project.org/app/developer_projects/add_report/$project_id',
+        'http://smolder.project.org/app/projects/add_report/$project_id',
         Content_Type => 'form-data',
         Content      => [
             architecture => '386',
