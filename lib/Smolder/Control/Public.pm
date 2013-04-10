@@ -42,7 +42,7 @@ sub welcome {
     my $self = shift;
     if (my $project_id = Smolder::Conf->get('AutoRedirectToProject')) {
         $self->header_type('redirect');
-        $self->header_add( -uri => "/app/public_projects/smoke_reports/$project_id" );
+        $self->header_add( -uri => "/app/projects/smoke_reports/$project_id" );
         return "redirecting";
     }
     else {
