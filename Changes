@@ -3,10 +3,10 @@ Revision history for Smolder
 1.52
     + Modifed subject line in smoke report e-mail to display more detail - P. Leonard, K. McDaniel 
     + Fixed broken link(s) for progess graphs on project listing pages - K. McDaniel
-    + Fixed broken link to the full report within the smoke report e-mail(s) - K. McDaniel
-    + Fixed RT #55514 by removing references of developer_X and public_X within the URLs - P. Leonard
+    + Fixed broken link to the full report within the smoke report e-mail(s) - P. Leonard, K. McDaniel
     + Fixed auto completion for platform and architecture fields when submitting a new smoke report - P. Leonard
- 
+    + Fixed RT #55514 by removing references of developer_X and public_X within the URLs - P. Leonard
+    + Fixed RT #84077 by enabling the skip field to be charted on the progress graphs - K. McDaniel
 1.51
     + Fixed problem on machines with multiple IP addresses and other services bound to port 80 on different IPs - M. Peters
     + Another go at using images in POD - M. Peters
