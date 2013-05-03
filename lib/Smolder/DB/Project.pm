@@ -341,7 +341,7 @@ sub report_graph_data {
     }
 
     # add optional args
-    foreach my $extra_param qw(architecture platform) {
+    foreach my $extra_param (qw(architecture platform)) {
         if ($args{$extra_param}) {
             $sql .= " AND sr.$extra_param = ? ";
             push(@bind_cols, $args{$extra_param});

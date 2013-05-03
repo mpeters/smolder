@@ -141,7 +141,7 @@ sub image {
         stop  => $stop,
     );
 
-    foreach my $extra_param qw(tag architecture platform) {
+    foreach my $extra_param (qw(tag architecture platform)) {
         $search_params{$extra_param} = $query->param($extra_param)
           if ($query->param($extra_param));
     }
