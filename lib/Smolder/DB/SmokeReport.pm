@@ -608,7 +608,7 @@ sub update_from_tap_archive {
     # if they weren't provided during the upload
     if ($meta->{extra_properties}) {
         foreach my $k (keys %{$meta->{extra_properties}}) {
-            foreach my $field qw(architecture platform comments) {
+            foreach my $field (qw(architecture platform comments)) {
                 if (lc($k) eq $field && !$self->get($field)) {
                     $self->set($field => delete $meta->{extra_properties}->{$k});
                     last;

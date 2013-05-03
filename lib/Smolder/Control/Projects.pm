@@ -579,7 +579,7 @@ sub process_admin_settings {
     my $valid = $results->valid();
 
     # set and save
-    foreach my $field qw(allow_anon default_arch default_platform graph_start) {
+    foreach my $field (qw(allow_anon default_arch default_platform graph_start)) {
         $project->$field($valid->{$field});
     }
     $project->update();
