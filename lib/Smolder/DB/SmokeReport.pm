@@ -230,13 +230,17 @@ sub _slurp_file {
 sub _send_emails {
     my ($self, $results) = @_;
 
+    # determine the appropriate status for the e-mail
+    my $status = ( $self->failed() ? "FAILURE" : "SUCCESS" );
+       $status = "WARNING" if( $self->skip >  0 ); 
+       $status = "ABORTED" if( $self->skip == $self->pass );
     # setup some stuff for the emails that we only need to do once
     my $subject = sprintf("Smolder - [%s] %i files ( %i/%i ) : %s",
                           $self->project->name,
                           $self->test_files,
-                          $self->pass,
+                          int( $self->pass - $self->skip ),
                           $self->total,
-                          ( $self->failed() ? "FAILURE" : "SUCCESS" ));
+                          $status );
 
     my $matrix = Smolder::TAPHTMLMatrix->new(
         smoke_report => $self,
