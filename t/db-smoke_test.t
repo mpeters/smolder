@@ -74,7 +74,7 @@ is(ref $html, 'SCALAR');
 contains_string($$html, '<table', 'just looking for an HTML tag');
 ok(-e $html_file, 'HTML file saved to disk');
 
-# make sure that each test file has it's own HTML file too
+# make sure that each test file has its own HTML file too
 for (0 .. ($report->test_files - 1)) {
     ok(-e catfile($report->data_dir, 'html', "$_.html"), "Test $_ has HTML file");
 }
